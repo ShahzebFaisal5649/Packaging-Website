@@ -3,11 +3,10 @@ import { useScrollShadow } from '../../hooks/useScrollShadow';
 import styles from './Navbar.module.css';
 
 const NAV_LINKS = [
-  { label: 'Categories',       href: '/categories' },
-  { label: 'How it works',     href: '/how-it-works' },
-  { label: 'Find a designer',  href: '/designers' },
-  { label: 'Inspiration',      href: '/inspiration' },
-  { label: 'Studio',           href: '/studio' },
+  { label: 'Home',               href: '/' },
+  { label: 'Categories',         href: '/categories' },
+  { label: 'How it works',       href: '/how-it-works' },
+  { label: 'Custom Box Design',  href: '/box-design' },
 ];
 
 export default function Navbar() {

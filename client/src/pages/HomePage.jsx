@@ -37,11 +37,11 @@ const SLIDES = [
 
 /* ─── Category tiles ────────────────────────────────────────────────────── */
 const CAT_TILES = [
-  { label: 'Logo & branding design',     href: '/categories', img: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?w=300&q=75&auto=format' },
-  { label: 'Website & app design',        href: '/categories', img: 'https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?w=300&q=75&auto=format' },
-  { label: 'Business & advertising',      href: '/categories', img: 'https://images.unsplash.com/photo-1542744094-3a31f272c490?w=300&q=75&auto=format' },
-  { label: 'Art & illustration',           href: '/categories', img: 'https://images.unsplash.com/photo-1561214115-f2f134cc4912?w=300&q=75&auto=format' },
-  { label: 'Packaging & label',           href: '/categories', img: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=300&q=75&auto=format' },
+  { label: 'Logo & branding design',     href: '/categories?tab=logo-identity',        img: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?w=300&q=75&auto=format' },
+  { label: 'Website & app design',        href: '/categories?tab=web-app-design',       img: 'https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?w=300&q=75&auto=format' },
+  { label: 'Business & advertising',      href: '/categories?tab=business-advertising', img: 'https://images.unsplash.com/photo-1542744094-3a31f272c490?w=300&q=75&auto=format' },
+  { label: 'Art & illustration',           href: '/categories?tab=art-illustration',    img: 'https://images.unsplash.com/photo-1561214115-f2f134cc4912?w=300&q=75&auto=format' },
+  { label: 'Packaging & label',           href: '/categories?tab=packaging-label',      img: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=300&q=75&auto=format' },
 ];
 
 /* ─── Designer profiles ─────────────────────────────────────────────────── */
@@ -299,8 +299,13 @@ export default function HomePage() {
 
             <div className={styles.popular}>
               <span className={styles.popularLabel}>Popular:</span>
-              {['Logo design', 'Website', 'Branding'].map((tag) => (
-                <a key={tag} href="/categories" className={styles.popularTag}>{tag}</a>
+              {[
+                { label: 'Logo design', href: '/categories?tab=logo-identity' },
+                { label: 'Website',     href: '/categories?tab=web-app-design' },
+                { label: 'Branding',    href: '/categories?tab=logo-identity' },
+                { label: 'Packaging',   href: '/categories?tab=packaging-label' },
+              ].map((tag) => (
+                <a key={tag.label} href={tag.href} className={styles.popularTag}>{tag.label}</a>
               ))}
             </div>
           </div>
@@ -357,7 +362,7 @@ export default function HomePage() {
           <div className="container">
             <h2 className={styles.catSectionTitle} id="logo-title">It all starts with a logo</h2>
             <div className={styles.logoInner}>
-              <a href="/categories" className={styles.logoCard}>
+              <a href="/categories?tab=logo-identity" className={styles.logoCard}>
                 <img className={styles.logoCardBg} src="https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=700&q=80&auto=format" alt="Logo design contest" loading="lazy" decoding="async"/>
                 <div className={styles.logoCardOverlay}/>
                 <div className={styles.logoCardContent}>
@@ -367,7 +372,7 @@ export default function HomePage() {
                   <span className={styles.logoCardBtn}>Start a contest</span>
                 </div>
               </a>
-              <a href="/categories" className={styles.logoCard}>
+              <a href="/categories?tab=logo-identity" className={styles.logoCard}>
                 <img className={styles.logoCardBg} src="https://images.unsplash.com/photo-1558655146-d09347e92766?w=700&q=80&auto=format" alt="Hire a logo designer" loading="lazy" decoding="async"/>
                 <div className={styles.logoCardOverlay}/>
                 <div className={styles.logoCardContent}>
