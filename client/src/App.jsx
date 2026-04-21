@@ -4,6 +4,7 @@ import { CategoriesProvider } from './context/CategoriesContext';
 import HomePage from './pages/HomePage';
 import CategoriesPage from './pages/CategoriesPage';
 import BoxDesignPage from './pages/BoxDesignPage';
+import HowItWorksPage from './pages/HowItWorksPage';
 
 export default function App() {
   const { path } = useRoute();
@@ -18,6 +19,10 @@ export default function App() {
 
   if (path === '/box-design') {
     return <BoxDesignPage />;
+  }
+
+  if (path === '/how-it-works') {
+    return <HowItWorksPage />;
   }
 
   // All other paths fall back to HomePage
