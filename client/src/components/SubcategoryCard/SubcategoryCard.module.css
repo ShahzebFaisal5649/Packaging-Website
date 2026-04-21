@@ -1,0 +1,124 @@
+.card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 18px 20px 18px 24px;
+  border-bottom: 1px solid var(--color-border-light);
+  text-decoration: none;
+  color: inherit;
+  transition: background-color var(--transition-fast);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.card:last-child {
+  border-bottom: none;
+}
+
+.card:hover {
+  background-color: var(--color-bg-card-hover);
+}
+
+/* Bundle card has a distinct background */
+.card.bundle {
+  background-color: #fffbf8;
+}
+
+.card.bundle:hover {
+  background-color: #fff5ee;
+}
+
+/* Left: text content */
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
+}
+
+.title {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  line-height: 1.3;
+}
+
+.price {
+  margin-bottom: 4px;
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  font-weight: 400;
+}
+
+.description {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+
+/* Bundle feature list */
+.features {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.feature {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.checkIcon {
+  width: 14px;
+  height: 14px;
+  color: var(--color-save);
+  flex-shrink: 0;
+}
+
+/* Right: arrow icon — hidden by default, slides in on hover */
+.arrow {
+  display: flex;
+  align-items: center;
+  align-self: center;
+  opacity: 0;
+  transform: translateX(-6px);
+  transition:
+    opacity var(--transition-base),
+    transform var(--transition-base);
+  flex-shrink: 0;
+  margin-left: 8px;
+  color: var(--color-text-secondary);
+}
+
+.card:hover .arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Badge positioned top-right */
+.badgeWrap {
+  flex-shrink: 0;
+  align-self: flex-start;
+  padding-top: 2px;
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: 14px 16px;
+  }
+
+  .title {
+    font-size: var(--font-size-md);
+  }
+}

@@ -1,0 +1,144 @@
+.footer {
+  background: #fff;
+  border-top: 1px solid #e8e8e8;
+  padding: 56px 0 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+  padding-bottom: 48px;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.column {}
+
+.heading {
+  font-size: 11px;
+  font-weight: 700;
+  color: #1a1a1a;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+}
+
+.links {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.link {
+  font-size: 14px;
+  color: #555;
+  text-decoration: none;
+  transition: color 150ms ease;
+  line-height: 1.4;
+}
+
+.link:hover { color: #1a1a1a; }
+
+/* ── Bottom bar ── */
+.bottom {
+  padding: 20px 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.bottomLeft {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.copyright {
+  font-size: 13px;
+  color: #888;
+}
+
+.legal {
+  display: flex;
+  gap: 16px;
+}
+
+.legalLink {
+  font-size: 13px;
+  color: #888;
+  text-decoration: none;
+  transition: color 150ms ease;
+}
+
+.legalLink:hover { color: #1a1a1a; }
+
+.bottomRight {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+/* Language switcher */
+.langSwitch {
+  display: flex;
+  gap: 2px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.langBtn {
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #555;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-family);
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.langBtn:hover { background: #f5f5f5; }
+
+.langActive {
+  background: #1a1a1a !important;
+  color: #fff !important;
+}
+
+/* Social icons */
+.social {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.socialIcon {
+  color: #aaa;
+  display: flex;
+  align-items: center;
+  transition: color 150ms ease, transform 150ms ease;
+}
+
+.socialIcon:hover {
+  color: #1a1a1a;
+  transform: translateY(-2px);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 600px) {
+  .grid { grid-template-columns: 1fr; gap: 28px; }
+  .bottom { flex-direction: column; align-items: flex-start; }
+  .bottomLeft { flex-direction: column; gap: 10px; }
+}
