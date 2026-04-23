@@ -1,0 +1,61 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Poppins', system-ui, sans-serif;
+    color: #1A1A2E;
+    background: #fff;
+    -webkit-font-smoothing: antialiased;
+  }
+  #root { min-height: 100vh; }
+}
+
+@layer utilities {
+  /* Gradient helpers */
+  .gradient-blue {
+    background: linear-gradient(135deg, #1B3F6A 0%, #2a5fa0 100%);
+  }
+  .gradient-orange {
+    background: linear-gradient(135deg, #F47920 0%, #f59344 100%);
+  }
+
+  /* Card hover */
+  .card-hover {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(27,63,106,0.15);
+  }
+
+  /* Mega dropdown */
+  .mega-dropdown {
+    transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
+  }
+
+  /* Section spacing utility */
+  .section-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 py-16;
+  }
+}
+
+/* Wave SVG divider helper */
+.wave-divider svg { display: block; }
+
+/* Announcement bar cycling — CSS-only with animation-delay stagger */
+.announce-msg { animation: none; }
+
+/* Smooth number spin-box */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button { opacity: 1; }
+
+/* Scrollbar styling for configurator panels */
+.cfg-scroll::-webkit-scrollbar { width: 4px; }
+.cfg-scroll::-webkit-scrollbar-track { background: transparent; }
+.cfg-scroll::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 2px; }
