@@ -5,6 +5,7 @@ import HomePage from './pages/HomePage';
 import CategoriesPage from './pages/CategoriesPage';
 import BoxDesignPage from './pages/BoxDesignPage';
 import HowItWorksPage from './pages/HowItWorksPage';
+import ContestsPage from './pages/ContestsPage';
 
 export default function App() {
   const { path } = useRoute();
@@ -23,6 +24,10 @@ export default function App() {
 
   if (path === '/how-it-works') {
     return <HowItWorksPage />;
+  }
+
+  if (path === '/contests') {
+    return <ContestsPage />;
   }
 
   // All other paths fall back to HomePage

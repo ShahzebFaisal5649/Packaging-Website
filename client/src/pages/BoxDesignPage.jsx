@@ -15,18 +15,30 @@ const HERO_SLIDES = [
   },
 ];
 
-const INFO_CARDS = [
+const CREATIVE_CARDS = [
   {
     title: 'Run a box design contest',
     desc: 'Designers from around the world enter your contest by sending you ideas. You give feedback to create the ideal box design.',
+    link: '/contests',
+    linkText: 'Start a contest',
+    charImg: '/bear-ab1ac269f5.png',
+    charType: 'right',
   },
   {
     title: 'Hire a professional packaging designer',
     desc: "Tell us what you're looking for and we'll match you with the perfect design partner. Or, if you'd prefer, browse portfolios and pick your own.",
+    link: '/categories?tab=packaging-label',
+    linkText: 'Find a designer',
+    charImg: '/lentils-bc4d8c11f3.png',
+    charType: 'bottom',
   },
   {
     title: "We're your creative partner",
     desc: "No matter how you choose to work, rest assured you're working with the best. All of our designers are hand-vetted and rated, and our team provides 24/7 support.",
+    link: '/how-it-works',
+    linkText: 'Learn more',
+    charImg: '/bird-96e205676a.png',
+    charType: 'top',
   },
 ];
 
@@ -166,21 +178,127 @@ const GALLERY_IMGS = [
   'https://images-platform.99static.com//Yen-lGjdqUZBNNW_0B0LlIkxwF8=/400x400/99designs-contests-attachments/73/73382/attachment_73382792',
 ];
 
-const STYLE_IMAGES = [
-  { src: 'https://images-platform.99static.com//BUQGzZi2NY7AMZ56Wf1jHD0AT5A=/400x400/99designs-contests-attachments/75/75916/attachment_75916058', label: 'Minimalist' },
-  { src: 'https://images-platform.99static.com//I2IDCrbaxbCuPLEo-j7Qh96yrjE=/400x400/99designs-contests-attachments/89/89372/attachment_89372520', label: 'Bold & Vibrant' },
-  { src: 'https://images-platform.99static.com//EY3Vxpo_9d7_EI6x-_tBKVb2IWI=/400x400/99designs-work-samples/work-sample-designs/3243158/76fdb2c5-f6ed-4a10-bce5-6c12de96ca13', label: 'Artisan & Craft' },
-  { src: 'https://images-platform.99static.com//ygw5ty5igIfPIOhWoOhZ5FJgmqQ=/400x400/projects-files/206/20628/2062862/a3fd5610-d155-4be5-a814-20ba711ba0a0.jpg', label: 'Premium & Luxury' },
+const CONTEST_CARDS = [
+  {
+    id: 'c1',
+    title: 'Custom beef jerky packaging & labeling',
+    price: 'US$799',
+    desc: 'Premium beef jerky brand needs standout packaging that communicates quality, heritage, and bold flavor.',
+    imgs: [
+      'https://images-platform.99static.com//Yen-lGjdqUZBNNW_0B0LlIkxwF8=/400x400/99designs-contests-attachments/73/73382/attachment_73382792',
+      'https://images-platform.99static.com//BUQGzZi2NY7AMZ56Wf1jHD0AT5A=/400x400/99designs-contests-attachments/75/75916/attachment_75916058',
+      'https://images-platform.99static.com//I2IDCrbaxbCuPLEo-j7Qh96yrjE=/400x400/99designs-contests-attachments/89/89372/attachment_89372520',
+    ],
+    entries: 134, designers: 19,
+  },
+  {
+    id: 'c2',
+    title: 'Luxury cosmetics packaging for skincare line',
+    price: 'US$1,299',
+    desc: 'High-end skincare brand looking for elegant, minimalist packaging that conveys luxury and sustainability.',
+    imgs: [
+      'https://images-platform.99static.com//ZRt2e3EfC9zwhnfj-iNG1Tk0ppE=/400x400/99designs-work-samples/work-sample-designs/1315030/dda0b22d-e2d6-40d2-8425-84511f0f5cac',
+      'https://images-platform.99static.com//5_U-0mQk-dKKnhUhV2yc1tiwrmI=/400x400/99designs-work-samples/work-sample-designs/1315030/fcc527bb-ced2-4c83-9408-930c69492e82',
+      'https://images-platform.99static.com//EY3Vxpo_9d7_EI6x-_tBKVb2IWI=/400x400/99designs-work-samples/work-sample-designs/3243158/76fdb2c5-f6ed-4a10-bce5-6c12de96ca13',
+    ],
+    entries: 89, designers: 27,
+  },
+  {
+    id: 'c3',
+    title: 'Artisan coffee subscription box design',
+    price: 'US$599',
+    desc: 'Monthly coffee subscription box needs to feel warm, artisanal, and inviting. Must stand out on Instagram.',
+    imgs: [
+      'https://images-platform.99static.com//ygw5ty5igIfPIOhWoOhZ5FJgmqQ=/400x400/projects-files/206/20628/2062862/a3fd5610-d155-4be5-a814-20ba711ba0a0.jpg',
+      'https://images-platform.99static.com//KrnkmKQ5lmpmvQKD_bWzVchuEdY=/400x400/projects-files/200/20048/2004882/11810bcf-91d4-4879-8f95-1dcebce7f9bc.jpeg',
+      'https://images-platform.99static.com//NT0wxaLHZBox1j7M5fUjV3mV4Jo=/400x400/99designs-contests-attachments/77/77921/attachment_77921502',
+    ],
+    entries: 112, designers: 31,
+  },
+  {
+    id: 'c4',
+    title: 'Craft gin bottle and box packaging',
+    price: 'US$999',
+    desc: 'Small-batch gin distillery needs premium, luxurious packaging that tells our botanical story.',
+    imgs: [
+      'https://images-platform.99static.com//I2IDCrbaxbCuPLEo-j7Qh96yrjE=/400x400/99designs-contests-attachments/89/89372/attachment_89372520',
+      'https://images-platform.99static.com//gHmbJC-LzfTrszdsr3yJ6ufNmlQ=/400x400/99designs-work-samples/work-sample-designs/1465010/66bb153e-6755-4100-a159-374fd8df2cbb',
+      'https://images-platform.99static.com//BUQGzZi2NY7AMZ56Wf1jHD0AT5A=/400x400/99designs-contests-attachments/75/75916/attachment_75916058',
+    ],
+    entries: 76, designers: 22,
+  },
+  {
+    id: 'c5',
+    title: 'Organic snack bar packaging redesign',
+    price: 'US$449',
+    desc: 'Healthy snack brand refreshing its look. Need clean, modern design that communicates natural ingredients.',
+    imgs: [
+      'https://images-platform.99static.com//u2eV1Pn1_UMSdaAJnFRpFtLOFJk=/400x400/99designs-contests-attachments/108/108022/attachment_108022726',
+      'https://images-platform.99static.com//EY3Vxpo_9d7_EI6x-_tBKVb2IWI=/400x400/99designs-work-samples/work-sample-designs/3243158/76fdb2c5-f6ed-4a10-bce5-6c12de96ca13',
+      'https://images-platform.99static.com//ZRt2e3EfC9zwhnfj-iNG1Tk0ppE=/400x400/99designs-work-samples/work-sample-designs/1315030/dda0b22d-e2d6-40d2-8425-84511f0f5cac',
+    ],
+    entries: 68, designers: 18,
+  },
+  {
+    id: 'c6',
+    title: 'Popcorn brand packaging for retail shelves',
+    price: 'US$549',
+    desc: 'Gourmet popcorn company needs eye-catching retail packaging that pops on the shelf and appeals to all ages.',
+    imgs: [
+      'https://images-platform.99static.com//KrnkmKQ5lmpmvQKD_bWzVchuEdY=/400x400/projects-files/200/20048/2004882/11810bcf-91d4-4879-8f95-1dcebce7f9bc.jpeg',
+      'https://images-platform.99static.com//ygw5ty5igIfPIOhWoOhZ5FJgmqQ=/400x400/projects-files/206/20628/2062862/a3fd5610-d155-4be5-a814-20ba711ba0a0.jpg',
+      'https://images-platform.99static.com//5_U-0mQk-dKKnhUhV2yc1tiwrmI=/400x400/99designs-work-samples/work-sample-designs/1315030/fcc527bb-ced2-4c83-9408-930c69492e82',
+    ],
+    entries: 93, designers: 25,
+  },
+];
+
+const PRICING_TIERS = ['Bronze', 'Silver', 'Gold', 'Platinum'];
+const PRICING_PRICES = ['US$449', 'US$749', 'US$1,199', 'US$1,699'];
+const PRICING_ROWS = [
+  { feature: 'Design concepts (approx.)', values: ['30', '40', '90', '40'] },
+  { feature: '100% money-back guarantee', values: [true, true, true, true] },
+  { feature: 'Full copyright ownership', values: [true, true, true, true] },
+  { feature: 'Mid & Top Level designers only', values: [false, true, true, true] },
+  { feature: 'Top Level designers only', values: [false, false, false, true] },
+  { feature: 'Dedicated manager', values: [false, false, true, true] },
+  { feature: 'Prioritized support', values: [false, false, true, true] },
+];
+
+const LEARNING = [
+  {
+    title: '9 tips for better packaging design',
+    desc: 'Here are 9 insider tips to help you create outstanding packaging design.',
+    img: 'https://images-platform.99static.com//ygw5ty5igIfPIOhWoOhZ5FJgmqQ=/400x400/projects-files/206/20628/2062862/a3fd5610-d155-4be5-a814-20ba711ba0a0.jpg',
+    href: '#', author: 'Martis Lupus', cta: 'Discover packaging tips',
+  },
+  {
+    title: 'How to design product packaging',
+    desc: 'Discover packaging tips. Learn the ins-and-outs of product packaging design with this ultimate guide.',
+    img: 'https://images-platform.99static.com//EY3Vxpo_9d7_EI6x-_tBKVb2IWI=/400x400/99designs-work-samples/work-sample-designs/3243158/76fdb2c5-f6ed-4a10-bce5-6c12de96ca13',
+    href: '#', author: 'Imeeoo8', cta: 'Learn about packaging design',
+  },
+  {
+    title: 'The top packaging trends',
+    desc: 'Discover the stunning packaging trends that will be dominating the industry this year.',
+    img: 'https://images-platform.99static.com//BUQGzZi2NY7AMZ56Wf1jHD0AT5A=/400x400/99designs-contests-attachments/75/75916/attachment_75916058',
+    href: '#', author: 'Terry Bogard', cta: 'Make me trendy',
+  },
 ];
 
 const FAQS = [
-  { q: 'How much does box design cost?', a: 'Box design starts from US$449 for a design contest where you receive dozens of concepts from top designers. For 1-to-1 projects you can hire a designer starting from US$299. Pricing includes full copyright of the final design.' },
-  { q: 'What files will I receive for my box design?', a: 'You will receive all source files including AI, EPS, PDF, and PNG formats. Files are delivered print-ready at the correct resolution, with bleed and crop marks included so you can send directly to any print supplier.' },
-  { q: 'How long does a box design project take?', a: 'Design contests typically run for 7 days and you begin receiving concepts within the first 24 hours. 1-to-1 projects vary by designer and scope, but most packaging projects are completed within 5–14 business days.' },
-  { q: 'Can I get a box design for any type of product?', a: 'Absolutely. Our designers specialise across all categories including food & beverage, cosmetics, electronics, apparel, subscription boxes, retail packaging, and more.' },
-  { q: 'What if I am not happy with the designs I receive?', a: 'We offer a money-back guarantee on all design contests. If you are not satisfied with the quality of designs you receive, we will refund your entry fee in full — no questions asked.' },
-  { q: 'Do I own the copyright of the box design?', a: 'Yes. Once you select a winner and release the prize, full copyright is transferred to you. You own the design outright and can use it anywhere, forever.' },
-  { q: 'Can designers create packaging dielines?', a: 'Many of our packaging designers can work with dielines. You can request this in your brief, and designers will confirm if they can deliver the specific format you need.' },
+  { q: 'How does a box design contest work?', a: "Start by writing a brief that describes your brand and your box design vision. Once you launch the contest, dozens of designers from around the world submit unique concepts. You give feedback, and at the end of the contest you pick your favorite. You'll receive all the files and full copyright transfer." },
+  { q: 'How do I start a box design project with a designer?', a: "Browse our marketplace to find a designer whose style you love, then invite them to a project. Or let us match you with the right designer for your brief. You'll work together directly, giving feedback and refining your design until it's perfect." },
+  { q: 'How many box design concepts will I receive?', a: "The number of concepts depends on your price package. Bronze packages receive approximately 30 concepts, Silver 40, Gold up to 90, and Platinum around 40 guaranteed from top-tier designers. All packages include unlimited revisions from your chosen designer." },
+  { q: 'Who are the designers creating my box design?', a: "Our global community includes over one million designers from more than 190 countries. Each designer is vetted and rated by our team and by clients. You'll see their reviews and portfolios so you can choose with confidence." },
+  { q: 'Is my box design idea confidential?', a: "Yes. Our designers agree to keep your project details confidential. You can also add an NDA to your contest for extra protection, ensuring that none of the submitted concepts can be used by the designers after your contest ends." },
+  { q: 'What files will I receive?', a: "You'll receive the final design in print-ready formats, typically Adobe Illustrator (.ai), EPS, and PDF files. You'll also get web preview formats in PNG and JPEG. All files come with full copyright transfer so you can use them however you need." },
+  { q: 'Should I run a box design contest or hire a freelancer?', a: "A contest is ideal if you want to explore many creative directions and see dozens of concepts before committing. Hiring a designer is better if you have a specific style in mind, want a more collaborative process, or prefer working directly with one person from brief to final file." },
+  { q: 'What type of box design do I need?', a: "The right box design depends on your product, industry, and retailer requirements. Common types include folding cartons, rigid boxes, mailer boxes, and pillow boxes. Our designers can work with any shape or style, and they'll ask about your specific requirements during the brief process." },
+  { q: 'What if I have more than one SKU or product variant?', a: "Many of our designers are experienced in creating packaging systems across multiple SKUs and variants. You can include your full product range in the brief, and the designer will propose a cohesive design system that works across all variants while differentiating each product clearly." },
+  { q: "I don't have a dieline template — is that okay?", a: "Absolutely. Many clients don't have one at the start. Designers can work from your box dimensions, and once you've chosen a winning design, they can produce print-ready artwork to fit a dieline template from your manufacturer or suggest standard sizes that work for your product." },
+  { q: 'Who owns the copyright of my box design?', a: "You do. Once you select a winner and the prize is awarded, full copyright transfers to you. You're legally entitled to use the design however you like. Any designs that weren't selected remain the property of their respective designers." },
+  { q: 'How do I protect my box design idea with an NDA?', a: "You can add a Non-Disclosure Agreement (NDA) to your contest during the setup process. All designers who enter must agree to the NDA before they can see your brief and submit designs. This protects your idea from being shared or reused outside of your contest." },
 ];
 
 /* ─── Star Rating ────────────────────────────────────────────────────────── */
@@ -198,6 +316,28 @@ function StarRating({ rating }) {
         );
       })}
     </span>
+  );
+}
+
+/* ─── Creative Card (character hover animation) ──────────────────────────── */
+function CreativeCard({ title, desc, link, linkText, charImg, charType }) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <div
+      className={styles.creativeCard}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <img
+        src={charImg}
+        alt=""
+        className={`${styles.creativeChar} ${styles[`creativeChar_${charType}`]} ${hovered ? styles.creativeCharVisible : ''}`}
+        aria-hidden="true"
+      />
+      <h3 className={styles.creativeCardTitle}>{title}</h3>
+      <p className={styles.creativeCardDesc}>{desc}</p>
+      <a href={link} className={styles.creativeCardLink}>{linkText}</a>
+    </div>
   );
 }
 
@@ -250,10 +390,10 @@ function DesignerCard({ d }) {
             ))}
           </div>
           <button className={`${styles.carouselBtn} ${styles.carouselBtnPrev}`} onClick={prev} aria-label="Previous">
-            <svg width="7" height="13" viewBox="0 0 7 13" fill="none"><path d="M6 1L1 6.5 6 12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            <svg width="7" height="13" viewBox="0 0 7 13" fill="none"><path d="M6 1L1 6.5 6 12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </button>
           <button className={`${styles.carouselBtn} ${styles.carouselBtnNext}`} onClick={next} aria-label="Next">
-            <svg width="7" height="13" viewBox="0 0 7 13" fill="none"><path d="M1 1l5 5.5L1 12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            <svg width="7" height="13" viewBox="0 0 7 13" fill="none"><path d="M1 1l5 5.5L1 12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </button>
         </div>
         <div className={styles.carouselDots}>
@@ -309,6 +449,62 @@ function DesignerSlider() {
   );
 }
 
+/* ─── Contest Slider (mouse-edge scrolling) ──────────────────────────────── */
+function ContestSlider() {
+  const containerRef = useRef(null);
+  const velRef = useRef(0);
+  const rafRef = useRef(null);
+
+  const onMouseMove = (e) => {
+    const rect = containerRef.current.getBoundingClientRect();
+    const pct = (e.clientX - rect.left) / rect.width;
+    if (pct < 0.12) velRef.current = -4;
+    else if (pct > 0.88) velRef.current = 4;
+    else velRef.current = 0;
+  };
+
+  useEffect(() => {
+    const tick = () => {
+      if (containerRef.current && velRef.current !== 0) {
+        containerRef.current.scrollLeft += velRef.current;
+      }
+      rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, []);
+
+  return (
+    <div
+      ref={containerRef}
+      className={styles.contestSlider}
+      onMouseMove={onMouseMove}
+      onMouseLeave={() => { velRef.current = 0; }}
+    >
+      <div className={styles.contestTrack}>
+        {CONTEST_CARDS.map((c) => (
+          <a key={c.id} href="/categories?tab=packaging-label" className={styles.contestCard}>
+            <div className={styles.contestCardTop}>
+              <div className={styles.contestCardTitle}>{c.title}</div>
+              <div className={styles.contestCardPrice}>{c.price}</div>
+              <div className={styles.contestCardDesc}>{c.desc}</div>
+            </div>
+            <div className={styles.contestCardImgs}>
+              {c.imgs.map((src, i) => (
+                <img key={i} src={src} alt="" loading="lazy" decoding="async" />
+              ))}
+            </div>
+            <div className={styles.contestCardStats}>
+              <span><strong>{c.entries}</strong> entries</span>
+              <span><strong>{c.designers}</strong> designers</span>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /* ─── Laptop Process ─────────────────────────────────────────────────────── */
 function ProcessLaptop({ step, onPrev, onNext }) {
   const s = PROCESS_STEPS[step];
@@ -316,19 +512,17 @@ function ProcessLaptop({ step, onPrev, onNext }) {
   return (
     <div className={styles.laptopOuter}>
       <button className={`${styles.laptopArrow} ${styles.laptopArrowLeft}`} onClick={onPrev} aria-label="Previous step">
-        <svg width="10" height="18" viewBox="0 0 10 18" fill="none"><path d="M9 1L1 9l8 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        <svg width="10" height="18" viewBox="0 0 10 18" fill="none"><path d="M9 1L1 9l8 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
       </button>
 
       <div className={styles.laptopWrapper}>
-        <div className={styles.laptopTop}>
+        <div className={styles.laptopLid}>
           <div className={styles.laptopCamera} />
           <div className={styles.laptopScreen}>
-            {/* Screen header */}
             <div className={styles.screenHeader} style={{ background: s.color }}>
               <span>{s.icon}</span> {s.screenTitle}
             </div>
 
-            {/* Screen body per step */}
             {step === 0 && (
               <div className={styles.screenBrief}>
                 <p className={styles.briefText}>We'd like a simple and timeless design</p>
@@ -344,8 +538,8 @@ function ProcessLaptop({ step, onPrev, onNext }) {
               <div className={styles.screenGallery}>
                 {GALLERY_IMGS.map((src, i) => (
                   <div key={i} className={styles.galleryThumb}>
-                    <img src={src} alt={`Design ${i + 4}`} />
-                    <div className={styles.galleryLabel}>#{i + 4} by designer</div>
+                    <img src={src} alt={`Design ${i + 1}`} />
+                    <div className={styles.galleryLabel}>#{i + 1} by designer</div>
                   </div>
                 ))}
               </div>
@@ -366,23 +560,16 @@ function ProcessLaptop({ step, onPrev, onNext }) {
             )}
           </div>
         </div>
-        <div className={styles.laptopBottom} />
-        <div className={styles.laptopBase} />
+        <div className={styles.laptopHinge} />
+        <div className={styles.laptopBase}>
+          <div className={styles.laptopTrackpad} />
+        </div>
       </div>
 
       <button className={`${styles.laptopArrow} ${styles.laptopArrowRight}`} onClick={onNext} aria-label="Next step">
-        <svg width="10" height="18" viewBox="0 0 10 18" fill="none"><path d="M1 1l8 8-8 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        <svg width="10" height="18" viewBox="0 0 10 18" fill="none"><path d="M1 1l8 8-8 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
       </button>
     </div>
-  );
-}
-
-/* ─── FAQ chevron ────────────────────────────────────────────────────────── */
-function Chevron({ open }) {
-  return (
-    <svg width="20" height="20" viewBox="0 0 22 22" fill="none" style={{ flexShrink: 0, color: open ? '#2d1b69' : '#888', transition: 'transform 300ms, color 150ms', transform: open ? 'rotate(180deg)' : 'none' }}>
-      <path d="M5 8l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
   );
 }
 
@@ -394,10 +581,19 @@ export default function BoxDesignPage() {
   const [procStep, setProcStep] = useState(0);
   const [openFaq, setOpenFaq] = useState(null);
   const heroTimer = useRef(null);
+  const laptopTimer = useRef(null);
 
   useEffect(() => {
     heroTimer.current = setInterval(() => setHeroIdx((i) => (i + 1) % HERO_SLIDES.length), 5000);
     return () => clearInterval(heroTimer.current);
+  }, []);
+
+  useEffect(() => {
+    laptopTimer.current = setInterval(
+      () => setProcStep((s) => (s + 1) % PROCESS_STEPS.length),
+      5000,
+    );
+    return () => clearInterval(laptopTimer.current);
   }, []);
 
   const goHero = (i) => {
@@ -406,19 +602,30 @@ export default function BoxDesignPage() {
     heroTimer.current = setInterval(() => setHeroIdx((j) => (j + 1) % HERO_SLIDES.length), 5000);
   };
 
-  const prevStep = () => setProcStep((s) => (s - 1 + PROCESS_STEPS.length) % PROCESS_STEPS.length);
-  const nextStep = () => setProcStep((s) => (s + 1) % PROCESS_STEPS.length);
+  const goStep = (i) => {
+    setProcStep(i);
+    clearInterval(laptopTimer.current);
+    laptopTimer.current = setInterval(
+      () => setProcStep((s) => (s + 1) % PROCESS_STEPS.length),
+      5000,
+    );
+  };
+
+  const prevStep = () => goStep((procStep - 1 + PROCESS_STEPS.length) % PROCESS_STEPS.length);
+  const nextStep = () => goStep((procStep + 1) % PROCESS_STEPS.length);
+
   const slide = HERO_SLIDES[heroIdx];
+
+  const faqLeft = FAQS.slice(0, Math.ceil(FAQS.length / 2));
+  const faqRight = FAQS.slice(Math.ceil(FAQS.length / 2));
 
   return (
     <div className={styles.page}>
       <Navbar />
 
       <main>
-        {/* ══ HERO + INFO CARDS (left image, right text+cards) ══════════════ */}
+        {/* ══ 1. HERO — left artwork, right text ═══════════════════════════ */}
         <div className={styles.pageTop}>
-
-          {/* LEFT — artwork carousel (spans full height of pageTop) */}
           <div className={styles.artworkCol}>
             {HERO_SLIDES.map((sl, i) => (
               <div key={i} className={`${styles.artSlide} ${i === heroIdx ? styles.artSlideActive : ''}`}>
@@ -428,10 +635,7 @@ export default function BoxDesignPage() {
             ))}
           </div>
 
-          {/* RIGHT — hero text then 3 info cards */}
           <div className={styles.rightCol}>
-
-            {/* Hero text */}
             <div className={styles.heroText}>
               <h1 className={styles.heroTitle} style={{ color: slide.color }}>
                 Custom box design for your brand
@@ -458,33 +662,10 @@ export default function BoxDesignPage() {
                 ))}
               </div>
             </div>
-
-            {/* 3 Info cards */}
-            <div className={styles.infoSection}>
-              <h2 className={styles.infoTitle}>
-                Custom box design: creative ideas from professional designers
-              </h2>
-              <div className={styles.infoDivider} />
-              <p className={styles.infoParagraph}>
-                There's no better platform to get a box design. With two ways to work, you get the design you want, in the manner that works best for you. No templates. No robots. No frustrating apps. Just a 100% unique box for your product.
-              </p>
-              <div className={styles.infoCards}>
-                {INFO_CARDS.map((card, i) => (
-                  <div key={i} className={`${styles.infoCard} ${i === heroIdx ? styles.infoCardActive : ''}`} style={i === heroIdx ? { borderColor: slide.color } : {}}>
-                    <h3 className={styles.infoCardTitle} style={i === heroIdx ? { color: slide.color } : {}}>
-                      {card.title}
-                    </h3>
-                    <p className={styles.infoCardDesc} style={i === heroIdx ? { color: slide.color } : {}}>
-                      {card.desc}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
         </div>
 
-        {/* ══ DESIGNERS ═════════════════════════════════════════════════════ */}
+        {/* ══ 2. DESIGNER SLIDER ═══════════════════════════════════════════ */}
         <section className={styles.designersSection} aria-labelledby="designers-title">
           <div className="container">
             <h2 className={styles.sectionTitle} id="designers-title">The right designer is just a click away</h2>
@@ -501,7 +682,25 @@ export default function BoxDesignPage() {
           </div>
         </section>
 
-        {/* ══ PROCESS ═══════════════════════════════════════════════════════ */}
+        {/* ══ 3. CREATIVE IDEAS — 3 cards with character animations ════════ */}
+        <section className={styles.creativeSection} aria-labelledby="creative-title">
+          <div className="container">
+            <h2 className={styles.sectionTitle} id="creative-title">
+              Custom box design: creative ideas from professional designers
+            </h2>
+            <div className={styles.infoDivider} style={{ margin: '12px 0 18px' }} />
+            <p className={styles.sectionSub} style={{ marginBottom: '36px' }}>
+              There's no better platform to get a box design. With two ways to work, you get the design you want, in the manner that works best for you. No templates. No robots. No frustrating apps. Just a 100% unique box for your product.
+            </p>
+            <div className={styles.creativeCards}>
+              {CREATIVE_CARDS.map((c) => (
+                <CreativeCard key={c.title} {...c} />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ══ 4. PROCESS — silver MacBook laptop, 3 slides, 5s auto-timer ═ */}
         <section className={styles.processSection} aria-labelledby="process-title">
           <div className="container">
             <h2 className={styles.sectionTitle} id="process-title">The box design process</h2>
@@ -511,9 +710,13 @@ export default function BoxDesignPage() {
 
             <div className={styles.processSteps}>
               {PROCESS_STEPS.map((s, i) => (
-                <button key={i} className={`${styles.processStep} ${i === procStep ? styles.processStepActive : ''}`} onClick={() => setProcStep(i)}>
+                <button
+                  key={i}
+                  className={`${styles.processStep} ${i === procStep ? styles.processStepActive : ''}`}
+                  onClick={() => goStep(i)}
+                >
                   <div className={styles.processIcon} style={i === procStep ? { color: s.color } : {}}>
-                    {i === 0 ? '✏' : i === 1 ? '⊞' : '♥'}
+                    {s.icon}
                   </div>
                   <h3 className={styles.processStepTitle} style={i === procStep ? { color: s.color } : {}}>
                     {i + 1}. {s.stepTitle}
@@ -525,46 +728,222 @@ export default function BoxDesignPage() {
           </div>
         </section>
 
-        {/* ══ STYLES SHOWCASE ═══════════════════════════════════════════════ */}
-        <section className={styles.stylesSection} aria-labelledby="styles-title">
+        {/* ══ 5. CATEGORY SLIDER — contest-card style ══════════════════════ */}
+        <section className={styles.categorySection} aria-labelledby="category-title">
           <div className="container">
-            <h2 className={styles.sectionTitle} id="styles-title">Any style, any industry. Our box designers do it all.</h2>
-            <div className={styles.stylesGrid}>
-              {STYLE_IMAGES.map((s) => (
-                <div key={s.label} className={styles.styleCard}>
-                  <img src={s.src} alt={s.label} className={styles.styleImg} loading="lazy" decoding="async" />
-                  <div className={styles.styleOverlay}><span className={styles.styleLabel}>{s.label}</span></div>
+            <h2 className={styles.sectionTitle} id="category-title">Any style, any industry. Our box designers do it all.</h2>
+            <div className={styles.infoDivider} style={{ margin: '12px 0 8px' }} />
+            <p className={styles.sectionSub} style={{ marginBottom: '0' }}>
+              Browse real box design contests and see what's possible when creativity meets expertise.
+            </p>
+          </div>
+          <ContestSlider />
+          <div className={styles.showMoreWrap}>
+            <a href="/contests" className={styles.showMoreLink}>
+              See more box design contests →
+            </a>
+          </div>
+        </section>
+
+        {/* ══ 6. TESTIMONIAL — white bg, product left, quote right ═════════ */}
+        <section className={styles.testimonialSection} aria-label="Client testimonial">
+          <div className="container">
+            <div className={styles.testimonialInner}>
+              <div className={styles.testimonialProductCol}>
+                <img
+                  src="https://images-platform.99static.com//Yen-lGjdqUZBNNW_0B0LlIkxwF8=/400x400/99designs-contests-attachments/73/73382/attachment_73382792"
+                  alt="Beef jerky packaging design"
+                  className={styles.testimonialProductImg}
+                  loading="lazy"
+                  decoding="async"
+                />
+                <p className={styles.testimonialByLine}>by ugmark</p>
+              </div>
+
+              <div className={styles.testimonialContent}>
+                <div className={styles.testimonialStarRow}>
+                  <StarRating rating="4.9" />
+                  <span className={styles.testimonialStarText}>
+                    Rated 4.9 / 5 — <a href="#" className={styles.testimonialStarLink}>15,892 reviews</a>
+                  </span>
                 </div>
+                <div className={styles.quoteMark}>"</div>
+                <h3 className={styles.testimonialHeadline}>It set me apart from the others.</h3>
+                <p className={styles.testimonialBody}>
+                  Getting all my design work completed on 99designs allowed me to move onto my first sales! Good packaging design is crucial to the overall success of my business.
+                </p>
+                <div className={styles.testimonialDivider} />
+                <div className={styles.testimonialPersonRow}>
+                  <div className={styles.testimonialAvatar}>D</div>
+                  <div>
+                    <div className={styles.testimonialName}>Dan Ford</div>
+                    <div className={styles.testimonialCompany}>Bald Rock Beef Jerky</div>
+                  </div>
+                </div>
+                <div className={styles.testimonialStats}>
+                  <span><strong>219</strong> designs</span>
+                  <div className={styles.statDivider} />
+                  <span><strong>19</strong> designers</span>
+                </div>
+                <a href="/categories?tab=packaging-label" className={styles.testimonialBtn}>
+                  Start a contest
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ══ 7. PRICING — HTML comparison table ═══════════════════════════ */}
+        <section className={styles.pricingSection} aria-labelledby="pricing-title">
+          <div className="container">
+            <h2 className={styles.sectionTitle} id="pricing-title">Professional box design, no matter your budget</h2>
+            <div className={styles.infoDivider} style={{ margin: '12px 0 16px' }} />
+            <p className={styles.pricingIntro}>
+              We guarantee that you'll get a great box design no matter what your budget is. If you hire a designer, you can negotiate a budget that works for both you and your designer. If you launch a contest, we offer four fixed-price options. Prices exclude Sales Tax.
+            </p>
+
+            <div className={styles.pricingTableWrap}>
+              <table className={styles.pricingTable}>
+                <thead>
+                  <tr>
+                    <th className={`${styles.ptTierHead} ${styles.ptFeatureCol}`} />
+                    {PRICING_TIERS.map((tier, ti) => (
+                      <th
+                        key={tier}
+                        className={`${styles.ptTierHead} ${ti === 2 ? styles.ptGoldCol : ''}`}
+                      >
+                        {tier}
+                        {ti === 2 && <div style={{ fontSize: '11px', fontWeight: 600, color: '#d4a017', marginTop: '3px' }}>Most popular</div>}
+                      </th>
+                    ))}
+                  </tr>
+                  <tr>
+                    <td className={`${styles.ptPriceCell} ${styles.ptFeatureCol}`} />
+                    {PRICING_PRICES.map((price, ti) => (
+                      <td key={price} className={`${styles.ptPriceCell} ${ti === 2 ? styles.ptGoldCol : ''}`}>
+                        {price}
+                      </td>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {PRICING_ROWS.map((row) => (
+                    <tr key={row.feature} className={styles.ptRow}>
+                      <td className={styles.ptFeature}>{row.feature}</td>
+                      {row.values.map((val, ti) => (
+                        <td key={ti} className={`${styles.ptCell} ${ti === 2 ? styles.ptGoldCol : ''}`}>
+                          {typeof val === 'boolean'
+                            ? val
+                              ? <span className={styles.ptCheck}>✓</span>
+                              : <span className={styles.ptDash}>—</span>
+                            : val}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                  <tr>
+                    <td className={styles.ptBtnCell} />
+                    {PRICING_TIERS.map((tier, ti) => (
+                      <td key={tier} className={`${styles.ptBtnCell} ${ti === 2 ? styles.ptGoldCol : ''}`}>
+                        <a
+                          href="/categories?tab=packaging-label"
+                          className={`${styles.tierBtn} ${ti === 2 ? styles.tierBtnGold : ''}`}
+                        >
+                          Start {tier}
+                        </a>
+                      </td>
+                    ))}
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        {/* ══ 8. LEARNING — 3 articles ══════════════════════════════════════ */}
+        <section className={styles.learningSection} aria-labelledby="learning-title">
+          <div className="container">
+            <h2 className={styles.sectionTitle} id="learning-title">Everything you need to know to create great packaging</h2>
+            <div className={styles.infoDivider} style={{ margin: '12px 0 32px' }} />
+            <div className={styles.learningGrid}>
+              {LEARNING.map((art) => (
+                <a key={art.title} href={art.href} className={styles.learningCard}>
+                  <div className={styles.learningImgWrap}>
+                    <img src={art.img} alt={art.title} className={styles.learningImg} loading="lazy" decoding="async" />
+                    <div className={styles.learningAuthorBar}>by {art.author}</div>
+                  </div>
+                  <div className={styles.learningBody}>
+                    <h3 className={styles.learningTitle}>{art.title}</h3>
+                    <p className={styles.learningDesc}>{art.desc}</p>
+                    <span className={styles.learningCta}>{art.cta} →</span>
+                  </div>
+                </a>
               ))}
             </div>
           </div>
         </section>
 
-        {/* ══ FAQ ═══════════════════════════════════════════════════════════ */}
+        {/* ══ 9. FAQ — 2-column, +/− icons ═════════════════════════════════ */}
         <section className={styles.faqSection} aria-labelledby="faq-title">
           <div className="container">
             <h2 className={styles.sectionTitle} id="faq-title">Your burning box design FAQs, answered.</h2>
-            <div className={styles.faqList}>
-              {FAQS.map((faq, i) => (
-                <div key={i} className={styles.faqItem}>
-                  <button className={styles.faqQuestion} onClick={() => setOpenFaq(openFaq === i ? null : i)} aria-expanded={openFaq === i}>
-                    {faq.q}<Chevron open={openFaq === i} />
-                  </button>
-                  <div className={`${styles.faqAnswer} ${openFaq === i ? styles.open : ''}`}><p>{faq.a}</p></div>
+            <div className={styles.infoDivider} style={{ margin: '12px 0 32px' }} />
+            <div className={styles.faqGrid}>
+              {[faqLeft, faqRight].map((col, ci) => (
+                <div key={ci} className={styles.faqCol}>
+                  {col.map((faq, li) => {
+                    const globalIdx = ci === 0 ? li : faqLeft.length + li;
+                    const isOpen = openFaq === globalIdx;
+                    return (
+                      <div key={globalIdx} className={styles.faqItem}>
+                        <button
+                          className={styles.faqQuestion}
+                          onClick={() => setOpenFaq(isOpen ? null : globalIdx)}
+                          aria-expanded={isOpen}
+                        >
+                          {faq.q}
+                          <span className={styles.faqToggle}>{isOpen ? '−' : '+'}</span>
+                        </button>
+                        <div className={`${styles.faqAnswer} ${isOpen ? styles.open : ''}`}>
+                          <p>{faq.a}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* ══ CTA BANNER ════════════════════════════════════════════════════ */}
-        <section className={styles.ctaBanner} aria-label="Get started">
+        {/* ══ 10. HELP — floating person image ═════════════════════════════ */}
+        <section className={styles.helpSection} aria-labelledby="help-title">
           <div className="container">
-            <h2 className={styles.ctaTitle}>Ready to create your perfect box design?</h2>
-            <p className={styles.ctaSub}>Join over 500,000 businesses that have trusted 99designs to bring their packaging vision to life.</p>
-            <div className={styles.ctaBtns}>
-              <a href="/categories?tab=packaging-label" className={styles.btnPrimary}>Start a design contest</a>
-              <a href="/categories?tab=packaging-label" className={styles.btnSecondary}>Browse designers</a>
+            <div className={styles.helpInner}>
+              <div className={styles.helpImgCol}>
+                <img
+                  src="/sitting%20man.png"
+                  alt="Design consultant"
+                  className={styles.helpPersonImg}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+              <div>
+                <h2 className={styles.helpTitle} id="help-title">
+                  We're here to help
+                </h2>
+                <p className={styles.helpBody}>
+                  Our smart and friendly client support team is available 24/7 to guide you through the creative process and answer all of your questions. Send us an email or call to speak with an actual human.
+                </p>
+                <div className={styles.helpActions}>
+                  <a href="tel:+18005131678" className={styles.helpPhone}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6.62 10.79a15.05 15.05 0 006.59 6.59l2.2-2.2a1 1 0 011.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 011 1V20a1 1 0 01-1 1C9.61 21 3 14.39 3 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.46.57 3.58a1 1 0 01-.24 1.01l-2.21 2.2z" fill="currentColor" /></svg>
+                    1 800 513 1678
+                  </a>
+                </div>
+                <a href="#" className={styles.helpConsult}>Book a free design consultation →</a>
+              </div>
             </div>
           </div>
         </section>
