@@ -1,53 +1,43 @@
-import { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Autoplay, Navigation } from 'swiper/modules';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import 'swiper/css';
+import 'swiper/css/navigation';
 
 const messages = [
-  { text: '⚡ Fast & Free Shipping On All Orders!', href: '/products' },
-  { text: '🎉 Get 10% Off Your First Order — Use Code: FIRST10', href: '/custom-box' },
-  { text: '📘 Free Ebook: Download Our Custom Packaging Buying Guide', href: '#' },
+  "Fast & Free Shipping On All Orders!",
+  "Get 10% Off Your First Order!",
+  "Free Ebook: Download Our Custom Packaging Buying Guide"
 ];
 
 export default function AnnouncementBar() {
-  const [visible, setVisible] = useState(true);
-  const [current, setCurrent] = useState(0);
-  const [fading, setFading] = useState(false);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setFading(true);
-      setTimeout(() => {
-        setCurrent((c) => (c + 1) % messages.length);
-        setFading(false);
-      }, 400);
-    }, 4000);
-    return () => clearInterval(timer);
-  }, []);
-
-  if (!visible) return null;
-
-  const msg = messages[current];
-
   return (
-    <div className="bg-[#1B3F6A] text-white text-sm relative">
-      <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-center">
-        <a
-          href={msg.href}
-          className="font-medium tracking-wide hover:text-[#F47920] transition-colors text-center"
-          style={{
-            opacity: fading ? 0 : 1,
-            transition: 'opacity 0.35s ease',
+    <div className="bg-brand-navy text-white text-[13px] py-2 relative group overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 relative">
+        <Swiper
+          modules={[Autoplay, Navigation]}
+          autoplay={{ delay: 3000, disableOnInteraction: false }}
+          loop={true}
+          navigation={{
+            prevEl: '.announce-prev',
+            nextEl: '.announce-next',
           }}
+          className="h-5"
         >
-          {msg.text}
-        </a>
+          {messages.map((msg, idx) => (
+            <SwiperSlide key={idx} className="flex items-center justify-center text-center font-bold tracking-wide uppercase">
+              {msg}
+            </SwiperSlide>
+          ))}
+        </Swiper>
+
+        <button className="announce-prev absolute left-4 top-1/2 -translate-y-1/2 z-10 opacity-60 hover:opacity-100 transition-opacity">
+          <ChevronLeft size={16} />
+        </button>
+        <button className="announce-next absolute right-4 top-1/2 -translate-y-1/2 z-10 opacity-60 hover:opacity-100 transition-opacity">
+          <ChevronRight size={16} />
+        </button>
       </div>
-      <button
-        onClick={() => setVisible(false)}
-        aria-label="Close"
-        className="absolute right-4 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors"
-      >
-        <X size={13} />
-      </button>
     </div>
   );
 }

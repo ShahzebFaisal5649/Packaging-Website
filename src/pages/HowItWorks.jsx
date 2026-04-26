@@ -5,7 +5,7 @@ import SectionLabel from '../components/SectionLabel';
 import CTABanner from '../components/CTABanner';
 
 const steps = [
-  { num: '01', Icon: MessageSquare, title: 'Get a Free Quote',
+  { num: '01', Icon: MessageSquare, title: 'Get a Custom Box',
     desc: 'Use our online box configurator or call our team to specify your dimensions, style, material, finish, and quantity for an instant price estimate.',
     tips: ['No account required', 'Instant pricing estimate', 'All box styles covered'] },
   { num: '02', Icon: Upload, title: 'Submit Your Artwork',

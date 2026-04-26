@@ -1,597 +1,640 @@
+import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Play, ArrowRight, Package, Clock, Award, Printer, DollarSign } from 'lucide-react';
-import SectionLabel from '../components/SectionLabel';
-import ProductCard from '../components/ProductCard';
-import FAQAccordion from '../components/FAQAccordion';
-import CTABanner from '../components/CTABanner';
-import { productCategories, blogPosts } from '../data';
+import {
+  ArrowRight, Package, Truck, Star, TrendingUp, ShieldCheck, Leaf, Zap,
+  Clock, Award, CheckCircle, ChevronRight, Box, Layers, Cpu, Recycle,
+  Play, Users, BarChart3, Sparkles, RefreshCw, MessageCircle, ChevronLeft,
+} from 'lucide-react';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 
-/* ─── animation preset ─────────────────────────────────── */
-const fadeUp = {
-  hidden:  { opacity: 0, y: 28 },
-  visible: (i = 0) => ({
-    opacity: 1, y: 0,
-    transition: { duration: 0.5, delay: i * 0.08, ease: 'easeOut' },
-  }),
-};
+import Hero from '../components/Hero';
+import TrendingProducts from '../components/TrendingProducts';
+import EmpoweringBrands from '../components/EmpoweringBrands';
 
-/* ─── data ──────────────────────────────────────────────── */
-const industryCards = [
-  { name: 'Retail Boxes',       img: 'https://placehold.co/400x260/1B3F6A/ffffff?text=Retail+Boxes',      to: '/industries/retail-boxes' },
-  { name: 'Cannabis & Vape',    img: 'https://placehold.co/400x260/22c55e/ffffff?text=Cannabis+%26+Vape', to: '/industries/cbd-packaging' },
-  { name: 'Cosmetics & Beauty', img: 'https://placehold.co/400x260/ec4899/ffffff?text=Cosmetics',         to: '/industries/cosmetic-boxes' },
-  { name: 'Kraft Boxes',        img: 'https://placehold.co/400x260/d97706/ffffff?text=Kraft+Boxes',       to: '/industries' },
-  { name: 'Food Boxes',         img: 'https://placehold.co/400x260/F47920/ffffff?text=Food+Boxes',        to: '/industries/food-beverage' },
-  { name: 'Ecommerce Boxes',    img: 'https://placehold.co/400x260/2a5fa0/ffffff?text=Ecommerce',         to: '/industries/ecommerce-boxes' },
-  { name: 'Chocolate Boxes',    img: 'https://placehold.co/400x260/7c3aed/ffffff?text=Chocolate',         to: '/industries' },
-  { name: 'Candle Boxes',       img: 'https://placehold.co/400x260/f59e0b/ffffff?text=Candle+Boxes',      to: '/industries/candle-boxes' },
-  { name: 'Healthcare',         img: 'https://placehold.co/400x260/ef4444/ffffff?text=Healthcare',        to: '/industries' },
-];
+const G = '#1A4D2E';
+const ACCENT = '#C8860A';
+const BG = '#F5F2ED';
 
-const statTiles = [
-  { Icon: Package,    label: 'Starting From',       value: '100 Boxes' },
-  { Icon: DollarSign, label: 'Competitive',          value: 'Pricing' },
-  { Icon: Printer,    label: 'Custom Design',        value: 'Sizes & Style' },
-  { Icon: Award,      label: 'High Quality',         value: 'Offset Printing' },
-  { Icon: Clock,      label: 'Fast Turnaround',      value: '8–10 Business Days' },
-];
-
-const trendingNames = [
-  'Mailer Boxes','Soap Boxes','Vape Cartridge Boxes','Hair Extension Boxes','CBD Boxes',
-  'Candle Boxes','Pillow Boxes','Eyelash Boxes','Cardboard Boxes','Product Boxes','Lip Gloss Boxes',
-];
-
-const trendingProducts = trendingNames.map((name) => ({
-  name,
-  img: `https://placehold.co/220x300/EEF4FB/1B3F6A?text=${encodeURIComponent(name)}`,
-}));
-
-const steps = [
-  { num: '01', title: 'Choose your custom shipping boxes',  desc: 'Browse 50+ box styles or let our experts recommend the perfect option for your product.' },
-  { num: '02', title: 'Request a free instant quote',       desc: 'Use our configurator or speak with a specialist to get pricing in minutes.' },
-  { num: '03', title: 'Finalize your order',               desc: 'Approve your 2D and 3D digital proofs, confirm specs, and place your order securely.' },
-  { num: '04', title: 'Roll-on production!',               desc: 'Your boxes are printed, quality-checked, and shipped directly to your door in 8–10 business days.' },
-];
-
-const instagramImgs = [
-  'https://placehold.co/320x320/1B3F6A/ffffff?text=@refinepackaging',
-  'https://placehold.co/320x320/F47920/ffffff?text=Unboxing',
-  'https://placehold.co/320x320/22c55e/ffffff?text=Custom+Boxes',
-  'https://placehold.co/320x320/2a5fa0/ffffff?text=Brand+Stories',
-];
-
-const homeFaqs = [
-  { q: 'Can you design my custom boxes?',
-    a: "Yes! Our in-house design team provides free artwork support. Share your logo and brand guidelines, and we'll create a print-ready dieline at no extra charge." },
-  { q: 'Do you offer discounts for large bulk orders?',
-    a: 'Absolutely. Our per-unit price decreases significantly at higher quantities. Orders of 1,000+ units receive our best rates. Contact us for a custom bulk quote.' },
-  { q: 'When will I receive my order?',
-    a: 'Standard production takes 8–10 business days after artwork approval, plus 3–5 business days for shipping. Rush options with 5–7 day production are also available.' },
-  { q: 'How do I place my order?',
-    a: 'Use our Custom Box configurator to specify your dimensions, style, and quantity for an instant estimate, or call our team at (800) 123-4567 for guided assistance.' },
-  { q: 'Can you print inside and outside?',
-    a: 'Yes. We offer outside-only printing, full inside and outside printing, and no-print options. Inside printing is perfect for premium unboxing experiences.' },
-  { q: 'How do I get a quote?',
-    a: 'Click "Get Free Quote" anywhere on the site, use our interactive configurator, or call us. We respond to all quote requests within a few hours on business days.' },
-  { q: 'How will I know what my box looks like before finalizing?',
-    a: 'Every order includes a full-color 2D dieline proof and a 3D digital mockup. Production doesn\'t begin until you\'ve reviewed and approved your proof in writing.' },
-];
-
-const brands = ['T-Mobile','Adidas','Pandora','Marriott','MetLife','Old Spice','Nike','Samsung'];
-
-const bigGridProducts = productCategories.flatMap((c) => c.products).slice(0, 15);
-
-/* ─── Wave divider ──────────────────────────────────────── */
-function WaveDivider({ fromColor = '#fff', toColor = '#EEF4FB', flip = false }) {
-  return (
-    <div className="w-full overflow-hidden leading-none" style={{ background: fromColor }}>
-      <svg
-        viewBox="0 0 1440 50"
-        preserveAspectRatio="none"
-        className={`w-full h-10 sm:h-14 ${flip ? 'rotate-180' : ''}`}
-        style={{ display: 'block' }}
-      >
-        <path d="M0,30 C480,60 960,0 1440,30 L1440,50 L0,50 Z" fill={toColor} />
-      </svg>
-    </div>
-  );
+// ── Animated counter hook ────────────────────────────────────────────────────
+function useCountUp(target, duration = 1800, start = false) {
+  const [val, setVal] = useState(0);
+  useEffect(() => {
+    if (!start) return;
+    let startTime = null;
+    const step = (ts) => {
+      if (!startTime) startTime = ts;
+      const progress = Math.min((ts - startTime) / duration, 1);
+      setVal(Math.floor(progress * target));
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }, [start, target, duration]);
+  return val;
 }
 
-/* ─── Decorative blob SVG ───────────────────────────────── */
-function HeroBlob() {
-  return (
-    <svg
-      className="absolute right-0 top-0 w-1/2 h-full opacity-[0.07] pointer-events-none"
-      viewBox="0 0 500 600" fill="none"
-    >
-      <ellipse cx="400" cy="200" rx="280" ry="220" fill="#EEF4FB" />
-      <ellipse cx="300" cy="450" rx="200" ry="180" fill="#EEF4FB" />
-    </svg>
-  );
+function StatNumber({ value, suffix = '', duration = 1800 }) {
+  const ref = useRef(null);
+  const [started, setStarted] = useState(false);
+  const count = useCountUp(value, duration, started);
+  useEffect(() => {
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setStarted(true); }, { threshold: 0.5 });
+    if (ref.current) obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, []);
+  return <span ref={ref}>{count.toLocaleString()}{suffix}</span>;
 }
 
+// ── Data ─────────────────────────────────────────────────────────────────────
+const STATS = [
+  { number: 500, suffix: 'K+', label: 'Boxes Delivered', icon: <Package size={22} color={ACCENT} /> },
+  { number: 10000, suffix: '+', label: 'Happy Brands', icon: <Award size={22} color={ACCENT} /> },
+  { number: 8, suffix: ' Days', label: 'Avg. Turnaround', icon: <Clock size={22} color={ACCENT} /> },
+  { number: 99, suffix: '%', label: 'Satisfaction Rate', icon: <Star size={22} color={ACCENT} strokeWidth={1.5} /> },
+];
+
+const MATERIALS = [
+  {
+    name: 'SBS Board',
+    desc: 'Premium coated board for vibrant, sharp print quality. Ideal for retail and cosmetics.',
+    badge: 'Most Popular',
+    badgeColor: ACCENT,
+    img: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=800&q=80',
+    usedFor: ['Cosmetics', 'Retail', 'Pharma'],
+    highlight: 'Vibrant CMYK print',
+  },
+  {
+    name: 'Corrugated E-Flute',
+    desc: 'Lightweight yet strong. Perfect for e-commerce mailer boxes and shipping protection.',
+    badge: 'Best Value',
+    badgeColor: G,
+    img: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=800&q=80',
+    usedFor: ['E-commerce', 'Shipping', 'Subscription'],
+    highlight: 'High crush resistance',
+  },
+  {
+    name: 'Rigid Chipboard',
+    desc: 'Premium thick board for luxury unboxing. Delivers a high-end feel every time.',
+    badge: 'Luxury',
+    badgeColor: '#8B6914',
+    img: 'https://images.unsplash.com/photo-1553481187-be93c21490a9?w=800&q=80',
+    usedFor: ['Luxury', 'Gifting', 'Electronics'],
+    highlight: '2mm–4mm thickness',
+  },
+  {
+    name: 'Kraft',
+    desc: '100% recycled & FSC-certified. Earthy look with minimal environmental footprint.',
+    badge: 'Eco-Friendly',
+    badgeColor: '#2E7D32',
+    img: 'https://images.unsplash.com/photo-1619468579487-430c4d90f93b?w=800&q=80',
+    usedFor: ['Food', 'Organic', 'Eco Brands'],
+    highlight: 'FSC Certified',
+  },
+];
+
+const FINISHES = [
+  { name: 'Matte Lam', desc: 'Smooth, non-reflective elegance', icon: <Layers size={20} color={G} />, color: '#E8F0EC' },
+  { name: 'Gloss Lam', desc: 'High-shine, vibrant colors', icon: <Zap size={20} color={ACCENT} />, color: '#FFF3E0' },
+  { name: 'Soft-Touch', desc: 'Velvety, tactile premium feel', icon: <Box size={20} color={G} />, color: '#E8F0EC' },
+  { name: 'Spot UV', desc: 'Selective gloss highlight', icon: <Cpu size={20} color={ACCENT} />, color: '#FFF3E0' },
+  { name: 'Foil Stamp', desc: 'Metallic gold/silver accents', icon: <Award size={20} color="#8B6914" />, color: '#FEF9E7' },
+  { name: 'Embossing', desc: 'Raised 3D texture effect', icon: <TrendingUp size={20} color={G} />, color: '#E8F0EC' },
+];
+
+const STEPS = [
+  {
+    step: '01', title: 'Select Your Box',
+    desc: 'Choose from 50+ box styles, materials, and sizes in our full catalog.',
+    img: 'https://images.unsplash.com/photo-1553531384-cc64ac80f931?w=600&q=80',
+    time: '2 minutes',
+  },
+  {
+    step: '02', title: 'Customize Design',
+    desc: 'Use our live 3D configurator or collaborate with our design team.',
+    img: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=600&q=80',
+    time: '5 minutes',
+  },
+  {
+    step: '03', title: 'Review & Approve',
+    desc: 'Get a digital 3D proof or request a physical sample before we print.',
+    img: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=600&q=80',
+    time: '24 hours',
+  },
+  {
+    step: '04', title: 'Production & Delivery',
+    desc: 'We manufacture and ship directly to your door in 8–10 business days.',
+    img: 'https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=600&q=80',
+    time: '8–10 days',
+  },
+];
+
+const TESTIMONIALS = [
+  {
+    name: 'Sarah Mitchell',
+    role: 'Founder, Lumière Beauty',
+    company: 'Lumière Beauty',
+    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80',
+    quote: 'NovaPack delivered our skincare boxes in 7 days — flawless matte finish, zero defects. Our customers love the unboxing experience.',
+    rating: 5,
+    metric: '3× increase in repeat purchases',
+  },
+  {
+    name: 'James Kowalski',
+    role: 'Ops Manager, TechShip Inc.',
+    company: 'TechShip Inc.',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80',
+    quote: 'Scaled from 2,000 to 80,000 units in six months. NovaPack handled every order on time with consistent quality across all batches.',
+    rating: 5,
+    metric: '40× volume scale in 6 months',
+  },
+  {
+    name: 'Priya Sharma',
+    role: 'Brand Director, GreenLeaf Organics',
+    company: 'GreenLeaf Organics',
+    avatar: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=100&q=80',
+    quote: 'The FSC-certified kraft boxes are exactly on-brand for us. Eco-friendly packaging that looks amazing on retail shelves.',
+    rating: 5,
+    metric: '28% reduction in packaging cost',
+  },
+];
+
+const INSP_GALLERY = [
+  { img: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=600&q=80', label: 'Mailer Box', tag: 'E-commerce' },
+  { img: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&q=80', label: 'Luxury Rigid Box', tag: 'Beauty' },
+  { img: 'https://images.unsplash.com/photo-1553531384-cc64ac80f931?w=600&q=80', label: 'Shipping Box', tag: 'Retail' },
+  { img: 'https://images.unsplash.com/photo-1620799139507-2a76f79a2f4d?w=600&q=80', label: 'Kraft Box', tag: 'Eco-Friendly' },
+  { img: 'https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=600&q=80', label: 'Folding Carton', tag: 'Food & Bev' },
+  { img: 'https://images.unsplash.com/photo-1585664811087-47f65abbad64?w=600&q=80', label: 'Display Box', tag: 'Cosmetics' },
+];
+
+const FEATURES = [
+  { icon: <ShieldCheck size={26} color={G} />, title: 'Quality Guaranteed', desc: 'Every batch is inspected. We re-print at no charge if it doesn\'t meet spec.' },
+  { icon: <Zap size={26} color={ACCENT} />, title: '8-Day Turnaround', desc: 'Standard orders ship in 8–10 business days. Expedited options available.' },
+  { icon: <Users size={26} color={G} />, title: 'Dedicated Specialist', desc: 'A packaging expert assigned to your account from day one.' },
+  { icon: <BarChart3 size={26} color={ACCENT} />, title: 'Volume Pricing', desc: 'Prices drop significantly at 500, 1,000, and 5,000+ units.' },
+  { icon: <Leaf size={26} color="#2E7D32" />, title: 'Sustainable Materials', desc: 'FSC-certified board, soy inks, and 100% recyclable substrates.' },
+  { icon: <Sparkles size={26} color={ACCENT} />, title: 'Free Design Support', desc: 'Our in-house designers will polish your artwork before we print.' },
+];
+
+// ── Component ─────────────────────────────────────────────────────────────────
 export default function Home() {
+  const [activeMaterial, setActiveMaterial] = useState(0);
+  const [testimonialIdx, setTestimonialIdx] = useState(0);
+  const [showVideoModal, setShowVideoModal] = useState(false);
+
+  useEffect(() => {
+    AOS.init({ duration: 700, once: true, easing: 'ease-out-cubic' });
+  }, []);
+
+  // Auto-rotate testimonials
+  useEffect(() => {
+    const t = setInterval(() => setTestimonialIdx(i => (i + 1) % TESTIMONIALS.length), 5000);
+    return () => clearInterval(t);
+  }, []);
+
   return (
-    <div className="overflow-x-hidden">
+    <div style={{ backgroundColor: BG }}>
 
-      {/* ─── HERO ──────────────────────────────────────── */}
-      <section className="relative bg-white overflow-hidden">
-        <HeroBlob />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+      {/* ── 1. Hero ─────────────────────────────────────────────────────────── */}
+      <Hero />
 
-            {/* Left */}
-            <motion.div initial="hidden" animate="visible" variants={fadeUp}>
-              <p className="text-xs font-semibold uppercase tracking-widest text-[#F47920] mb-4">
-                #1 Custom Packaging Brand
-              </p>
-              <h1 className="text-4xl sm:text-5xl lg:text-[52px] font-bold text-[#1B3F6A] leading-[1.15] mb-5">
-                Custom boxes made easy for retail
-              </h1>
-              <p className="text-[#6B7280] text-base leading-relaxed mb-8 max-w-lg">
-                Supercharge your brand through the power of{' '}
-                <span className="font-semibold text-[#1B3F6A]">custom boxes</span> and{' '}
-                <span className="font-semibold text-[#1B3F6A]">custom packaging</span>.
-                Premium quality starting at 100 units — free design support, fast turnaround, and a
-                100% satisfaction guarantee.
-              </p>
-              <div className="flex flex-wrap gap-3 mb-10">
-                <Link
-                  to="/custom-box"
-                  className="bg-[#F47920] hover:bg-[#d96510] text-white font-semibold px-7 py-3.5 rounded-md transition-colors shadow-sm"
-                >
-                  Get Free Quote
-                </Link>
-                <a
-                  href="#how-it-works"
-                  className="flex items-center gap-2 border-2 border-[#1B3F6A] text-[#1B3F6A] hover:bg-[#1B3F6A] hover:text-white font-semibold px-7 py-3.5 rounded-md transition-all"
-                >
-                  <Play size={14} /> How It Works
-                </a>
-              </div>
-              {/* Trust strip */}
-              <div className="flex flex-wrap gap-5">
-                {['★★★★★ Facebook 4.9/5','★★★★★ Trustpilot 4.8/5','10,000+ Happy Customers'].map((t) => (
-                  <span key={t} className="flex items-center gap-1.5 text-xs text-[#6B7280] font-medium">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#F47920]" />
-                    {t}
-                  </span>
-                ))}
-              </div>
-            </motion.div>
-
-            {/* Right: hero image */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, delay: 0.15 }}
-              className="hidden lg:block relative"
-            >
-              <img
-                src="https://placehold.co/560x440/EEF4FB/1B3F6A?text=Custom+Packaging"
-                alt="Custom Packaging"
-                className="w-full rounded-2xl shadow-xl"
-              />
-              {/* Floating stat */}
-              <div className="absolute -bottom-5 -left-5 bg-white rounded-xl shadow-lg p-4 flex items-center gap-3 border border-gray-100">
-                <div className="w-10 h-10 bg-[#EEF4FB] rounded-lg flex items-center justify-center">
-                  <Package size={18} className="text-[#1B3F6A]" />
+      {/* ── 2. Stats Bar ────────────────────────────────────────────────────── */}
+      <section style={{ backgroundColor: G }}>
+        <div style={{ maxWidth: 1400, margin: '0 auto', padding: '0 24px' }}>
+          <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)' }}>
+            {STATS.map((s, i) => (
+              <div key={i} data-aos="fade-up" data-aos-delay={i * 70}
+                style={{
+                  padding: '36px 24px', textAlign: 'center',
+                  borderRight: i < STATS.length - 1 ? '1px solid rgba(255,255,255,0.1)' : 'none',
+                }}>
+                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 12 }}>{s.icon}</div>
+                <div style={{ fontSize: 34, fontWeight: 900, color: '#fff', fontFamily: 'Outfit,sans-serif', lineHeight: 1 }}>
+                  <StatNumber value={s.number} suffix={s.suffix} />
                 </div>
-                <div>
-                  <div className="font-bold text-[#1B3F6A] text-sm">10,000+</div>
-                  <div className="text-xs text-[#6B7280]">Brands Served</div>
-                </div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', marginTop: 8, textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 700 }}>{s.label}</div>
               </div>
-              <div className="absolute -top-4 -right-4 bg-[#F47920] rounded-xl shadow-lg p-4 text-white">
-                <div className="font-bold text-2xl">100%</div>
-                <div className="text-xs font-medium opacity-85">Satisfaction</div>
-              </div>
-            </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── 3. Trending Products ─────────────────────────────────────────────── */}
+      <TrendingProducts />
+
+      {/* ── 4. Materials — Interactive Showcase ─────────────────────────────── */}
+      <section style={{ padding: '100px 24px', backgroundColor: '#fff' }}>
+        <div style={{ maxWidth: 1300, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 56 }} data-aos="fade-up">
+            <span style={{ fontSize: 11, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.14em', display: 'block', marginBottom: 12 }}>Built to Spec</span>
+            <h2 style={{ fontSize: 'clamp(28px,3.5vw,44px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#1A1A1A', marginBottom: 14 }}>Premium Materials &amp; Finishes</h2>
+            <p style={{ fontSize: 16, color: '#666', maxWidth: 520, margin: '0 auto', lineHeight: 1.7 }}>
+              Four core substrates, each optimised for different industries and price points.
+            </p>
           </div>
 
-          {/* Brand logos */}
-          <div className="mt-16 pt-10 border-t border-gray-100">
-            <p className="text-xs font-semibold uppercase tracking-widest text-[#6B7280] text-center mb-5">
-              Trusted By 1000s of Businesses Worldwide
-            </p>
-            <div className="flex flex-wrap justify-center gap-8 opacity-40">
-              {brands.map((b) => (
-                <span key={b} className="font-bold text-sm text-[#1B3F6A] tracking-wider">{b}</span>
+          {/* Material Tabs */}
+          <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginBottom: 36, flexWrap: 'wrap' }} data-aos="fade-up">
+            {MATERIALS.map((m, i) => (
+              <button key={i} onClick={() => setActiveMaterial(i)}
+                style={{
+                  padding: '10px 22px', borderRadius: 100, border: `2px solid ${activeMaterial === i ? G : '#E8E4DC'}`,
+                  background: activeMaterial === i ? G : '#fff', color: activeMaterial === i ? '#fff' : '#555',
+                  fontWeight: 700, fontSize: 13, cursor: 'pointer', transition: 'all 0.2s', fontFamily: 'Outfit,sans-serif',
+                }}>
+                {m.name}
+              </button>
+            ))}
+          </div>
+
+          {/* Active Material Showcase */}
+          <div data-aos="fade-up" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0, borderRadius: 20, overflow: 'hidden', border: '1px solid #E8E4DC', boxShadow: '0 20px 60px rgba(0,0,0,0.08)' }} className="material-showcase">
+            <div style={{ overflow: 'hidden', minHeight: 380 }}>
+              <img
+                key={activeMaterial}
+                src={MATERIALS[activeMaterial].img}
+                alt={MATERIALS[activeMaterial].name}
+                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'opacity 0.4s', animation: 'fadeIn 0.4s ease' }}
+                onError={e => { e.target.src = 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=800&q=80'; }}
+              />
+            </div>
+            <div style={{ padding: '52px 48px', display: 'flex', flexDirection: 'column', justifyContent: 'center', background: BG }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 14px', background: MATERIALS[activeMaterial].badgeColor, color: '#fff', borderRadius: 100, fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 20, width: 'fit-content' }}>
+                {MATERIALS[activeMaterial].badge}
+              </span>
+              <h3 style={{ fontSize: 32, fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#1A1A1A', marginBottom: 16 }}>{MATERIALS[activeMaterial].name}</h3>
+              <p style={{ fontSize: 16, color: '#666', lineHeight: 1.75, marginBottom: 28 }}>{MATERIALS[activeMaterial].desc}</p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 28, padding: '14px 20px', background: '#fff', borderRadius: 10, border: `1px solid ${G}20` }}>
+                <CheckCircle size={18} color={G} />
+                <span style={{ fontSize: 14, fontWeight: 600, color: G }}>{MATERIALS[activeMaterial].highlight}</span>
+              </div>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 36 }}>
+                {MATERIALS[activeMaterial].usedFor.map(u => (
+                  <span key={u} style={{ fontSize: 11, fontWeight: 700, padding: '5px 12px', borderRadius: 6, background: `${G}14`, color: G, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{u}</span>
+                ))}
+              </div>
+              <Link to="/custom-box" state={{ material: MATERIALS[activeMaterial].name }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '14px 28px', background: G, color: '#fff', borderRadius: 10, fontWeight: 700, fontSize: 14, textDecoration: 'none', width: 'fit-content', transition: 'background 0.15s' }}
+                onMouseEnter={e => e.currentTarget.style.background = ACCENT}
+                onMouseLeave={e => e.currentTarget.style.background = G}>
+                Configure with {MATERIALS[activeMaterial].name} <ArrowRight size={16} />
+              </Link>
+            </div>
+          </div>
+
+          {/* Finishes Strip */}
+          <div style={{ background: BG, borderRadius: 16, border: '1px solid #E8E4DC', padding: '36px 40px', marginTop: 24 }} data-aos="fade-up">
+            <p style={{ fontSize: 11, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 28, textAlign: 'center' }}>Available Finishes</p>
+            <div className="finishes-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gap: 16 }}>
+              {FINISHES.map((f, i) => (
+                <div key={i}
+                  style={{ textAlign: 'center', padding: '18px 12px', borderRadius: 12, background: '#fff', border: '1px solid #E8E4DC', cursor: 'default', transition: 'transform 0.2s, box-shadow 0.2s' }}
+                  onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.08)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'none'; }}>
+                  <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 10, width: 48, height: 48, borderRadius: '50%', background: f.color, alignItems: 'center', margin: '0 auto 12px' }}>{f.icon}</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#1A1A1A', marginBottom: 5, fontFamily: 'Outfit,sans-serif' }}>{f.name}</div>
+                  <div style={{ fontSize: 11, color: '#888', lineHeight: 1.4 }}>{f.desc}</div>
+                </div>
               ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* ─── INDUSTRIES ────────────────────────────────── */}
-      <WaveDivider fromColor="#fff" toColor="#EEF4FB" />
-      <section className="bg-[#EEF4FB] py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-10">
-            <SectionLabel text="Industries" />
-            <h2 className="text-3xl font-bold text-[#1B3F6A] mt-1 mb-3">
-              Find custom boxes for your industry
-            </h2>
-            <p className="text-[#6B7280] max-w-xl mx-auto text-sm">
-              Whatever you sell, we have the perfect packaging solution. Browse by industry to find your ideal box style.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-8">
-            {industryCards.map((card, i) => (
-              <motion.div
-                key={card.name}
-                custom={i}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                variants={fadeUp}
-              >
-                <Link
-                  to={card.to}
-                  className="block group relative overflow-hidden rounded-lg shadow-card hover:shadow-card-hover hover:-translate-y-1 transition-all duration-300"
-                >
-                  <img
-                    src={card.img}
-                    alt={card.name}
-                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-4 flex items-center justify-between">
-                    <span className="text-white font-semibold text-sm">{card.name}</span>
-                    <span className="text-white/70 group-hover:text-[#F47920] transition-colors">
-                      <ArrowRight size={14} />
-                    </span>
-                  </div>
-                </Link>
-              </motion.div>
-            ))}
-          </div>
-          <div className="text-center">
-            <Link
-              to="/industries"
-              className="inline-flex items-center gap-2 border-2 border-[#1B3F6A] text-[#1B3F6A] hover:bg-[#1B3F6A] hover:text-white font-semibold px-8 py-3 rounded-md transition-all"
-            >
-              View all Industries <ArrowRight size={14} />
-            </Link>
-          </div>
-        </div>
-      </section>
-      <WaveDivider fromColor="#EEF4FB" toColor="#fff" flip />
-
-      {/* ─── FAST & RELIABLE ───────────────────────────── */}
-      <section className="bg-white py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="grid lg:grid-cols-2 gap-12 items-center mb-12">
-            <div>
-              <SectionLabel text="Why Choose Us" />
-              <h2 className="text-3xl font-bold text-[#1B3F6A] mt-1 mb-4">
-                Fast & Reliable Custom Packaging Boxes
+      {/* ── 5. Why NovaPack ─────────────────────────────────────────────────── */}
+      <section style={{ padding: '100px 24px', backgroundColor: BG }}>
+        <div style={{ maxWidth: 1300, margin: '0 auto' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'center' }} className="why-grid">
+            <div data-aos="fade-right">
+              <span style={{ fontSize: 11, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.14em', display: 'block', marginBottom: 16 }}>The NovaPack Difference</span>
+              <h2 style={{ fontSize: 'clamp(28px,3.5vw,44px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#1A1A1A', lineHeight: 1.15, marginBottom: 20 }}>
+                Why 10,000+ brands choose us
               </h2>
-              <p className="text-[#6B7280] text-sm leading-relaxed mb-4">
-                We combine premium materials, state-of-the-art offset printing, and expert design support
-                to deliver packaging that protects your product and elevates your brand. Every order is
-                backed by our 100% satisfaction guarantee.
+              <p style={{ fontSize: 16, color: '#666', lineHeight: 1.8, marginBottom: 36 }}>
+                From startup brands to enterprise operations, NovaPack delivers custom packaging with the speed, quality, and service that modern businesses demand.
               </p>
-              <p className="text-[#6B7280] text-sm leading-relaxed">
-                From lightweight cardstock to heavy-duty corrugated, our materials are FSC-certified and
-                printed with eco-friendly soy-based inks — because great packaging doesn't have to cost the earth.
-              </p>
-            </div>
-            <div className="relative">
-              <img
-                src="https://placehold.co/540x380/EEF4FB/1B3F6A?text=Premium+Packaging"
-                alt="Premium packaging"
-                className="w-full rounded-2xl shadow-lg"
-              />
-            </div>
-          </div>
-          {/* 5 stat tiles */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-            {statTiles.map(({ Icon, label, value }, i) => (
-              <motion.div
-                key={label}
-                custom={i}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                variants={fadeUp}
-                className="bg-[#EEF4FB] rounded-lg p-5 text-center hover:shadow-card transition-shadow"
-              >
-                <div className="w-11 h-11 bg-white rounded-lg flex items-center justify-center mx-auto mb-3 shadow-sm">
-                  <Icon size={20} className="text-[#1B3F6A]" />
+              <div style={{ display: 'flex', gap: 16, marginBottom: 40 }}>
+                <div style={{ padding: '20px 24px', background: '#fff', borderRadius: 14, border: `2px solid ${G}20`, flex: 1, textAlign: 'center' }}>
+                  <div style={{ fontSize: 28, fontWeight: 900, color: G, fontFamily: 'Outfit,sans-serif' }}>100</div>
+                  <div style={{ fontSize: 11, color: '#888', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700, marginTop: 4 }}>Min. Order</div>
                 </div>
-                <div className="font-bold text-[#1B3F6A] text-sm">{value}</div>
-                <div className="text-xs text-[#6B7280] mt-0.5">{label}</div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ─── TRENDING PRODUCTS ─────────────────────────── */}
-      <WaveDivider fromColor="#fff" toColor="#EEF4FB" />
-      <section className="bg-[#EEF4FB] py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-10">
-            <SectionLabel text="Products By Industry" />
-            <h2 className="text-3xl font-bold text-[#1B3F6A] mt-1 mb-3">
-              Trending & Popular Products
-            </h2>
-            <p className="text-[#6B7280] max-w-xl mx-auto text-sm">
-              Explore our bestselling custom box styles, trusted by thousands of brands in every industry.
-            </p>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-5 mb-8">
-            {trendingProducts.slice(0, 8).map((p, i) => (
-              <motion.div key={p.name} custom={i} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
-                <ProductCard name={p.name} img={p.img} portrait />
-              </motion.div>
-            ))}
-          </div>
-          <div className="text-center">
-            <Link
-              to="/products"
-              className="inline-flex items-center gap-2 bg-[#F47920] hover:bg-[#d96510] text-white font-semibold px-8 py-3 rounded-md transition-colors"
-            >
-              View All Industries <ArrowRight size={14} />
-            </Link>
-          </div>
-        </div>
-      </section>
-      <WaveDivider fromColor="#EEF4FB" toColor="#fff" flip />
-
-      {/* ─── CONSULTATION BANNER ───────────────────────── */}
-      <section className="bg-[#1B3F6A] py-14">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">
-              Looking for other custom boxes and packaging?
-            </h2>
-            <p className="text-white/70 text-sm">Our packaging experts are ready to help — no obligation.</p>
-          </div>
-          <Link
-            to="/custom-box"
-            className="flex-shrink-0 bg-[#F47920] hover:bg-[#d96510] text-white font-semibold px-8 py-3.5 rounded-md transition-colors"
-          >
-            Contact Us
-          </Link>
-        </div>
-      </section>
-
-      {/* ─── VIDEO ─────────────────────────────────────── */}
-      <section className="bg-white py-16">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-10">
-            <SectionLabel text="Customer Stories" />
-            <h2 className="text-3xl font-bold text-[#1B3F6A] mt-1">
-              Why 1,000s of Happy Customers Trust Refine Packaging
-            </h2>
-          </div>
-          <div className="relative rounded-2xl overflow-hidden shadow-xl group cursor-pointer">
-            <img
-              src="https://placehold.co/1000x500/1B3F6A/ffffff?text=Customer+Video+Testimonial"
-              alt="Testimonial video"
-              className="w-full object-cover"
-            />
-            <div className="absolute inset-0 bg-[#1B3F6A]/40 flex items-center justify-center">
-              <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform">
-                <Play size={26} className="text-[#F47920] ml-1" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── HOW IT WORKS ──────────────────────────────── */}
-      <WaveDivider fromColor="#fff" toColor="#EEF4FB" />
-      <section id="how-it-works" className="bg-[#EEF4FB] py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-12">
-            <SectionLabel text="Our Process" />
-            <h2 className="text-3xl font-bold text-[#1B3F6A] mt-1 mb-3">
-              How Refine Packaging Brings Your Packaging Design Ideas to Life
-            </h2>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 relative">
-            {/* connector line */}
-            <div className="hidden lg:block absolute top-[52px] left-[12.5%] right-[12.5%] h-px bg-[#1B3F6A]/20 z-0" />
-            {steps.map((step, i) => (
-              <motion.div
-                key={step.num}
-                custom={i}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                variants={fadeUp}
-                className="relative bg-white rounded-lg shadow-card p-7 text-center z-10"
-              >
-                <div className="w-14 h-14 bg-[#1B3F6A] rounded-full flex items-center justify-center mx-auto mb-5 shadow-md">
-                  <span className="text-white font-bold text-lg">{step.num}</span>
+                <div style={{ padding: '20px 24px', background: '#fff', borderRadius: 14, border: `2px solid ${ACCENT}20`, flex: 1, textAlign: 'center' }}>
+                  <div style={{ fontSize: 28, fontWeight: 900, color: ACCENT, fontFamily: 'Outfit,sans-serif' }}>Free</div>
+                  <div style={{ fontSize: 11, color: '#888', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700, marginTop: 4 }}>Design Help</div>
                 </div>
-                <h3 className="font-semibold text-[#1B3F6A] text-sm mb-2 leading-snug">{step.title}</h3>
-                <p className="text-[#6B7280] text-xs leading-relaxed">{step.desc}</p>
-                {i < 3 && (
-                  <svg className="hidden lg:block absolute -right-3 top-12 z-20" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F47920" strokeWidth="2.5">
-                    <polyline points="9 18 15 12 9 6" />
-                  </svg>
-                )}
-              </motion.div>
-            ))}
-          </div>
-          <div className="text-center mt-8">
-            <Link to="/how-it-works" className="inline-flex items-center gap-1.5 text-[#F47920] font-semibold text-sm hover:gap-2.5 transition-all">
-              How It Works <ArrowRight size={13} />
-            </Link>
-          </div>
-        </div>
-      </section>
-      <WaveDivider fromColor="#EEF4FB" toColor="#fff" flip />
-
-      {/* ─── BIG INDUSTRY PRODUCTS GRID ────────────────── */}
-      <section className="bg-white py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-10">
-            <SectionLabel text="All Products" />
-            <h2 className="text-3xl font-bold text-[#1B3F6A] mt-1 mb-3">
-              Empowering Brands in Every Industry with Unrivaled Custom Boxes
-            </h2>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
-            {bigGridProducts.map((p, i) => (
-              <motion.div key={p.name + i} custom={i} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
-                <ProductCard name={p.name} img={p.img} />
-              </motion.div>
-            ))}
-          </div>
-          <div className="text-center">
-            <Link
-              to="/industries"
-              className="inline-flex items-center gap-2 border-2 border-[#1B3F6A] text-[#1B3F6A] hover:bg-[#1B3F6A] hover:text-white font-semibold px-8 py-3 rounded-md transition-all"
-            >
-              View all industries <ArrowRight size={14} />
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── INSTAGRAM ─────────────────────────────────── */}
-      <WaveDivider fromColor="#fff" toColor="#EEF4FB" />
-      <section className="bg-[#EEF4FB] py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-8">
-            <SectionLabel text="Design Inspiration" />
-            <h2 className="text-3xl font-bold text-[#1B3F6A] mt-1 mb-2">
-              Get Creative Packaging Design Inspiration
-            </h2>
-            <p className="text-[#6B7280] text-sm">
-              Follow us{' '}
-              <a href="#" className="font-semibold text-[#F47920] hover:underline">@refinepackaging</a>
-              {' '}for daily packaging ideas
-            </p>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-            {instagramImgs.map((img, i) => (
-              <div key={i} className="group relative overflow-hidden rounded-lg aspect-square cursor-pointer shadow-card hover:shadow-card-hover hover:-translate-y-1 transition-all duration-300">
-                <img src={img} alt={`Inspiration ${i + 1}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                <div className="absolute inset-0 bg-[#1B3F6A]/0 group-hover:bg-[#1B3F6A]/25 transition-colors" />
+                <div style={{ padding: '20px 24px', background: '#fff', borderRadius: 14, border: `2px solid ${G}20`, flex: 1, textAlign: 'center' }}>
+                  <div style={{ fontSize: 28, fontWeight: 900, color: G, fontFamily: 'Outfit,sans-serif' }}>8</div>
+                  <div style={{ fontSize: 11, color: '#888', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700, marginTop: 4 }}>Days Ship</div>
+                </div>
               </div>
-            ))}
-          </div>
-          <div className="text-center">
-            <a
-              href="#"
-              className="inline-flex items-center gap-2 border-2 border-[#1B3F6A] text-[#1B3F6A] hover:bg-[#1B3F6A] hover:text-white font-semibold px-7 py-3 rounded-md transition-all"
-            >
-              Follow Us On Instagram <ArrowRight size={14} />
-            </a>
-          </div>
-        </div>
-      </section>
-      <WaveDivider fromColor="#EEF4FB" toColor="#fff" flip />
-
-      {/* ─── FAQ ───────────────────────────────────────── */}
-      <section className="bg-white py-16">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-10">
-            <SectionLabel text="FAQ" />
-            <h2 className="text-3xl font-bold text-[#1B3F6A] mt-1">Frequently Asked Questions</h2>
-          </div>
-          <FAQAccordion items={homeFaqs} />
-        </div>
-      </section>
-
-      {/* ─── HELP CTA ──────────────────────────────────── */}
-      <section className="bg-[#EEF4FB] py-14">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6">
-          <div className="bg-white rounded-2xl shadow-card p-8 sm:p-10 flex flex-col sm:flex-row items-center gap-8">
-            <img
-              src="https://placehold.co/100x100/1B3F6A/ffffff?text=Support"
-              alt="Support"
-              className="w-24 h-24 rounded-xl object-cover flex-shrink-0"
-            />
-            <div className="flex-1 text-center sm:text-left">
-              <h3 className="text-2xl font-bold text-[#1B3F6A] mb-2">
-                Need help? Get In Touch for a Consultation
-              </h3>
-              <p className="text-[#6B7280] text-sm mb-5">
-                Our packaging specialists are available Monday–Friday, 9am–6pm EST and will respond to all inquiries within a few hours.
-              </p>
-              <Link
-                to="/custom-box"
-                className="inline-block bg-[#F47920] hover:bg-[#d96510] text-white font-semibold px-7 py-3 rounded-md transition-colors"
-              >
-                Contact Us
+              <Link to="/about"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 28px', background: G, color: '#fff', borderRadius: 10, fontWeight: 700, fontSize: 14, textDecoration: 'none', transition: 'background 0.15s' }}
+                onMouseEnter={e => e.currentTarget.style.background = ACCENT}
+                onMouseLeave={e => e.currentTarget.style.background = G}>
+                Learn Our Story <ArrowRight size={16} />
               </Link>
             </div>
+
+            <div data-aos="fade-left">
+              <div className="features-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 16 }}>
+                {FEATURES.map((f, i) => (
+                  <div key={i}
+                    style={{ padding: '24px', background: '#fff', borderRadius: 14, border: '1px solid #E8E4DC', transition: 'transform 0.2s, box-shadow 0.2s' }}
+                    onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 12px 32px rgba(0,0,0,0.08)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'none'; }}>
+                    <div style={{ marginBottom: 12 }}>{f.icon}</div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: '#1A1A1A', fontFamily: 'Outfit,sans-serif', marginBottom: 6 }}>{f.title}</div>
+                    <div style={{ fontSize: 12, color: '#777', lineHeight: 1.6 }}>{f.desc}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ─── BLOG ──────────────────────────────────────── */}
-      <section className="bg-white py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-10">
-            <SectionLabel text="Resources" />
-            <h2 className="text-3xl font-bold text-[#1B3F6A] mt-1">
-              Learn About Custom Boxes from the Pros
-            </h2>
+      {/* ── 6. Industries ────────────────────────────────────────────────────── */}
+      <EmpoweringBrands />
+
+      {/* ── 7. How It Works ──────────────────────────────────────────────────── */}
+      <section style={{ padding: '100px 24px', backgroundColor: '#fff' }}>
+        <div style={{ maxWidth: 1300, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 64 }} data-aos="fade-up">
+            <span style={{ fontSize: 11, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.14em', display: 'block', marginBottom: 12 }}>Simple Process</span>
+            <h2 style={{ fontSize: 'clamp(28px,3.5vw,44px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#1A1A1A', marginBottom: 14 }}>From Idea to Doorstep</h2>
+            <p style={{ fontSize: 16, color: '#666', maxWidth: 480, margin: '0 auto', lineHeight: 1.7 }}>
+              Four simple steps to get professional custom packaging delivered to you.
+            </p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-            {blogPosts.slice(0, 3).map((post, i) => (
-              <motion.div
-                key={post.title}
-                custom={i}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                variants={fadeUp}
-                className="bg-white rounded-lg shadow-card hover:shadow-card-hover hover:-translate-y-1 transition-all duration-300 overflow-hidden group cursor-pointer"
-              >
-                <div className="overflow-hidden">
-                  <img src={post.img} alt={post.title} className="w-full h-44 object-cover group-hover:scale-105 transition-transform duration-300" />
+
+          <div className="steps-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 24, position: 'relative' }}>
+            <div style={{ position: 'absolute', top: 52, left: '12%', right: '12%', height: 2, background: `linear-gradient(90deg, transparent, ${ACCENT}50, ${ACCENT}, ${ACCENT}50, transparent)` }} className="step-line" />
+            {STEPS.map((s, idx) => (
+              <div key={idx} data-aos="fade-up" data-aos-delay={idx * 110}
+                style={{ background: '#fff', borderRadius: 18, overflow: 'hidden', border: '1px solid #E8E4DC', position: 'relative', zIndex: 1, transition: 'box-shadow 0.25s, transform 0.25s', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}
+                onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 20px 48px rgba(0,0,0,0.12)'; e.currentTarget.style.transform = 'translateY(-8px)'; }}
+                onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)'; e.currentTarget.style.transform = 'none'; }}>
+                <div style={{ height: 150, overflow: 'hidden', position: 'relative' }}>
+                  <img src={s.img} alt={s.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.5s' }}
+                    onMouseEnter={e => e.target.style.transform = 'scale(1.07)'} onMouseLeave={e => e.target.style.transform = 'scale(1)'}
+                    onError={e => { e.target.src = 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=600&q=80'; }} />
+                  <div style={{ position: 'absolute', top: 12, left: 12, width: 40, height: 40, borderRadius: '50%', background: ACCENT, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 800, fontFamily: 'Outfit,sans-serif', boxShadow: '0 4px 12px rgba(200,134,10,0.4)' }}>{s.step}</div>
+                  <div style={{ position: 'absolute', bottom: 10, right: 10, padding: '4px 10px', background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(4px)', borderRadius: 100, fontSize: 10, fontWeight: 700, color: '#fff' }}>{s.time}</div>
                 </div>
-                <div className="p-5">
-                  <div className="flex items-center gap-2 mb-3">
-                    <img src={post.avatar} alt={post.author} className="w-7 h-7 rounded-full" />
-                    <span className="text-xs text-[#6B7280] font-medium">{post.author}</span>
-                    <span className="text-gray-300 text-xs">·</span>
-                    <span className="text-xs text-[#6B7280]">{post.date}</span>
-                  </div>
-                  <h3 className="font-semibold text-[#1B3F6A] text-sm leading-snug group-hover:text-[#F47920] transition-colors">
-                    {post.title}
-                  </h3>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-          {/* 2 compact posts */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-8">
-            {blogPosts.slice(3).map((post) => (
-              <div key={post.title} className="flex gap-4 bg-white rounded-lg shadow-card hover:shadow-card-hover hover:-translate-y-1 transition-all duration-300 p-4 cursor-pointer group">
-                <img src={post.img} alt={post.title} className="w-20 h-16 object-cover rounded-lg flex-shrink-0" />
-                <div>
-                  <div className="flex items-center gap-1.5 mb-1">
-                    <img src={post.avatar} alt={post.author} className="w-5 h-5 rounded-full" />
-                    <span className="text-xs text-[#6B7280]">{post.author} · {post.date}</span>
-                  </div>
-                  <h3 className="text-sm font-semibold text-[#1B3F6A] leading-snug group-hover:text-[#F47920] transition-colors">
-                    {post.title}
-                  </h3>
+                <div style={{ padding: '22px 24px 28px' }}>
+                  <h3 style={{ fontSize: 16, fontWeight: 800, color: '#1A1A1A', marginBottom: 10, fontFamily: 'Outfit,sans-serif' }}>{s.title}</h3>
+                  <p style={{ fontSize: 13, color: '#777', lineHeight: 1.65 }}>{s.desc}</p>
                 </div>
               </div>
             ))}
           </div>
-          <div className="text-center">
-            <a href="#" className="inline-flex items-center gap-2 border-2 border-[#1B3F6A] text-[#1B3F6A] hover:bg-[#1B3F6A] hover:text-white font-semibold px-8 py-3 rounded-md transition-all">
-              Visit The Blog <ArrowRight size={14} />
-            </a>
+
+          <div style={{ textAlign: 'center', marginTop: 52 }} data-aos="fade-up">
+            <Link to="/custom-box"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '16px 36px', background: G, color: '#fff', borderRadius: 10, fontWeight: 700, textDecoration: 'none', fontSize: 15, fontFamily: 'Outfit,sans-serif', transition: 'background 0.15s, transform 0.15s' }}
+              onMouseEnter={e => { e.currentTarget.style.background = ACCENT; e.currentTarget.style.transform = 'scale(1.03)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = G; e.currentTarget.style.transform = 'scale(1)'; }}>
+              Start Designing Free <ArrowRight size={16} />
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* ─── BOTTOM CTA ────────────────────────────────── */}
-      <CTABanner wave />
+      {/* ── 8. Testimonials — Slider ─────────────────────────────────────────── */}
+      <section style={{ padding: '100px 24px', background: `linear-gradient(135deg, ${G} 0%, #0D3520 100%)`, position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(255,255,255,0.025) 1px, transparent 1px)', backgroundSize: '32px 32px', pointerEvents: 'none' }} />
+        <div style={{ maxWidth: 1100, margin: '0 auto', position: 'relative' }}>
+          <div style={{ textAlign: 'center', marginBottom: 64 }} data-aos="fade-up">
+            <span style={{ fontSize: 11, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.14em', display: 'block', marginBottom: 12 }}>Client Stories</span>
+            <h2 style={{ fontSize: 'clamp(28px,3.5vw,44px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#fff' }}>What Our Clients Say</h2>
+          </div>
+
+          {/* Featured testimonial */}
+          <div style={{ position: 'relative', minHeight: 280 }}>
+            {TESTIMONIALS.map((t, i) => (
+              <div key={i}
+                style={{
+                  position: i === 0 ? 'relative' : 'absolute', top: 0, left: 0, right: 0,
+                  opacity: testimonialIdx === i ? 1 : 0,
+                  transform: testimonialIdx === i ? 'translateY(0)' : 'translateY(20px)',
+                  transition: 'opacity 0.5s ease, transform 0.5s ease',
+                  pointerEvents: testimonialIdx === i ? 'auto' : 'none',
+                }}>
+                <div style={{ background: 'rgba(255,255,255,0.07)', borderRadius: 20, padding: '44px 52px', border: '1px solid rgba(255,255,255,0.1)', display: 'grid', gridTemplateColumns: '1fr auto', gap: 40, alignItems: 'center' }} className="testimonial-inner">
+                  <div>
+                    <div style={{ display: 'flex', gap: 4, marginBottom: 20 }}>
+                      {Array.from({ length: t.rating }).map((_, si) => (
+                        <Star key={si} size={16} style={{ color: ACCENT, fill: ACCENT }} />
+                      ))}
+                    </div>
+                    <p style={{ fontSize: 20, color: 'rgba(255,255,255,0.92)', lineHeight: 1.7, marginBottom: 28, fontStyle: 'italic', fontFamily: 'Outfit,sans-serif' }}>"{t.quote}"</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                      <img src={t.avatar} alt={t.name}
+                        style={{ width: 54, height: 54, borderRadius: '50%', objectFit: 'cover', border: `2px solid ${ACCENT}` }}
+                        onError={e => { e.target.style.display = 'none'; }} />
+                      <div>
+                        <div style={{ fontSize: 16, fontWeight: 700, color: '#fff', fontFamily: 'Outfit,sans-serif' }}>{t.name}</div>
+                        <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginTop: 3 }}>{t.role}</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ textAlign: 'center', background: 'rgba(200,134,10,0.15)', borderRadius: 14, padding: '28px 32px', border: `1px solid ${ACCENT}30`, minWidth: 160 }} className="metric-box">
+                    <TrendingUp size={28} color={ACCENT} style={{ marginBottom: 12 }} />
+                    <p style={{ fontSize: 12, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.08em', lineHeight: 1.5 }}>{t.metric}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Dots + Nav */}
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 16, marginTop: 40 }}>
+            <button onClick={() => setTestimonialIdx(i => (i - 1 + TESTIMONIALS.length) % TESTIMONIALS.length)}
+              style={{ width: 40, height: 40, borderRadius: '50%', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', transition: 'background 0.15s' }}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+              <ChevronLeft size={18} />
+            </button>
+            <div style={{ display: 'flex', gap: 8 }}>
+              {TESTIMONIALS.map((_, i) => (
+                <button key={i} onClick={() => setTestimonialIdx(i)}
+                  style={{ width: testimonialIdx === i ? 24 : 8, height: 8, borderRadius: 100, border: 'none', background: testimonialIdx === i ? ACCENT : 'rgba(255,255,255,0.3)', cursor: 'pointer', transition: 'all 0.3s' }} />
+              ))}
+            </div>
+            <button onClick={() => setTestimonialIdx(i => (i + 1) % TESTIMONIALS.length)}
+              style={{ width: 40, height: 40, borderRadius: '50%', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', transition: 'background 0.15s' }}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+              <ChevronRight size={18} />
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 9. Inspiration Gallery ───────────────────────────────────────────── */}
+      <section style={{ padding: '100px 24px', backgroundColor: '#fff' }}>
+        <div style={{ maxWidth: 1300, margin: '0 auto' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 40, gap: 16 }} data-aos="fade-up">
+            <div>
+              <span style={{ fontSize: 11, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.14em', display: 'block', marginBottom: 10 }}>Packaging in the Wild</span>
+              <h2 style={{ fontSize: 'clamp(26px,3vw,40px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#1A1A1A', marginBottom: 8 }}>Packaging Inspiration</h2>
+              <p style={{ fontSize: 14, color: '#777', maxWidth: 420 }}>Real work from our customers — collected every week.</p>
+            </div>
+            <Link to="/success-stories"
+              style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: G, textDecoration: 'none', transition: 'color 0.15s' }}
+              onMouseEnter={e => e.currentTarget.style.color = ACCENT} onMouseLeave={e => e.currentTarget.style.color = G}>
+              View All <ChevronRight size={16} />
+            </Link>
+          </div>
+
+          <div className="gallery-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16 }}>
+            {/* Large featured image */}
+            <div style={{ gridRow: 'span 2', borderRadius: 16, overflow: 'hidden', cursor: 'pointer', position: 'relative', minHeight: 340 }}
+              data-aos="zoom-in"
+              onMouseEnter={e => { e.currentTarget.querySelector('img').style.transform = 'scale(1.06)'; e.currentTarget.querySelector('.overlay').style.opacity = '1'; }}
+              onMouseLeave={e => { e.currentTarget.querySelector('img').style.transform = 'scale(1)'; e.currentTarget.querySelector('.overlay').style.opacity = '0'; }}>
+              <img src={INSP_GALLERY[0].img} alt={INSP_GALLERY[0].label} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.6s ease' }}
+                onError={e => { e.target.src = 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=600&q=80'; }} />
+              <div className="overlay" style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%)', opacity: 0, transition: 'opacity 0.3s', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: 24 }}>
+                <span style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: ACCENT, marginBottom: 6 }}>{INSP_GALLERY[0].tag}</span>
+                <span style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>{INSP_GALLERY[0].label}</span>
+              </div>
+            </div>
+            {INSP_GALLERY.slice(1).map((item, i) => (
+              <div key={i} style={{ borderRadius: 16, overflow: 'hidden', cursor: 'pointer', position: 'relative', aspectRatio: '4/3' }}
+                data-aos="zoom-in" data-aos-delay={(i + 1) * 70}
+                onMouseEnter={e => { e.currentTarget.querySelector('img').style.transform = 'scale(1.06)'; e.currentTarget.querySelector('.overlay').style.opacity = '1'; }}
+                onMouseLeave={e => { e.currentTarget.querySelector('img').style.transform = 'scale(1)'; e.currentTarget.querySelector('.overlay').style.opacity = '0'; }}>
+                <img src={item.img} alt={item.label} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.6s ease' }}
+                  onError={e => { e.target.src = 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=600&q=80'; }} />
+                <div className="overlay" style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 60%)', opacity: 0, transition: 'opacity 0.3s', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: 18 }}>
+                  <span style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: ACCENT, marginBottom: 4 }}>{item.tag}</span>
+                  <span style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>{item.label}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── 10. Get a Quick Quote CTA Strip ────────────────────────────────────── */}
+      <section style={{ padding: '60px 24px', backgroundColor: BG, borderTop: '1px solid #E8E4DC' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', flexWrap: 'wrap', gap: 24, alignItems: 'center', justifyContent: 'space-between' }} data-aos="fade-up">
+          <div>
+            <h3 style={{ fontSize: 24, fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#1A1A1A', marginBottom: 6 }}>Need a quote in under 2 minutes?</h3>
+            <p style={{ fontSize: 14, color: '#777' }}>Use our online configurator for instant pricing — no email required.</p>
+          </div>
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+            <Link to="/custom-box"
+              style={{ padding: '14px 32px', background: G, color: '#fff', borderRadius: 10, fontWeight: 700, fontSize: 14, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8, transition: 'background 0.15s' }}
+              onMouseEnter={e => e.currentTarget.style.background = ACCENT}
+              onMouseLeave={e => e.currentTarget.style.background = G}>
+              <RefreshCw size={16} /> Get Instant Quote
+            </Link>
+            <Link to="/contact-us"
+              style={{ padding: '14px 28px', background: 'transparent', border: `2px solid ${G}`, color: G, borderRadius: 10, fontWeight: 700, fontSize: 14, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8, transition: 'all 0.15s' }}
+              onMouseEnter={e => { e.currentTarget.style.background = G; e.currentTarget.style.color = '#fff'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = G; }}>
+              <MessageCircle size={16} /> Talk to an Expert
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 11. Trust Strip ─────────────────────────────────────────────────── */}
+      <section style={{ padding: '32px 24px', backgroundColor: '#fff', borderTop: '1px solid #E8E4DC', borderBottom: '1px solid #E8E4DC' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '16px 44px', alignItems: 'center' }}>
+            {[
+              { icon: <ShieldCheck size={17} color={G} />, label: '100% Quality Guarantee' },
+              { icon: <Leaf size={17} color="#2E7D32" />, label: 'FSC-Certified Materials' },
+              { icon: <Truck size={17} color={ACCENT} />, label: 'Free Shipping on 500+' },
+              { icon: <Zap size={17} color={ACCENT} />, label: '8–10 Day Turnaround' },
+              { icon: <Recycle size={17} color="#2E7D32" />, label: '100% Recyclable Options' },
+              { icon: <CheckCircle size={17} color={G} />, label: 'Free Digital Proof' },
+            ].map((b, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                {b.icon}
+                <span style={{ fontSize: 13, fontWeight: 600, color: '#3A3A3A' }}>{b.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── 12. Final CTA ────────────────────────────────────────────────────── */}
+      <section style={{ padding: '110px 24px', background: `linear-gradient(135deg, ${G} 0%, #0F2E1A 100%)`, position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(200,134,10,0.06) 1.5px, transparent 1.5px)', backgroundSize: '28px 28px', pointerEvents: 'none' }} />
+        {/* Floating decorative shapes */}
+        <div style={{ position: 'absolute', top: '15%', left: '8%', width: 200, height: 200, borderRadius: '50%', border: `1px solid rgba(200,134,10,0.1)`, pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', bottom: '10%', right: '6%', width: 140, height: 140, borderRadius: '50%', border: `1px solid rgba(255,255,255,0.06)`, pointerEvents: 'none' }} />
+
+        <div style={{ maxWidth: 760, margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 1 }} data-aos="fade-up">
+          <span style={{ fontSize: 11, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.14em', display: 'block', marginBottom: 16 }}>Get Started Today</span>
+          <h2 style={{ fontSize: 'clamp(30px,4vw,52px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#fff', marginBottom: 20, lineHeight: 1.12 }}>
+            Ready to elevate your packaging?
+          </h2>
+          <p style={{ fontSize: 17, color: 'rgba(255,255,255,0.62)', marginBottom: 44, maxWidth: 500, margin: '0 auto 44px', lineHeight: 1.75 }}>
+            Join 10,000+ brands who trust NovaPack for consistent quality, fast delivery, and packaging that sells.
+          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: 14 }}>
+            <Link to="/custom-box"
+              style={{ padding: '17px 40px', background: ACCENT, color: '#fff', fontWeight: 700, fontSize: 15, borderRadius: 10, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 10, transition: 'filter 0.15s, transform 0.15s', boxShadow: '0 8px 24px rgba(200,134,10,0.35)' }}
+              onMouseEnter={e => { e.currentTarget.style.filter = 'brightness(1.12)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+              onMouseLeave={e => { e.currentTarget.style.filter = 'none'; e.currentTarget.style.transform = 'none'; }}>
+              Request a Quote <ArrowRight size={16} />
+            </Link>
+            <Link to="/contact-us"
+              style={{ padding: '17px 36px', background: 'transparent', border: '1.5px solid rgba(255,255,255,0.3)', color: '#fff', fontWeight: 700, fontSize: 15, borderRadius: 10, textDecoration: 'none', transition: 'background 0.15s, border-color 0.15s' }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.6)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)'; }}>
+              Contact Sales
+            </Link>
+          </div>
+          <div style={{ display: 'flex', gap: 32, justifyContent: 'center', marginTop: 44, flexWrap: 'wrap' }}>
+            {[<><CheckCircle size={14} /> No minimum commitment</>, <><CheckCircle size={14} /> Free design review</>, <><CheckCircle size={14} /> Ship in 8 days</>].map((item, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'rgba(255,255,255,0.55)', fontWeight: 600 }}>{item}</div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Video Modal */}
+      {showVideoModal && (
+        <div onClick={() => setShowVideoModal(false)}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ background: '#000', borderRadius: 12, overflow: 'hidden', width: 'min(90vw, 800px)', aspectRatio: '16/9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ color: '#fff', textAlign: 'center' }}>
+              <Play size={48} style={{ marginBottom: 16, color: ACCENT }} />
+              <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)' }}>Click anywhere to close</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <style>{`
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @media (max-width: 1024px) {
+          .why-grid { grid-template-columns: 1fr !important; gap: 48px !important; }
+          .material-showcase { grid-template-columns: 1fr !important; }
+          .gallery-grid { grid-template-columns: repeat(2,1fr) !important; }
+        }
+        @media (max-width: 900px) {
+          .stats-grid { grid-template-columns: repeat(2,1fr) !important; }
+          .finishes-grid { grid-template-columns: repeat(3,1fr) !important; }
+          .steps-grid { grid-template-columns: repeat(2,1fr) !important; }
+          .step-line { display: none !important; }
+          .testimonial-inner { grid-template-columns: 1fr !important; }
+          .metric-box { display: none !important; }
+          .features-grid { grid-template-columns: 1fr !important; }
+        }
+        @media (max-width: 600px) {
+          .stats-grid { grid-template-columns: repeat(2,1fr) !important; }
+          .finishes-grid { grid-template-columns: repeat(2,1fr) !important; }
+          .steps-grid { grid-template-columns: 1fr !important; }
+          .gallery-grid { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
     </div>
   );
 }

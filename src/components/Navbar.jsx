@@ -1,327 +1,411 @@
-import { useState, useRef, useEffect } from 'react';
-import { Link, NavLink, useLocation } from 'react-router-dom';
-import { ChevronDown, Phone, Menu, X, ArrowRight } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { ChevronDown, Menu, X, ShoppingCart, User, LogOut, Settings, Package, UserCircle, Heart } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
+import { useToast } from '../context/ToastContext';
+import { useFavourites } from '../context/FavouritesContext';
+import logo from '../assets/logo.png';
 
-/* ─── Nav data ───────────────────────────────────────────── */
-const productCols = [
-  [
-    { label: 'Bottom Closure',   to: '/products/bottom-closure',   img: 'https://placehold.co/48x48/EEF4FB/1B3F6A?text=BC' },
-    { label: 'CD Covers',         to: '/products/cd-covers',         img: 'https://placehold.co/48x48/EEF4FB/1B3F6A?text=CD' },
-    { label: 'Figure & Pattern',  to: '/products/figure-pattern',   img: 'https://placehold.co/48x48/EEF4FB/1B3F6A?text=FP' },
-    { label: 'Fold & Assemble',   to: '/products/fold-assemble',    img: 'https://placehold.co/48x48/EEF4FB/1B3F6A?text=FA' },
+const G = '#1A4D2E';
+const ACCENT = '#C8860A';
+
+const productCategories = {
+  col1: [
+    { name: 'Bottom Closure', desc: 'Secure base for heavier items' },
+    { name: 'CD Covers', desc: 'Classic media packaging' },
+    { name: 'Figure & Pattern', desc: 'Unique structural shapes' },
+    { name: 'Fold & Assemble', desc: 'Easy-fold shipping solutions' },
   ],
-  [
-    { label: 'Rectangular',       to: '/products/rectangular',       img: 'https://placehold.co/48x48/EEF4FB/1B3F6A?text=RE' },
-    { label: 'Showcase Exhibit',  to: '/products/showcase-exhibit', img: 'https://placehold.co/48x48/EEF4FB/1B3F6A?text=SE' },
-    { label: 'Top Closure',       to: '/products/top-closure',       img: 'https://placehold.co/48x48/EEF4FB/1B3F6A?text=TC' },
-    { label: 'Tuck End Boxes',    to: '/products/tuck-end',          img: 'https://placehold.co/48x48/EEF4FB/1B3F6A?text=TE' },
+  col2: [
+    { name: 'Rectangular', desc: 'Standard versatile boxes' },
+    { name: 'Showcase Exhibit', desc: 'Display-ready packaging' },
+    { name: 'Top Closure', desc: 'Classic tuck-top design' },
+    { name: 'Tuck End Boxes', desc: 'Simple and elegant' },
+  ]
+};
+
+const industryCategories = {
+  col1: [
+    { name: 'Apparel & Fashion', desc: 'Clothing and accessories' },
+    { name: 'Candle Boxes', desc: 'Protective and premium' },
+    { name: 'CBD Packaging', desc: 'Compliant and secure' },
+    { name: 'Cosmetic Boxes', desc: 'Beauty and skincare' },
   ],
-];
+  col2: [
+    { name: 'Ecommerce Boxes', desc: 'Durable shipping solutions' },
+    { name: 'Food & Beverage', desc: 'Food-safe materials' },
+    { name: 'Retail Boxes', desc: 'Shelf-ready packaging' },
+    { name: 'Shipping & Mailers', desc: 'Cost-effective transit' },
+  ]
+};
 
-const industryCols = [
-  [
-    { label: 'Apparel & Fashion', to: '/industries/apparel-fashion', img: 'https://placehold.co/48x48/EEF4FB/1B3F6A?text=AF' },
-    { label: 'Candle Boxes',      to: '/industries/candle-boxes',    img: 'https://placehold.co/48x48/EEF4FB/1B3F6A?text=CB' },
-    { label: 'CBD Packaging',     to: '/industries/cbd-packaging',   img: 'https://placehold.co/48x48/EEF4FB/1B3F6A?text=CBD' },
-    { label: 'Cosmetic Boxes',    to: '/industries/cosmetic-boxes',  img: 'https://placehold.co/48x48/EEF4FB/1B3F6A?text=CO' },
-  ],
-  [
-    { label: 'Ecommerce Boxes',   to: '/industries/ecommerce-boxes', img: 'https://placehold.co/48x48/EEF4FB/1B3F6A?text=EC' },
-    { label: 'Food & Beverage',   to: '/industries/food-beverage',   img: 'https://placehold.co/48x48/EEF4FB/1B3F6A?text=FB' },
-    { label: 'Retail Boxes',      to: '/industries/retail-boxes',    img: 'https://placehold.co/48x48/EEF4FB/1B3F6A?text=RB' },
-    { label: 'Shipping & Mailer', to: '/industries/shipping-mailer', img: 'https://placehold.co/48x48/EEF4FB/1B3F6A?text=SM' },
-  ],
-];
-
-const aboutLinks = [
-  { label: 'Why Refine Packaging', to: '/why-us' },
-  { label: 'How It Works',         to: '/how-it-works' },
-  { label: 'Success Stories',      to: '/about#stories' },
-  { label: 'Testimonials',         to: '/about#testimonials' },
-  { label: 'Company',              to: '/about' },
-  { label: 'FAQs',                 to: '/faqs' },
-];
-
-/* ─── Expert panel (col 3 of mega dropdown) ─────────────── */
-function ExpertPanel() {
-  return (
-    <div className="p-6 bg-[#EEF4FB] rounded-br-xl h-full flex flex-col">
-      <p className="text-[10px] font-bold uppercase tracking-widest text-[#F47920] mb-3">
-        Get Help With
-      </p>
-      <p className="text-sm font-bold text-[#1B3F6A] mb-2 leading-snug">
-        Expert Packaging Guidance
-      </p>
-      <img
-        src="https://placehold.co/220x110/1B3F6A/ffffff?text=Our+Expert+Team"
-        alt="Team"
-        className="w-full rounded-lg mb-3 object-cover"
-      />
-      <p className="text-xs text-[#6B7280] mb-4 leading-relaxed flex-1">
-        Not sure which style is right? Our specialists will help you choose the perfect packaging.
-      </p>
-      <a
-        href="tel:8001234567"
-        className="flex items-center gap-1.5 text-[#1B3F6A] font-semibold text-sm mb-3 hover:text-[#F47920] transition-colors"
-      >
-        <Phone size={13} /> (800) 123-4567
-      </a>
-      <Link
-        to="/custom-box"
-        className="block text-center bg-[#F47920] hover:bg-[#d96510] text-white text-sm font-semibold py-2.5 rounded-md transition-colors"
-      >
-        Get Free Quote
-      </Link>
-    </div>
-  );
-}
-
-/* ─── Reusable Mega Dropdown ─────────────────────────────── */
-function MegaDropdown({ cols, viewAllTo }) {
-  return (
-    <div className="absolute top-full left-1/2 -translate-x-1/2 w-[820px] bg-white shadow-2xl rounded-b-xl border-t-2 border-[#F47920] z-50 animate-slide-down overflow-hidden">
-      <div className="grid grid-cols-3">
-        {/* Col 1 */}
-        <div className="p-5 border-r border-gray-100">
-          {cols[0].map((item) => (
-            <Link
-              key={item.label}
-              to={item.to}
-              className="flex items-center gap-3 px-2 py-2.5 rounded-lg hover:bg-[#EEF4FB] group transition-colors"
-            >
-              <img src={item.img} alt={item.label} className="w-10 h-10 rounded-md object-cover flex-shrink-0" />
-              <span className="text-sm font-medium text-[#1A1A2E] group-hover:text-[#1B3F6A] transition-colors">
-                {item.label}
-              </span>
-            </Link>
-          ))}
+const MegaMenu = ({ categories, title, isOpen, setActiveMenu }) => (
+  <div
+    className={`absolute left-0 right-0 top-full transition-all duration-200 ease-out overflow-hidden ${isOpen ? 'opacity-100 translate-y-0 visible pointer-events-auto' : 'opacity-0 -translate-y-3 invisible pointer-events-none'}`}
+    style={{ boxShadow: '0 20px 60px rgba(0,0,0,0.18)', zIndex: 9999, background: '#fff', borderTop: `3px solid ${ACCENT}` }}
+    onMouseEnter={() => setActiveMenu(title)}
+    onMouseLeave={() => setActiveMenu(null)}
+  >
+    <div className="max-w-[1200px] mx-auto px-6 py-10 grid grid-cols-12 gap-8">
+      <div className="col-span-8 grid grid-cols-2 gap-10">
+        <div>
+          <h4 style={{ fontSize: 10, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 20 }}>Popular Categories</h4>
+          <div className="space-y-5">
+            {categories.col1.map((item, idx) => (
+              <Link key={idx} to={`/${title.toLowerCase()}/${item.name.toLowerCase().replace(/ /g, '-')}`}
+                className="block group/item" onClick={() => setActiveMenu(null)}>
+                <span style={{ fontSize: 14, fontWeight: 600, color: '#1A1A1A', display: 'block', transition: 'color 0.15s' }}
+                  onMouseEnter={e => e.target.style.color = G} onMouseLeave={e => e.target.style.color = '#1A1A1A'}>{item.name}</span>
+                <span style={{ fontSize: 12, color: '#888', display: 'block', marginTop: 2 }}>{item.desc}</span>
+              </Link>
+            ))}
+          </div>
         </div>
-        {/* Col 2 */}
-        <div className="p-5 border-r border-gray-100">
-          {cols[1].map((item) => (
-            <Link
-              key={item.label}
-              to={item.to}
-              className="flex items-center gap-3 px-2 py-2.5 rounded-lg hover:bg-[#EEF4FB] group transition-colors"
-            >
-              <img src={item.img} alt={item.label} className="w-10 h-10 rounded-md object-cover flex-shrink-0" />
-              <span className="text-sm font-medium text-[#1A1A2E] group-hover:text-[#1B3F6A] transition-colors">
-                {item.label}
-              </span>
+        <div>
+          <h4 style={{ fontSize: 10, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 20 }}>More Categories</h4>
+          <div className="space-y-5">
+            {categories.col2.map((item, idx) => (
+              <Link key={idx} to={`/${title.toLowerCase()}/${item.name.toLowerCase().replace(/ /g, '-')}`}
+                className="block group/item" onClick={() => setActiveMenu(null)}>
+                <span style={{ fontSize: 14, fontWeight: 600, color: '#1A1A1A', display: 'block', transition: 'color 0.15s' }}
+                  onMouseEnter={e => e.target.style.color = G} onMouseLeave={e => e.target.style.color = '#1A1A1A'}>{item.name}</span>
+                <span style={{ fontSize: 12, color: '#888', display: 'block', marginTop: 2 }}>{item.desc}</span>
+              </Link>
+            ))}
+            <Link to={`/${title.toLowerCase()}`} onClick={() => setActiveMenu(null)}
+              style={{ display: 'inline-block', marginTop: 8, fontSize: 13, fontWeight: 700, color: G, borderBottom: `1px solid ${G}`, paddingBottom: 1, textDecoration: 'none', transition: 'color 0.15s' }}
+              onMouseEnter={e => e.currentTarget.style.color = ACCENT} onMouseLeave={e => e.currentTarget.style.color = G}>
+              View All {title} &rarr;
             </Link>
-          ))}
-          <Link
-            to={viewAllTo}
-            className="flex items-center gap-1 mt-3 px-2 text-xs font-semibold text-[#F47920] hover:gap-2 transition-all"
-          >
-            View All <ArrowRight size={11} />
-          </Link>
+          </div>
         </div>
-        {/* Col 3 */}
-        <ExpertPanel />
+      </div>
+      <div className="col-span-4 rounded-xl overflow-hidden relative group/feat" style={{ minHeight: 220 }}>
+        <img
+          src={title === 'Products'
+            ? 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=700&q=80'
+            : 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=700&q=80'}
+          alt="Featured"
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover/feat:scale-105"
+        />
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.1) 60%)' }} />
+        <div className="absolute bottom-0 left-0 p-5">
+          <span style={{ display: 'inline-block', padding: '3px 10px', background: ACCENT, color: '#fff', fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', borderRadius: 4, marginBottom: 8 }}>Featured</span>
+          <h4 style={{ fontSize: 16, fontWeight: 700, color: '#fff', marginBottom: 6 }}>Sustainable Packaging</h4>
+          <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)' }}>FSC-certified materials for eco-conscious brands.</p>
+        </div>
       </div>
     </div>
-  );
-}
+  </div>
+);
 
-/* ─── About simple dropdown ──────────────────────────────── */
-function AboutDropdown() {
-  return (
-    <div className="absolute top-full left-1/2 -translate-x-1/2 w-56 bg-white shadow-2xl rounded-b-xl border-t-2 border-[#F47920] z-50 animate-slide-down py-2">
-      {aboutLinks.map((l) => (
-        <Link
-          key={l.label}
-          to={l.to}
-          className="block px-5 py-2.5 text-sm font-medium text-[#1A1A2E] hover:bg-[#EEF4FB] hover:text-[#1B3F6A] transition-colors"
-        >
-          {l.label}
-        </Link>
-      ))}
-    </div>
-  );
-}
-
-/* ─── Navbar ─────────────────────────────────────────────── */
 export default function Navbar() {
-  const [open, setOpen] = useState(null);   // 'products' | 'industries' | 'about' | null
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [mobileExpanded, setMobileExpanded] = useState(null);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [activeMenu, setActiveMenu] = useState(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [mobileExpanded, setMobileExpanded] = useState({});
   const navRef = useRef(null);
+
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, isAuthenticated, logout } = useAuth();
+  const { cartCount, toggleDrawer } = useCart();
+  const { showToast } = useToast();
+  const { count: favCount } = useFavourites();
+
+  const handleLogout = () => {
+    logout();
+    showToast('Logged out successfully', 'success');
+    navigate('/');
+  };
 
   useEffect(() => {
-    setOpen(null);
-    setMobileOpen(false);
-  }, [location]);
-
-  useEffect(() => {
-    const handler = (e) => {
-      if (navRef.current && !navRef.current.contains(e.target)) setOpen(null);
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
+    const handleScroll = () => setIsScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const navLinks = [
-    { label: 'Products',   key: 'products' },
-    { label: 'Industries', key: 'industries' },
-    { label: 'About',      key: 'about' },
-  ];
+  useEffect(() => {
+    const timer = setTimeout(() => { setMobileMenuOpen(false); setActiveMenu(null); }, 0);
+    return () => clearTimeout(timer);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    const handleClick = (e) => {
+      if (navRef.current && !navRef.current.contains(e.target)) {
+        setActiveMenu(null); setUserDropdownOpen(false);
+      }
+    };
+    const handleKey = (e) => {
+      if (e.key === 'Escape') { setActiveMenu(null); setUserDropdownOpen(false); }
+    };
+    document.addEventListener('mousedown', handleClick);
+    document.addEventListener('keydown', handleKey);
+    return () => { document.removeEventListener('mousedown', handleClick); document.removeEventListener('keydown', handleKey); };
+  }, []);
+
+  const navBg = isScrolled
+    ? 'rgba(20,60,36,0.97)'
+    : G;
+
+  const linkStyle = {
+    fontSize: 14,
+    fontWeight: 600,
+    color: '#fff',
+    textDecoration: 'none',
+    padding: '6px 0',
+    transition: 'color 0.15s',
+    letterSpacing: '0.01em',
+  };
 
   return (
-    <nav ref={navRef} className="bg-white shadow-sm sticky top-0 z-40 border-b border-gray-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="flex items-center justify-between h-[68px]">
+    <>
+      <header
+        ref={navRef}
+        style={{
+          position: 'fixed',
+          top: 0,
+          width: '100%',
+          zIndex: 9999,
+          background: navBg,
+          boxShadow: isScrolled ? '0 2px 20px rgba(0,0,0,0.18)' : 'none',
+          transition: 'background 0.3s, box-shadow 0.3s',
+          borderBottom: isScrolled ? 'none' : `1px solid rgba(255,255,255,0.1)`,
+        }}
+      >
+        <div style={{ maxWidth: 1400, margin: '0 auto', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 68 }}>
 
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 flex-shrink-0">
-            <div className="w-9 h-9 bg-[#1B3F6A] rounded-lg flex items-center justify-center">
-              <span className="text-white font-black text-base">R</span>
+          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', flexShrink: 0, zIndex: 50 }}>
+            <div style={{ width: 40, height: 40, borderRadius: 10, background: ACCENT, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
+              <img src={logo} alt="NovaPack" style={{ height: 32, width: 32, objectFit: 'contain', mixBlendMode: 'multiply' }}
+                onError={e => { e.target.style.display = 'none'; }} />
             </div>
-            <span className="font-black text-xl text-[#1B3F6A] tracking-tight">
-              Refine<span className="text-[#F47920]">Packaging</span>
+            <span style={{ fontSize: 20, fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#fff', letterSpacing: '-0.01em' }}>
+              Nova<span style={{ color: ACCENT }}>Pack</span>
             </span>
           </Link>
 
-          {/* Desktop nav */}
-          <div className="hidden lg:flex items-center gap-0.5">
-            {navLinks.map(({ label, key }) => (
-              <div key={key} className="relative">
-                <button
-                  onMouseEnter={() => setOpen(key)}
-                  onMouseLeave={() => setOpen(null)}
-                  onClick={() => setOpen((p) => (p === key ? null : key))}
-                  className={`flex items-center gap-1 px-4 py-2 text-sm font-semibold rounded-md transition-colors ${
-                    open === key
-                      ? 'text-[#F47920]'
-                      : 'text-[#1B3F6A] hover:text-[#F47920]'
-                  }`}
-                >
-                  {label}
-                  <ChevronDown
-                    size={13}
-                    className={`transition-transform duration-200 ${open === key ? 'rotate-180' : ''}`}
-                  />
-                </button>
+          {/* Desktop Nav */}
+          <nav style={{ display: 'flex', alignItems: 'center', gap: 32, flex: 1, justifyContent: 'center' }} className="hidden lg:flex">
 
-                {open === key && (
-                  <div
-                    onMouseEnter={() => setOpen(key)}
-                    onMouseLeave={() => setOpen(null)}
-                  >
-                    {key === 'products'   && <MegaDropdown cols={productCols}  viewAllTo="/products" />}
-                    {key === 'industries' && <MegaDropdown cols={industryCols} viewAllTo="/industries" />}
-                    {key === 'about'      && <AboutDropdown />}
-                  </div>
-                )}
+            {/* Products */}
+            <div className="relative py-1" onMouseEnter={() => setActiveMenu('Products')} onMouseLeave={() => setActiveMenu(null)}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                <Link to="/products" style={linkStyle}
+                  onMouseEnter={e => e.target.style.color = ACCENT} onMouseLeave={e => e.target.style.color = '#fff'}
+                  onClick={() => setActiveMenu(null)}>Products</Link>
+                <ChevronDown size={13} style={{ color: 'rgba(255,255,255,0.6)', transition: 'transform 0.2s', transform: activeMenu === 'Products' ? 'rotate(180deg)' : 'rotate(0deg)' }} />
               </div>
-            ))}
-
-            <NavLink
-              to="/custom-box"
-              className={({ isActive }) =>
-                `px-4 py-2 text-sm font-semibold rounded-md transition-colors ${
-                  isActive ? 'text-[#F47920]' : 'text-[#1B3F6A] hover:text-[#F47920]'
-                }`
-              }
-            >
-              Custom Box
-            </NavLink>
-          </div>
-
-          {/* Right: avatars + phone + CTA */}
-          <div className="hidden lg:flex items-center gap-4">
-            <div className="flex items-center gap-2.5">
-              <div className="flex -space-x-2">
-                {['A','B','C'].map((l, i) => (
-                  <div
-                    key={i}
-                    className="w-7 h-7 rounded-full bg-[#1B3F6A] border-2 border-white flex items-center justify-center text-white text-[10px] font-bold"
-                  >
-                    {l}
-                  </div>
-                ))}
-              </div>
-              <a
-                href="tel:8001234567"
-                className="flex items-center gap-1.5 text-sm font-semibold text-[#1B3F6A] hover:text-[#F47920] transition-colors"
-              >
-                <Phone size={13} className="text-[#F47920]" />
-                (800) 123-4567
-              </a>
             </div>
-            <Link
-              to="/custom-box"
-              className="bg-[#F47920] hover:bg-[#d96510] text-white font-semibold text-sm px-5 py-2.5 rounded-md transition-colors shadow-sm"
-            >
-              Get Free Quote
+
+            {/* Industries */}
+            <div className="relative py-1" onMouseEnter={() => setActiveMenu('Industries')} onMouseLeave={() => setActiveMenu(null)}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                <Link to="/industries" style={linkStyle}
+                  onMouseEnter={e => e.target.style.color = ACCENT} onMouseLeave={e => e.target.style.color = '#fff'}
+                  onClick={() => setActiveMenu(null)}>Industries</Link>
+                <ChevronDown size={13} style={{ color: 'rgba(255,255,255,0.6)', transition: 'transform 0.2s', transform: activeMenu === 'Industries' ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+              </div>
+            </div>
+
+            <Link to="/about" style={linkStyle}
+              onMouseEnter={e => e.target.style.color = ACCENT} onMouseLeave={e => e.target.style.color = '#fff'}>About</Link>
+            <Link to="/success-stories" style={linkStyle}
+              onMouseEnter={e => e.target.style.color = ACCENT} onMouseLeave={e => e.target.style.color = '#fff'}>Inspiration</Link>
+            <Link to="/blog" style={linkStyle}
+              onMouseEnter={e => e.target.style.color = ACCENT} onMouseLeave={e => e.target.style.color = '#fff'}>Blog</Link>
+            <Link to="/contact-us" style={linkStyle}
+              onMouseEnter={e => e.target.style.color = ACCENT} onMouseLeave={e => e.target.style.color = '#fff'}>Contact</Link>
+          </nav>
+
+          {/* Right Actions */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 18, flexShrink: 0 }} className="hidden lg:flex">
+
+            {/* Favourites */}
+            <Link to="/favourites" style={{ position: 'relative', color: 'rgba(255,255,255,0.8)', transition: 'color 0.15s' }}
+              onMouseEnter={e => e.currentTarget.style.color = '#fff'} onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.8)'}>
+              <Heart size={20} strokeWidth={1.5} />
+              {favCount > 0 && (
+                <span style={{ position: 'absolute', top: -6, right: -6, width: 16, height: 16, background: '#EF4444', color: '#fff', fontSize: 9, fontWeight: 700, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{favCount}</span>
+              )}
+            </Link>
+
+            {/* Cart */}
+            <button onClick={() => toggleDrawer()}
+              style={{ position: 'relative', color: 'rgba(255,255,255,0.8)', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.15s', padding: 0 }}
+              onMouseEnter={e => e.currentTarget.style.color = '#fff'} onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.8)'}>
+              <ShoppingCart size={20} strokeWidth={1.5} />
+              {cartCount > 0 && (
+                <span style={{ position: 'absolute', top: -6, right: -6, width: 16, height: 16, background: ACCENT, color: '#fff', fontSize: 9, fontWeight: 700, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{cartCount}</span>
+              )}
+            </button>
+
+            {/* User */}
+            <div style={{ position: 'relative' }} onMouseEnter={() => setUserDropdownOpen(true)} onMouseLeave={() => setUserDropdownOpen(false)}>
+              {isAuthenticated ? (
+                <div style={{ width: 36, height: 36, borderRadius: '50%', background: ACCENT, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, cursor: 'pointer', border: '2px solid rgba(255,255,255,0.3)' }}>
+                  {user?.name?.charAt(0) || 'U'}
+                </div>
+              ) : (
+                <Link to="/login" style={{ color: 'rgba(255,255,255,0.8)', transition: 'color 0.15s' }}
+                  onMouseEnter={e => e.currentTarget.style.color = '#fff'} onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.8)'}>
+                  <User size={20} strokeWidth={1.5} />
+                </Link>
+              )}
+
+              {/* Auth dropdown */}
+              {isAuthenticated && (
+                <div style={{
+                  position: 'absolute', top: '100%', right: 0, marginTop: 8, width: 240, background: '#fff', borderRadius: 12,
+                  boxShadow: '0 12px 40px rgba(0,0,0,0.15)', border: '1px solid #eee', overflow: 'hidden',
+                  transition: 'all 0.15s', transformOrigin: 'top right',
+                  opacity: userDropdownOpen ? 1 : 0, transform: userDropdownOpen ? 'scale(1)' : 'scale(0.95)',
+                  visibility: userDropdownOpen ? 'visible' : 'hidden', zIndex: 9999,
+                }}>
+                  <div style={{ padding: '14px 16px', borderBottom: '1px solid #f5f5f5', background: '#fafafa', display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{ width: 38, height: 38, borderRadius: '50%', background: G, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, flexShrink: 0 }}>
+                      {user?.name?.charAt(0) || 'U'}
+                    </div>
+                    <div style={{ overflow: 'hidden' }}>
+                      <p style={{ fontSize: 13, fontWeight: 700, color: '#1A1A1A', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.name}</p>
+                      <p style={{ fontSize: 11, color: '#888', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.email}</p>
+                    </div>
+                  </div>
+                  <div style={{ padding: 8 }}>
+                    {[
+                      { to: '/profile', icon: <UserCircle size={15} />, label: 'My Profile' },
+                      { to: '/profile', state: { tab: 'orders' }, icon: <Package size={15} />, label: 'My Orders' },
+                      { to: '/favourites', icon: <Heart size={15} />, label: 'Saved Items' },
+                    ].map((item, i) => (
+                      <Link key={i} to={item.to} state={item.state}
+                        style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 8, fontSize: 13, fontWeight: 500, color: '#333', textDecoration: 'none', transition: 'background 0.1s' }}
+                        onMouseEnter={e => e.currentTarget.style.background = '#f5f5f5'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                        <span style={{ color: '#888' }}>{item.icon}</span> {item.label}
+                      </Link>
+                    ))}
+                    {user?.role === 'admin' && (
+                      <Link to="/admin"
+                        style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 8, fontSize: 13, fontWeight: 500, color: '#333', textDecoration: 'none', borderTop: '1px solid #f0f0f0', marginTop: 4, paddingTop: 12, transition: 'background 0.1s' }}
+                        onMouseEnter={e => e.currentTarget.style.background = '#f5f5f5'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                        <Settings size={15} color="#888" /> Admin Panel
+                      </Link>
+                    )}
+                    <button onClick={handleLogout}
+                      style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 8, fontSize: 13, fontWeight: 500, color: '#EF4444', width: '100%', border: 'none', background: 'transparent', cursor: 'pointer', borderTop: '1px solid #f0f0f0', marginTop: 4, paddingTop: 12, transition: 'background 0.1s' }}
+                      onMouseEnter={e => e.currentTarget.style.background = '#fef2f2'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                      <LogOut size={15} /> Logout
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Guest mini dropdown */}
+              {!isAuthenticated && (
+                <div style={{
+                  position: 'absolute', top: '100%', right: 0, marginTop: 8, width: 180, background: '#fff', borderRadius: 12,
+                  boxShadow: '0 12px 40px rgba(0,0,0,0.15)', border: '1px solid #eee', padding: 8,
+                  transition: 'all 0.15s', transformOrigin: 'top right',
+                  opacity: userDropdownOpen ? 1 : 0, transform: userDropdownOpen ? 'scale(1)' : 'scale(0.95)',
+                  visibility: userDropdownOpen ? 'visible' : 'hidden', zIndex: 9999,
+                }}>
+                  <Link to="/login" style={{ display: 'block', textAlign: 'center', padding: '9px', background: G, color: '#fff', borderRadius: 8, fontSize: 13, fontWeight: 700, textDecoration: 'none', marginBottom: 6, transition: 'background 0.15s' }}
+                    onMouseEnter={e => e.currentTarget.style.background = ACCENT} onMouseLeave={e => e.currentTarget.style.background = G}>Sign In</Link>
+                  <Link to="/register" style={{ display: 'block', textAlign: 'center', padding: '9px', background: 'transparent', color: '#333', border: '1px solid #e5e5e5', borderRadius: 8, fontSize: 13, fontWeight: 700, textDecoration: 'none', transition: 'background 0.1s' }}
+                    onMouseEnter={e => e.currentTarget.style.background = '#f5f5f5'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>Create Account</Link>
+                </div>
+              )}
+            </div>
+
+            <div style={{ width: 1, height: 24, background: 'rgba(255,255,255,0.2)' }} />
+
+            <Link to="/custom-box"
+              style={{ padding: '10px 22px', background: ACCENT, color: '#fff', borderRadius: 8, fontSize: 13, fontWeight: 700, textDecoration: 'none', transition: 'filter 0.15s, transform 0.1s', whiteSpace: 'nowrap' }}
+              onMouseEnter={e => { e.currentTarget.style.filter = 'brightness(1.1)'; e.currentTarget.style.transform = 'scale(1.02)'; }}
+              onMouseLeave={e => { e.currentTarget.style.filter = 'none'; e.currentTarget.style.transform = 'scale(1)'; }}>
+              Get a Quote
             </Link>
           </div>
 
           {/* Mobile hamburger */}
           <button
-            className="lg:hidden p-2 text-[#1B3F6A]"
-            onClick={() => setMobileOpen((v) => !v)}
-            aria-label="Toggle menu"
-          >
-            {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+            style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', padding: 4, zIndex: 50 }}
+            className="lg:hidden"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+            {mobileMenuOpen ? <X size={26} /> : <Menu size={26} />}
           </button>
-        </div>
-      </div>
 
-      {/* Mobile drawer */}
-      {mobileOpen && (
-        <div className="lg:hidden bg-white border-t border-gray-100 shadow-lg animate-fade-in">
-          <div className="px-4 py-4 space-y-1">
-            {navLinks.map(({ label, key }) => (
-              <div key={key}>
-                <button
-                  onClick={() => setMobileExpanded((p) => (p === key ? null : key))}
-                  className="w-full flex items-center justify-between px-3 py-2.5 text-sm font-semibold text-[#1B3F6A] hover:bg-[#EEF4FB] rounded-lg"
-                >
-                  {label}
-                  <ChevronDown
-                    size={14}
-                    className={`transition-transform ${mobileExpanded === key ? 'rotate-180' : ''}`}
-                  />
-                </button>
-                {mobileExpanded === key && (
-                  <div className="ml-3 mt-1 pl-3 border-l-2 border-[#EEF4FB] space-y-1">
-                    {(key === 'products'
-                      ? [...productCols[0], ...productCols[1]]
-                      : key === 'industries'
-                      ? [...industryCols[0], ...industryCols[1]]
-                      : aboutLinks
-                    ).map((item) => (
-                      <Link
-                        key={item.label || item.to}
-                        to={item.to}
-                        className="block py-2 text-sm text-[#6B7280] hover:text-[#1B3F6A]"
-                      >
-                        {item.label}
-                      </Link>
+          {/* Mega Menus */}
+          <MegaMenu categories={productCategories} title="Products" isOpen={activeMenu === 'Products'} setActiveMenu={setActiveMenu} />
+          <MegaMenu categories={industryCategories} title="Industries" isOpen={activeMenu === 'Industries'} setActiveMenu={setActiveMenu} />
+        </div>
+
+        {/* Mobile Drawer */}
+        <div style={{
+          position: 'fixed', inset: 0, background: G, zIndex: 9998,
+          transform: mobileMenuOpen ? 'translateX(0)' : 'translateX(100%)',
+          transition: 'transform 0.3s ease', overflowY: 'auto', paddingTop: 80, paddingBottom: 32,
+        }} className="lg:hidden">
+          <nav style={{ padding: '0 24px' }}>
+            {[
+              { to: '/products', label: 'Products', hasDropdown: true, key: 'Products', items: [...productCategories.col1, ...productCategories.col2] },
+              { to: '/industries', label: 'Industries', hasDropdown: true, key: 'Industries', items: [...industryCategories.col1, ...industryCategories.col2] },
+            ].map(item => (
+              <div key={item.key} style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', padding: '16px 0' }}>
+                  <Link to={item.to} style={{ flex: 1, fontSize: 17, fontWeight: 700, color: '#fff', textDecoration: 'none' }} onClick={() => setMobileMenuOpen(false)}>{item.label}</Link>
+                  <button onClick={() => setMobileExpanded(p => ({ ...p, [item.key]: !p[item.key] }))} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.6)', cursor: 'pointer' }}>
+                    <ChevronDown size={18} style={{ transform: mobileExpanded[item.key] ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+                  </button>
+                </div>
+                {mobileExpanded[item.key] && (
+                  <div style={{ paddingLeft: 16, paddingBottom: 12, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    {item.items.map((sub, si) => (
+                      <Link key={si} to={`/${item.key.toLowerCase()}/${sub.name.toLowerCase().replace(/ /g, '-')}`}
+                        style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)', textDecoration: 'none' }} onClick={() => setMobileMenuOpen(false)}>{sub.name}</Link>
                     ))}
                   </div>
                 )}
               </div>
             ))}
-            <Link
-              to="/custom-box"
-              className="block px-3 py-2.5 text-sm font-semibold text-[#F47920] hover:bg-orange-50 rounded-lg"
-            >
-              Custom Box
-            </Link>
-            <div className="pt-3 border-t border-gray-100">
-              <Link
-                to="/custom-box"
-                className="block w-full text-center bg-[#F47920] hover:bg-[#d96510] text-white font-semibold py-3 rounded-md transition-colors"
-              >
-                Get Free Quote
+            {[
+              { to: '/about', label: 'About' },
+              { to: '/success-stories', label: 'Inspiration' },
+              { to: '/blog', label: 'Blog' },
+              { to: '/contact-us', label: 'Contact' },
+              { to: '/favourites', label: `Favourites${favCount > 0 ? ` (${favCount})` : ''}` },
+            ].map(item => (
+              <Link key={item.to} to={item.to} style={{ display: 'block', padding: '16px 0', fontSize: 17, fontWeight: 700, color: '#fff', textDecoration: 'none', borderBottom: '1px solid rgba(255,255,255,0.1)' }} onClick={() => setMobileMenuOpen(false)}>
+                {item.label}
               </Link>
+            ))}
+            <div style={{ paddingTop: 24, display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {isAuthenticated ? (
+                <>
+                  <Link to="/profile" style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 15, fontWeight: 600, color: '#fff', textDecoration: 'none' }} onClick={() => setMobileMenuOpen(false)}><UserCircle size={18} /> My Profile</Link>
+                  <button onClick={() => { handleLogout(); setMobileMenuOpen(false); }} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 15, fontWeight: 600, color: '#EF4444', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}><LogOut size={18} /> Logout</button>
+                </>
+              ) : (
+                <Link to="/login" style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 15, fontWeight: 600, color: '#fff', textDecoration: 'none' }} onClick={() => setMobileMenuOpen(false)}><User size={18} /> Sign In</Link>
+              )}
+              <button onClick={() => { setMobileMenuOpen(false); toggleDrawer(); }} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 15, fontWeight: 600, color: '#fff', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                <ShoppingCart size={18} /> Cart ({cartCount})
+              </button>
             </div>
+          </nav>
+          <div style={{ padding: '24px 24px 0' }}>
+            <Link to="/custom-box" style={{ display: 'block', width: '100%', padding: '16px', background: ACCENT, color: '#fff', textAlign: 'center', borderRadius: 10, fontWeight: 700, fontSize: 15, textDecoration: 'none' }} onClick={() => setMobileMenuOpen(false)}>
+              Get a Custom Box
+            </Link>
           </div>
         </div>
+      </header>
+
+      {(activeMenu || userDropdownOpen) && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9997 }} onClick={() => { setActiveMenu(null); setUserDropdownOpen(false); }} />
       )}
-    </nav>
+    </>
   );
 }
