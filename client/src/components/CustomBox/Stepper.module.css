@@ -1,0 +1,163 @@
+/* ─── Stepper — Premium Horizontal ────────────────────────────────────── */
+
+.stepper {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ── Progress track ── */
+.track {
+  display: flex;
+  align-items: center;
+  position: relative;
+  padding: 0 2px;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+  flex: 1;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: var(--cb-font);
+}
+
+.step:disabled {
+  cursor: not-allowed;
+}
+
+/* ── Connector line ── */
+.connector {
+  flex: 1;
+  height: 2px;
+  background: var(--cb-border-2);
+  margin: 0;
+  margin-bottom: 22px;
+  position: relative;
+  overflow: hidden;
+}
+
+.connectorFill {
+  position: absolute;
+  top: 0; left: 0;
+  height: 100%;
+  background: linear-gradient(90deg, var(--cb-teal), var(--cb-teal-2));
+  transition: width 0.5s var(--cb-ease);
+  box-shadow: 0 0 8px rgba(12,219,184,0.5);
+}
+
+/* ── Circle ── */
+.circle {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all var(--cb-t-slow);
+  flex-shrink: 0;
+}
+
+/* Pending state */
+.pending .circle {
+  background: rgba(255,255,255,0.04);
+  border: 2px solid rgba(255,255,255,0.12);
+}
+
+/* Active state */
+.active .circle {
+  background: linear-gradient(135deg, var(--cb-teal), var(--cb-teal-2));
+  border: 2px solid var(--cb-teal);
+  box-shadow: 0 0 0 4px rgba(12,219,184,0.15), var(--cb-teal-glow-sm);
+}
+
+/* Completed state */
+.completed .circle {
+  background: rgba(12,219,184,0.14);
+  border: 2px solid rgba(12,219,184,0.5);
+}
+
+.completed:hover .circle {
+  background: rgba(12,219,184,0.20);
+  border-color: var(--cb-teal);
+}
+
+/* ── Number / Check Icon ── */
+.circleNumber {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--cb-text-3);
+}
+
+.active .circleNumber {
+  color: #060912;
+}
+
+.circleCheck {
+  color: var(--cb-teal);
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+/* ── Step label ── */
+.label {
+  font-size: 0.67rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--cb-text-3);
+  white-space: nowrap;
+  transition: color var(--cb-t-base);
+  max-width: 72px;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.active .label {
+  color: var(--cb-teal);
+}
+
+.completed .label {
+  color: var(--cb-text-2);
+}
+
+/* ── Bottom progress bar ── */
+.progressBar {
+  height: 3px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--cb-teal), var(--cb-indigo));
+  border-radius: 999px;
+  transition: width 0.5s var(--cb-ease);
+  box-shadow: 0 0 10px rgba(12,219,184,0.4);
+}
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .circle {
+    width: 28px;
+    height: 28px;
+  }
+
+  .circleNumber {
+    font-size: 0.65rem;
+  }
+
+  .label {
+    font-size: 0.6rem;
+    max-width: 56px;
+  }
+}

@@ -2,15 +2,18 @@
   position: sticky;
   top: 0;
   z-index: var(--z-navbar);
-  background: #fff;
-  border-bottom: 1px solid #f0f0f0;
-  height: 72px;
-  transition: box-shadow 200ms ease, border-color 200ms ease;
+  background: var(--color-navbar-bg, rgba(5,12,26,0.88));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  height: 68px;
+  transition: box-shadow 220ms ease, border-color 220ms ease, background 220ms ease;
 }
 
 .navbar.scrolled {
-  box-shadow: 0 2px 10px rgba(0,0,0,0.07);
-  border-bottom-color: transparent;
+  background: rgba(5,12,26,0.96);
+  box-shadow: 0 4px 32px rgba(0,0,0,0.4);
+  border-bottom-color: rgba(255,107,53,0.12);
 }
 
 .inner {
@@ -24,87 +27,32 @@
 .logo {
   flex-shrink: 0;
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  line-height: 1;
-  text-decoration: none;
-  margin-right: 28px;
-  gap: 2px;
-}
-
-.logoMark {
-  font-size: 0; /* hidden — part of visual only */
-  display: none;
-}
-
-/* Wordmark row */
-.logo > .logoMark,
-.logo > .logoWord {
-  display: inline;
-}
-
-/* The actual logo: "99designs" as one text block */
-.logo::before {
-  display: none; /* not used */
-}
-
-.logoWord {
-  font-size: 22px;
-  font-weight: 900;
-  color: #1a1a1a;
-  letter-spacing: -0.5px;
-  font-family: var(--font-family);
-  /* prepend the 99 */
-  display: none;
-}
-
-/* Rebuild: flex row for "99" + "designs" */
-.logo {
-  flex-direction: column;
-}
-
-/* Row 1: wordmark */
-.logoTopRow {
-  display: flex;
-  align-items: baseline;
-  gap: 0;
-}
-
-/* The whole logo is built in JSX — just style what JSX outputs */
-.logoMark {
-  display: inline;
-  font-size: 22px;
-  font-weight: 900;
-  color: #1a1a1a;
-  letter-spacing: -0.5px;
-  font-family: var(--font-family);
-}
-
-.logoWord {
-  display: inline;
-  font-size: 22px;
-  font-weight: 900;
-  color: #1a1a1a;
-  letter-spacing: -0.5px;
-  font-family: var(--font-family);
-}
-
-.byVista {
-  display: flex;
   align-items: center;
-  gap: 2px;
-  font-size: 10px;
-  color: #aaa;
-  font-weight: 400;
-  letter-spacing: 0.1px;
+  gap: 10px;
+  text-decoration: none;
+  margin-right: 32px;
+}
+
+.logoText {
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.4px;
   line-height: 1;
+}
+
+.logoNova {
+  color: var(--color-text-primary);
+}
+
+.logoPack {
+  color: var(--color-brand);
 }
 
 /* ── Primary nav ── */
 .nav {
   display: flex;
   align-items: center;
-  gap: 0;
+  gap: 2px;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -113,23 +61,26 @@
 
 .navLink {
   display: block;
-  padding: 8px 13px;
-  font-size: 15px;
+  padding: 7px 14px;
+  font-size: 14px;
   font-weight: 500;
-  color: #1a1a1a;
+  color: var(--color-text-secondary);
   text-decoration: none;
-  border-radius: 4px;
-  transition: background 150ms ease;
+  border-radius: var(--radius-md);
+  transition: background var(--transition-fast), color var(--transition-fast);
   white-space: nowrap;
 }
 
-.navLink:hover { background: #f5f5f5; }
+.navLink:hover {
+  color: var(--color-text-primary);
+  background: rgba(255,255,255,0.06);
+}
 
 /* ── Utility ── */
 .utility {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 18px;
   margin-left: auto;
   flex-shrink: 0;
 }
@@ -138,27 +89,48 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
-  color: #1a1a1a;
+  color: var(--color-text-secondary);
   text-decoration: none;
   white-space: nowrap;
-  transition: color 150ms ease;
+  transition: color var(--transition-fast);
 }
 
-.phone:hover { color: #666; }
+.phone:hover { color: var(--color-text-primary); }
 
 .loginBtn {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--color-text-secondary);
   text-decoration: none;
-  padding: 8px 0;
+  padding: 7px 0;
   white-space: nowrap;
-  transition: color 150ms ease;
+  transition: color var(--transition-fast);
 }
 
-.loginBtn:hover { color: #555; }
+.loginBtn:hover { color: var(--color-text-primary); }
+
+.ctaBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 20px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--color-brand);
+  border-radius: var(--radius-md);
+  white-space: nowrap;
+  text-decoration: none;
+  transition: background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.ctaBtn:hover {
+  background: var(--color-brand-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px var(--color-brand-glow);
+}
 
 /* ── Hamburger ── */
 .hamburger {
@@ -166,61 +138,110 @@
   flex-direction: column;
   justify-content: center;
   gap: 5px;
-  width: 32px;
-  height: 32px;
-  padding: 4px;
+  width: 36px;
+  height: 36px;
+  padding: 6px;
   margin-left: auto;
-  background: none;
-  border: none;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--radius-md);
   cursor: pointer;
 }
 
 .hamburger span {
   display: block;
   height: 2px;
-  background: #1a1a1a;
+  background: var(--color-text-secondary);
   border-radius: 2px;
+  transition: background var(--transition-fast);
 }
+
+.hamburger:hover span { background: var(--color-text-primary); }
 
 /* ── Drawer ── */
 .drawer {
   position: fixed;
-  inset: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 300px;
   z-index: calc(var(--z-navbar) + 1);
-  background: #fff;
-  padding: 24px 24px;
+  background: var(--color-bg-2);
+  border-left: 1px solid rgba(255,255,255,0.07);
+  padding: 0 0 32px;
   display: flex;
   flex-direction: column;
   transform: translateX(100%);
-  transition: transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94);
+  transition: transform 0.32s cubic-bezier(0.22,1,0.36,1);
 }
 
 .drawer.open { transform: translateX(0); }
 
+.drawerHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  margin-bottom: 8px;
+}
+
 .drawerClose {
-  align-self: flex-end;
-  font-size: 26px;
-  color: #888;
-  margin-bottom: 16px;
-  background: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  background: rgba(255,255,255,0.06);
   border: none;
   cursor: pointer;
+  transition: color var(--transition-fast), background var(--transition-fast);
+}
+
+.drawerClose:hover {
+  color: var(--color-text-primary);
+  background: rgba(255,255,255,0.1);
 }
 
 .drawerLink {
   display: block;
-  padding: 14px 0;
-  font-size: 18px;
+  padding: 14px 24px;
+  font-size: 15px;
   font-weight: 500;
-  color: #1a1a1a;
+  color: var(--color-text-secondary);
   text-decoration: none;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  transition: color var(--transition-fast), background var(--transition-fast);
+}
+
+.drawerLink:hover {
+  color: var(--color-text-primary);
+  background: rgba(255,255,255,0.04);
+}
+
+.drawerCta {
+  margin: 20px 24px 0;
+  border-bottom: none;
+  border-radius: var(--radius-md);
+  background: var(--color-brand);
+  color: #fff;
+  font-weight: 700;
+  text-align: center;
+  padding: 12px 24px;
+}
+
+.drawerCta:hover {
+  background: var(--color-brand-dark);
+  color: #fff;
 }
 
 /* ── Responsive ── */
-@media (max-width: 900px) {
+@media (max-width: 960px) {
   .nav     { display: none; }
   .phone   { display: none; }
   .loginBtn{ display: none; }
+  .ctaBtn  { display: none; }
   .hamburger { display: flex; }
 }

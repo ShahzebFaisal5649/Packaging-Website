@@ -1,0 +1,151 @@
+/* ─── Custom Box Builder — Premium Design System ──────────────────────── */
+
+:root {
+  /* ── Core Background ── */
+  --cb-bg:           #060912;
+  --cb-bg-1:         #0b1120;
+  --cb-bg-2:         #111827;
+  --cb-bg-3:         #1a2235;
+
+  /* ── Glass Surfaces ── */
+  --cb-glass-xs:     rgba(255,255,255,0.025);
+  --cb-glass-sm:     rgba(255,255,255,0.04);
+  --cb-glass-md:     rgba(255,255,255,0.065);
+  --cb-glass-lg:     rgba(255,255,255,0.09);
+
+  /* ── Borders ── */
+  --cb-border:       rgba(255,255,255,0.07);
+  --cb-border-2:     rgba(255,255,255,0.13);
+  --cb-border-3:     rgba(255,255,255,0.20);
+
+  /* ── Accent: Teal ── */
+  --cb-teal:         #0cdbb8;
+  --cb-teal-2:       #07b99a;
+  --cb-teal-dim:     rgba(12,219,184,0.12);
+  --cb-teal-glow:    0 0 28px rgba(12,219,184,0.28);
+  --cb-teal-glow-sm: 0 0 14px rgba(12,219,184,0.20);
+
+  /* ── Accent: Indigo ── */
+  --cb-indigo:       #818cf8;
+  --cb-indigo-dim:   rgba(129,140,248,0.12);
+
+  /* ── Accent: Gold ── */
+  --cb-gold:         #fbbf24;
+  --cb-gold-dim:     rgba(251,191,36,0.12);
+
+  /* ── Status Colors ── */
+  --cb-success:      #4ade80;
+  --cb-success-dim:  rgba(74,222,128,0.12);
+  --cb-warning:      #fbbf24;
+  --cb-error:        #f87171;
+  --cb-error-dim:    rgba(248,113,113,0.12);
+
+  /* ── Typography ── */
+  --cb-text-1:       #f1f5f9;
+  --cb-text-2:       #94a3b8;
+  --cb-text-3:       #475569;
+  --cb-font:         'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --cb-font-mono:    'Menlo', 'Monaco', 'Courier New', monospace;
+
+  /* ── Spacing ── */
+  --cb-sp-1: 4px;
+  --cb-sp-2: 8px;
+  --cb-sp-3: 12px;
+  --cb-sp-4: 16px;
+  --cb-sp-5: 20px;
+  --cb-sp-6: 24px;
+  --cb-sp-8: 32px;
+  --cb-sp-10: 40px;
+  --cb-sp-12: 48px;
+  --cb-sp-16: 64px;
+
+  /* ── Radii ── */
+  --cb-r-sm:  6px;
+  --cb-r-md:  10px;
+  --cb-r-lg:  16px;
+  --cb-r-xl:  24px;
+  --cb-r-2xl: 32px;
+
+  /* ── Shadows ── */
+  --cb-shadow-sm:  0 2px 8px rgba(0,0,0,0.25);
+  --cb-shadow-md:  0 6px 20px rgba(0,0,0,0.35);
+  --cb-shadow-lg:  0 16px 40px rgba(0,0,0,0.45);
+  --cb-shadow-xl:  0 28px 60px rgba(0,0,0,0.55);
+
+  /* ── Transitions ── */
+  --cb-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --cb-t-fast: 140ms cubic-bezier(0.22, 1, 0.36, 1);
+  --cb-t-base: 220ms cubic-bezier(0.22, 1, 0.36, 1);
+  --cb-t-slow: 380ms cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* ── Z-index ── */
+  --cb-z-base:   1;
+  --cb-z-sticky: 50;
+  --cb-z-modal:  200;
+}
+
+/* ─── Keyframe Animations ──────────────────────────────────────────────── */
+
+@keyframes cb-gradient-shift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes cb-pulse-ring {
+  0%   { transform: scale(1);   opacity: 0.8; }
+  50%  { transform: scale(1.12); opacity: 0.4; }
+  100% { transform: scale(1);   opacity: 0.8; }
+}
+
+@keyframes cb-float {
+  0%, 100% { transform: translateY(0);   }
+  50%       { transform: translateY(-6px); }
+}
+
+@keyframes cb-shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position:  600px 0; }
+}
+
+@keyframes cb-slide-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+@keyframes cb-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ─── Utility: Glassmorphism ───────────────────────────────────────────── */
+
+.cb-glass {
+  background: var(--cb-glass-md);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--cb-border);
+}
+
+.cb-glass-heavy {
+  background: var(--cb-glass-lg);
+  backdrop-filter: blur(32px) saturate(200%);
+  -webkit-backdrop-filter: blur(32px) saturate(200%);
+  border: 1px solid var(--cb-border-2);
+}
+
+/* ─── Gradient Text ────────────────────────────────────────────────────── */
+
+.cb-gradient-text {
+  background: linear-gradient(135deg, #f1f5f9 0%, #94a3b8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.cb-gradient-text-teal {
+  background: linear-gradient(135deg, #0cdbb8 0%, #818cf8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}

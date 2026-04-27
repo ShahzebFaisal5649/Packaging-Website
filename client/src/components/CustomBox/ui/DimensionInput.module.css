@@ -1,0 +1,93 @@
+/* ─── DimensionInput ──────────────────────────────────────────────────── */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--cb-text-3);
+}
+
+.inputRow {
+  display: flex;
+  gap: 6px;
+  align-items: stretch;
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1.5px solid var(--cb-border);
+  border-radius: var(--cb-r-md);
+  background: var(--cb-bg-1);
+  color: var(--cb-text-1);
+  font-family: var(--cb-font-mono);
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all var(--cb-t-base);
+  text-align: center;
+}
+
+.input::placeholder {
+  color: var(--cb-text-3);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--cb-teal);
+  box-shadow: 0 0 0 3px rgba(12,219,184,0.1);
+  background: var(--cb-bg-2);
+}
+
+.input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.input.hasError {
+  border-color: var(--cb-error);
+  box-shadow: 0 0 0 3px var(--cb-error-dim);
+}
+
+.unitSelect {
+  padding: 10px 8px;
+  border: 1.5px solid var(--cb-border);
+  border-radius: var(--cb-r-md);
+  background: var(--cb-bg-1);
+  color: var(--cb-text-2);
+  font-family: var(--cb-font);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--cb-t-base);
+  min-width: 52px;
+}
+
+.unitSelect:focus {
+  outline: none;
+  border-color: var(--cb-teal);
+  box-shadow: 0 0 0 3px rgba(12,219,184,0.1);
+}
+
+.unitSelect option {
+  background: #0b1120;
+}
+
+.errorText {
+  font-size: 0.72rem;
+  color: var(--cb-error);
+  margin: 0;
+}
+
+.hintText {
+  font-size: 0.68rem;
+  color: var(--cb-text-3);
+  margin: 0;
+}

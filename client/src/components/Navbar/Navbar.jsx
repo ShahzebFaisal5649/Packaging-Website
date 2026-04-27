@@ -3,11 +3,37 @@ import { useScrollShadow } from '../../hooks/useScrollShadow';
 import styles from './Navbar.module.css';
 
 const NAV_LINKS = [
-  { label: 'Home',               href: '/' },
-  { label: 'Categories',         href: '/categories' },
-  { label: 'How it works',       href: '/how-it-works' },
-  { label: 'Custom Box Design',  href: '/box-design' },
+  { label: 'Home',             href: '/' },
+  { label: 'Categories',       href: '/categories' },
+  { label: 'Custom Box',       href: '/custom-box' },
+  { label: 'How It Works',     href: '/how-it-works' },
+  { label: 'Box Design',       href: '/box-design' },
 ];
+
+function LogoIcon() {
+  return (
+    <svg width="34" height="34" viewBox="0 0 34 34" fill="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="lg-top" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#ff8c5a"/>
+          <stop offset="100%" stopColor="#ff6b35"/>
+        </linearGradient>
+        <linearGradient id="lg-front" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#e85a22"/>
+          <stop offset="100%" stopColor="#c44818"/>
+        </linearGradient>
+        <linearGradient id="lg-side" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="#ff6b35"/>
+          <stop offset="100%" stopColor="#e05220"/>
+        </linearGradient>
+      </defs>
+      {/* Isometric box icon */}
+      <polygon points="17,3 31,11 17,19 3,11" fill="url(#lg-top)"/>
+      <polygon points="3,11 17,19 17,31 3,23" fill="url(#lg-front)"/>
+      <polygon points="31,11 17,19 17,31 31,23" fill="url(#lg-side)"/>
+    </svg>
+  );
+}
 
 export default function Navbar() {
   const hasShadow = useScrollShadow();
@@ -22,19 +48,15 @@ export default function Navbar() {
       >
         <div className={`container ${styles.inner}`}>
 
-          {/* ── Logo ── */}
-          <a href="/" className={styles.logo} aria-label="99designs home">
-            <span className={styles.logoMark}>99</span>
-            <span className={styles.logoWord}>designs</span>
-            <span className={styles.byVista}>
-              by&nbsp;
-              <svg width="36" height="11" viewBox="0 0 36 11" fill="none" aria-hidden="true">
-                <path d="M2 2l3 6.5L8 2M11 2v7M11 5.5h4M11 9h4M18 2h2.5C22 2 23 2.8 23 4s-1 2-2.5 2H18V2zm0 4h3c1.6 0 2.5.8 2.5 2s-.9 2-2.5 2H18V6zM27 2l2.5 7L32 2" stroke="#888" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
+          {/* Logo */}
+          <a href="/" className={styles.logo} aria-label="NovaPack home">
+            <LogoIcon />
+            <span className={styles.logoText}>
+              <span className={styles.logoNova}>Nova</span><span className={styles.logoPack}>Pack</span>
             </span>
           </a>
 
-          {/* ── Primary nav ── */}
+          {/* Primary nav */}
           <ul className={styles.nav} role="list">
             {NAV_LINKS.map((link) => (
               <li key={link.href}>
@@ -43,7 +65,7 @@ export default function Navbar() {
             ))}
           </ul>
 
-          {/* ── Right utility ── */}
+          {/* Right utility */}
           <div className={styles.utility}>
             <a href="tel:18005131678" className={styles.phone}>
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
@@ -52,9 +74,10 @@ export default function Navbar() {
               1 800 513 1678
             </a>
             <a href="/login" className={styles.loginBtn}>Log in</a>
+            <a href="/custom-box" className={styles.ctaBtn}>Get Quote</a>
           </div>
 
-          {/* ── Hamburger ── */}
+          {/* Hamburger */}
           <button
             className={styles.hamburger}
             onClick={() => setDrawerOpen(true)}
@@ -66,24 +89,37 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* ── Mobile drawer ── */}
+      {/* Mobile drawer */}
       <div
         className={`${styles.drawer} ${drawerOpen ? styles.open : ''}`}
         role="dialog"
         aria-modal="true"
         aria-hidden={!drawerOpen}
       >
-        <button className={styles.drawerClose} onClick={() => setDrawerOpen(false)} aria-label="Close menu">×</button>
+        <div className={styles.drawerHeader}>
+          <a href="/" className={styles.logo} onClick={() => setDrawerOpen(false)}>
+            <LogoIcon />
+            <span className={styles.logoText}>
+              <span className={styles.logoNova}>Nova</span><span className={styles.logoPack}>Pack</span>
+            </span>
+          </a>
+          <button className={styles.drawerClose} onClick={() => setDrawerOpen(false)} aria-label="Close menu">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M4 4l12 12M16 4L4 16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+            </svg>
+          </button>
+        </div>
         {NAV_LINKS.map((l) => (
-          <a key={l.href} href={l.href} className={styles.drawerLink}>{l.label}</a>
+          <a key={l.href} href={l.href} className={styles.drawerLink} onClick={() => setDrawerOpen(false)}>{l.label}</a>
         ))}
         <a href="tel:18005131678" className={styles.drawerLink}>1 800 513 1678</a>
         <a href="/login" className={styles.drawerLink}>Log in</a>
+        <a href="/custom-box" className={`${styles.drawerLink} ${styles.drawerCta}`}>Get Quote</a>
       </div>
 
       {drawerOpen && (
         <div
-          style={{ position: 'fixed', inset: 0, zIndex: 99, background: 'rgba(0,0,0,0.4)' }}
+          style={{ position: 'fixed', inset: 0, zIndex: 99, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}
           onClick={() => setDrawerOpen(false)}
           aria-hidden="true"
         />

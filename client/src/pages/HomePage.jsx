@@ -3,206 +3,223 @@ import Navbar from '../components/Navbar/Navbar';
 import Footer from '../components/Footer/Footer';
 import styles from './HomePage.module.css';
 
-/* ─── Hero carousel slides ──────────────────────────────────────────────── */
+/* ─── Hero slides ───────────────────────────────────────────────────────── */
 const SLIDES = [
   {
-    img: 'https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=560&q=85&auto=format',
-    type: 'Packaging',
-    designer: 'Mj.vass',
-    client: 'Vegan Jerky Co',
-    initial: 'M',
+    img: 'https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=640&q=85&auto=format',
+    label: 'Cosmetics Brand',
+    tag: 'Luxury Packaging',
   },
   {
-    img: 'https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=560&q=85&auto=format',
-    type: 'Branding',
-    designer: 'Kamilla O.',
-    client: 'Little Danube',
-    initial: 'K',
+    img: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=640&q=85&auto=format',
+    label: 'Artisan Products',
+    tag: 'Eco Packaging',
   },
   {
-    img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=560&q=85&auto=format',
-    type: 'Identity',
-    designer: 'Raveart',
-    client: 'Feel Good Tea Co.',
-    initial: 'R',
+    img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=640&q=85&auto=format',
+    label: 'Premium Tea Co.',
+    tag: 'Retail Boxes',
   },
   {
-    img: 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=560&q=85&auto=format',
-    type: 'Merchandise',
-    designer: 'illusive trust',
-    client: 'The Studio Chicago',
-    initial: 'I',
+    img: 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=640&q=85&auto=format',
+    label: 'Apparel Studio',
+    tag: 'Brand Packaging',
   },
 ];
 
-/* ─── Category tiles ────────────────────────────────────────────────────── */
-const CAT_TILES = [
-  { label: 'Logo & branding design',     href: '/categories?tab=logo-identity',        img: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?w=300&q=75&auto=format' },
-  { label: 'Website & app design',        href: '/categories?tab=web-app-design',       img: 'https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?w=300&q=75&auto=format' },
-  { label: 'Business & advertising',      href: '/categories?tab=business-advertising', img: 'https://images.unsplash.com/photo-1542744094-3a31f272c490?w=300&q=75&auto=format' },
-  { label: 'Art & illustration',           href: '/categories?tab=art-illustration',    img: 'https://images.unsplash.com/photo-1561214115-f2f134cc4912?w=300&q=75&auto=format' },
-  { label: 'Packaging & label',           href: '/categories?tab=packaging-label',      img: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=300&q=75&auto=format' },
+/* ─── Service categories ────────────────────────────────────────────────── */
+const SERVICES = [
+  {
+    href: '/categories?tab=mailer-boxes',
+    img: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&q=80&auto=format',
+    label: 'Mailer Boxes',
+    desc: 'Custom printed mailers that make unboxing unforgettable.',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17,7 17,2 7,2 7,7"/>
+        <line x1="2" y1="12" x2="22" y2="12"/>
+      </svg>
+    ),
+  },
+  {
+    href: '/categories?tab=product-packaging',
+    img: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?w=400&q=80&auto=format',
+    label: 'Product Packaging',
+    desc: 'Rigid boxes and sleeves that elevate your product on shelves.',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/>
+        <polyline points="3.27,6.96 12,12.01 20.73,6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>
+      </svg>
+    ),
+  },
+  {
+    href: '/categories?tab=retail-boxes',
+    img: 'https://images.unsplash.com/photo-1542744094-3a31f272c490?w=400&q=80&auto=format',
+    label: 'Retail Boxes',
+    desc: 'Point-of-sale packaging designed to convert browsers to buyers.',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/>
+        <path d="M16 10a4 4 0 01-8 0"/>
+      </svg>
+    ),
+  },
+  {
+    href: '/categories?tab=eco-packaging',
+    img: 'https://images.unsplash.com/photo-1586717791821-3f44a563fa4c?w=400&q=80&auto=format',
+    label: 'Eco Packaging',
+    desc: 'Sustainable materials — kraft, recycled, biodegradable.',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22s-8-4.5-8-11.8A8 8 0 0112 2a8 8 0 018 8.2c0 7.3-8 11.8-8 11.8z"/>
+        <path d="M12 13a3 3 0 100-6 3 3 0 000 6z" fill="currentColor" stroke="none" opacity="0.3"/>
+      </svg>
+    ),
+  },
+  {
+    href: '/categories?tab=shipping-boxes',
+    img: 'https://images.unsplash.com/photo-1578575437130-527eed3abbec?w=400&q=80&auto=format',
+    label: 'Shipping Boxes',
+    desc: 'Durable, stackable boxes built for e-commerce at scale.',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="1" y="3" width="15" height="13"/><polygon points="16,8 20,8 23,11 23,16 16,16 16,8"/>
+        <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+      </svg>
+    ),
+  },
+  {
+    href: '/custom-box',
+    img: 'https://images.unsplash.com/photo-1561214115-f2f134cc4912?w=400&q=80&auto=format',
+    label: 'Custom Builder',
+    desc: 'Design your own box step-by-step with our live 3D configurator.',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 00-14.14 0M4.93 19.07a10 10 0 0014.14 0"/>
+        <path d="M12 2v2M12 20v2M2 12h2M20 12h2"/>
+      </svg>
+    ),
+  },
 ];
 
-/* ─── Designer profiles ─────────────────────────────────────────────────── */
-const DESIGNERS = [
+/* ─── Process steps ─────────────────────────────────────────────────────── */
+const STEPS = [
   {
-    name: 'Reza Ernanda',
-    level: 'Top Level',
-    rating: '4.9',
-    reviews: 312,
-    initial: 'R',
-    portfolio: [
-      'https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=240&q=70&auto=format',
-      'https://images.unsplash.com/photo-1626785774573-4b799315345d?w=240&q=70&auto=format',
-      'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=240&q=70&auto=format',
-      'https://images.unsplash.com/photo-1558655146-d09347e92766?w=240&q=70&auto=format',
-    ],
+    num: '01',
+    title: 'Choose Your Box',
+    body: 'Pick from 20+ box styles — mailer, tuck-top, rigid, sleeve, and more.',
+    icon: (
+      <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M20 4L36 12v16L20 36 4 28V12z"/><line x1="4" y1="12" x2="20" y2="20"/><line x1="36" y1="12" x2="20" y2="20"/><line x1="20" y1="20" x2="20" y2="36"/>
+      </svg>
+    ),
   },
   {
-    name: 'Mad Pepper',
-    level: 'Mid Level',
-    rating: '4.8',
-    reviews: 184,
-    initial: 'P',
-    portfolio: [
-      'https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=240&q=70&auto=format',
-      'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=240&q=70&auto=format',
-      'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=240&q=70&auto=format',
-      'https://images.unsplash.com/photo-1574634534894-89d7576c8259?w=240&q=70&auto=format',
-    ],
+    num: '02',
+    title: 'Set Dimensions',
+    body: 'Enter exact measurements in cm, mm, or inches. Real-time cost updates.',
+    icon: (
+      <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="6" y="6" width="28" height="28" rx="3"/><line x1="14" y1="6" x2="14" y2="34"/><line x1="22" y1="6" x2="22" y2="34"/>
+        <line x1="6" y1="14" x2="34" y2="14"/><line x1="6" y1="22" x2="34" y2="22"/>
+      </svg>
+    ),
   },
   {
-    name: 'Radovan C.',
-    level: 'Top Level',
-    rating: '5.0',
-    reviews: 429,
-    initial: 'D',
-    portfolio: [
-      'https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?w=240&q=70&auto=format',
-      'https://images.unsplash.com/photo-1561214115-f2f134cc4912?w=240&q=70&auto=format',
-      'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=240&q=70&auto=format',
-      'https://images.unsplash.com/photo-1503341504253-dff4815485f1?w=240&q=70&auto=format',
-    ],
+    num: '03',
+    title: 'Select Material',
+    body: 'Kraft, corrugated, rigid board, recycled — choose the strength you need.',
+    icon: (
+      <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M20 8l12 6-12 6L8 14z"/><path d="M8 22l12 6 12-6"/><line x1="8" y1="14" x2="8" y2="22"/><line x1="32" y1="14" x2="32" y2="22"/>
+      </svg>
+    ),
   },
+  {
+    num: '04',
+    title: 'Upload Artwork',
+    body: 'Drop your print-ready file or work with our in-house design team.',
+    icon: (
+      <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M28 28H12a4 4 0 01-4-4V10a4 4 0 014-4h10l10 10v8a4 4 0 01-4 4z"/>
+        <polyline points="22,6 22,16 32,16"/><line x1="20" y1="22" x2="20" y2="30"/>
+        <polyline points="16,26 20,22 24,26"/>
+      </svg>
+    ),
+  },
+  {
+    num: '05',
+    title: 'Get Your Quote',
+    body: 'Instant pricing with volume discounts. Minimum quantities from 50 units.',
+    icon: (
+      <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="20" cy="20" r="14"/><line x1="20" y1="14" x2="20" y2="20"/><polyline points="20,20 26,23"/>
+        <path d="M14 8l2 4M26 8l-2 4"/>
+      </svg>
+    ),
+  },
+];
+
+/* ─── Stats ─────────────────────────────────────────────────────────────── */
+const STATS = [
+  { num: '10M+',   label: 'Boxes Delivered' },
+  { num: '50K+',   label: 'Happy Brands' },
+  { num: '192',    label: 'Countries Shipped' },
+  { num: '24h',    label: 'Sample Turnaround' },
 ];
 
 /* ─── Testimonials ──────────────────────────────────────────────────────── */
 const TESTIMONIALS = [
   {
-    stars: '★★★★★',
-    text: '"The quality of designs was outstanding. The process was seamless and designers really understood my vision. I couldn\'t be happier with my new brand identity."',
+    text: 'NovaPack transformed our unboxing experience completely. The quality of print and material is far beyond what we expected at this price point. Our customers literally film their unboxings.',
     name: 'Sarah Mitchell',
-    role: 'Founder, Bloom Wellness',
+    role: 'Founder, Bloom Wellness Co.',
     initial: 'S',
+    rating: 5,
   },
   {
-    stars: '★★★★★',
-    text: '"Working with 99designs was a game changer for our startup. We got 47 logo concepts in 7 days. Fun, fast, and professional — I\'d recommend it to any founder."',
+    text: 'From quote to delivery in 8 days. We needed 2,000 custom mailers on a tight deadline and NovaPack delivered flawlessly. The online configurator made it so easy to get exactly what we wanted.',
     name: 'Marcus Chen',
-    role: 'CEO, Launchpad Tech',
+    role: 'Operations Lead, Launchpad Commerce',
     initial: 'M',
+    rating: 5,
   },
   {
-    stars: '★★★★★',
-    text: '"I\'ve used 99designs three times now. Every single time the quality has been incredible. The designers are talented, responsive, and truly professional."',
+    text: 'Switched from our previous supplier and the difference is night and day. Print precision, structural integrity, customer service — everything is premium. This is our packaging partner for life.',
     name: 'Emma Rodriguez',
-    role: 'Marketing Director, Café Nomad',
+    role: 'Brand Director, Café Nomad',
     initial: 'E',
+    rating: 5,
   },
 ];
 
-const STATS = [
-  { num: 'Every 2s',  label: 'A new design is created' },
-  { num: '697K+',     label: 'Client–designer connections' },
-  { num: '192',       label: 'Countries represented' },
-  { num: '11.6K',     label: 'People discussing design' },
-];
+/* ─── Trust logos (placeholder SVG wordmarks) ───────────────────────────── */
+const TRUST_BRANDS = ['Bloom', 'Launchpad', 'Nomad Co.', 'Artisan Lab', 'Verdant', 'Stackr'];
 
-/* ─── SVG city sketch ───────────────────────────────────────────────────── */
-function CitySketch() {
+/* ─── Helper: Star rating ───────────────────────────────────────────────── */
+function Stars({ count = 5 }) {
   return (
-    <svg className={styles.citySketch} viewBox="0 0 700 560" fill="none" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
-      {/* Stars */}
-      <g fill="#b8a8e8" opacity="0.75">
-        <path d="M90 60l2.5-7 2.5 7 7 2.5-7 2.5-2.5 7-2.5-7-7-2.5z"/>
-        <path d="M580 42l2-5.5 2 5.5 5.5 2-5.5 2-2 5.5-2-5.5-5.5-2z"/>
-        <path d="M620 115l1.4-4 1.4 4 4 1.4-4 1.4-1.4 4-1.4-4-4-1.4z"/>
-        <path d="M55 210l1.4-4 1.4 4 4 1.4-4 1.4-1.4 4-1.4-4-4-1.4z"/>
-        <path d="M500 185l1.4-4 1.4 4 4 1.4-4 1.4-1.4 4-1.4-4-4-1.4z"/>
-        <path d="M120 345l1.2-3.5 1.2 3.5 3.5 1.2-3.5 1.2-1.2 3.5-1.2-3.5-3.5-1.2z"/>
-      </g>
-
-      {/* Buildings outline */}
-      <g stroke="#b8a8e8" strokeWidth="1.5" fill="none" strokeLinecap="round">
-        {/* LEFT cluster */}
-        <rect x="18" y="215" width="52" height="305"/>
-        <rect x="26" y="198" width="36" height="17"/>
-        <rect x="33" y="182" width="22" height="16"/>
-        <line x1="44" y1="182" x2="44" y2="158"/>
-        <path d="M37 158h14l-7-16z"/>
-        <rect x="28" y="228" width="7" height="7"/><rect x="43" y="228" width="7" height="7"/><rect x="58" y="228" width="7" height="7"/>
-        <rect x="28" y="244" width="7" height="7"/><rect x="43" y="244" width="7" height="7"/><rect x="58" y="244" width="7" height="7"/>
-        <rect x="28" y="260" width="7" height="7"/><rect x="43" y="260" width="7" height="7"/>
-
-        <rect x="74" y="258" width="58" height="262"/>
-        <rect x="82" y="242" width="42" height="16"/>
-        <rect x="84" y="272" width="7" height="7"/><rect x="99" y="272" width="7" height="7"/><rect x="114" y="272" width="7" height="7"/>
-        <rect x="84" y="288" width="7" height="7"/><rect x="99" y="288" width="7" height="7"/><rect x="114" y="288" width="7" height="7"/>
-        <rect x="84" y="304" width="7" height="7"/><rect x="99" y="304" width="7" height="7"/>
-
-        <rect x="137" y="278" width="44" height="242"/>
-        <rect x="143" y="264" width="32" height="14"/>
-        <line x1="159" y1="264" x2="159" y2="244"/>
-        <rect x="144" y="290" width="6" height="6"/><rect x="157" y="290" width="6" height="6"/><rect x="170" y="290" width="6" height="6"/>
-
-        {/* Cloud LEFT */}
-        <path d="M150 115 Q163 100 180 105 Q185 88 205 90 Q228 88 232 105 Q250 100 257 115 Q250 125 232 123v7Q205 135 180 130v-7Q165 125 150 115z" opacity="0.55"/>
-
-        {/* RIGHT cluster */}
-        <rect x="480" y="208" width="65" height="312"/>
-        <rect x="489" y="191" width="47" height="17"/>
-        <rect x="498" y="172" width="29" height="19"/>
-        <line x1="512" y1="172" x2="512" y2="150"/>
-        <path d="M505 150h14l-7-17z"/>
-        <rect x="492" y="222" width="8" height="8"/><rect x="507" y="222" width="8" height="8"/><rect x="522" y="222" width="8" height="8"/><rect x="537" y="222" width="8" height="8"/>
-        <rect x="492" y="240" width="8" height="8"/><rect x="507" y="240" width="8" height="8"/><rect x="522" y="240" width="8" height="8"/>
-        <rect x="492" y="258" width="8" height="8"/><rect x="507" y="258" width="8" height="8"/>
-
-        <rect x="549" y="238" width="76" height="282"/>
-        <rect x="557" y="222" width="60" height="16"/>
-        <rect x="559" y="252" width="8" height="8"/><rect x="574" y="252" width="8" height="8"/><rect x="589" y="252" width="8" height="8"/><rect x="604" y="252" width="8" height="8"/>
-        <rect x="559" y="270" width="8" height="8"/><rect x="574" y="270" width="8" height="8"/><rect x="589" y="270" width="8" height="8"/>
-        <rect x="559" y="288" width="8" height="8"/><rect x="574" y="288" width="8" height="8"/>
-
-        <rect x="629" y="280" width="55" height="240"/>
-        <rect x="636" y="266" width="41" height="14"/>
-        <rect x="638" y="294" width="7" height="7"/><rect x="651" y="294" width="7" height="7"/><rect x="664" y="294" width="7" height="7"/>
-
-        {/* Cloud RIGHT */}
-        <path d="M400 148 Q412 135 426 139 Q431 125 447 126 Q463 125 467 139 Q481 135 490 148 Q481 157 467 155v5Q447 163 426 159v-5Q414 157 400 148z" opacity="0.45"/>
-      </g>
-
-      {/* Ground */}
-      <line x1="0" y1="520" x2="700" y2="520" stroke="#b8a8e8" strokeWidth="1.2" opacity="0.35"/>
-    </svg>
+    <div className={styles.stars} aria-label={`${count} out of 5 stars`}>
+      {Array.from({ length: count }).map((_, i) => (
+        <svg key={i} width="14" height="14" viewBox="0 0 14 14" fill="#fbbf24" aria-hidden="true">
+          <path d="M7 1l1.6 3.3 3.6.5-2.6 2.5.6 3.6L7 9.3 3.8 11l.6-3.6L2 4.8l3.6-.5z"/>
+        </svg>
+      ))}
+    </div>
   );
 }
 
-/* ════════════════════════════════════════════════════════════
+/* ════════════════════════════════════════════════════════════════════════
    COMPONENT
-════════════════════════════════════════════════════════════ */
+════════════════════════════════════════════════════════════════════════ */
 export default function HomePage() {
   const [slideIdx, setSlideIdx] = useState(0);
-  const [query, setQuery]       = useState('');
-  const timerRef                = useRef(null);
+  const timerRef = useRef(null);
 
   const startTimer = () => {
     clearInterval(timerRef.current);
-    timerRef.current = setInterval(
-      () => setSlideIdx((i) => (i + 1) % SLIDES.length),
-      4500
-    );
+    timerRef.current = setInterval(() => setSlideIdx((i) => (i + 1) % SLIDES.length), 4500);
   };
 
   useEffect(() => {
@@ -212,235 +229,264 @@ export default function HomePage() {
 
   const goTo = (i) => { setSlideIdx(i); startTimer(); };
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (query.trim()) window.location.href = `/search?q=${encodeURIComponent(query)}`;
-  };
-
   return (
     <div className={styles.page}>
       <Navbar />
 
       <main>
-        {/* ══ HERO ══════════════════════════════════════════ */}
+
+        {/* ══ HERO ═════════════════════════════════════════════════════════ */}
         <section className={styles.hero} aria-label="Hero">
+          {/* Orb backgrounds */}
+          <div className={styles.orbOrange} aria-hidden="true" />
+          <div className={styles.orbBlue}   aria-hidden="true" />
+          <div className={styles.orbViolet} aria-hidden="true" />
 
-          {/* LEFT — showcase */}
-          <div className={styles.heroLeft}>
-            <CitySketch />
+          <div className="container">
+            <div className={styles.heroInner}>
 
-            <div className={styles.slideStack}>
-              {SLIDES.map((s, i) => (
-                <div
-                  key={i}
-                  className={`${styles.slide} ${i === slideIdx ? styles.slideActive : ''}`}
-                  aria-hidden={i !== slideIdx}
-                >
-                  <div className={styles.designCard}>
-                    <img
-                      src={s.img}
-                      alt={`${s.type} by ${s.designer} for ${s.client}`}
-                      loading={i === 0 ? 'eager' : 'lazy'}
-                      decoding="async"
-                    />
-                    <div className={styles.attribution}>
-                      <div className={styles.attributionAvatar}>{s.initial}</div>
-                      {s.type} by {s.designer}
-                    </div>
-                  </div>
-                  <p className={styles.caption}>Created for {s.client}</p>
+              {/* Left — text content */}
+              <div className={styles.heroContent}>
+                <span className={styles.heroBadge}>
+                  <span className={styles.heroBadgeDot} />
+                  Trusted by 50,000+ brands worldwide
+                </span>
+
+                <h1 className={styles.heroHeadline}>
+                  Packaging that<br />
+                  <span className={styles.heroAccent}>sells your brand</span>
+                </h1>
+
+                <p className={styles.heroSub}>
+                  Custom printed boxes, mailers, and packaging — designed online, delivered fast.
+                  Premium quality from 50 units with no setup fees.
+                </p>
+
+                <div className={styles.heroCtas}>
+                  <a href="/custom-box" className={styles.btnPrimary}>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <path d="M8 1.5L14 5v6l-6 3.5L2 11V5z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+                      <line x1="2" y1="5" x2="8" y2="8.5" stroke="currentColor" strokeWidth="1.5"/>
+                      <line x1="14" y1="5" x2="8" y2="8.5" stroke="currentColor" strokeWidth="1.5"/>
+                      <line x1="8" y1="8.5" x2="8" y2="15" stroke="currentColor" strokeWidth="1.5"/>
+                    </svg>
+                    Build Your Box
+                  </a>
+                  <a href="/categories" className={styles.btnSecondary}>
+                    Browse All Packaging
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                      <path d="M1 7h12M7 1l6 6-6 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </a>
                 </div>
-              ))}
-            </div>
 
-            {/* Dot nav */}
-            <div className={styles.slideDots} role="tablist">
-              {SLIDES.map((_, i) => (
-                <button
-                  key={i}
-                  role="tab"
-                  aria-selected={i === slideIdx}
-                  aria-label={`Slide ${i + 1}`}
-                  className={`${styles.dot} ${i === slideIdx ? styles.dotActive : ''}`}
-                  onClick={() => goTo(i)}
-                />
-              ))}
+                <div className={styles.heroTrustRow}>
+                  <div className={styles.heroAvatars}>
+                    {['S','M','E','R','J'].map((l, i) => (
+                      <span key={i} className={styles.heroAvatar} style={{ left: i * 22 }}>{l}</span>
+                    ))}
+                  </div>
+                  <p className={styles.heroTrustText}>
+                    <strong>4.9/5</strong> from 12,000+ orders
+                  </p>
+                </div>
+              </div>
+
+              {/* Right — image carousel */}
+              <div className={styles.heroVisual}>
+                <div className={styles.slideWrap}>
+                  {SLIDES.map((s, i) => (
+                    <div
+                      key={i}
+                      className={`${styles.slide} ${i === slideIdx ? styles.slideActive : ''}`}
+                      aria-hidden={i !== slideIdx}
+                    >
+                      <div className={styles.slideCard}>
+                        <img
+                          src={s.img}
+                          alt={s.label}
+                          loading={i === 0 ? 'eager' : 'lazy'}
+                          decoding="async"
+                        />
+                        <div className={styles.slideOverlay}>
+                          <span className={styles.slideTag}>{s.tag}</span>
+                          <span className={styles.slideLabel}>{s.label}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Dots */}
+                <div className={styles.dots} role="tablist">
+                  {SLIDES.map((_, i) => (
+                    <button
+                      key={i}
+                      role="tab"
+                      aria-selected={i === slideIdx}
+                      aria-label={`Slide ${i + 1}`}
+                      className={`${styles.dot} ${i === slideIdx ? styles.dotActive : ''}`}
+                      onClick={() => goTo(i)}
+                    />
+                  ))}
+                </div>
+
+                {/* Floating stat cards */}
+                <div className={styles.floatCard1}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                  <div>
+                    <p className={styles.floatTitle}>Order placed</p>
+                    <p className={styles.floatSub}>500 mailer boxes</p>
+                  </div>
+                </div>
+                <div className={styles.floatCard2}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" strokeWidth="2">
+                    <path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/>
+                  </svg>
+                  <div>
+                    <p className={styles.floatTitle}>4.9 Rating</p>
+                    <p className={styles.floatSub}>12,000+ reviews</p>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
+        </section>
 
-          {/* RIGHT — CTA */}
-          <div className={styles.heroRight}>
-            <h1 className={styles.headline}>
-              Grow with<br />great design
-            </h1>
-            <p className={styles.subtext}>
-              No matter what your business needs, we can connect you with a creative expert
-              to make your business <strong>look</strong> and <strong>feel</strong> professional.
-              Because good design makes great business.
-            </p>
-
-            <form className={styles.searchRow} onSubmit={handleSearch} role="search">
-              <div className={styles.searchWrap}>
-                <svg className={styles.searchIconSvg} viewBox="0 0 18 18" fill="none" aria-hidden="true">
-                  <circle cx="7.5" cy="7.5" r="5.5" stroke="currentColor" strokeWidth="1.6"/>
-                  <path d="M13 13l3 3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
-                </svg>
-                <input
-                  className={styles.searchInput}
-                  type="search"
-                  placeholder="What do you need designed?"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  aria-label="Search for design services"
-                />
-              </div>
-              <button className={styles.ctaBtn} type="submit">Get a design</button>
-            </form>
-
-            <div className={styles.popular}>
-              <span className={styles.popularLabel}>Popular:</span>
-              {[
-                { label: 'Logo design', href: '/categories?tab=logo-identity' },
-                { label: 'Website',     href: '/categories?tab=web-app-design' },
-                { label: 'Branding',    href: '/categories?tab=logo-identity' },
-                { label: 'Packaging',   href: '/categories?tab=packaging-label' },
-              ].map((tag) => (
-                <a key={tag.label} href={tag.href} className={styles.popularTag}>{tag.label}</a>
+        {/* ══ STATS STRIP ═════════════════════════════════════════════════ */}
+        <section className={styles.statsStrip} aria-label="Key statistics">
+          <div className="container">
+            <div className={styles.statsGrid}>
+              {STATS.map((s) => (
+                <div key={s.label} className={styles.statItem}>
+                  <span className={styles.statNum}>{s.num}</span>
+                  <span className={styles.statLabel}>{s.label}</span>
+                </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* ══ "DESIGN FOR WHAT YOU NEED" ════════════════════ */}
-        <section className={styles.catSection} aria-labelledby="cat-title">
+        {/* ══ TRUST BAR ══════════════════════════════════════════════════ */}
+        <section className={styles.trustBar} aria-label="Trusted by">
           <div className="container">
-            <h2 className={styles.catSectionTitle} id="cat-title">Design for what you need</h2>
-            <div className={styles.catTiles}>
-              {CAT_TILES.map((cat) => (
-                <a key={cat.label} href={cat.href} className={styles.catTile}>
-                  <img src={cat.img} alt={cat.label} className={styles.catTileImg} loading="lazy" decoding="async"/>
-                  <span className={styles.catTileName}>{cat.label}</span>
+            <p className={styles.trustBarLabel}>Trusted by leading brands</p>
+            <div className={styles.trustBrands}>
+              {TRUST_BRANDS.map((b) => (
+                <span key={b} className={styles.trustBrand}>{b}</span>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ══ SERVICES GRID ═══════════════════════════════════════════════ */}
+        <section className={styles.services} aria-label="Packaging services">
+          <div className="container">
+            <div className={styles.sectionHead}>
+              <span className={styles.sectionLabel}>What We Offer</span>
+              <h2 className={styles.sectionTitle}>Every box you need, <span className={styles.accent}>perfectly made</span></h2>
+              <p className={styles.sectionSub}>
+                From cosmetics to food, from startups to enterprises — we have the packaging to match your brand.
+              </p>
+            </div>
+
+            <div className={styles.servicesGrid}>
+              {SERVICES.map((svc, i) => (
+                <a key={i} href={svc.href} className={styles.serviceCard}>
+                  <div className={styles.serviceImg}>
+                    <img src={svc.img} alt={svc.label} loading="lazy" decoding="async" />
+                    <div className={styles.serviceImgOverlay} />
+                  </div>
+                  <div className={styles.serviceBody}>
+                    <div className={styles.serviceIcon}>{svc.icon}</div>
+                    <h3 className={styles.serviceTitle}>{svc.label}</h3>
+                    <p className={styles.serviceDesc}>{svc.desc}</p>
+                    <span className={styles.serviceArrow}>
+                      Explore
+                      <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                        <path d="M1 6.5h11M7 1.5l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </span>
+                  </div>
                 </a>
               ))}
             </div>
           </div>
         </section>
 
-        {/* ══ "YOUR BUSINESS DESERVES GREAT DESIGN" ═════════ */}
-        <section className={styles.businessSection} aria-labelledby="business-title">
+        {/* ══ PROCESS ═════════════════════════════════════════════════════ */}
+        <section className={styles.process} aria-label="How it works">
+          <div className={styles.processGlow} aria-hidden="true" />
           <div className="container">
-            <div className={styles.businessInner}>
-              <div className={styles.businessLeft}>
-                <p className={styles.businessTag}>Why 99designs</p>
-                <h2 className={styles.businessTitle} id="business-title">
-                  Your business deserves great design
-                </h2>
-                <p className={styles.businessBody}>
-                  Work with the world's best designers — vetted for quality, available on demand.
-                  Whether you need a logo, packaging, a website, or a full brand identity, our
-                  global community delivers creative work that moves your business forward.
+            <div className={styles.sectionHead}>
+              <span className={styles.sectionLabel}>How It Works</span>
+              <h2 className={styles.sectionTitle}>From idea to doorstep <span className={styles.accent}>in days</span></h2>
+            </div>
+
+            <div className={styles.processGrid}>
+              {STEPS.map((step, i) => (
+                <div key={i} className={styles.processStep}>
+                  <div className={styles.processIconWrap}>
+                    <div className={styles.processIcon}>{step.icon}</div>
+                    {i < STEPS.length - 1 && <div className={styles.processLine} aria-hidden="true" />}
+                  </div>
+                  <div className={styles.processNum}>{step.num}</div>
+                  <h3 className={styles.processTitle}>{step.title}</h3>
+                  <p className={styles.processBody}>{step.body}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ══ CTA BANNER ══════════════════════════════════════════════════ */}
+        <section className={styles.ctaBanner} aria-label="Start building">
+          <div className={styles.ctaBannerBg} aria-hidden="true" />
+          <div className="container">
+            <div className={styles.ctaBannerInner}>
+              <div className={styles.ctaBannerContent}>
+                <h2 className={styles.ctaBannerTitle}>Ready to build your perfect box?</h2>
+                <p className={styles.ctaBannerSub}>
+                  Get an instant quote in minutes. No account required.
+                  Samples available in 24 hours.
                 </p>
-                <div className={styles.businessBtnWrap}>
-                  <a href="/categories" className={styles.btnDark}>Start a project</a>
-                  <a href="/categories" className={styles.btnOutline}>Browse designers</a>
-                </div>
               </div>
-
-              {/* 2×2 mosaic */}
-              <div className={styles.businessRight}>
-                <img className={styles.mosaicImg} src="https://images.unsplash.com/photo-1626785774573-4b799315345d?w=340&q=80&auto=format" alt="Brand design" loading="lazy" decoding="async"/>
-                <img className={styles.mosaicImg} src="https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=340&q=80&auto=format" alt="Packaging design" loading="lazy" decoding="async"/>
-                <img className={styles.mosaicImg} src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=340&q=80&auto=format" alt="Book cover design" loading="lazy" decoding="async"/>
-                <img className={styles.mosaicImg} src="https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?w=340&q=80&auto=format" alt="Website design" loading="lazy" decoding="async"/>
+              <div className={styles.ctaBannerActions}>
+                <a href="/custom-box" className={styles.btnPrimary}>
+                  Start the Builder
+                  <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+                    <path d="M1 7.5h13M8 1.5l6 6-6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </a>
+                <a href="/categories" className={styles.btnGhost}>
+                  View Gallery
+                </a>
               </div>
             </div>
           </div>
         </section>
 
-        {/* ══ "IT ALL STARTS WITH A LOGO" ═══════════════════ */}
-        <section className={styles.logoSection} aria-labelledby="logo-title">
+        {/* ══ TESTIMONIALS ════════════════════════════════════════════════ */}
+        <section className={styles.testimonials} aria-label="Customer testimonials">
           <div className="container">
-            <h2 className={styles.catSectionTitle} id="logo-title">It all starts with a logo</h2>
-            <div className={styles.logoInner}>
-              <a href="/categories?tab=logo-identity" className={styles.logoCard}>
-                <img className={styles.logoCardBg} src="https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=700&q=80&auto=format" alt="Logo design contest" loading="lazy" decoding="async"/>
-                <div className={styles.logoCardOverlay}/>
-                <div className={styles.logoCardContent}>
-                  <p className={styles.logoCardEyebrow}>Design contest</p>
-                  <h3 className={styles.logoCardTitle}>Get dozens of logo concepts</h3>
-                  <p className={styles.logoCardSub}>Starting from US$299 · 30–100+ designs</p>
-                  <span className={styles.logoCardBtn}>Start a contest</span>
-                </div>
-              </a>
-              <a href="/categories?tab=logo-identity" className={styles.logoCard}>
-                <img className={styles.logoCardBg} src="https://images.unsplash.com/photo-1558655146-d09347e92766?w=700&q=80&auto=format" alt="Hire a logo designer" loading="lazy" decoding="async"/>
-                <div className={styles.logoCardOverlay}/>
-                <div className={styles.logoCardContent}>
-                  <p className={styles.logoCardEyebrow}>1-to-1 project</p>
-                  <h3 className={styles.logoCardTitle}>Work directly with a top designer</h3>
-                  <p className={styles.logoCardSub}>Starting from US$199 · Direct collaboration</p>
-                  <span className={styles.logoCardBtn}>Hire a designer</span>
-                </div>
-              </a>
+            <div className={styles.sectionHead}>
+              <span className={styles.sectionLabel}>Testimonials</span>
+              <h2 className={styles.sectionTitle}>Brands that <span className={styles.accent}>love NovaPack</span></h2>
             </div>
-          </div>
-        </section>
 
-        {/* ══ DESIGNER PROFILES ════════════════════════════ */}
-        <section className={styles.designersSection} aria-labelledby="designers-title">
-          <div className="container">
-            <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle} id="designers-title">
-                Work with creative experts you can trust
-              </h2>
-              <a href="/categories" className={styles.sectionLink}>Browse all designers →</a>
-            </div>
-            <div className={styles.designersGrid}>
-              {DESIGNERS.map((d) => (
-                <div key={d.name} className={styles.designerCard}>
-                  <div className={styles.designerPortfolio}>
-                    {d.portfolio.map((src, i) => (
-                      <img key={i} src={src} alt={`${d.name} work`} className={styles.portfolioImg} loading="lazy" decoding="async"/>
-                    ))}
-                  </div>
-                  <div className={styles.designerMeta}>
-                    <div className={styles.designerAvatar}>{d.initial}</div>
-                    <div>
-                      <div className={styles.designerName}>{d.name}</div>
-                      <div className={styles.designerSub}>
-                        <span className={styles.levelPill}>{d.level}</span>
-                        · {d.reviews} reviews
-                      </div>
-                    </div>
-                    <div className={styles.ratingWrap}>
-                      <span className={styles.ratingStar}>★</span>
-                      {d.rating}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ══ TESTIMONIALS ══════════════════════════════════ */}
-        <section className={styles.testimonialsSection} aria-labelledby="testimonials-title">
-          <div className="container">
-            <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle} id="testimonials-title">
-                Loved by businesses worldwide
-              </h2>
-            </div>
             <div className={styles.testimonialsGrid}>
-              {TESTIMONIALS.map((t) => (
-                <div key={t.name} className={styles.testimonialCard}>
-                  <div className={styles.tStars}>{t.stars}</div>
-                  <p className={styles.tText}>{t.text}</p>
-                  <div className={styles.tAuthor}>
-                    <div className={styles.tAvatarWrap}>{t.initial}</div>
+              {TESTIMONIALS.map((t, i) => (
+                <div key={i} className={styles.testimonialCard}>
+                  <Stars count={t.rating} />
+                  <p className={styles.testimonialText}>{t.text}</p>
+                  <div className={styles.testimonialAuthor}>
+                    <div className={styles.authorAvatar}>{t.initial}</div>
                     <div>
-                      <div className={styles.tName}>{t.name}</div>
-                      <div className={styles.tRole}>{t.role}</div>
+                      <p className={styles.authorName}>{t.name}</p>
+                      <p className={styles.authorRole}>{t.role}</p>
                     </div>
                   </div>
                 </div>
@@ -449,30 +495,41 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* ══ STATS ═════════════════════════════════════════ */}
-        <section className={styles.statsSection} aria-label="Statistics">
+        {/* ══ FINAL CTA ═══════════════════════════════════════════════════ */}
+        <section className={styles.finalCta} aria-label="Final call to action">
+          <div className={styles.finalCtaOrb} aria-hidden="true" />
           <div className="container">
-            <div className={styles.statsGrid}>
-              {STATS.map((s) => (
-                <div key={s.label}>
-                  <div className={styles.statNum}>{s.num}</div>
-                  <div className={styles.statLabel}>{s.label}</div>
-                </div>
-              ))}
+            <div className={styles.finalCtaInner}>
+              <h2 className={styles.finalCtaTitle}>
+                Premium packaging,<br />
+                <span className={styles.accent}>zero compromise</span>
+              </h2>
+              <p className={styles.finalCtaSub}>
+                Join 50,000+ brands who trust NovaPack for their custom packaging.
+                Start with as few as 50 units.
+              </p>
+              <div className={styles.finalCtaActions}>
+                <a href="/custom-box" className={styles.btnPrimary}>
+                  Get Your Free Quote
+                </a>
+                <a href="/how-it-works" className={styles.btnGhost}>
+                  Learn More
+                </a>
+              </div>
+              <div className={styles.finalCtaFeatures}>
+                {['No setup fees', 'Samples in 24h', 'Free design support', 'Carbon-neutral shipping'].map((f) => (
+                  <span key={f} className={styles.featureChip}>
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                      <path d="M2 6l3 3 5-5" stroke="#22c55e" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    {f}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
         </section>
 
-        {/* ══ FINAL CTA ═════════════════════════════════════ */}
-        <section className={styles.ctaBanner} aria-label="Get started">
-          <div className="container">
-            <h2 className={styles.ctaTitle}>Ready to level up your look with a great design?</h2>
-            <p className={styles.ctaSub}>
-              Join over 500,000 businesses that have used 99designs to grow their brand.
-            </p>
-            <a href="/categories" className={styles.ctaBannerBtn}>Get started today</a>
-          </div>
-        </section>
       </main>
 
       <Footer />

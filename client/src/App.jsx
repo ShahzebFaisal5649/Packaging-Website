@@ -6,6 +6,7 @@ import CategoriesPage from './pages/CategoriesPage';
 import BoxDesignPage from './pages/BoxDesignPage';
 import HowItWorksPage from './pages/HowItWorksPage';
 import ContestsPage from './pages/ContestsPage';
+import CustomBoxPage from './pages/CustomBoxPage';
 
 export default function App() {
   const { path } = useRoute();
@@ -20,6 +21,10 @@ export default function App() {
 
   if (path === '/box-design') {
     return <BoxDesignPage />;
+  }
+
+  if (path === '/custom-box') {
+    return <CustomBoxPage />;
   }
 
   if (path === '/how-it-works') {

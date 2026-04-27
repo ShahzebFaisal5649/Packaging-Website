@@ -1,0 +1,186 @@
+/* ─── PreviewPanel — Premium Live Preview ──────────────────────────────── */
+
+.panel {
+  background: var(--cb-glass-sm);
+  border: 1px solid var(--cb-border);
+  border-radius: var(--cb-r-xl);
+  overflow: hidden;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  position: relative;
+}
+
+.panel::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+  z-index: 1;
+}
+
+/* ── Header ── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px 16px;
+  border-bottom: 1px solid var(--cb-border);
+  position: relative;
+  z-index: 1;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.liveDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--cb-teal);
+  animation: cb-pulse-ring 2s ease infinite;
+}
+
+.headerTitle {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--cb-text-2);
+  margin: 0;
+}
+
+.controls {
+  display: flex;
+  gap: 6px;
+}
+
+.ctrlBtn {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--cb-r-sm);
+  border: 1px solid var(--cb-border);
+  background: var(--cb-glass-sm);
+  color: var(--cb-text-3);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  transition: all var(--cb-t-base);
+  font-family: var(--cb-font);
+}
+
+.ctrlBtn:hover {
+  border-color: var(--cb-teal);
+  color: var(--cb-teal);
+  background: var(--cb-teal-dim);
+}
+
+.ctrlBtn.ctrlActive {
+  background: var(--cb-teal-dim);
+  border-color: rgba(12,219,184,0.4);
+  color: var(--cb-teal);
+  box-shadow: var(--cb-teal-glow-sm);
+}
+
+/* ── Preview Canvas ── */
+.canvas {
+  aspect-ratio: 4/3;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 40%, rgba(12,219,184,0.05) 0%, transparent 70%),
+    linear-gradient(180deg, var(--cb-bg-1) 0%, var(--cb-bg) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.canvas svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* ── Config Chips ── */
+.chips {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 22px;
+  border-top: 1px solid var(--cb-border);
+  flex-wrap: wrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.chips::-webkit-scrollbar { display: none; }
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  background: var(--cb-glass-md);
+  border: 1px solid var(--cb-border-2);
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--cb-text-2);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.chipDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--cb-teal);
+}
+
+.chipEmpty {
+  color: var(--cb-text-3);
+  border-color: var(--cb-border);
+  background: transparent;
+}
+
+/* ── Empty state ── */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 40px 20px;
+  color: var(--cb-text-3);
+  text-align: center;
+}
+
+.emptyIcon {
+  font-size: 2.5rem;
+  opacity: 0.4;
+}
+
+.emptyText {
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+/* ── SVG preview text styles ── */
+.previewText,
+.previewSub,
+.previewSmall,
+.previewTiny,
+.dimensionLabel {
+  font-family: var(--cb-font);
+}
+
+@media (max-width: 640px) {
+  .canvas {
+    aspect-ratio: 1/1;
+  }
+}

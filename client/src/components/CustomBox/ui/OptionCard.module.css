@@ -1,0 +1,177 @@
+/* ─── OptionCard — Premium Selection Card ──────────────────────────────── */
+
+.card {
+  position: relative;
+  background: var(--cb-glass-xs);
+  border: 1.5px solid var(--cb-border);
+  border-radius: var(--cb-r-lg);
+  overflow: hidden;
+  cursor: pointer;
+  transition: all var(--cb-t-base);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.card:hover {
+  border-color: var(--cb-border-2);
+  background: var(--cb-glass-sm);
+  transform: translateY(-3px);
+  box-shadow: var(--cb-shadow-md);
+}
+
+.card.selected {
+  border-color: rgba(12,219,184,0.55);
+  background: var(--cb-teal-dim);
+  box-shadow: 0 0 0 1px rgba(12,219,184,0.2), var(--cb-teal-glow-sm);
+}
+
+/* ── Icon / Visual area ── */
+.iconArea {
+  padding: 18px 16px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+}
+
+.cardIcon {
+  font-size: 1.75rem;
+  line-height: 1;
+  filter: saturate(1.2);
+}
+
+.cardIconBg {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--cb-r-md);
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--cb-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all var(--cb-t-base);
+}
+
+.card.selected .cardIconBg {
+  background: rgba(12,219,184,0.1);
+  border-color: rgba(12,219,184,0.3);
+}
+
+/* ── Badge ── */
+.badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.badgePrimary,
+.badge-primary {
+  background: var(--cb-teal-dim);
+  color: var(--cb-teal);
+  border: 1px solid rgba(12,219,184,0.3);
+}
+
+.badgeSuccess,
+.badge-success {
+  background: var(--cb-success-dim);
+  color: var(--cb-success);
+  border: 1px solid rgba(74,222,128,0.25);
+}
+
+.badgeGold,
+.badge-gold {
+  background: var(--cb-gold-dim);
+  color: var(--cb-gold);
+  border: 1px solid rgba(251,191,36,0.25);
+}
+
+.badgeIndigo,
+.badge-blue,
+.badge-purple,
+.badge-cyan {
+  background: var(--cb-indigo-dim);
+  color: var(--cb-indigo);
+  border: 1px solid rgba(129,140,248,0.25);
+}
+
+.badgeGreen,
+.badge-green {
+  background: var(--cb-success-dim);
+  color: var(--cb-success);
+  border: 1px solid rgba(74,222,128,0.25);
+}
+
+/* ── Content ── */
+.content {
+  padding: 0 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+}
+
+.cardName {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--cb-text-1);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.cardDesc {
+  font-size: 0.73rem;
+  color: var(--cb-text-3);
+  margin: 0;
+  line-height: 1.45;
+}
+
+/* ── Footer ── */
+.cardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+  padding-top: 8px;
+  border-top: 1px solid var(--cb-border);
+}
+
+.cardPrice {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--cb-teal);
+  font-family: var(--cb-font-mono);
+}
+
+.cardDetail {
+  font-size: 0.62rem;
+  color: var(--cb-text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ── Selected Checkmark ── */
+.checkmark {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--cb-teal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #060912;
+  font-size: 0.65rem;
+  font-weight: 900;
+  box-shadow: var(--cb-teal-glow-sm);
+  z-index: 2;
+}
