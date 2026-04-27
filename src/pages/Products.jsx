@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Heart, Search, Package, ChevronRight } from 'lucide-react';
 import { useModal } from '../context/ModalContext';
 import { useFavourites } from '../context/FavouritesContext';
 import { useToast } from '../context/ToastContext';
 import { useNavigate } from 'react-router-dom';
+import api from '../services/api';
 
 const G = '#1A4D2E';
 const ACCENT = '#C8860A';
@@ -19,7 +20,7 @@ const categories = [
   'Showcase Exhibit',
 ];
 
-const productsList = [
+const staticProducts = [
   {
     id: 'pr1', name: 'Seal End Auto Bottom', cat: 'Bottom Closure',
     desc: 'Secure auto-lock base for heavier items — no tape required on the bottom.',
@@ -132,52 +133,43 @@ const productsList = [
 
 function ProductCard({ product }) {
   const [hovered, setHovered] = useState(false);
+  const { openQuickView: openModal } = useModal();
   const { isFavourite, toggleFavourite } = useFavourites();
-  const { openQuickView } = useModal();
   const { showToast } = useToast();
   const navigate = useNavigate();
+
   const isFav = isFavourite(product.id);
 
   const handleFavourite = (e) => {
-    e.preventDefault(); e.stopPropagation();
-    const added = toggleFavourite(product);
-    showToast(added !== false ? `Added "${product.name}" to Favourites ♥` : `Removed "${product.name}" from Favourites`, 'info');
+    e.stopPropagation();
+    toggleFavourite(product);
+    showToast(isFav ? 'Removed from favourites' : 'Added to favourites');
   };
-
-  const handleCardClick = () => openQuickView(product);
 
   const handleConfigure = (e) => {
     e.stopPropagation();
-    navigate('/custom-box', {
-      state: {
-        boxType: product.boxType,
-        material: product.material,
-        finish: product.finish,
-        productName: product.name,
-        suggestedDimensions: product.suggestedDimensions || { l: 10, w: 8, h: 4 },
-      },
-    });
+    navigate('/custom-box', { state: { product } });
   };
 
   return (
     <div
-      onClick={handleCardClick}
+      onClick={() => openModal(product)}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
         backgroundColor: '#fff',
-        borderRadius: 12,
-        border: `1.5px solid ${hovered ? ACCENT + '55' : '#E8E3DC'}`,
-        boxShadow: hovered ? '0 8px 32px rgba(0,0,0,0.10)' : '0 2px 8px rgba(0,0,0,0.05)',
-        transition: 'all 0.2s ease',
+        borderRadius: 14,
+        overflow: 'hidden',
+        boxShadow: hovered ? '0 8px 32px rgba(26,77,46,0.13)' : '0 2px 12px rgba(0,0,0,0.07)',
+        transition: 'box-shadow 0.25s, transform 0.25s',
+        transform: hovered ? 'translateY(-4px)' : 'none',
+        cursor: 'pointer',
         display: 'flex',
         flexDirection: 'column',
-        overflow: 'hidden',
-        cursor: 'pointer',
       }}
     >
-      {/* Image */}
-      <div style={{ position: 'relative', aspectRatio: '4/3', overflow: 'hidden', backgroundColor: '#F0EDE8' }}>
+      {/* Image area */}
+      <div style={{ position: 'relative', height: 200, overflow: 'hidden', backgroundColor: '#F0EDE8' }}>
         <img
           src={product.img}
           alt={product.name}
@@ -245,6 +237,24 @@ function ProductCard({ product }) {
 export default function Products() {
   const [activeCategory, setActiveCategory] = useState('All Products');
   const [search, setSearch] = useState('');
+  const [fetchedProducts, setFetchedProducts] = useState([]);
+
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        const data = await api.get('/content/products');
+        if (data.products && data.products.length > 0) {
+          setFetchedProducts(data.products);
+        }
+      // eslint-disable-next-line no-unused-vars
+      } catch (err) {
+        console.log('Using static product data');
+      }
+    };
+    loadProducts();
+  }, []);
+
+  const productsList = fetchedProducts.length > 0 ? fetchedProducts : staticProducts;
 
   const filtered = productsList.filter(p => {
     const matchCat = activeCategory === 'All Products' || p.cat === activeCategory;

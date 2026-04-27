@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, Suspense } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
@@ -77,6 +77,7 @@ export default function CustomBox() {
   const { user, isAuthenticated, updateUser } = useAuth();
   const { showToast } = useToast();
   const location = useLocation();
+  const navigate = useNavigate();
   const fileInputRef = useRef(null);
 
   const [activeStep, setActiveStep] = useState(1);
@@ -183,6 +184,10 @@ export default function CustomBox() {
     setTimeout(() => setAddedToCart(false), 2000);
     showToast('Added to cart!', 'success');
     toggleDrawer(true);
+  };
+  const handleGetQuote = () => {
+    addToCart({ id: `box-${Date.now()}`, name: designName.trim() || `Custom ${config.boxType}`, image: 'https://images.unsplash.com/photo-1607083206968-13611e3d76db?q=80&w=400', price: unitPrice, quantity: config.quantity, configuration: config });
+    navigate('/checkout');
   };
   const handleSaveDesign = () => {
     if (!isAuthenticated) { showToast('Please login to save designs.', 'warning'); return; }
@@ -669,7 +674,7 @@ export default function CustomBox() {
                     onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = G; }}>
                     <Save size={13} /> Save Design
                   </button>
-                  <button onClick={() => showToast('A specialist will contact you shortly!', 'success')}
+                  <button onClick={handleGetQuote}
                     style={{ padding: '12px', background: 'transparent', border: '1.5px solid #E8E4DC', color: '#666', borderRadius: 10, fontWeight: 700, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, transition: 'all 0.15s' }}
                     onMouseEnter={e => { e.currentTarget.style.borderColor = ACCENT; e.currentTarget.style.color = ACCENT; }}
                     onMouseLeave={e => { e.currentTarget.style.borderColor = '#E8E4DC'; e.currentTarget.style.color = '#666'; }}>

@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Heart, Search, Package, ChevronRight } from 'lucide-react';
 import { useFavourites } from '../context/FavouritesContext';
 import { useModal } from '../context/ModalContext';
 import { useToast } from '../context/ToastContext';
 import { useNavigate } from 'react-router-dom';
+import api from '../services/api';
 
 const G = '#1A4D2E';
 const ACCENT = '#C8860A';
@@ -19,7 +20,7 @@ const categories = [
   'Cannabis & CBD',
 ];
 
-const industriesList = [
+const staticIndustries = [
   {
     id: 'ind1', name: 'Food-Safe Boxes', cat: 'Food & Beverage',
     desc: 'FDA-compliant food-safe packaging — coated for grease and moisture resistance.',
@@ -242,6 +243,23 @@ function IndustryCard({ product }) {
 export default function Industries() {
   const [activeCategory, setActiveCategory] = useState('All Industries');
   const [search, setSearch] = useState('');
+  const [fetchedIndustries, setFetchedIndustries] = useState([]);
+
+  useEffect(() => {
+    const loadIndustries = async () => {
+      try {
+        const data = await api.get('/content/industries');
+        if (data.industries && data.industries.length > 0) {
+          setFetchedIndustries(data.industries);
+        }
+      } catch (_err) {
+        console.log('Using static industry data');
+      }
+    };
+    loadIndustries();
+  }, []);
+
+  const industriesList = fetchedIndustries.length > 0 ? fetchedIndustries : staticIndustries;
 
   const filtered = industriesList.filter(p => {
     const matchCat = activeCategory === 'All Industries' || p.cat === activeCategory;

@@ -1,9 +1,10 @@
 import { useCart } from '../context/CartContext';
 import { X, Minus, Plus, ShoppingBag } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function CartDrawer() {
   const { cartItems, isDrawerOpen, toggleDrawer, updateQuantity, removeFromCart, cartTotal } = useCart();
+  const navigate = useNavigate();
 
   return (
     <>
@@ -95,8 +96,8 @@ export default function CartDrawer() {
               >
                 Proceed to Checkout
               </Link>
-              <button 
-                onClick={() => toggleDrawer(false)}
+              <button
+                onClick={() => { toggleDrawer(false); navigate('/products'); }}
                 className="w-full py-3.5 bg-transparent border border-gray-300 text-brand-textPrimary font-bold text-[14px] rounded-button hover:bg-gray-50 transition-colors"
               >
                 Continue Shopping

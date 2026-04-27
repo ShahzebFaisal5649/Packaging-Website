@@ -1,5 +1,7 @@
 const express = require('express');
 const User = require('../models/User');
+const Product = require('../models/Product');
+const Industry = require('../models/Industry');
 const { protect, adminOnly } = require('../middleware/auth');
 
 const router = express.Router();
@@ -66,6 +68,85 @@ router.delete('/users/:id', async (req, res) => {
   try {
     await User.findByIdAndDelete(req.params.id);
     res.json({ message: 'User deleted' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// ── Content Management ────────────────────────────────────────────────────────
+router.get('/products', async (req, res) => {
+  try {
+    const products = await Product.find().sort({ createdAt: -1 });
+    res.json({ products });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+router.post('/products', async (req, res) => {
+  try {
+    const product = await Product.create(req.body);
+    res.json({ product });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+router.put('/products/:id', async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ message: 'Product not found' });
+    Object.assign(product, req.body);
+    await product.save();
+    res.json({ product });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+router.delete('/products/:id', async (req, res) => {
+  try {
+    await Product.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Product deleted' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+router.get('/industries', async (req, res) => {
+  try {
+    const industries = await Industry.find().sort({ createdAt: -1 });
+    res.json({ industries });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+router.post('/industries', async (req, res) => {
+  try {
+    const industry = await Industry.create(req.body);
+    res.json({ industry });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+router.put('/industries/:id', async (req, res) => {
+  try {
+    const industry = await Industry.findById(req.params.id);
+    if (!industry) return res.status(404).json({ message: 'Industry not found' });
+    Object.assign(industry, req.body);
+    await industry.save();
+    res.json({ industry });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+router.delete('/industries/:id', async (req, res) => {
+  try {
+    await Industry.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Industry deleted' });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

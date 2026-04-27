@@ -32,7 +32,7 @@ const CARD_OPTIONS = {
 function PaymentForm({ clientSecret, amount }) {
   const stripe = useStripe();
   const elements = useElements();
-  const { clearCart } = useCart();
+  const { cartItems, clearCart } = useCart();
   const { user } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();

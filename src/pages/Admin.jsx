@@ -8,6 +8,7 @@ import {
   RefreshCw, Search, DollarSign, Clock,
   Eye, Mail, Phone, Calendar,
   Shield, Ban, Star, ArrowUpRight,
+  Package, Building,
 } from 'lucide-react';
 
 const G = '#1A4D2E';
@@ -67,6 +68,8 @@ const NAV_ITEMS = [
   { key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { key: 'orders',    label: 'Orders',    icon: ShoppingBag },
   { key: 'users',     label: 'Users',     icon: Users },
+  { key: 'products',  label: 'Products',  icon: Package },
+  { key: 'industries', label: 'Industries', icon: Building },
   { key: 'quotes',    label: 'Quotes',    icon: FileText },
   { key: 'analytics', label: 'Analytics', icon: BarChart2 },
 ];
@@ -169,7 +172,479 @@ function DashboardSection() {
     </div>
   );
 }
+// ── Products ─────────────────────────────────────────────────────────────────
+function ProductsSection() {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const [selected, setSelected] = useState(null);
+  const [editForm, setEditForm] = useState(null);
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
 
+  const loadProducts = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await api.get('/admin/products');
+      setProducts(data.products || []);
+    } catch (err) {
+      console.error('Failed to load products:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadProducts();
+  }, [loadProducts]);
+
+  const handleEdit = (product) => {
+    setEditForm({
+      id: product._id,
+      name: product.name,
+      slug: product.slug,
+      cat: product.cat,
+      description: product.description,
+      price: product.price,
+      img: product.img,
+      featured: product.featured || false,
+    });
+  };
+
+  const handleSave = async () => {
+    try {
+      if (editForm.id) {
+        await api.put(`/admin/products/${editForm.id}`, editForm);
+      } else {
+        await api.post('/admin/products', editForm);
+      }
+      setEditForm(null);
+      loadProducts();
+    } catch (err) {
+      console.error('Failed to save product:', err);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await api.delete(`/admin/products/${id}`);
+      setDeleteConfirm(null);
+      loadProducts();
+    } catch (err) {
+      console.error('Failed to delete product:', err);
+    }
+  };
+
+  const filteredProducts = products.filter(p =>
+    p.name.toLowerCase().includes(search.toLowerCase()) ||
+    p.cat.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-gray-900">Products Management</h2>
+        <button
+          onClick={() => setEditForm({ name: '', slug: '', cat: '', description: '', price: 0, img: '', featured: false })}
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+        >
+          Add Product
+        </button>
+      </div>
+
+      <div className="bg-white rounded-lg shadow">
+        <div className="p-4 border-b">
+          <div className="flex gap-4">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <input
+                type="text"
+                placeholder="Search products..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border rounded-lg"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Featured</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {loading ? (
+                <tr><td colSpan="5" className="px-6 py-4 text-center">Loading...</td></tr>
+              ) : filteredProducts.length === 0 ? (
+                <tr><td colSpan="5" className="px-6 py-4 text-center">No products found</td></tr>
+              ) : (
+                filteredProducts.map((product) => (
+                  <tr key={product._id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center">
+                        <img src={product.img} alt={product.name} className="w-10 h-10 rounded-lg mr-3" />
+                        <div>
+                          <div className="font-medium text-gray-900">{product.name}</div>
+                          <div className="text-sm text-gray-500">{product.slug}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-900">{product.cat}</td>
+                    <td className="px-6 py-4 text-sm text-gray-900">${product.price}</td>
+                    <td className="px-6 py-4">
+                      {product.featured && <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">Featured</span>}
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleEdit(product)}
+                          className="text-blue-600 hover:text-blue-800"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => setDeleteConfirm(product._id)}
+                          className="text-red-600 hover:text-red-800"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Edit Modal */}
+      {editForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold">{editForm.id ? 'Edit Product' : 'Add Product'}</h3>
+              <button onClick={() => setEditForm(null)} className="text-gray-400 hover:text-gray-600">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            <div className="space-y-4">
+              <input
+                type="text"
+                placeholder="Name"
+                value={editForm.name}
+                onChange={(e) => setEditForm({...editForm, name: e.target.value})}
+                className="w-full p-2 border rounded"
+              />
+              <input
+                type="text"
+                placeholder="Slug"
+                value={editForm.slug}
+                onChange={(e) => setEditForm({...editForm, slug: e.target.value})}
+                className="w-full p-2 border rounded"
+              />
+              <input
+                type="text"
+                placeholder="Category"
+                value={editForm.cat}
+                onChange={(e) => setEditForm({...editForm, cat: e.target.value})}
+                className="w-full p-2 border rounded"
+              />
+              <textarea
+                placeholder="Description"
+                value={editForm.description}
+                onChange={(e) => setEditForm({...editForm, description: e.target.value})}
+                className="w-full p-2 border rounded"
+                rows="3"
+              />
+              <input
+                type="number"
+                placeholder="Price"
+                value={editForm.price}
+                onChange={(e) => setEditForm({...editForm, price: parseFloat(e.target.value)})}
+                className="w-full p-2 border rounded"
+              />
+              <input
+                type="text"
+                placeholder="Image URL"
+                value={editForm.img}
+                onChange={(e) => setEditForm({...editForm, img: e.target.value})}
+                className="w-full p-2 border rounded"
+              />
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={editForm.featured}
+                  onChange={(e) => setEditForm({...editForm, featured: e.target.checked})}
+                  className="mr-2"
+                />
+                Featured
+              </label>
+            </div>
+            <div className="flex gap-2 mt-6">
+              <button onClick={handleSave} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                Save
+              </button>
+              <button onClick={() => setEditForm(null)} className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation */}
+      {deleteConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-sm">
+            <h3 className="text-lg font-semibold mb-4">Delete Product</h3>
+            <p className="text-gray-600 mb-6">Are you sure you want to delete this product? This action cannot be undone.</p>
+            <div className="flex gap-2">
+              <button onClick={() => handleDelete(deleteConfirm)} className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+                Delete
+              </button>
+              <button onClick={() => setDeleteConfirm(null)} className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Industries ───────────────────────────────────────────────────────────────
+function IndustriesSection() {
+  const [industries, setIndustries] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const [selected, setSelected] = useState(null);
+  const [editForm, setEditForm] = useState(null);
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
+
+  const loadIndustries = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await api.get('/admin/industries');
+      setIndustries(data.industries || []);
+    } catch (err) {
+      console.error('Failed to load industries:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadIndustries();
+  }, [loadIndustries]);
+
+  const handleEdit = (industry) => {
+    setEditForm({
+      id: industry._id,
+      name: industry.name,
+      slug: industry.slug,
+      cat: industry.cat,
+      img: industry.img,
+      products: industry.products || [],
+    });
+  };
+
+  const handleSave = async () => {
+    try {
+      if (editForm.id) {
+        await api.put(`/admin/industries/${editForm.id}`, editForm);
+      } else {
+        await api.post('/admin/industries', editForm);
+      }
+      setEditForm(null);
+      loadIndustries();
+    } catch (err) {
+      console.error('Failed to save industry:', err);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await api.delete(`/admin/industries/${id}`);
+      setDeleteConfirm(null);
+      loadIndustries();
+    } catch (err) {
+      console.error('Failed to delete industry:', err);
+    }
+  };
+
+  const filteredIndustries = industries.filter(i =>
+    i.name.toLowerCase().includes(search.toLowerCase()) ||
+    i.cat.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-gray-900">Industries Management</h2>
+        <button
+          onClick={() => setEditForm({ name: '', slug: '', cat: '', img: '', products: [] })}
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+        >
+          Add Industry
+        </button>
+      </div>
+
+      <div className="bg-white rounded-lg shadow">
+        <div className="p-4 border-b">
+          <div className="flex gap-4">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <input
+                type="text"
+                placeholder="Search industries..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border rounded-lg"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Industry</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Products</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {loading ? (
+                <tr><td colSpan="4" className="px-6 py-4 text-center">Loading...</td></tr>
+              ) : filteredIndustries.length === 0 ? (
+                <tr><td colSpan="4" className="px-6 py-4 text-center">No industries found</td></tr>
+              ) : (
+                filteredIndustries.map((industry) => (
+                  <tr key={industry._id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center">
+                        <img src={industry.img} alt={industry.name} className="w-10 h-10 rounded-lg mr-3" />
+                        <div>
+                          <div className="font-medium text-gray-900">{industry.name}</div>
+                          <div className="text-sm text-gray-500">{industry.slug}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-900">{industry.cat}</td>
+                    <td className="px-6 py-4 text-sm text-gray-900">{industry.products?.length || 0} products</td>
+                    <td className="px-6 py-4">
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleEdit(industry)}
+                          className="text-blue-600 hover:text-blue-800"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => setDeleteConfirm(industry._id)}
+                          className="text-red-600 hover:text-red-800"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Edit Modal */}
+      {editForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold">{editForm.id ? 'Edit Industry' : 'Add Industry'}</h3>
+              <button onClick={() => setEditForm(null)} className="text-gray-400 hover:text-gray-600">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            <div className="space-y-4">
+              <input
+                type="text"
+                placeholder="Name"
+                value={editForm.name}
+                onChange={(e) => setEditForm({...editForm, name: e.target.value})}
+                className="w-full p-2 border rounded"
+              />
+              <input
+                type="text"
+                placeholder="Slug"
+                value={editForm.slug}
+                onChange={(e) => setEditForm({...editForm, slug: e.target.value})}
+                className="w-full p-2 border rounded"
+              />
+              <input
+                type="text"
+                placeholder="Category"
+                value={editForm.cat}
+                onChange={(e) => setEditForm({...editForm, cat: e.target.value})}
+                className="w-full p-2 border rounded"
+              />
+              <input
+                type="text"
+                placeholder="Image URL"
+                value={editForm.img}
+                onChange={(e) => setEditForm({...editForm, img: e.target.value})}
+                className="w-full p-2 border rounded"
+              />
+              <textarea
+                placeholder="Product IDs (comma-separated)"
+                value={editForm.products.join(', ')}
+                onChange={(e) => setEditForm({...editForm, products: e.target.value.split(',').map(s => s.trim()).filter(s => s)})}
+                className="w-full p-2 border rounded"
+                rows="3"
+              />
+            </div>
+            <div className="flex gap-2 mt-6">
+              <button onClick={handleSave} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                Save
+              </button>
+              <button onClick={() => setEditForm(null)} className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation */}
+      {deleteConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-sm">
+            <h3 className="text-lg font-semibold mb-4">Delete Industry</h3>
+            <p className="text-gray-600 mb-6">Are you sure you want to delete this industry? This action cannot be undone.</p>
+            <div className="flex gap-2">
+              <button onClick={() => handleDelete(deleteConfirm)} className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+                Delete
+              </button>
+              <button onClick={() => setDeleteConfirm(null)} className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 // ── Orders ────────────────────────────────────────────────────────────────────
 function OrdersSection() {
   const { showToast } = useToast();
@@ -771,7 +1246,7 @@ export default function Admin() {
     );
   }
 
-  const SECTION_MAP = { dashboard: DashboardSection, orders: OrdersSection, users: UsersSection, quotes: QuotesSection, analytics: AnalyticsSection };
+  const SECTION_MAP = { dashboard: DashboardSection, orders: OrdersSection, users: UsersSection, products: ProductsSection, industries: IndustriesSection, quotes: QuotesSection, analytics: AnalyticsSection };
   const SectionComp = SECTION_MAP[activeSection] || DashboardSection;
 
   return (
