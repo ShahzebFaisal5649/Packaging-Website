@@ -141,7 +141,7 @@ function ContactFields({ form, setForm }) {
 const CFG_STEPS = [
   { num: '01', title: 'Enter your box dimensions',       desc: 'Input the exact inner Length, Width, and Height for your product.' },
   { num: '02', title: 'Choose style, material & finish', desc: 'Pick from 5 box styles, 5 material options, and 4 premium finishes.' },
-  { num: '03', title: 'Preview your box in 3D',          desc: 'Watch your box update in real-time — rotate, zoom, and switch to dieline view.' },
+  { num: '03', title: 'Preview your box in 3D',          desc: 'Watch your box update in real-time rotate, zoom, and switch to dieline view.' },
   { num: '04', title: 'Get your instant quote',          desc: 'Review pricing for your quantity and submit a quote request in seconds.' },
 ];
 
@@ -429,7 +429,7 @@ export default function BoxConfigurator() {
                     <p className="text-sm font-semibold text-[#1B3F6A]">
                       {fileName || 'Upload your logo or artwork'}
                     </p>
-                    <p className="text-xs text-[#6B7280] mt-0.5">PNG, PDF, AI, EPS — max 50 MB</p>
+                    <p className="text-xs text-[#6B7280] mt-0.5">PNG, PDF, AI, EPS max 50 MB</p>
                   </div>
                   <input
                     type="file"
@@ -699,7 +699,7 @@ export default function BoxConfigurator() {
       {sampleModal && (
         <Modal title="Request a Free Sample Kit" onClose={() => setSample(false)}>
           <p className="text-sm text-[#6B7280] mb-5">
-            We'll ship a free sample kit with material swatches and print examples directly to you — no strings attached.
+            We'll ship a free sample kit with material swatches and print examples directly to you no strings attached.
           </p>
           <ContactFields form={form} setForm={setForm} />
           <div className="mt-3">

@@ -43,6 +43,14 @@
     font-size: 15px;
     line-height: 1.6;
   }
+  p {
+    text-align: justify;
+  }
+  /* Mobile base */
+  @media (max-width: 768px) {
+    html { font-size: 14px; }
+    img { max-width: 100%; }
+  }
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Outfit', sans-serif;
     line-height: 1.2;

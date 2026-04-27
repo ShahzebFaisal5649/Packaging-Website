@@ -134,7 +134,7 @@ const TESTIMONIALS = [
     role: 'Founder, Lumière Beauty',
     company: 'Lumière Beauty',
     avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80',
-    quote: 'NovaPack delivered our skincare boxes in 7 days — flawless matte finish, zero defects. Our customers love the unboxing experience.',
+    quote: 'NovaPack delivered our skincare boxes in 7 days with flawless matte finish, zero defects. Our customers love the unboxing experience.',
     rating: 5,
     metric: '3× increase in repeat purchases',
   },
@@ -478,7 +478,7 @@ export default function Home() {
             <div>
               <span style={{ fontSize: 11, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.14em', display: 'block', marginBottom: 10 }}>Packaging in the Wild</span>
               <h2 style={{ fontSize: 'clamp(26px,3vw,40px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#1A1A1A', marginBottom: 8 }}>Packaging Inspiration</h2>
-              <p style={{ fontSize: 14, color: '#777', maxWidth: 420 }}>Real work from our customers — collected every week.</p>
+              <p style={{ fontSize: 14, color: '#777', maxWidth: 420 }}>Real work from our customers around the world collected every week.</p>
             </div>
             <Link to="/success-stories"
               style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: G, textDecoration: 'none', transition: 'color 0.15s' }}
@@ -522,7 +522,7 @@ export default function Home() {
         <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', flexWrap: 'wrap', gap: 24, alignItems: 'center', justifyContent: 'space-between' }} data-aos="fade-up">
           <div>
             <h3 style={{ fontSize: 24, fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#1A1A1A', marginBottom: 6 }}>Need a quote in under 2 minutes?</h3>
-            <p style={{ fontSize: 14, color: '#777' }}>Use our online configurator for instant pricing — no email required.</p>
+            <p style={{ fontSize: 14, color: '#777' }}>Use our online configurator for instant pricing and no email required.</p>
           </div>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
             <Link to="/custom-box"

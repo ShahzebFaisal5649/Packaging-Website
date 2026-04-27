@@ -6,13 +6,13 @@ import CTABanner from '../components/CTABanner';
 
 const reasons = [
   { Icon: Star,           title: 'Premium Quality Guaranteed',   color: 'bg-yellow-50 text-yellow-600',
-    desc: 'Every box goes through a 14-point quality inspection before shipping. If you\'re not happy, we make it right — no questions asked.' },
+    desc: 'Every box goes through a 14-point quality inspection before shipping. If you\'re not happy, we make it right no questions asked.' },
   { Icon: Palette,        title: 'Free Expert Design Support',   color: 'bg-purple-50 text-purple-600',
     desc: 'Our in-house designers create stunning, print-ready artwork at zero extra cost. You get a 2D dieline and 3D mockup proof for every order.' },
   { Icon: Truck,          title: 'Fast, Reliable Shipping',      color: 'bg-blue-50 text-blue-600',
     desc: 'Standard orders ship in 8–10 business days. Need it faster? We offer 5–7 day rush production for tight deadlines.' },
   { Icon: Shield,         title: '100% Satisfaction Guarantee',  color: 'bg-green-50 text-green-600',
-    desc: 'We stand behind every order. If something isn\'t right, we\'ll reprint or refund — no runaround, no hassle.' },
+    desc: 'We stand behind every order. If something isn\'t right, we\'ll reprint or refund no runaround, no hassle.' },
   { Icon: HeartHandshake, title: 'Dedicated Account Managers',   color: 'bg-pink-50 text-pink-600',
     desc: 'You\'re never just an order number. Each client gets a dedicated account manager who knows your brand and your needs.' },
   { Icon: Award,          title: 'Industry-Leading Experience',  color: 'bg-orange-50 text-orange-600',

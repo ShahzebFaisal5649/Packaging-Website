@@ -55,9 +55,9 @@ const PROCESS = [
 ];
 
 const VALUES = [
-  { icon: <ShieldCheck size={24} color={G} />, title: 'Precision', desc: 'Every dimension, color, and finish is produced to exact specifications — no exceptions.' },
+  { icon: <ShieldCheck size={24} color={G} />, title: 'Precision', desc: 'Every dimension, color, and finish is produced to exact specifications no exceptions.' },
   { icon: <Leaf size={24} color="#2E7D32" />, title: 'Sustainability', desc: 'FSC-certified materials, soy-based inks, and a commitment to zero-landfill production.' },
-  { icon: <Clock size={24} color={ACCENT} />, title: 'Speed', desc: '8–10 day standard turnaround with rush options available — because your launch dates matter.' },
+  { icon: <Clock size={24} color={ACCENT} />, title: 'Speed', desc: '8–10 day standard turnaround with rush options available because your launch dates matter.' },
   { icon: <Users size={24} color={G} />, title: 'Partnership', desc: 'Dedicated account managers for every client, from first order to 1 million units.' },
   { icon: <Award size={24} color={ACCENT} />, title: 'Excellence', desc: 'Industry-leading print quality backed by a 100% satisfaction guarantee on every order.' },
   { icon: <Globe size={24} color={G} />, title: 'Reach', desc: 'Shipping to 40+ countries with a global logistics network that scales with your brand.' },
@@ -92,7 +92,7 @@ export default function About() {
               Built on Craft.<br />Driven by Brand.
             </h1>
             <p style={{ fontSize: 17, color: 'rgba(255,255,255,0.75)', lineHeight: 1.75, maxWidth: 520, marginBottom: 36 }}>
-              Since 2010, NovaPack has helped over 10,000 brands create packaging that makes a lasting first impression — from independent startups to Fortune 500 companies.
+              Since 2010, NovaPack has helped over 10,000 brands create packaging that makes a lasting first impression from independent startups to Fortune 500 companies.
             </p>
             <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
               <Link to="/custom-box"
@@ -154,7 +154,7 @@ export default function About() {
               <h2 style={{ fontSize: 'clamp(28px,3vw,42px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: G, marginBottom: 28, lineHeight: 1.15 }}>From Small Shop to Industry Leader</h2>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
                 {[
-                  'Founded in 2010, NovaPack grew from a small print shop in Chicago to one of North America\'s leading custom packaging companies — shipping over 500,000 boxes annually across 30+ industries.',
+                  'Founded in 2010, NovaPack grew from a small print shop in Chicago to one of North America\'s leading custom packaging companies shipping over 500,000 boxes annually across 30+ industries.',
                   'What started as a passion for beautiful, functional packaging has evolved into a comprehensive digital platform that empowers brands of all sizes, from solo entrepreneurs to Fortune 500 companies.',
                   'Today, we combine cutting-edge 3D design tools, sustainably sourced materials, and an expert team of designers and engineers to deliver packaging solutions that tell your brand\'s unique story.',
                 ].map((p, i) => (
@@ -188,13 +188,13 @@ export default function About() {
               {
                 label: 'Our Mission',
                 title: 'Packaging that makes a lasting impression',
-                desc: 'To empower every brand — from startup to enterprise — with custom packaging that creates a powerful first impression. We believe great packaging is the first handshake between a brand and its customer.',
+                desc: 'To empower every brand from startup to enterprise with custom packaging that creates a powerful first impression. We believe great packaging is the first handshake between a brand and its customer.',
                 img: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=700&q=80',
               },
               {
                 label: 'Our Vision',
                 title: 'Every unboxing should be an experience',
-                desc: 'A world where every unboxing moment is an experience, not just a transaction. We envision packaging as the most powerful marketing touchpoint in a brand\'s arsenal — one that turns customers into advocates.',
+                desc: 'A world where every unboxing moment is an experience, not just a transaction. We envision packaging as the most powerful marketing touchpoint in a brand\'s arsenal one that turns customers into advocates.',
                 img: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=700&q=80',
               },
             ].map((c, i) => (

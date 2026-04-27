@@ -92,7 +92,7 @@ export default function Register() {
           <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.65)', lineHeight: 1.75, marginBottom: 36, maxWidth: 380 }}>
             Create a free account to access your order history, save custom designs, request quotes, and more.
           </p>
-          {['Free account — no credit card required', 'Save unlimited custom box designs', 'Real-time order tracking & history', 'Dedicated account manager on request'].map((p, i) => (
+          {['Free account setup', 'no credit card required', 'Save unlimited custom box designs', 'Real-time order tracking & history', 'Dedicated account manager on request'].map((p, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
               <CheckCircle size={16} color={ACCENT} strokeWidth={2.5} />
               <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.8)', fontWeight: 500 }}>{p}</span>

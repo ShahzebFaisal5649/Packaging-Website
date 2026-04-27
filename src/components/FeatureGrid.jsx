@@ -2,7 +2,7 @@ import { Package, Settings, Palette, Box, Globe, Truck } from 'lucide-react';
 
 const features = [
   { Icon: Package,  title: 'Successful Packaging Solutions',     desc: 'Over 10,000 brands trust our packaging expertise to create boxes that protect and impress.' },
-  { Icon: Settings, title: 'Exceptional Structural Engineering', desc: 'Every box is engineered for structural integrity — protecting your product from warehouse to doorstep.' },
+  { Icon: Settings, title: 'Exceptional Structural Engineering', desc: 'Every box is engineered for structural integrity protecting your product from warehouse to doorstep.' },
   { Icon: Palette,  title: 'Full Artwork Design Guidance',       desc: 'Our in-house design team helps bring your brand vision to life with print-ready files at no extra cost.' },
   { Icon: Box,      title: '2D and 3D Mockup Prototyping',       desc: 'See exactly how your packaging looks before production with detailed digital 2D dielines and 3D proofs.' },
   { Icon: Globe,    title: 'Global Manufacturing Excellence',    desc: 'ISO-certified facilities across North America, Europe, and Asia ensure consistent quality on every order.' },

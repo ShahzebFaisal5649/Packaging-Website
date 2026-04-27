@@ -29,6 +29,9 @@ const quoteSchema = new mongoose.Schema({
   qty: Number,
   dims: String,
   material: String,
+  type: { type: String, default: 'quote' }, // 'quote' or 'sample'
+  productName: String,
+  deliveryAddress: String,
   status: { type: String, enum: ['Pending', 'Reviewing', 'Quoted', 'Accepted', 'Rejected'], default: 'Pending' },
   quotedPrice: String,
   createdAt: { type: Date, default: Date.now },

@@ -1,45 +1,62 @@
 # NovaPack — Premium Custom Packaging Platform
 
-A modern, fully-featured e-commerce frontend for a custom packaging business. Built with React 19, Vite, and Tailwind CSS. Features an interactive 3D box configurator, full auth flow, live chat (Tawk.to), real map integration, and a polished multi-page storefront.
+A modern, fully-featured e-commerce platform for custom packaging. Built with React 19 + Vite + Tailwind CSS on the frontend and Express.js + MongoDB on the backend. Features a live 3D box configurator, full authentication, admin panel with image upload, mobile-responsive design, and a polished multi-page storefront.
+
+**Live URL:** https://novapack-custom-box.vercel.app
 
 ---
 
 ## Features
 
-### Storefront
-- **Home Page** — Hero, stats bar, trending products slider, materials & finishes showcase, how-it-works steps, customer testimonials, inspiration gallery, and CTA section
-- **Products Page** — Clean card grid (image + name + price + button). Click any card to open a full-spec QuickView modal. Filter by category, search by keyword
-- **Industries Page** — Same clean card system with industry-specific pricing. Covers Food & Beverage, Cosmetics, E-commerce, Apparel, Electronics, Cannabis & CBD
-- **Inspiration / Design Lookbook** — Filterable gallery + trending-this-season cards with full spec details (material, finish, dimensions, add-ons). Clicking any trending card navigates to the Custom Box configurator with specs pre-filled
-- **Contact Page** — Contact form with validation, info cards, live OpenStreetMap embed, FAQ accordion
+### Storefront (Mobile-Responsive)
+
+- **Home Page** — Hero, stats bar, trending products slider, materials showcase, how-it-works steps, testimonials, inspiration gallery, CTA sections
+- **Products Page** — Card grid with dynamic categories (synced with admin-added products), search, sidebar filter on desktop and drawer on mobile. Click any card to open full-spec QuickView modal
+- **Industries Page** — Industry cards with packaging solutions per vertical (Food & Beverage, Cosmetics, E-commerce, Apparel, Electronics, Cannabis & CBD)
+- **Contact Page** — Contact form with validation, info cards, OpenStreetMap embed, FAQ accordion
+- **All text** uses justified layout throughout the site for consistent typography
 
 ### Custom Box Configurator
+
 - 5-step accordion: Box Type → Dimensions & Quantity → Material → Print & Finish → Artwork Upload
-- **Design Name field** — give your design a name before saving; appears in your profile
-- Real-time 3D preview powered by `@react-three/fiber` with orbit controls and auto-rotation
+- Real-time 3D preview with orbit controls and auto-rotation (React Three Fiber)
 - Artwork upload (PDF, AI, EPS, PNG, PSD) with drag-and-drop; preview applied to 3D model
 - SVG dieline download
 - Live price calculation (size × quantity × add-ons)
-- Pre-fills automatically when navigating from any product card, industry card, or trending card
+- **Physical Sample Request** — Opens address form modal (name, email, phone, full delivery address). Saves as a sample quote in the admin panel and shows confirmation toast
+- Pre-fills automatically when navigating from any product or industry card
 
 ### User Account
-- Registration & Login with password-strength indicator
-- Mock Google OAuth login
-- **Profile Dashboard** with tabs:
-  - **Overview** — stats, loyalty points/tier, edit profile
-  - **Orders** — order history with status badges and detail modal
-  - **Quotes** — quote history with detail modal
-  - **Saved Designs** — shows box type, dimensions, material, finish, add-on count. **Edit** restores the complete configuration in the configurator (no more reset!)
-  - **Addresses** — add/edit/delete shipping addresses
-  - **Settings** — notifications, password change, account deletion
+
+- Registration & Login with JWT auth
+- **Profile Dashboard** with tabs: Overview, Orders, Quotes, Saved Designs, Addresses, Settings
+- Saved Designs — restore complete box configuration in the configurator
+
+### Admin Panel (`/admin`)
+
+Login: `admin@novapack.com` / `Admin@123`
+
+- **Dashboard** — Revenue, orders, pending, customer KPI cards + recent orders table
+- **Products Management** — Add/edit/delete products. Full form includes:
+  - Image upload (file upload — PNG/JPG/WebP, stored as base64)
+  - Name, slug (auto-generated), category, description, price
+  - Box Type, Material, Finish, Dimensions range, Min. Order Qty
+  - Available Add-ons (quick-select chips + custom tag input)
+  - Featured toggle
+- **Industries Management** — Add/edit/delete industries with image upload and description
+- **Orders Management** — Status updates, tracking numbers, CSV export
+- **Users Management** — Role assignment, loyalty points, CSV export
+- **Quotes & Sample Requests** — Unified view of both custom quotes and physical sample requests, showing delivery address, type badge, and reply/price modal
+- **Analytics** — Orders by status, revenue trends, user growth charts
+- **Mobile sidebar** — Collapsible sidebar with hamburger menu on small screens
 
 ### Additional
-- Global **Cart Drawer** with quantity controls, persisted in localStorage
-- **Favourites** system with heart icons across all product/industry cards
-- **Product Quick View** modal with full specs: box type, material, finish, dimensions, min. order, add-ons
-- **Tawk.to Live Chat** integration (replace `TAWK_PROPERTY_ID` in `LiveChat.jsx`)
-- **Back to Top** floating button
-- Responsive on all screen sizes
+
+- Global **Cart Drawer** with quantity controls
+- **Favourites** system with heart icons
+- **Product Quick View** modal — full specs (box type, material, finish, dimensions, min. order, add-ons), mobile responsive (stacks vertically on small screens)
+- **Tawk.to Live Chat** integration
+- **Back to Top** button
 
 ---
 
@@ -47,14 +64,16 @@ A modern, fully-featured e-commerce frontend for a custom packaging business. Bu
 
 | Layer | Technology |
 |---|---|
-| Framework | React 19 + Vite 8 |
+| Frontend | React 19 + Vite |
 | Styling | Tailwind CSS 3 + inline styles |
 | Routing | React Router DOM 7 |
 | Icons | Lucide React |
 | 3D Preview | Three.js · React Three Fiber · React Three Drei |
-| Animations | AOS (Animate on Scroll) |
 | State | React Context API (Auth, Cart, Favourites, Toast, Modal) |
-| Persistence | localStorage (no backend required) |
+| Backend | Express.js + Node.js |
+| Database | MongoDB (Mongoose) |
+| Auth | JWT (bcryptjs) |
+| Deployment | Vercel (frontend + serverless API) |
 
 ---
 
@@ -72,6 +91,8 @@ A modern, fully-featured e-commerce frontend for a custom packaging business. Bu
 
 ## Quick Start
 
+### Frontend
+
 ```bash
 npm install
 npm run dev
@@ -79,27 +100,43 @@ npm run dev
 
 Open `http://localhost:5173`
 
+### Backend (local)
+
+```bash
+cd server
+npm install
+# Create .env with MONGODB_URI and JWT_SECRET
+npm run dev
+```
+
+---
+
+## Environment Variables
+
+Create a `.env` file in the project root:
+
+```env
+VITE_API_URL=http://localhost:5000/api
+```
+
+Create `server/.env`:
+
+```env
+MONGODB_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret
+PORT=5000
+```
+
 ---
 
 ## Admin Access
 
-An admin account is seeded automatically in localStorage on first load:
-
 | Field | Value |
 |---|---|
-| Email | `admin@packaging.com` |
+| Email | `admin@novapack.com` |
 | Password | `Admin@123` |
 
----
-
-## Tawk.to Live Chat Setup
-
-1. Sign up for free at [tawk.to](https://www.tawk.to)
-2. Create a property for your website
-3. Copy your **Property ID** (e.g. `641xxxxxxxxxxxxxx`)
-4. Open `src/components/LiveChat.jsx`
-5. Replace `YOUR_PROPERTY_ID` with your real Property ID
-6. Tawk.to renders its own chat widget automatically
+Auto-seeded on first server start if not present in the database.
 
 ---
 
@@ -108,18 +145,20 @@ An admin account is seeded automatically in localStorage on first load:
 | File | Purpose |
 |---|---|
 | `src/pages/Home.jsx` | Full home page with all sections |
-| `src/pages/Products.jsx` | Products catalog with clean card design |
+| `src/pages/Products.jsx` | Products catalog — dynamic categories, mobile sidebar |
 | `src/pages/Industries.jsx` | Industries catalog |
-| `src/pages/SuccessStories.jsx` | Inspiration lookbook + trending cards |
-| `src/pages/CustomBox.jsx` | 3D box configurator with name field + saved design fix |
+| `src/pages/Admin.jsx` | Admin panel — image upload, full product/industry forms, mobile sidebar |
+| `src/pages/CustomBox.jsx` | 3D box configurator + sample request modal |
 | `src/pages/Contact.jsx` | Contact form + OpenStreetMap embed |
-| `src/pages/Profile.jsx` | User dashboard with saved designs tab |
+| `src/pages/Profile.jsx` | User dashboard with saved designs |
+| `src/components/ProductQuickView.jsx` | Full-spec modal, mobile responsive |
 | `src/components/LiveChat.jsx` | Tawk.to integration |
-| `src/components/ProductQuickView.jsx` | Full-spec modal for product cards |
-| `src/components/Footer.jsx` | Footer with logo fix |
-| `src/context/AuthContext.jsx` | Auth + user state (localStorage) |
+| `src/context/AuthContext.jsx` | Auth + user state |
 | `src/context/CartContext.jsx` | Global cart |
-| `src/data/index.js` | Shared data (FAQs, blog posts, pricing table) |
+| `server/routes/admin.js` | Admin CRUD routes (products, industries, orders, quotes) |
+| `server/routes/users.js` | User profile, orders, quotes, sample requests |
+| `server/models/Product.js` | Product schema (includes boxType, material, finish, dims, minQty, addons) |
+| `server/models/User.js` | User schema (orders, quotes with type + deliveryAddress, savedDesigns) |
 
 ---
 
@@ -145,6 +184,20 @@ An admin account is seeded automatically in localStorage on first load:
 
 ---
 
-## Backend Integration
+## API Endpoints
 
-All context files in `src/context/` are structured for easy migration to a REST API. Replace `localStorage` calls with `fetch`/`axios` calls to your Express/MongoDB backend. Look for `// TODO: Replace with API call` comments as migration points.
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/auth/register` | Register user |
+| POST | `/api/auth/login` | Login, returns JWT |
+| GET | `/api/users/profile` | Get current user profile |
+| POST | `/api/users/quotes` | Submit quote or sample request |
+| GET | `/api/admin/products` | List all products (admin) |
+| POST | `/api/admin/products` | Create product (admin) |
+| PUT | `/api/admin/products/:id` | Update product (admin) |
+| DELETE | `/api/admin/products/:id` | Delete product (admin) |
+| GET | `/api/admin/industries` | List all industries (admin) |
+| POST | `/api/admin/industries` | Create industry (admin) |
+| GET | `/api/admin/quotes` | List all quotes + sample requests (admin) |
+| PUT | `/api/admin/quotes/:userId/:quoteId` | Reply to quote (admin) |
+| GET | `/api/content/products` | Public products list |

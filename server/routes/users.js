@@ -181,6 +181,24 @@ router.post('/orders', protect, async (req, res) => {
   }
 });
 
+// — Quotes / Sample Requests —
+router.post('/quotes', protect, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    const quote = {
+      quoteId: `QT-${Date.now()}`,
+      ...req.body,
+      createdAt: new Date(),
+    };
+    user.quotes.push(quote);
+    await user.save();
+    res.json({ quote, message: 'Quote submitted' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 // — Admin: get all users —
 router.get('/all', protect, async (req, res) => {
   try {

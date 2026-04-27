@@ -70,7 +70,7 @@ export default function Login() {
         <div style={{ position: 'relative', zIndex: 2, padding: '60px 56px', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
           <p style={{ fontSize: 11, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 14 }}>NovaPack Portal</p>
           <h2 style={{ fontSize: 'clamp(28px,3vw,40px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#fff', lineHeight: 1.15, marginBottom: 20 }}>
-            Your packaging command center — all in one place.
+            Your packaging command center in all in one place.
           </h2>
           <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.65)', lineHeight: 1.75, marginBottom: 40, maxWidth: 380 }}>
             Manage orders, save custom box designs, get quotes, and track shipments with your NovaPack account.

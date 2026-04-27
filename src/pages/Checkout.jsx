@@ -277,7 +277,7 @@ export default function Checkout() {
       {/* Test mode banner */}
       <div style={{ background: '#FEF3C7', borderBottom: '1px solid #FDE68A', padding: '10px 24px', textAlign: 'center' }}>
         <span style={{ fontSize: 13, fontWeight: 600, color: '#92400E', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7 }}>
-          <AlertCircle size={14} /> Stripe Test Mode — use card <strong>4242 4242 4242 4242</strong>, any future date, any CVC
+          <AlertCircle size={14} /> Stripe Test Mode: use card <strong>4242 4242 4242 4242</strong>, any future date, any CVC
         </span>
       </div>
 

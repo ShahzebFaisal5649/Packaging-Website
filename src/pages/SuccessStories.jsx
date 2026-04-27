@@ -285,7 +285,7 @@ export default function SuccessStories() {
           <div style={{ textAlign: 'center', marginBottom: 40 }} data-aos="fade-up">
             <p style={{ fontSize: 11, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 12 }}>Hot Right Now</p>
             <h2 style={{ fontSize: 'clamp(24px,3vw,36px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: G, marginBottom: 10 }}>Trending This Season</h2>
-            <p style={{ fontSize: 14, color: '#6B6B6B', maxWidth: 480, margin: '0 auto' }}>Click any card to configure your own version — specs are pre-filled automatically.</p>
+            <p style={{ fontSize: 14, color: '#6B6B6B', maxWidth: 480, margin: '0 auto' }}>Click any card to configure your own version of the product. specs are pre-filled automatically.</p>
           </div>
           <div className="trending-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 24 }}>
             {TRENDING.map((t, i) => (
@@ -330,7 +330,7 @@ export default function SuccessStories() {
             <div>
               <p style={{ fontSize: 11, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 12 }}>Start Today</p>
               <h2 style={{ fontSize: 'clamp(26px,3vw,38px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: G, marginBottom: 16, lineHeight: 1.2 }}>Start Your Custom Design</h2>
-              <p style={{ fontSize: 15, color: '#4A4A4A', lineHeight: 1.7, marginBottom: 32 }}>Turn your packaging vision into reality. Configure, preview, and order your perfect custom box — all in one place. Free digital proof within 24 hours.</p>
+              <p style={{ fontSize: 15, color: '#4A4A4A', lineHeight: 1.7, marginBottom: 32 }}>Turn your packaging vision into reality. Configure, preview, and order your perfect custom box all in one place. Free digital proof within 24 hours.</p>
               <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
                 <Link to="/custom-box" style={{ padding: '14px 28px', backgroundColor: G, color: '#fff', borderRadius: 8, fontWeight: 700, textDecoration: 'none', fontSize: 14, transition: 'background 0.15s' }}
                   onMouseEnter={e => e.currentTarget.style.backgroundColor = ACCENT}

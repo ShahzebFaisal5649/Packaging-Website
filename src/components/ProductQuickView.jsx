@@ -10,6 +10,16 @@ const FALLBACK_IMG = 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9
 const G = '#1A4D2E';
 const ACCENT = '#C8860A';
 
+// Category-aware fallback images
+const CATEGORY_IMGS = {
+  'Bottom Closure': 'https://images.unsplash.com/photo-1553531384-cc64ac80f931?w=600&q=80',
+  'CD Covers': 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&q=80',
+  'Figure & Pattern': 'https://images.unsplash.com/photo-1619468579487-430c4d90f93b?w=600&q=80',
+  'Fold & Assemble': 'https://images.unsplash.com/photo-1544816155-12df9643f363?w=600&q=80',
+  'Rectangular': 'https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=600&q=80',
+  'Showcase Exhibit': 'https://images.unsplash.com/photo-1592921870789-04563d55041c?w=600&q=80',
+};
+
 function SpecRow({ icon: Icon, label, value }) {
   if (!value) return null;
   return (
@@ -37,7 +47,8 @@ export default function ProductQuickView() {
   if (activeModal !== 'quickView' || !modalData) return null;
 
   const isFav = isFavourite(modalData.id || modalData.name);
-  const imgSrc = imgError ? FALLBACK_IMG : (modalData.img || FALLBACK_IMG);
+  const fallback = CATEGORY_IMGS[modalData.cat] || FALLBACK_IMG;
+  const imgSrc = imgError ? fallback : (modalData.img || fallback);
 
   const handleAddToCart = () => {
     addToCart({
@@ -81,11 +92,11 @@ export default function ProductQuickView() {
 
       {/* Modal */}
       <div
-        className="fixed z-[10000] bg-white rounded-2xl shadow-2xl overflow-hidden"
+        className="quick-view-modal fixed z-[10000] bg-white rounded-2xl shadow-2xl overflow-hidden"
         style={{
           top: '50%', left: '50%',
           transform: 'translate(-50%, -50%)',
-          width: 'min(94vw, 960px)',
+          width: 'min(96vw, 960px)',
           maxHeight: '92vh',
           display: 'flex',
           flexDirection: 'row',
@@ -101,7 +112,7 @@ export default function ProductQuickView() {
         </button>
 
         {/* LEFT — Image */}
-        <div style={{ width: '42%', flexShrink: 0, position: 'relative', backgroundColor: '#F5F5F5', overflow: 'hidden' }}>
+        <div style={{ width: '42%', flexShrink: 0, position: 'relative', backgroundColor: '#F5F5F5', overflow: 'hidden', minHeight: 320 }} className="qv-image-col">
           <img
             src={imgSrc}
             alt={modalData.name}
@@ -132,18 +143,18 @@ export default function ProductQuickView() {
         </div>
 
         {/* RIGHT — Content */}
-        <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', minWidth: 0 }}>
           {/* Header */}
-          <div style={{ padding: '28px 28px 0' }}>
+          <div style={{ padding: '28px 24px 0' }}>
             <h2 style={{ fontSize: 22, fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#1A1A1A', marginBottom: 6 }}>{modalData.name}</h2>
-            <p style={{ fontSize: 13, color: '#7A7060', lineHeight: 1.6, marginBottom: 0 }}>
+            <p style={{ fontSize: 13, color: '#7A7060', lineHeight: 1.6, marginBottom: 0, textAlign: 'justify' }}>
               {modalData.desc || 'Premium custom packaging tailored to your brand requirements.'}
             </p>
           </div>
 
           {/* Specs section */}
           {(modalData.boxType || modalData.material || modalData.finish || modalData.dims) && (
-            <div style={{ padding: '16px 28px 0' }}>
+            <div style={{ padding: '16px 24px 0' }}>
               <p style={{ fontSize: 10, fontWeight: 700, color: '#9A9080', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>Specifications</p>
               <SpecRow icon={Package} label="Box Type" value={modalData.boxType} />
               <SpecRow icon={Layers} label="Material" value={modalData.material} />
@@ -165,7 +176,7 @@ export default function ProductQuickView() {
 
           {/* Add-ons */}
           {modalData.addons?.length > 0 && (
-            <div style={{ padding: '14px 28px 0' }}>
+            <div style={{ padding: '14px 24px 0' }}>
               <p style={{ fontSize: 10, fontWeight: 700, color: '#9A9080', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>Available Add-ons</p>
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                 {modalData.addons.map(a => (
@@ -176,7 +187,7 @@ export default function ProductQuickView() {
           )}
 
           {/* Qty */}
-          <div style={{ padding: '16px 28px 0' }}>
+          <div style={{ padding: '16px 24px 0' }}>
             <p style={{ fontSize: 10, fontWeight: 700, color: '#9A9080', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>Order Quantity</p>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <button onClick={() => setQty(q => Math.max(50, q - 50))} style={{ width: 36, height: 36, borderRadius: 8, border: '1.5px solid #E0DAD2', backgroundColor: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -190,7 +201,7 @@ export default function ProductQuickView() {
           </div>
 
           {/* Features */}
-          <div style={{ padding: '14px 28px 0' }}>
+          <div style={{ padding: '14px 24px 0' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {['Free digital 3D proof', 'No die-cut plate fees', 'Full CMYK + specialty printing', 'Fast 8–10 day turnaround'].map((f, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#5A5A5A' }}>
@@ -201,7 +212,7 @@ export default function ProductQuickView() {
           </div>
 
           {/* Actions */}
-          <div style={{ padding: '20px 28px 28px', marginTop: 'auto', display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+          <div style={{ padding: '20px 24px 24px', marginTop: 'auto', display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             <button
               onClick={handleAddToCart}
               style={{ flex: 1, padding: '13px 0', backgroundColor: G, color: '#fff', fontWeight: 700, fontSize: 13, borderRadius: 8, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, fontFamily: 'Outfit,sans-serif', transition: 'background 0.15s', minWidth: 120 }}
@@ -222,8 +233,9 @@ export default function ProductQuickView() {
         </div>
 
         <style>{`
-          @media (max-width: 640px) {
-            .quick-view-modal { flex-direction: column !important; }
+          @media (max-width: 600px) {
+            .quick-view-modal { flex-direction: column !important; max-height: 95vh !important; }
+            .qv-image-col { width: 100% !important; height: 220px !important; flex-shrink: 0; }
           }
         `}</style>
       </div>

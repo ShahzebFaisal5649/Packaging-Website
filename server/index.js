@@ -10,9 +10,6 @@ const adminRoutes = require('./routes/admin');
 const paymentRoutes = require('./routes/payment');
 const contentRoutes = require('./routes/content');
 
-// Disable Mongoose buffering globally (Mongoose 8 requires this before connect)
-mongoose.set('bufferCommands', false);
-
 const app = express();
 
 app.use(cors({
@@ -30,54 +27,60 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// ── MongoDB connection (cached for serverless environments) ───────────────────
-let isConnected = false;
+// ── MongoDB connection (cached for serverless — reuse across warm invocations) ─
+let connectionPromise = null;
 
-const connectDB = async () => {
-  if (isConnected && mongoose.connection.readyState === 1) return;
-  try {
-    await mongoose.connect(process.env.MONGODB_URI, {
-      serverSelectionTimeoutMS: 5000,
-      connectTimeoutMS: 5000,
-    });
-    isConnected = true;
+const connectDB = () => {
+  if (connectionPromise) return connectionPromise;
+  connectionPromise = mongoose.connect(process.env.MONGODB_URI, {
+    serverSelectionTimeoutMS: 8000,
+    connectTimeoutMS: 8000,
+  }).then(async () => {
     console.log('✅ MongoDB connected');
-    // Seed admin on first connect
     const adminExists = await User.findOne({ email: 'admin@novapack.com' });
     if (!adminExists) {
       await User.create({
-        name: 'Admin',
-        email: 'admin@novapack.com',
-        password: 'Admin@123',
-        role: 'admin',
-        loyaltyPoints: 0,
+        name: 'Admin', email: 'admin@novapack.com', password: 'Admin@123',
+        role: 'admin', loyaltyPoints: 0,
       });
-      console.log('✅ Admin seeded: admin@novapack.com / Admin@123');
+      console.log('✅ Admin seeded');
     }
-  } catch (err) {
-    console.error('❌ MongoDB connection error:', err.message);
+  }).catch(err => {
+    connectionPromise = null; // allow retry on next request
+    console.error('❌ MongoDB error:', err.message);
+    throw err;
+  });
+  return connectionPromise;
+};
+
+// Middleware: ensure DB is ready before hitting any DB route
+const requireDb = async (req, res, next) => {
+  try {
+    if (mongoose.connection.readyState !== 1) {
+      await connectDB();
+    }
+    next();
+  } catch {
+    res.status(503).json({ message: 'Database unavailable', offline: true });
   }
 };
 
-connectDB();
-
-// Middleware: return 503 immediately if DB is not connected so the frontend falls back to localStorage
-const requireDb = (req, res, next) => {
-  if (mongoose.connection.readyState !== 1) {
-    return res.status(503).json({ message: 'Database unavailable', offline: true });
-  }
-  next();
-};
-
-// Routes (requireDb ensures fast 503 when MongoDB is offline)
+// Routes
 app.use('/api/auth', requireDb, authRoutes);
 app.use('/api/users', requireDb, userRoutes);
 app.use('/api/admin', requireDb, adminRoutes);
-app.use('/api/content', contentRoutes);
+app.use('/api/content', requireDb, contentRoutes);
 app.use('/api/payment', paymentRoutes); // Stripe — no DB dependency
 
 // Health check
-app.get('/api/health', (req, res) => res.json({ status: 'ok', db: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected', time: new Date().toISOString() }));
+app.get('/api/health', async (req, res) => {
+  let dbStatus = 'disconnected';
+  try {
+    if (mongoose.connection.readyState !== 1) await connectDB();
+    dbStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
+  } catch { /* */ }
+  res.json({ status: 'ok', db: dbStatus, time: new Date().toISOString() });
+});
 
 // 404 handler
 app.use((req, res) => res.status(404).json({ message: 'Route not found' }));
@@ -90,6 +93,7 @@ app.use((err, req, res, _next) => {
 
 // Only bind to a port when running locally (not in Vercel serverless)
 if (!process.env.VERCEL) {
+  connectDB(); // eagerly connect for local dev
   const PORT = process.env.PORT || 5000;
   app.listen(PORT, () => {
     console.log(`🚀 NovaPack server running on http://localhost:${PORT}`);

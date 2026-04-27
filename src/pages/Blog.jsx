@@ -21,7 +21,7 @@ const POSTS = [
   {
     id: 2,
     title: '10 Sustainable Packaging Trends for 2025',
-    excerpt: 'From FSC-certified kraft to soy-based inks and compostable liners — the top eco-friendly packaging trends brands are adopting this year.',
+    excerpt: 'From FSC-certified kraft to soy-based inks and compostable liners the top eco-friendly packaging trends brands are adopting this year.',
     author: 'James Kowalski',
     date: 'Apr 5, 2025',
     readTime: '7 min read',
@@ -65,7 +65,7 @@ const POSTS = [
   {
     id: 6,
     title: 'Print Finishes Explained: Matte, Gloss, Soft-Touch & More',
-    excerpt: 'Not sure which lamination or finish to choose? We explain every option — from spot UV to foil stamping — with real-world examples.',
+    excerpt: 'Not sure which lamination or finish to choose? We explain every option from spot UV to foil stamping with real-world examples.',
     author: 'Sarah Mitchell',
     date: 'Mar 8, 2025',
     readTime: '5 min read',

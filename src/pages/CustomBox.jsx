@@ -3,10 +3,11 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import api from '../services/api';
 import {
   Check, Upload, Package, Ruler, Palette, LayoutTemplate, RotateCw, X,
   FileText, Download, ChevronDown, Star, ShieldCheck, Truck, Zap, Save,
-  ShoppingCart, ArrowRight, Leaf, Award,
+  ShoppingCart, ArrowRight, Leaf, Award, MapPin,
 } from 'lucide-react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Stage, useTexture } from '@react-three/drei';
@@ -96,6 +97,9 @@ export default function CustomBox() {
   const [artworkApplied, setArtworkApplied] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
+  const [sampleModal, setSampleModal] = useState(false);
+  const [sampleForm, setSampleForm] = useState({ name: '', email: '', phone: '', street: '', city: '', state: '', zip: '', country: 'US' });
+  const [sampleSubmitting, setSampleSubmitting] = useState(false);
 
   // Restore saved design or pre-fill from navigation
   useEffect(() => {
@@ -126,6 +130,60 @@ export default function CustomBox() {
     if (Object.keys(updates).length) setConfig(prev => ({ ...prev, ...updates }));
     if (s.productName) setPrefilledName(s.productName);
   }, [location.state]);
+
+  // Pre-fill sample form from user profile
+  useEffect(() => {
+    if (user) {
+      setSampleForm(f => ({
+        ...f,
+        name: f.name || user.name || '',
+        email: f.email || user.email || '',
+        phone: f.phone || user.phone || '',
+      }));
+    }
+  }, [user]);
+
+  const handleSampleSubmit = async () => {
+    const { name, email, street, city, zip } = sampleForm;
+    if (!name || !email || !street || !city || !zip) {
+      showToast('Please fill in all required fields.', 'error');
+      return;
+    }
+    setSampleSubmitting(true);
+    const deliveryAddress = `${sampleForm.street}, ${sampleForm.city}, ${sampleForm.state} ${sampleForm.zip}, ${sampleForm.country}`;
+    const quoteData = {
+      type: 'sample',
+      boxType: config.boxType,
+      material: config.material,
+      dims: `${config.l}×${config.w}×${config.h} ${config.unit}`,
+      qty: 1,
+      deliveryAddress,
+      productName: prefilledName || config.boxType,
+      status: 'Pending',
+    };
+    try {
+      if (isAuthenticated) {
+        await api.post('/users/quotes', quoteData);
+      } else {
+        // Save to localStorage as guest
+        const guestList = JSON.parse(localStorage.getItem('packagingUsersList') || '[]');
+        const guestIdx = guestList.findIndex(u => u.email === email);
+        const entry = { quoteId: `QT-${Date.now()}`, ...quoteData, userName: name, userEmail: email };
+        if (guestIdx > -1) {
+          guestList[guestIdx].quotes = [...(guestList[guestIdx].quotes || []), entry];
+        } else {
+          guestList.push({ id: `guest_${Date.now()}`, name, email, phone: sampleForm.phone, role: 'user', orders: [], quotes: [entry] });
+        }
+        localStorage.setItem('packagingUsersList', JSON.stringify(guestList));
+      }
+      setSampleModal(false);
+      setSampleForm({ name: user?.name || '', email: user?.email || '', phone: user?.phone || '', street: '', city: '', state: '', zip: '', country: 'US' });
+      showToast('Sample request sent! We\'ll contact you within 24 hours.', 'success');
+    } catch (err) {
+      showToast(err.message || 'Failed to submit request.', 'error');
+    }
+    setSampleSubmitting(false);
+  };
 
   const handleArtworkUpload = (file) => {
     if (!file) return;
@@ -566,7 +624,7 @@ export default function CustomBox() {
             </div>
 
             {/* Sample request */}
-            <button onClick={() => showToast('Sample request sent! We\'ll contact you within 24 hours.', 'success')}
+            <button onClick={() => setSampleModal(true)}
               style={{ width: '100%', marginTop: 12, padding: '14px', background: '#fff', border: '1.5px solid #E8E4DC', borderRadius: 12, fontWeight: 700, fontSize: 13, color: '#1A1A1A', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: 'all 0.15s' }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = G; e.currentTarget.style.color = G; }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = '#E8E4DC'; e.currentTarget.style.color = '#1A1A1A'; }}>
@@ -703,6 +761,92 @@ export default function CustomBox() {
         </div>
       </div>
 
+      {/* ── Sample Request Modal ─────────────────────────────────────────── */}
+      {sampleModal && (
+        <>
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: 9000, backdropFilter: 'blur(4px)' }} onClick={() => setSampleModal(false)} />
+          <div style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', background: '#fff', borderRadius: 20, padding: '32px 28px', width: 'min(95vw,520px)', zIndex: 9001, maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.2)' }}>
+            <button onClick={() => setSampleModal(false)} style={{ position: 'absolute', top: 16, right: 16, background: 'none', border: 'none', cursor: 'pointer', color: '#aaa' }}><X size={18} /></button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+              <div style={{ width: 40, height: 40, borderRadius: 10, background: `${G}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Package size={18} color={G} />
+              </div>
+              <div>
+                <h3 style={{ fontSize: 18, fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#1A1A1A', margin: 0 }}>Request a Physical Sample</h3>
+                <p style={{ fontSize: 12, color: '#888', margin: 0 }}>We'll ship a sample to your address within 5–7 days</p>
+              </div>
+            </div>
+
+            <div style={{ background: `${G}08`, borderRadius: 10, padding: '10px 14px', marginBottom: 20, fontSize: 12, color: '#555', border: `1px solid ${G}20` }}>
+              Box: <strong>{config.boxType}</strong> · {config.l}×{config.w}×{config.h} {config.unit} · {config.material}
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div>
+                  <label style={labelStyle}>Full Name *</label>
+                  <input value={sampleForm.name} onChange={e => setSampleForm(f => ({ ...f, name: e.target.value }))} placeholder="John Smith" style={fieldStyle} />
+                </div>
+                <div>
+                  <label style={labelStyle}>Email *</label>
+                  <input type="email" value={sampleForm.email} onChange={e => setSampleForm(f => ({ ...f, email: e.target.value }))} placeholder="you@example.com" style={fieldStyle} />
+                </div>
+              </div>
+              <div>
+                <label style={labelStyle}>Phone Number</label>
+                <input type="tel" value={sampleForm.phone} onChange={e => setSampleForm(f => ({ ...f, phone: e.target.value }))} placeholder="+1 (555) 000-0000" style={fieldStyle} />
+              </div>
+
+              <div style={{ borderTop: '1px solid #F0EDE8', paddingTop: 12 }}>
+                <p style={{ fontSize: 11, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <MapPin size={12} /> Delivery Address
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  <div>
+                    <label style={labelStyle}>Street Address *</label>
+                    <input value={sampleForm.street} onChange={e => setSampleForm(f => ({ ...f, street: e.target.value }))} placeholder="123 Main Street, Suite 4" style={fieldStyle} />
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                    <div>
+                      <label style={labelStyle}>City *</label>
+                      <input value={sampleForm.city} onChange={e => setSampleForm(f => ({ ...f, city: e.target.value }))} placeholder="New York" style={fieldStyle} />
+                    </div>
+                    <div>
+                      <label style={labelStyle}>State / Province</label>
+                      <input value={sampleForm.state} onChange={e => setSampleForm(f => ({ ...f, state: e.target.value }))} placeholder="NY" style={fieldStyle} />
+                    </div>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                    <div>
+                      <label style={labelStyle}>ZIP / Postal Code *</label>
+                      <input value={sampleForm.zip} onChange={e => setSampleForm(f => ({ ...f, zip: e.target.value }))} placeholder="10001" style={fieldStyle} />
+                    </div>
+                    <div>
+                      <label style={labelStyle}>Country</label>
+                      <select value={sampleForm.country} onChange={e => setSampleForm(f => ({ ...f, country: e.target.value }))} style={fieldStyle}>
+                        <option value="US">United States</option>
+                        <option value="CA">Canada</option>
+                        <option value="GB">United Kingdom</option>
+                        <option value="AU">Australia</option>
+                        <option value="PK">Pakistan</option>
+                        <option value="IN">India</option>
+                        <option value="Other">Other</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <button onClick={handleSampleSubmit} disabled={sampleSubmitting}
+                style={{ width: '100%', padding: '14px', background: sampleSubmitting ? '#aaa' : G, color: '#fff', border: 'none', borderRadius: 10, fontWeight: 700, fontSize: 14, cursor: sampleSubmitting ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 4, transition: 'background 0.15s' }}>
+                {sampleSubmitting ? <><RotateCw size={15} style={{ animation: 'spin 1s linear infinite' }} /> Submitting…</> : <><Package size={15} /> Submit Sample Request</>}
+              </button>
+              <p style={{ fontSize: 11, color: '#999', textAlign: 'center', margin: 0 }}>Free sample kit · Ships within 5–7 business days</p>
+            </div>
+          </div>
+        </>
+      )}
+
       <style>{`
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @media (max-width: 1200px) {
@@ -711,7 +855,13 @@ export default function CustomBox() {
         @media (max-width: 1024px) {
           .configurator-grid { grid-template-columns: 1fr !important; }
         }
+        @media (max-width: 600px) {
+          .configurator-grid { gap: 16px !important; }
+        }
       `}</style>
     </div>
   );
 }
+
+const labelStyle = { fontSize: 11, fontWeight: 700, color: '#555', display: 'block', marginBottom: 4 };
+const fieldStyle = { width: '100%', padding: '10px 12px', border: '1.5px solid #E2DDD6', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box', background: '#fff' };

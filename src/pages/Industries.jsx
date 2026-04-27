@@ -23,7 +23,7 @@ const categories = [
 const staticIndustries = [
   {
     id: 'ind1', name: 'Food-Safe Boxes', cat: 'Food & Beverage',
-    desc: 'FDA-compliant food-safe packaging — coated for grease and moisture resistance.',
+    desc: 'FDA-compliant food-safe packaging with SBS coated for grease and moisture resistance.',
     price: '$1.15', img: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=600&q=80',
     boxType: 'Folding Carton', material: 'SBS Board', finish: 'Uncoated',
     dims: '4×4×2 – 16×12×8 in', minQty: '100 units',
@@ -95,7 +95,7 @@ const staticIndustries = [
   },
   {
     id: 'ind9', name: 'Tech Packaging', cat: 'Electronics',
-    desc: 'Protective anti-static inserts for electronics — keeps products safe in transit.',
+    desc: 'Protective anti-static inserts for electronics that keeps products safe in transit.',
     price: '$1.35', img: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&q=80',
     boxType: 'Shipping Box', material: 'Corrugated B-Flute', finish: 'Uncoated',
     dims: '8×6×4 – 20×16×12 in', minQty: '100 units',
@@ -276,7 +276,7 @@ export default function Industries() {
           <p style={{ fontSize: 11, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 12 }}>Tailored Solutions</p>
           <h1 style={{ fontSize: 'clamp(28px,4vw,48px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#fff', marginBottom: 12 }}>Shop by Industry</h1>
           <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.7)', maxWidth: 520 }}>
-            Packaging built for your market. Tap any card to see full specs, materials, and options — then configure your perfect box.
+            Packaging built for your market. Tap any card to see full specs, materials, and options then configure your perfect box.
           </p>
         </div>
       </section>

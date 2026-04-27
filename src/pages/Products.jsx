@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Heart, Search, Package, ChevronRight } from 'lucide-react';
+import { Heart, Search, Package, ChevronRight, Filter, X } from 'lucide-react';
 import { useModal } from '../context/ModalContext';
 import { useFavourites } from '../context/FavouritesContext';
 import { useToast } from '../context/ToastContext';
@@ -10,7 +10,7 @@ const G = '#1A4D2E';
 const ACCENT = '#C8860A';
 const BG = '#F5F2ED';
 
-const categories = [
+const STATIC_CATEGORIES = [
   'All Products',
   'Bottom Closure',
   'CD Covers',
@@ -20,10 +20,21 @@ const categories = [
   'Showcase Exhibit',
 ];
 
+// Unsplash images keyed by category for fallback
+const CATEGORY_IMGS = {
+  'Bottom Closure': 'https://images.unsplash.com/photo-1553531384-cc64ac80f931?w=600&q=80',
+  'CD Covers': 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&q=80',
+  'Figure & Pattern': 'https://images.unsplash.com/photo-1619468579487-430c4d90f93b?w=600&q=80',
+  'Fold & Assemble': 'https://images.unsplash.com/photo-1544816155-12df9643f363?w=600&q=80',
+  'Rectangular': 'https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=600&q=80',
+  'Showcase Exhibit': 'https://images.unsplash.com/photo-1592921870789-04563d55041c?w=600&q=80',
+  default: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=600&q=80',
+};
+
 const staticProducts = [
   {
     id: 'pr1', name: 'Seal End Auto Bottom', cat: 'Bottom Closure',
-    desc: 'Secure auto-lock base for heavier items — no tape required on the bottom.',
+    desc: 'Secure auto-lock base for heavier items with no tape required on the bottom.',
     price: '$1.20', img: 'https://images.unsplash.com/photo-1553531384-cc64ac80f931?w=600&q=80',
     boxType: 'Folding Carton', material: 'SBS Board', finish: 'Matte Lam',
     dims: '6×4×2 – 18×12×8 in', minQty: '100 units',
@@ -32,7 +43,7 @@ const staticProducts = [
   },
   {
     id: 'pr2', name: 'Full Flap Auto Bottom', cat: 'Bottom Closure',
-    desc: 'Maximum bottom protection with full flap — ideal for retail products.',
+    desc: 'Maximum bottom protection with full flap ideal for retail products.',
     price: '$1.35', img: 'https://images.unsplash.com/photo-1580822184713-fc5400e7fe10?w=600&q=80',
     boxType: 'Folding Carton', material: 'SBS Board', finish: 'Gloss Lam',
     dims: '4×4×4 – 16×12×10 in', minQty: '100 units',
@@ -50,7 +61,7 @@ const staticProducts = [
   },
   {
     id: 'pr4', name: 'Gable Bag', cat: 'Figure & Pattern',
-    desc: 'Unique carrying handle for gift packaging — stands out on any shelf.',
+    desc: 'Unique carrying handle for gift packaging that stands out on any shelf.',
     price: '$1.50', img: 'https://images.unsplash.com/photo-1619468579487-430c4d90f93b?w=600&q=80',
     boxType: 'Gable Box', material: 'Kraft', finish: 'Uncoated',
     dims: '4×4×7 – 12×9×12 in', minQty: '100 units',
@@ -77,7 +88,7 @@ const staticProducts = [
   },
   {
     id: 'pr7', name: 'Reverse Tuck End', cat: 'Rectangular',
-    desc: 'Industry-standard versatile tuck-end box — lowest cost per unit.',
+    desc: 'Industry-standard versatile tuck-end box with lowest cost per unit.',
     price: '$1.10', img: 'https://images.unsplash.com/photo-1573408301185-9519f94816b5?w=600&q=80',
     boxType: 'Mailer Box', material: 'Corrugated E-Flute', finish: 'Matte Lam',
     dims: '4×4×2 – 18×14×10 in', minQty: '100 units',
@@ -95,7 +106,7 @@ const staticProducts = [
   },
   {
     id: 'pr9', name: 'Straight Tuck End', cat: 'Rectangular',
-    desc: 'Classic straight tuck box — versatile for cosmetics, pharma, and food.',
+    desc: 'Classic straight tuck box that is versatile for cosmetics, pharma, and food.',
     price: '$0.95', img: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=600&q=80',
     boxType: 'Folding Carton', material: 'SBS Board', finish: 'Gloss Lam',
     dims: '3×2×5 – 12×8×10 in', minQty: '100 units',
@@ -139,6 +150,7 @@ function ProductCard({ product }) {
   const navigate = useNavigate();
 
   const isFav = isFavourite(product.id);
+  const imgSrc = product.img || CATEGORY_IMGS[product.cat] || CATEGORY_IMGS.default;
 
   const handleFavourite = (e) => {
     e.stopPropagation();
@@ -171,11 +183,11 @@ function ProductCard({ product }) {
       {/* Image area */}
       <div style={{ position: 'relative', height: 200, overflow: 'hidden', backgroundColor: '#F0EDE8' }}>
         <img
-          src={product.img}
+          src={imgSrc}
           alt={product.name}
           style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.6s ease', transform: hovered ? 'scale(1.07)' : 'scale(1)' }}
           loading="lazy"
-          onError={e => { e.target.src = 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=600&q=80'; }}
+          onError={e => { e.target.src = CATEGORY_IMGS[product.cat] || CATEGORY_IMGS.default; }}
         />
         {/* Category badge */}
         <div style={{ position: 'absolute', top: 10, left: 10, backgroundColor: G, color: '#fff', fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', padding: '4px 8px', borderRadius: 4 }}>
@@ -238,6 +250,7 @@ export default function Products() {
   const [activeCategory, setActiveCategory] = useState('All Products');
   const [search, setSearch] = useState('');
   const [fetchedProducts, setFetchedProducts] = useState([]);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     const loadProducts = async () => {
@@ -256,11 +269,59 @@ export default function Products() {
 
   const productsList = fetchedProducts.length > 0 ? fetchedProducts : staticProducts;
 
+  // Build categories dynamically from products list
+  const dynamicCategories = ['All Products', ...Array.from(new Set(productsList.map(p => p.cat).filter(Boolean))).sort()];
+  // Merge with static categories to ensure they always appear
+  const allCategories = Array.from(new Set([...STATIC_CATEGORIES, ...dynamicCategories]));
+
   const filtered = productsList.filter(p => {
     const matchCat = activeCategory === 'All Products' || p.cat === activeCategory;
-    const matchSearch = !search || p.name.toLowerCase().includes(search.toLowerCase()) || p.desc.toLowerCase().includes(search.toLowerCase());
+    const matchSearch = !search || p.name.toLowerCase().includes(search.toLowerCase()) || (p.desc || '').toLowerCase().includes(search.toLowerCase());
     return matchCat && matchSearch;
   });
+
+  const SidebarContent = () => (
+    <>
+      <div style={{ position: 'relative', marginBottom: 28 }}>
+        <Search size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#9A9080' }} />
+        <input
+          type="text"
+          placeholder="Search products..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          style={{ width: '100%', padding: '10px 12px 10px 34px', border: '1.5px solid #D8D3CB', borderRadius: 8, fontSize: 13, color: '#1A1A1A', backgroundColor: '#fff', outline: 'none', boxSizing: 'border-box' }}
+        />
+      </div>
+
+      <p style={{ fontSize: 10, fontWeight: 700, color: '#9A9080', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 14 }}>Categories</p>
+      <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
+        {allCategories.map(cat => (
+          <li key={cat}>
+            <button
+              onClick={() => { setActiveCategory(cat); setSidebarOpen(false); }}
+              style={{
+                width: '100%',
+                textAlign: 'left',
+                padding: '9px 12px',
+                borderRadius: 8,
+                border: 'none',
+                cursor: 'pointer',
+                fontSize: 13,
+                fontWeight: activeCategory === cat ? 700 : 500,
+                backgroundColor: activeCategory === cat ? `${ACCENT}18` : 'transparent',
+                color: activeCategory === cat ? ACCENT : '#6B6B6B',
+                transition: 'all 0.15s',
+              }}
+              onMouseEnter={e => { if (activeCategory !== cat) e.target.style.backgroundColor = '#F0EDE8'; }}
+              onMouseLeave={e => { if (activeCategory !== cat) e.target.style.backgroundColor = 'transparent'; }}
+            >
+              {cat}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </>
+  );
 
   return (
     <div style={{ backgroundColor: BG, minHeight: '100vh' }}>
@@ -270,60 +331,50 @@ export default function Products() {
         <div style={{ maxWidth: 1400, margin: '0 auto' }}>
           <p style={{ fontSize: 11, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 12 }}>Full Catalog</p>
           <h1 style={{ fontSize: 'clamp(28px,4vw,48px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#fff', marginBottom: 12 }}>Shop Products</h1>
-          <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.7)', maxWidth: 520 }}>
+          <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.7)', maxWidth: 520, textAlign: 'justify' }}>
             Browse our full range of custom box styles. Tap any card to see full specs, then configure your exact dimensions.
           </p>
         </div>
       </section>
 
-      <div style={{ maxWidth: 1400, margin: '0 auto', padding: '48px 24px' }}>
-        <div style={{ display: 'flex', gap: 48, alignItems: 'flex-start' }}>
+      <div style={{ maxWidth: 1400, margin: '0 auto', padding: '32px 16px 48px' }}>
 
-          {/* Sidebar */}
-          <div style={{ width: 200, flexShrink: 0, position: 'sticky', top: 120 }}>
-            <div style={{ position: 'relative', marginBottom: 28 }}>
-              <Search size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#9A9080' }} />
-              <input
-                type="text"
-                placeholder="Search products..."
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                style={{ width: '100%', padding: '10px 12px 10px 34px', border: '1.5px solid #D8D3CB', borderRadius: 8, fontSize: 13, color: '#1A1A1A', backgroundColor: '#fff', outline: 'none', boxSizing: 'border-box' }}
-              />
-            </div>
+        {/* Mobile filter button */}
+        <button className="products-filter-btn"
+          onClick={() => setSidebarOpen(s => !s)}
+          style={{ display: 'none', alignItems: 'center', gap: 8, marginBottom: 16, padding: '10px 16px', background: G, color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+          <Filter size={14} /> {sidebarOpen ? 'Close Filters' : 'Filter & Search'}
+        </button>
 
-            <p style={{ fontSize: 10, fontWeight: 700, color: '#9A9080', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 14 }}>Categories</p>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
-              {categories.map(cat => (
-                <li key={cat}>
-                  <button
-                    onClick={() => setActiveCategory(cat)}
-                    style={{
-                      width: '100%',
-                      textAlign: 'left',
-                      padding: '9px 12px',
-                      borderRadius: 8,
-                      border: 'none',
-                      cursor: 'pointer',
-                      fontSize: 13,
-                      fontWeight: activeCategory === cat ? 700 : 500,
-                      backgroundColor: activeCategory === cat ? `${ACCENT}18` : 'transparent',
-                      color: activeCategory === cat ? ACCENT : '#6B6B6B',
-                      transition: 'all 0.15s',
-                    }}
-                    onMouseEnter={e => { if (activeCategory !== cat) e.target.style.backgroundColor = '#F0EDE8'; }}
-                    onMouseLeave={e => { if (activeCategory !== cat) e.target.style.backgroundColor = 'transparent'; }}
-                  >
-                    {cat}
-                  </button>
-                </li>
-              ))}
-            </ul>
+        {/* Mobile sidebar overlay */}
+        {sidebarOpen && (
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 200 }} onClick={() => setSidebarOpen(false)} />
+        )}
+
+        {/* Mobile sidebar drawer */}
+        <div className="products-sidebar-mobile" style={{
+          position: 'fixed', top: 0, left: 0, bottom: 0, width: 280, background: '#fff',
+          zIndex: 300, padding: '80px 20px 20px', overflowY: 'auto',
+          transform: sidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
+          transition: 'transform 0.25s', display: 'none', boxShadow: '4px 0 20px rgba(0,0,0,0.15)',
+        }}>
+          <button onClick={() => setSidebarOpen(false)}
+            style={{ position: 'absolute', top: 20, right: 16, background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}>
+            <X size={20} color="#666" />
+          </button>
+          <SidebarContent />
+        </div>
+
+        <div className="products-layout" style={{ display: 'flex', gap: 40, alignItems: 'flex-start' }}>
+
+          {/* Desktop Sidebar */}
+          <div className="products-sidebar-desktop" style={{ width: 200, flexShrink: 0, position: 'sticky', top: 120 }}>
+            <SidebarContent />
           </div>
 
           {/* Grid */}
-          <div style={{ flex: 1 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 8 }}>
               <p style={{ fontSize: 13, color: '#6B6B6B' }}>
                 Showing <strong style={{ color: '#1A1A1A' }}>{filtered.length}</strong> {filtered.length === 1 ? 'product' : 'products'}
               </p>
@@ -331,8 +382,8 @@ export default function Products() {
             </div>
 
             {filtered.length > 0 ? (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 24 }}>
-                {filtered.map(p => <ProductCard key={p.id} product={p} />)}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 20 }}>
+                {filtered.map(p => <ProductCard key={p.id || p._id} product={p} />)}
               </div>
             ) : (
               <div style={{ textAlign: 'center', padding: '80px 24px', color: '#9A9080' }}>
@@ -346,8 +397,14 @@ export default function Products() {
       </div>
 
       <style>{`
-        @media (max-width: 900px) {
-          .products-layout { flex-direction: column !important; }
+        @media (max-width: 768px) {
+          .products-filter-btn { display: flex !important; }
+          .products-sidebar-mobile { display: block !important; }
+          .products-sidebar-desktop { display: none !important; }
+          .products-layout { flex-direction: column !important; gap: 0 !important; }
+        }
+        @media (max-width: 480px) {
+          .products-layout > div:last-child > div { grid-template-columns: 1fr !important; }
         }
       `}</style>
     </div>

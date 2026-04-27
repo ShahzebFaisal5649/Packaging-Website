@@ -13,7 +13,7 @@ function WaveTop() {
 
 export default function CTABanner({
   heading = "Ready to think outside the box? Let's get started!",
-  sub     = 'Get your custom packaging quote today — free design support included.',
+  sub     = 'Get your custom packaging quote today free design support included.',
   cta     = 'Get Free Quote',
   to      = '/custom-box',
   wave    = true,

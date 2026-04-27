@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import api from '../services/api';
@@ -8,12 +8,17 @@ import {
   RefreshCw, Search, DollarSign, Clock,
   Eye, Mail, Phone, Calendar,
   Shield, Ban, Star, ArrowUpRight,
-  Package, Building,
+  Package, Building, Upload, Menu, Plus,
 } from 'lucide-react';
 
 const G = '#1A4D2E';
 const ACCENT = '#C8860A';
 const BG = '#F5F2ED';
+
+const BOX_TYPES = ['Mailer Box', 'Shipping Box', 'Rigid Box', 'Folding Carton', 'Sleeve Box', 'Display Box', 'Kraft Box', 'Gable Box'];
+const MATERIALS = ['Corrugated E-Flute', 'Corrugated B-Flute', 'Kraft', 'SBS Board', 'Rigid Chipboard'];
+const FINISHES = ['Matte Lam', 'Gloss Lam', 'Uncoated', 'Soft-Touch', 'Foil Stamp'];
+const ADDON_OPTIONS = ['Spot UV', 'Embossing', 'Debossing', 'Foil Stamping', 'Window Patch', 'Hang Tab', 'Ribbon Pull', 'Magnetic Closure', 'Inside Printing', 'Custom Die-Cut'];
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 const STATUS_COLORS = {
@@ -24,6 +29,7 @@ const STATUS_COLORS = {
   Quoted:     { bg: '#D1FAE5', text: '#065F46' },
   Reviewing:  { bg: '#FEF3C7', text: '#92400E' },
   New:        { bg: '#DBEAFE', text: '#1E40AF' },
+  Pending:    { bg: '#F3E8FF', text: '#6B21A8' },
 };
 function Badge({ status }) {
   const s = STATUS_COLORS[status] || { bg: '#F3F4F6', text: '#374151' };
@@ -34,7 +40,7 @@ function Modal({ onClose, title, children, wide }) {
   return (
     <>
       <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 9000 }} onClick={onClose} />
-      <div style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', backgroundColor: '#fff', borderRadius: 16, padding: 28, width: `min(95vw,${wide ? '720px' : '520px'})`, zIndex: 9001, maxHeight: '88vh', overflowY: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.18)' }}>
+      <div style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', backgroundColor: '#fff', borderRadius: 16, padding: 28, width: `min(95vw,${wide ? '760px' : '540px'})`, zIndex: 9001, maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.18)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, paddingBottom: 16, borderBottom: '1px solid #F0EDE8' }}>
           <h3 style={{ fontSize: 18, fontFamily: 'Outfit,sans-serif', fontWeight: 700, color: '#1A1A1A' }}>{title}</h3>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B6B6B', padding: 4, borderRadius: 6 }}><X size={18} /></button>
@@ -59,6 +65,88 @@ function BarChart({ data, color = G, label }) {
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+// ── Image upload helper ───────────────────────────────────────────────────────
+function ImageUploader({ value, onChange, label = 'Product Image' }) {
+  const ref = useRef(null);
+  const handleFile = (file) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => onChange(reader.result);
+    reader.readAsDataURL(file);
+  };
+  return (
+    <div>
+      <label style={{ fontSize: 11, fontWeight: 700, color: '#555', display: 'block', marginBottom: 6 }}>{label}</label>
+      <div
+        onClick={() => ref.current?.click()}
+        onDragOver={e => e.preventDefault()}
+        onDrop={e => { e.preventDefault(); handleFile(e.dataTransfer.files[0]); }}
+        style={{ border: `2px dashed ${value ? G : '#D0CAC0'}`, borderRadius: 10, padding: value ? 8 : 20, textAlign: 'center', cursor: 'pointer', background: value ? `${G}06` : '#FAFAF9', transition: 'all 0.2s', position: 'relative' }}
+      >
+        {value ? (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <img src={value} alt="preview" style={{ width: 64, height: 64, objectFit: 'cover', borderRadius: 8, border: '1px solid #E2DDD6', flexShrink: 0 }} onError={e => { e.target.style.display = 'none'; }} />
+            <div style={{ textAlign: 'left', flex: 1 }}>
+              <p style={{ fontSize: 12, fontWeight: 600, color: G, margin: 0 }}>Image ready</p>
+              <p style={{ fontSize: 11, color: '#888', margin: '2px 0 0' }}>Click to replace</p>
+            </div>
+            <button onClick={e => { e.stopPropagation(); onChange(''); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#DC2626', padding: 4 }}><X size={14} /></button>
+          </div>
+        ) : (
+          <>
+            <Upload size={22} color="#9A9080" style={{ marginBottom: 6 }} />
+            <p style={{ fontSize: 12, fontWeight: 600, color: '#555', margin: 0 }}>Upload Image</p>
+            <p style={{ fontSize: 11, color: '#999', margin: '3px 0 0' }}>PNG, JPG, WebP — drag & drop or click</p>
+          </>
+        )}
+        <input ref={ref} type="file" accept="image/*" style={{ display: 'none' }} onChange={e => handleFile(e.target.files[0])} />
+      </div>
+    </div>
+  );
+}
+
+// ── Addons tag input ──────────────────────────────────────────────────────────
+function AddonsInput({ value = [], onChange }) {
+  const [input, setInput] = useState('');
+  const add = (tag) => {
+    const t = tag.trim();
+    if (t && !value.includes(t)) onChange([...value, t]);
+    setInput('');
+  };
+  const remove = (tag) => onChange(value.filter(v => v !== tag));
+  return (
+    <div>
+      <label style={{ fontSize: 11, fontWeight: 700, color: '#555', display: 'block', marginBottom: 6 }}>Available Add-ons</label>
+      {/* Quick-select chips */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 8 }}>
+        {ADDON_OPTIONS.map(opt => (
+          <button key={opt} type="button" onClick={() => value.includes(opt) ? remove(opt) : add(opt)}
+            style={{ fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 100, border: `1px solid ${value.includes(opt) ? G : '#D0CAC0'}`, background: value.includes(opt) ? `${G}15` : '#fff', color: value.includes(opt) ? G : '#666', cursor: 'pointer' }}>
+            {opt}
+          </button>
+        ))}
+      </div>
+      {/* Custom add */}
+      <div style={{ display: 'flex', gap: 6 }}>
+        <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); add(input); } }} placeholder="Custom add-on…"
+          style={{ flex: 1, padding: '8px 10px', border: '1.5px solid #E2DDD6', borderRadius: 8, fontSize: 12, outline: 'none' }} />
+        <button type="button" onClick={() => add(input)} style={{ padding: '8px 12px', background: G, color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', display: 'flex', alignItems: 'center' }}><Plus size={14} /></button>
+      </div>
+      {/* Selected tags */}
+      {value.length > 0 && (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 8 }}>
+          {value.map(v => (
+            <span key={v} style={{ fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 100, background: `${ACCENT}15`, color: ACCENT, border: `1px solid ${ACCENT}30`, display: 'flex', alignItems: 'center', gap: 4 }}>
+              {v}
+              <button type="button" onClick={() => remove(v)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: ACCENT, padding: 0, display: 'flex', lineHeight: 1 }}><X size={10} /></button>
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -108,7 +196,6 @@ function DashboardSection() {
       setStats(s);
       setRecentOrders((o.orders || []).slice(0, 6));
     } catch {
-      // fallback to localStorage
       const list = JSON.parse(localStorage.getItem('packagingUsersList') || '[]');
       const orders = list.flatMap(u => (u.orders || []).map(o => ({ ...o, userName: u.name, userEmail: u.email })));
       setStats({ totalUsers: list.filter(u => u.role !== 'admin').length, totalOrders: orders.length, revenue: orders.reduce((s, o) => s + (parseFloat(o.total) || 0), 0), pending: orders.filter(o => o.status === 'Processing').length, newThisWeek: 0 });
@@ -117,28 +204,26 @@ function DashboardSection() {
     setLoading(false);
   }, []);
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { load(); }, [load]);
 
   if (loading) return <div style={{ padding: 40, textAlign: 'center', color: '#888' }}><RefreshCw size={24} style={{ animation: 'spin 1s linear infinite' }} /></div>;
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
         <h2 style={{ fontSize: 22, fontFamily: 'Outfit,sans-serif', fontWeight: 700 }}>Dashboard Overview</h2>
         <button onClick={load} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: G, background: 'none', border: `1px solid ${G}`, borderRadius: 8, padding: '7px 14px', cursor: 'pointer' }}>
           <RefreshCw size={13} /> Refresh
         </button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, marginBottom: 28 }} className="kpi-grid">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(200px,1fr))', gap: 16, marginBottom: 28 }}>
         <KpiCard label="Total Revenue" value={`$${(stats?.revenue || 0).toFixed(0)}`} icon={DollarSign} trend="+12%" up />
         <KpiCard label="Total Orders" value={stats?.totalOrders || 0} icon={ShoppingBag} trend="+8%" up />
         <KpiCard label="Pending Orders" value={stats?.pending || 0} icon={Clock} trend={stats?.pending > 5 ? '+' : '–'} up={stats?.pending <= 5} accent />
         <KpiCard label="Total Customers" value={stats?.totalUsers || 0} icon={Users} sub={stats?.newThisWeek ? `+${stats.newThisWeek} this week` : ''} trend="+22%" up />
       </div>
 
-      {/* Recent orders table */}
       <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #E2DDD6', overflow: 'hidden' }}>
         <div style={{ padding: '18px 22px', borderBottom: '1px solid #F0EDE8', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h3 style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>Recent Orders</h3>
@@ -172,14 +257,16 @@ function DashboardSection() {
     </div>
   );
 }
+
 // ── Products ─────────────────────────────────────────────────────────────────
 function ProductsSection() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [selected, setSelected] = useState(null);
   const [editForm, setEditForm] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+
+  const emptyForm = { name: '', slug: '', cat: '', description: '', price: '', img: '', featured: false, boxType: '', material: '', finish: '', dims: '', minQty: '', addons: [] };
 
   const loadProducts = useCallback(async () => {
     setLoading(true);
@@ -193,34 +280,44 @@ function ProductsSection() {
     }
   }, []);
 
-  useEffect(() => {
-    loadProducts();
-  }, [loadProducts]);
+  useEffect(() => { loadProducts(); }, [loadProducts]);
 
   const handleEdit = (product) => {
     setEditForm({
       id: product._id,
-      name: product.name,
-      slug: product.slug,
-      cat: product.cat,
-      description: product.description,
-      price: product.price,
-      img: product.img,
+      name: product.name || '',
+      slug: product.slug || '',
+      cat: product.cat || '',
+      description: product.description || '',
+      price: product.price || '',
+      img: product.img || '',
       featured: product.featured || false,
+      boxType: product.boxType || '',
+      material: product.material || '',
+      finish: product.finish || '',
+      dims: product.dims || '',
+      minQty: product.minQty || '',
+      addons: product.addons || [],
     });
   };
 
+  const autoSlug = (name) => name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
   const handleSave = async () => {
+    const payload = { ...editForm };
+    delete payload.id;
     try {
       if (editForm.id) {
-        await api.put(`/admin/products/${editForm.id}`, editForm);
+        await api.put(`/admin/products/${editForm.id}`, payload);
       } else {
-        await api.post('/admin/products', editForm);
+        if (!payload.slug) payload.slug = autoSlug(payload.name);
+        await api.post('/admin/products', payload);
       }
       setEditForm(null);
       loadProducts();
     } catch (err) {
       console.error('Failed to save product:', err);
+      alert(err.message || 'Save failed');
     }
   };
 
@@ -234,200 +331,201 @@ function ProductsSection() {
     }
   };
 
-  const filteredProducts = products.filter(p =>
+  const filtered = products.filter(p =>
     p.name.toLowerCase().includes(search.toLowerCase()) ||
-    p.cat.toLowerCase().includes(search.toLowerCase())
+    (p.cat || '').toLowerCase().includes(search.toLowerCase())
   );
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-900">Products Management</h2>
-        <button
-          onClick={() => setEditForm({ name: '', slug: '', cat: '', description: '', price: 0, img: '', featured: false })}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-        >
-          Add Product
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
+        <h2 style={{ fontSize: 22, fontFamily: 'Outfit,sans-serif', fontWeight: 700 }}>Products Management</h2>
+        <button onClick={() => setEditForm(emptyForm)}
+          style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: '#fff', background: G, border: 'none', borderRadius: 8, padding: '9px 18px', cursor: 'pointer' }}>
+          <Plus size={14} /> Add Product
         </button>
       </div>
 
-      <div className="bg-white rounded-lg shadow">
-        <div className="p-4 border-b">
-          <div className="flex gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="text"
-                placeholder="Search products..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border rounded-lg"
-              />
-            </div>
+      <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #E2DDD6', overflow: 'hidden' }}>
+        <div style={{ padding: '14px 16px', borderBottom: '1px solid #F0EDE8' }}>
+          <div style={{ position: 'relative' }}>
+            <Search size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#aaa' }} />
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search products…"
+              style={{ width: '100%', paddingLeft: 36, paddingRight: 12, paddingTop: 9, paddingBottom: 9, border: '1px solid #E2DDD6', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Featured</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ background: '#FAFAF9' }}>
+                {['Product', 'Category', 'Box Type', 'Price', 'Featured', 'Actions'].map(h => (
+                  <th key={h} style={{ padding: '11px 14px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>{h}</th>
+                ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody>
               {loading ? (
-                <tr><td colSpan="5" className="px-6 py-4 text-center">Loading...</td></tr>
-              ) : filteredProducts.length === 0 ? (
-                <tr><td colSpan="5" className="px-6 py-4 text-center">No products found</td></tr>
-              ) : (
-                filteredProducts.map((product) => (
-                  <tr key={product._id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center">
-                        <img src={product.img} alt={product.name} className="w-10 h-10 rounded-lg mr-3" />
-                        <div>
-                          <div className="font-medium text-gray-900">{product.name}</div>
-                          <div className="text-sm text-gray-500">{product.slug}</div>
-                        </div>
+                <tr><td colSpan={6} style={{ padding: 32, textAlign: 'center' }}><RefreshCw size={20} style={{ animation: 'spin 1s linear infinite', color: '#aaa' }} /></td></tr>
+              ) : filtered.length === 0 ? (
+                <tr><td colSpan={6} style={{ padding: 32, textAlign: 'center', color: '#aaa' }}>No products found</td></tr>
+              ) : filtered.map((p) => (
+                <tr key={p._id} style={{ borderTop: '1px solid #F0EDE8' }}
+                  onMouseEnter={e => e.currentTarget.style.background = '#FAFAF9'}
+                  onMouseLeave={e => e.currentTarget.style.background = '#fff'}>
+                  <td style={{ padding: '12px 14px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <img src={p.img || 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=80&q=70'} alt={p.name}
+                        style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 8, flexShrink: 0, border: '1px solid #E2DDD6' }}
+                        onError={e => { e.target.src = 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=80&q=70'; }} />
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: '#1A1A1A' }}>{p.name}</div>
+                        <div style={{ fontSize: 11, color: '#888' }}>{p.slug}</div>
                       </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">{product.cat}</td>
-                    <td className="px-6 py-4 text-sm text-gray-900">${product.price}</td>
-                    <td className="px-6 py-4">
-                      {product.featured && <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">Featured</span>}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleEdit(product)}
-                          className="text-blue-600 hover:text-blue-800"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => setDeleteConfirm(product._id)}
-                          className="text-red-600 hover:text-red-800"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
+                    </div>
+                  </td>
+                  <td style={{ padding: '12px 14px', fontSize: 12, color: '#555' }}>{p.cat}</td>
+                  <td style={{ padding: '12px 14px', fontSize: 12, color: '#555' }}>{p.boxType || '—'}</td>
+                  <td style={{ padding: '12px 14px', fontSize: 12, fontWeight: 700, color: ACCENT }}>{p.price ? `$${p.price}` : '—'}</td>
+                  <td style={{ padding: '12px 14px' }}>
+                    {p.featured && <span style={{ background: '#D1FAE5', color: '#065F46', padding: '2px 8px', borderRadius: 100, fontSize: 10, fontWeight: 700 }}>Featured</span>}
+                  </td>
+                  <td style={{ padding: '12px 14px' }}>
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      <button onClick={() => handleEdit(p)}
+                        style={{ padding: '5px 10px', borderRadius: 6, border: `1px solid ${G}`, color: G, background: 'none', fontSize: 11, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <Edit size={11} />
+                      </button>
+                      <button onClick={() => setDeleteConfirm(p._id)}
+                        style={{ padding: '5px 10px', borderRadius: 6, border: '1px solid #FEE2E2', color: '#DC2626', background: 'none', fontSize: 11, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <Trash2 size={11} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
       </div>
 
-      {/* Edit Modal */}
+      {/* Edit/Add Modal */}
       {editForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold">{editForm.id ? 'Edit Product' : 'Add Product'}</h3>
-              <button onClick={() => setEditForm(null)} className="text-gray-400 hover:text-gray-600">
-                <X className="w-6 h-6" />
-              </button>
+        <Modal onClose={() => setEditForm(null)} title={editForm.id ? 'Edit Product' : 'Add New Product'} wide>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+            {/* Basic info */}
+            <div style={{ gridColumn: '1 / -1' }}>
+              <ImageUploader value={editForm.img} onChange={v => setEditForm(f => ({ ...f, img: v }))} label="Product Image (upload file)" />
             </div>
-            <div className="space-y-4">
-              <input
-                type="text"
-                placeholder="Name"
-                value={editForm.name}
-                onChange={(e) => setEditForm({...editForm, name: e.target.value})}
-                className="w-full p-2 border rounded"
-              />
-              <input
-                type="text"
-                placeholder="Slug"
-                value={editForm.slug}
-                onChange={(e) => setEditForm({...editForm, slug: e.target.value})}
-                className="w-full p-2 border rounded"
-              />
-              <input
-                type="text"
-                placeholder="Category"
-                value={editForm.cat}
-                onChange={(e) => setEditForm({...editForm, cat: e.target.value})}
-                className="w-full p-2 border rounded"
-              />
-              <textarea
-                placeholder="Description"
-                value={editForm.description}
-                onChange={(e) => setEditForm({...editForm, description: e.target.value})}
-                className="w-full p-2 border rounded"
-                rows="3"
-              />
-              <input
-                type="number"
-                placeholder="Price"
-                value={editForm.price}
-                onChange={(e) => setEditForm({...editForm, price: parseFloat(e.target.value)})}
-                className="w-full p-2 border rounded"
-              />
-              <input
-                type="text"
-                placeholder="Image URL"
-                value={editForm.img}
-                onChange={(e) => setEditForm({...editForm, img: e.target.value})}
-                className="w-full p-2 border rounded"
-              />
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={editForm.featured}
-                  onChange={(e) => setEditForm({...editForm, featured: e.target.checked})}
-                  className="mr-2"
-                />
-                Featured
+            <div>
+              <label style={{ fontSize: 11, fontWeight: 700, color: '#555', display: 'block', marginBottom: 4 }}>Product Name *</label>
+              <input value={editForm.name} onChange={e => setEditForm(f => ({ ...f, name: e.target.value, slug: f.slug || autoSlug(e.target.value) }))}
+                placeholder="e.g. Mailer Box Premium" style={inputStyle} />
+            </div>
+            <div>
+              <label style={{ fontSize: 11, fontWeight: 700, color: '#555', display: 'block', marginBottom: 4 }}>Slug *</label>
+              <input value={editForm.slug} onChange={e => setEditForm(f => ({ ...f, slug: e.target.value }))}
+                placeholder="mailer-box-premium" style={inputStyle} />
+            </div>
+            <div>
+              <label style={{ fontSize: 11, fontWeight: 700, color: '#555', display: 'block', marginBottom: 4 }}>Category *</label>
+              <input value={editForm.cat} onChange={e => setEditForm(f => ({ ...f, cat: e.target.value }))}
+                placeholder="e.g. Rectangular" style={inputStyle} />
+            </div>
+            <div>
+              <label style={{ fontSize: 11, fontWeight: 700, color: '#555', display: 'block', marginBottom: 4 }}>Price (per unit)</label>
+              <input value={editForm.price} onChange={e => setEditForm(f => ({ ...f, price: e.target.value }))}
+                placeholder="e.g. 1.20" style={inputStyle} />
+            </div>
+            <div style={{ gridColumn: '1 / -1' }}>
+              <label style={{ fontSize: 11, fontWeight: 700, color: '#555', display: 'block', marginBottom: 4 }}>Description</label>
+              <textarea value={editForm.description} onChange={e => setEditForm(f => ({ ...f, description: e.target.value }))}
+                placeholder="Describe the product…" rows={2} style={{ ...inputStyle, resize: 'vertical' }} />
+            </div>
+
+            {/* Specifications */}
+            <div style={{ gridColumn: '1 / -1', borderTop: '1px solid #F0EDE8', paddingTop: 14, marginTop: 4 }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 12px' }}>Specifications</p>
+            </div>
+            <div>
+              <label style={{ fontSize: 11, fontWeight: 700, color: '#555', display: 'block', marginBottom: 4 }}>Box Type</label>
+              <select value={editForm.boxType} onChange={e => setEditForm(f => ({ ...f, boxType: e.target.value }))} style={inputStyle}>
+                <option value="">— Select —</option>
+                {BOX_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+              </select>
+            </div>
+            <div>
+              <label style={{ fontSize: 11, fontWeight: 700, color: '#555', display: 'block', marginBottom: 4 }}>Material</label>
+              <select value={editForm.material} onChange={e => setEditForm(f => ({ ...f, material: e.target.value }))} style={inputStyle}>
+                <option value="">— Select —</option>
+                {MATERIALS.map(m => <option key={m} value={m}>{m}</option>)}
+              </select>
+            </div>
+            <div>
+              <label style={{ fontSize: 11, fontWeight: 700, color: '#555', display: 'block', marginBottom: 4 }}>Finish</label>
+              <select value={editForm.finish} onChange={e => setEditForm(f => ({ ...f, finish: e.target.value }))} style={inputStyle}>
+                <option value="">— Select —</option>
+                {FINISHES.map(f => <option key={f} value={f}>{f}</option>)}
+              </select>
+            </div>
+            <div>
+              <label style={{ fontSize: 11, fontWeight: 700, color: '#555', display: 'block', marginBottom: 4 }}>Dimensions Range</label>
+              <input value={editForm.dims} onChange={e => setEditForm(f => ({ ...f, dims: e.target.value }))}
+                placeholder="e.g. 4×4×2 – 16×12×8 in" style={inputStyle} />
+            </div>
+            <div>
+              <label style={{ fontSize: 11, fontWeight: 700, color: '#555', display: 'block', marginBottom: 4 }}>Min. Order Qty</label>
+              <input value={editForm.minQty} onChange={e => setEditForm(f => ({ ...f, minQty: e.target.value }))}
+                placeholder="e.g. 100 units" style={inputStyle} />
+            </div>
+            <div>
+              <label style={{ fontSize: 11, fontWeight: 700, color: '#555', display: 'block', marginBottom: 4 }}>Featured</label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', paddingTop: 6 }}>
+                <input type="checkbox" checked={editForm.featured} onChange={e => setEditForm(f => ({ ...f, featured: e.target.checked }))} />
+                <span style={{ fontSize: 13, color: '#1A1A1A' }}>Mark as featured</span>
               </label>
             </div>
-            <div className="flex gap-2 mt-6">
-              <button onClick={handleSave} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                Save
-              </button>
-              <button onClick={() => setEditForm(null)} className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400">
-                Cancel
-              </button>
+            <div style={{ gridColumn: '1 / -1' }}>
+              <AddonsInput value={editForm.addons} onChange={v => setEditForm(f => ({ ...f, addons: v }))} />
             </div>
           </div>
-        </div>
+
+          <div style={{ display: 'flex', gap: 10, marginTop: 20, paddingTop: 16, borderTop: '1px solid #F0EDE8' }}>
+            <button onClick={handleSave} style={{ flex: 1, padding: '11px', background: G, color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+              {editForm.id ? 'Save Changes' : 'Add Product'}
+            </button>
+            <button onClick={() => setEditForm(null)} style={{ flex: 1, padding: '11px', background: '#fff', color: '#666', border: '1px solid #E2DDD6', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+              Cancel
+            </button>
+          </div>
+        </Modal>
       )}
 
-      {/* Delete Confirmation */}
       {deleteConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-sm">
-            <h3 className="text-lg font-semibold mb-4">Delete Product</h3>
-            <p className="text-gray-600 mb-6">Are you sure you want to delete this product? This action cannot be undone.</p>
-            <div className="flex gap-2">
-              <button onClick={() => handleDelete(deleteConfirm)} className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
-                Delete
-              </button>
-              <button onClick={() => setDeleteConfirm(null)} className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400">
-                Cancel
-              </button>
-            </div>
+        <Modal onClose={() => setDeleteConfirm(null)} title="Delete Product">
+          <p style={{ color: '#555', fontSize: 14, marginBottom: 20 }}>Are you sure? This cannot be undone.</p>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button onClick={() => handleDelete(deleteConfirm)} style={{ flex: 1, padding: '10px', background: '#DC2626', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}>Delete</button>
+            <button onClick={() => setDeleteConfirm(null)} style={{ flex: 1, padding: '10px', background: '#fff', color: '#666', border: '1px solid #E2DDD6', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}>Cancel</button>
           </div>
-        </div>
+        </Modal>
       )}
     </div>
   );
 }
+
+// shared input style
+const inputStyle = { width: '100%', padding: '9px 11px', border: '1.5px solid #E2DDD6', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box', background: '#fff' };
 
 // ── Industries ───────────────────────────────────────────────────────────────
 function IndustriesSection() {
   const [industries, setIndustries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [selected, setSelected] = useState(null);
   const [editForm, setEditForm] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+
+  const emptyForm = { name: '', slug: '', cat: '', description: '', img: '', products: [] };
 
   const loadIndustries = useCallback(async () => {
     setLoading(true);
@@ -441,32 +539,37 @@ function IndustriesSection() {
     }
   }, []);
 
-  useEffect(() => {
-    loadIndustries();
-  }, [loadIndustries]);
+  useEffect(() => { loadIndustries(); }, [loadIndustries]);
 
   const handleEdit = (industry) => {
     setEditForm({
       id: industry._id,
-      name: industry.name,
-      slug: industry.slug,
-      cat: industry.cat,
-      img: industry.img,
+      name: industry.name || '',
+      slug: industry.slug || '',
+      cat: industry.cat || '',
+      description: industry.description || '',
+      img: industry.img || '',
       products: industry.products || [],
     });
   };
 
+  const autoSlug = (name) => name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
   const handleSave = async () => {
+    const payload = { ...editForm };
+    delete payload.id;
     try {
       if (editForm.id) {
-        await api.put(`/admin/industries/${editForm.id}`, editForm);
+        await api.put(`/admin/industries/${editForm.id}`, payload);
       } else {
-        await api.post('/admin/industries', editForm);
+        if (!payload.slug) payload.slug = autoSlug(payload.name);
+        await api.post('/admin/industries', payload);
       }
       setEditForm(null);
       loadIndustries();
     } catch (err) {
       console.error('Failed to save industry:', err);
+      alert(err.message || 'Save failed');
     }
   };
 
@@ -480,171 +583,132 @@ function IndustriesSection() {
     }
   };
 
-  const filteredIndustries = industries.filter(i =>
+  const filtered = industries.filter(i =>
     i.name.toLowerCase().includes(search.toLowerCase()) ||
-    i.cat.toLowerCase().includes(search.toLowerCase())
+    (i.cat || '').toLowerCase().includes(search.toLowerCase())
   );
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-900">Industries Management</h2>
-        <button
-          onClick={() => setEditForm({ name: '', slug: '', cat: '', img: '', products: [] })}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-        >
-          Add Industry
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
+        <h2 style={{ fontSize: 22, fontFamily: 'Outfit,sans-serif', fontWeight: 700 }}>Industries Management</h2>
+        <button onClick={() => setEditForm(emptyForm)}
+          style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: '#fff', background: G, border: 'none', borderRadius: 8, padding: '9px 18px', cursor: 'pointer' }}>
+          <Plus size={14} /> Add Industry
         </button>
       </div>
 
-      <div className="bg-white rounded-lg shadow">
-        <div className="p-4 border-b">
-          <div className="flex gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="text"
-                placeholder="Search industries..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border rounded-lg"
-              />
-            </div>
+      <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #E2DDD6', overflow: 'hidden' }}>
+        <div style={{ padding: '14px 16px', borderBottom: '1px solid #F0EDE8' }}>
+          <div style={{ position: 'relative' }}>
+            <Search size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#aaa' }} />
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search industries…"
+              style={{ width: '100%', paddingLeft: 36, paddingRight: 12, paddingTop: 9, paddingBottom: 9, border: '1px solid #E2DDD6', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Industry</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Products</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ background: '#FAFAF9' }}>
+                {['Industry', 'Category', 'Products', 'Actions'].map(h => (
+                  <th key={h} style={{ padding: '11px 14px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>{h}</th>
+                ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody>
               {loading ? (
-                <tr><td colSpan="4" className="px-6 py-4 text-center">Loading...</td></tr>
-              ) : filteredIndustries.length === 0 ? (
-                <tr><td colSpan="4" className="px-6 py-4 text-center">No industries found</td></tr>
-              ) : (
-                filteredIndustries.map((industry) => (
-                  <tr key={industry._id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center">
-                        <img src={industry.img} alt={industry.name} className="w-10 h-10 rounded-lg mr-3" />
-                        <div>
-                          <div className="font-medium text-gray-900">{industry.name}</div>
-                          <div className="text-sm text-gray-500">{industry.slug}</div>
-                        </div>
+                <tr><td colSpan={4} style={{ padding: 32, textAlign: 'center' }}><RefreshCw size={20} style={{ animation: 'spin 1s linear infinite', color: '#aaa' }} /></td></tr>
+              ) : filtered.length === 0 ? (
+                <tr><td colSpan={4} style={{ padding: 32, textAlign: 'center', color: '#aaa' }}>No industries found</td></tr>
+              ) : filtered.map((ind) => (
+                <tr key={ind._id} style={{ borderTop: '1px solid #F0EDE8' }}
+                  onMouseEnter={e => e.currentTarget.style.background = '#FAFAF9'}
+                  onMouseLeave={e => e.currentTarget.style.background = '#fff'}>
+                  <td style={{ padding: '12px 14px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <img src={ind.img || 'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=80&q=70'} alt={ind.name}
+                        style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 8, flexShrink: 0, border: '1px solid #E2DDD6' }}
+                        onError={e => { e.target.src = 'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=80&q=70'; }} />
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: '#1A1A1A' }}>{ind.name}</div>
+                        <div style={{ fontSize: 11, color: '#888' }}>{ind.slug}</div>
                       </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">{industry.cat}</td>
-                    <td className="px-6 py-4 text-sm text-gray-900">{industry.products?.length || 0} products</td>
-                    <td className="px-6 py-4">
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleEdit(industry)}
-                          className="text-blue-600 hover:text-blue-800"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => setDeleteConfirm(industry._id)}
-                          className="text-red-600 hover:text-red-800"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
+                    </div>
+                  </td>
+                  <td style={{ padding: '12px 14px', fontSize: 12, color: '#555' }}>{ind.cat}</td>
+                  <td style={{ padding: '12px 14px', fontSize: 12, color: '#555' }}>{(ind.products || []).length} products</td>
+                  <td style={{ padding: '12px 14px' }}>
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      <button onClick={() => handleEdit(ind)}
+                        style={{ padding: '5px 10px', borderRadius: 6, border: `1px solid ${G}`, color: G, background: 'none', fontSize: 11, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <Edit size={11} />
+                      </button>
+                      <button onClick={() => setDeleteConfirm(ind._id)}
+                        style={{ padding: '5px 10px', borderRadius: 6, border: '1px solid #FEE2E2', color: '#DC2626', background: 'none', fontSize: 11, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <Trash2 size={11} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
       </div>
 
-      {/* Edit Modal */}
       {editForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold">{editForm.id ? 'Edit Industry' : 'Add Industry'}</h3>
-              <button onClick={() => setEditForm(null)} className="text-gray-400 hover:text-gray-600">
-                <X className="w-6 h-6" />
-              </button>
+        <Modal onClose={() => setEditForm(null)} title={editForm.id ? 'Edit Industry' : 'Add New Industry'} wide>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+            <div style={{ gridColumn: '1 / -1' }}>
+              <ImageUploader value={editForm.img} onChange={v => setEditForm(f => ({ ...f, img: v }))} label="Industry Image (upload file)" />
             </div>
-            <div className="space-y-4">
-              <input
-                type="text"
-                placeholder="Name"
-                value={editForm.name}
-                onChange={(e) => setEditForm({...editForm, name: e.target.value})}
-                className="w-full p-2 border rounded"
-              />
-              <input
-                type="text"
-                placeholder="Slug"
-                value={editForm.slug}
-                onChange={(e) => setEditForm({...editForm, slug: e.target.value})}
-                className="w-full p-2 border rounded"
-              />
-              <input
-                type="text"
-                placeholder="Category"
-                value={editForm.cat}
-                onChange={(e) => setEditForm({...editForm, cat: e.target.value})}
-                className="w-full p-2 border rounded"
-              />
-              <input
-                type="text"
-                placeholder="Image URL"
-                value={editForm.img}
-                onChange={(e) => setEditForm({...editForm, img: e.target.value})}
-                className="w-full p-2 border rounded"
-              />
-              <textarea
-                placeholder="Product IDs (comma-separated)"
-                value={editForm.products.join(', ')}
-                onChange={(e) => setEditForm({...editForm, products: e.target.value.split(',').map(s => s.trim()).filter(s => s)})}
-                className="w-full p-2 border rounded"
-                rows="3"
-              />
+            <div>
+              <label style={{ fontSize: 11, fontWeight: 700, color: '#555', display: 'block', marginBottom: 4 }}>Industry Name *</label>
+              <input value={editForm.name} onChange={e => setEditForm(f => ({ ...f, name: e.target.value, slug: f.slug || autoSlug(e.target.value) }))}
+                placeholder="e.g. Food & Beverage" style={inputStyle} />
             </div>
-            <div className="flex gap-2 mt-6">
-              <button onClick={handleSave} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                Save
-              </button>
-              <button onClick={() => setEditForm(null)} className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400">
-                Cancel
-              </button>
+            <div>
+              <label style={{ fontSize: 11, fontWeight: 700, color: '#555', display: 'block', marginBottom: 4 }}>Slug *</label>
+              <input value={editForm.slug} onChange={e => setEditForm(f => ({ ...f, slug: e.target.value }))}
+                placeholder="food-beverage" style={inputStyle} />
+            </div>
+            <div>
+              <label style={{ fontSize: 11, fontWeight: 700, color: '#555', display: 'block', marginBottom: 4 }}>Category</label>
+              <input value={editForm.cat} onChange={e => setEditForm(f => ({ ...f, cat: e.target.value }))}
+                placeholder="e.g. Food" style={inputStyle} />
+            </div>
+            <div style={{ gridColumn: '1 / -1' }}>
+              <label style={{ fontSize: 11, fontWeight: 700, color: '#555', display: 'block', marginBottom: 4 }}>Description</label>
+              <textarea value={editForm.description} onChange={e => setEditForm(f => ({ ...f, description: e.target.value }))}
+                placeholder="Describe the industry…" rows={3} style={{ ...inputStyle, resize: 'vertical' }} />
             </div>
           </div>
-        </div>
+
+          <div style={{ display: 'flex', gap: 10, marginTop: 20, paddingTop: 16, borderTop: '1px solid #F0EDE8' }}>
+            <button onClick={handleSave} style={{ flex: 1, padding: '11px', background: G, color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+              {editForm.id ? 'Save Changes' : 'Add Industry'}
+            </button>
+            <button onClick={() => setEditForm(null)} style={{ flex: 1, padding: '11px', background: '#fff', color: '#666', border: '1px solid #E2DDD6', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+              Cancel
+            </button>
+          </div>
+        </Modal>
       )}
 
-      {/* Delete Confirmation */}
       {deleteConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-sm">
-            <h3 className="text-lg font-semibold mb-4">Delete Industry</h3>
-            <p className="text-gray-600 mb-6">Are you sure you want to delete this industry? This action cannot be undone.</p>
-            <div className="flex gap-2">
-              <button onClick={() => handleDelete(deleteConfirm)} className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
-                Delete
-              </button>
-              <button onClick={() => setDeleteConfirm(null)} className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400">
-                Cancel
-              </button>
-            </div>
+        <Modal onClose={() => setDeleteConfirm(null)} title="Delete Industry">
+          <p style={{ color: '#555', fontSize: 14, marginBottom: 20 }}>Are you sure? This cannot be undone.</p>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button onClick={() => handleDelete(deleteConfirm)} style={{ flex: 1, padding: '10px', background: '#DC2626', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}>Delete</button>
+            <button onClick={() => setDeleteConfirm(null)} style={{ flex: 1, padding: '10px', background: '#fff', color: '#666', border: '1px solid #E2DDD6', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}>Cancel</button>
           </div>
-        </div>
+        </Modal>
       )}
     </div>
   );
 }
+
 // ── Orders ────────────────────────────────────────────────────────────────────
 function OrdersSection() {
   const { showToast } = useToast();
@@ -667,7 +731,6 @@ function OrdersSection() {
     setLoading(false);
   }, []);
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { load(); }, [load]);
 
   const handleStatusChange = async (order, status) => {
@@ -675,7 +738,6 @@ function OrdersSection() {
       if (order.userId && order._id) {
         await api.put(`/admin/orders/${order.userId}/${order._id}`, { status });
       } else {
-        // localStorage fallback
         const list = JSON.parse(localStorage.getItem('packagingUsersList') || '[]');
         const ui = list.findIndex(u => u.id === order.userId);
         if (ui > -1) { const oi = list[ui].orders.findIndex(o => o.id === (order.id || order.orderId)); if (oi > -1) list[ui].orders[oi].status = status; }
@@ -722,13 +784,12 @@ function OrdersSection() {
         </div>
       </div>
 
-      {/* Filters */}
       <div style={{ display: 'flex', gap: 12, marginBottom: 18, flexWrap: 'wrap', alignItems: 'center' }}>
         <div style={{ position: 'relative', flex: 1, minWidth: 220 }}>
           <Search size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#aaa' }} />
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search orders…" style={{ width: '100%', paddingLeft: 36, paddingRight: 12, paddingTop: 9, paddingBottom: 9, border: '1px solid #E2DDD6', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
         </div>
-        <div style={{ display: 'flex', gap: 6 }}>
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
           {['All', 'Processing', 'Shipped', 'Delivered', 'Cancelled'].map(s => (
             <button key={s} onClick={() => setFilter(s)}
               style={{ padding: '7px 14px', borderRadius: 8, border: `1px solid ${filter === s ? G : '#E2DDD6'}`, background: filter === s ? G : '#fff', color: filter === s ? '#fff' : '#666', fontSize: 12, fontWeight: 700, cursor: 'pointer', transition: 'all 0.15s' }}>
@@ -853,7 +914,6 @@ function UsersSection() {
     setLoading(false);
   }, []);
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { load(); }, [load]);
 
   const handleDelete = async (user) => {
@@ -983,7 +1043,6 @@ function UsersSection() {
         )}
       </div>
 
-      {/* User detail modal */}
       {selected && (
         <Modal onClose={() => setSelected(null)} title={`Customer: ${selected.name}`} wide>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
@@ -1004,7 +1063,6 @@ function UsersSection() {
               </div>
             ))}
           </div>
-          {/* Loyalty points editor */}
           <div style={{ marginBottom: 16, padding: '14px 16px', background: `${ACCENT}08`, borderRadius: 10, border: `1px solid ${ACCENT}20` }}>
             <p style={{ fontSize: 12, fontWeight: 700, color: '#888', marginBottom: 8 }}>Adjust Loyalty Points</p>
             <div style={{ display: 'flex', gap: 8 }}>
@@ -1020,7 +1078,6 @@ function UsersSection() {
               </button>
             </div>
           </div>
-          {/* Orders in modal */}
           {(selected.orders || []).length > 0 && (
             <div>
               <p style={{ fontSize: 12, fontWeight: 700, color: '#888', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Order History</p>
@@ -1039,7 +1096,6 @@ function UsersSection() {
         </Modal>
       )}
 
-      {/* Delete confirm modal */}
       {deleteConfirm && (
         <Modal onClose={() => setDeleteConfirm(null)} title="Delete User">
           <div style={{ textAlign: 'center', padding: '8px 0 24px' }}>
@@ -1047,7 +1103,7 @@ function UsersSection() {
               <Trash2 size={24} color="#DC2626" />
             </div>
             <p style={{ fontSize: 16, fontWeight: 700, color: '#1A1A1A', marginBottom: 8 }}>Delete {deleteConfirm.name}?</p>
-            <p style={{ fontSize: 13, color: '#888', marginBottom: 24 }}>This will permanently delete the user and all their data. This action cannot be undone.</p>
+            <p style={{ fontSize: 13, color: '#888', marginBottom: 24 }}>This will permanently delete the user and all their data.</p>
             <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
               <button onClick={() => setDeleteConfirm(null)} style={{ padding: '10px 24px', background: '#fff', border: '1px solid #E2DDD6', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>Cancel</button>
               <button onClick={() => handleDelete(deleteConfirm)} style={{ padding: '10px 24px', background: '#DC2626', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>Delete User</button>
@@ -1079,7 +1135,6 @@ function QuotesSection() {
     setLoading(false);
   }, []);
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { load(); }, [load]);
 
   const handleUpdateQuote = async (q, updates) => {
@@ -1100,7 +1155,7 @@ function QuotesSection() {
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-        <h2 style={{ fontSize: 22, fontFamily: 'Outfit,sans-serif', fontWeight: 700 }}>Quote Requests</h2>
+        <h2 style={{ fontSize: 22, fontFamily: 'Outfit,sans-serif', fontWeight: 700 }}>Quote & Sample Requests</h2>
         <button onClick={load} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: G, background: 'none', border: `1px solid ${G}`, borderRadius: 8, padding: '7px 14px', cursor: 'pointer' }}><RefreshCw size={13} /> Refresh</button>
       </div>
       <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #E2DDD6', overflow: 'hidden' }}>
@@ -1111,27 +1166,32 @@ function QuotesSection() {
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: '#FAFAF9' }}>
-                  {['Quote ID', 'Customer', 'Box Type', 'Qty', 'Material', 'Status', 'Quoted Price', 'Actions'].map(h => (
+                  {['Quote ID', 'Type', 'Customer', 'Product / Box', 'Qty', 'Delivery Address', 'Status', 'Price', 'Actions'].map(h => (
                     <th key={h} style={{ padding: '11px 14px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {quotes.length === 0 ? (
-                  <tr><td colSpan={8} style={{ padding: 32, textAlign: 'center', color: '#aaa' }}>No quote requests</td></tr>
+                  <tr><td colSpan={9} style={{ padding: 32, textAlign: 'center', color: '#aaa' }}>No quote or sample requests yet</td></tr>
                 ) : quotes.map((q, i) => (
                   <tr key={i} style={{ borderTop: '1px solid #F0EDE8' }}
                     onMouseEnter={e => e.currentTarget.style.background = '#FAFAF9'}
                     onMouseLeave={e => e.currentTarget.style.background = '#fff'}>
-                    <td style={{ padding: '12px 14px', fontSize: 12, fontWeight: 700, color: G }}>{q.id}</td>
+                    <td style={{ padding: '12px 14px', fontSize: 12, fontWeight: 700, color: G }}>{q.quoteId || q.id}</td>
+                    <td style={{ padding: '12px 14px' }}>
+                      <span style={{ fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 100, background: q.type === 'sample' ? '#FEF3C7' : '#DBEAFE', color: q.type === 'sample' ? '#92400E' : '#1E40AF' }}>
+                        {q.type === 'sample' ? '📦 Sample' : '💬 Quote'}
+                      </span>
+                    </td>
                     <td style={{ padding: '12px 14px' }}>
                       <div style={{ fontSize: 13, fontWeight: 600 }}>{q.userName}</div>
                       <div style={{ fontSize: 11, color: '#888' }}>{q.userEmail}</div>
                     </td>
-                    <td style={{ padding: '12px 14px', fontSize: 12, color: '#555' }}>{q.boxType}</td>
-                    <td style={{ padding: '12px 14px', fontSize: 12, color: '#555' }}>{q.qty}</td>
-                    <td style={{ padding: '12px 14px', fontSize: 12, color: '#555' }}>{q.material || q.dims || '—'}</td>
-                    <td style={{ padding: '12px 14px' }}><Badge status={q.status || 'New'} /></td>
+                    <td style={{ padding: '12px 14px', fontSize: 12, color: '#555' }}>{q.productName || q.boxType || '—'}</td>
+                    <td style={{ padding: '12px 14px', fontSize: 12, color: '#555' }}>{q.qty || '—'}</td>
+                    <td style={{ padding: '12px 14px', fontSize: 12, color: '#555', maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={q.deliveryAddress || '—'}>{q.deliveryAddress || '—'}</td>
+                    <td style={{ padding: '12px 14px' }}><Badge status={q.status || 'Pending'} /></td>
                     <td style={{ padding: '12px 14px', fontSize: 12, fontWeight: 700, color: ACCENT }}>{q.quotedPrice || '—'}</td>
                     <td style={{ padding: '12px 14px' }}>
                       <button onClick={() => { setSelected(q); setPriceInput(q.quotedPrice || ''); }}
@@ -1148,18 +1208,25 @@ function QuotesSection() {
       </div>
 
       {selected && (
-        <Modal onClose={() => setSelected(null)} title={`Reply to Quote ${selected.id}`}>
+        <Modal onClose={() => setSelected(null)} title={`Reply — ${selected.quoteId || selected.id}`}>
           <div style={{ marginBottom: 16 }}>
-            <p style={{ fontSize: 13, color: '#555', marginBottom: 16 }}>
-              <strong>{selected.userName}</strong> ({selected.userEmail}) requested a quote for <strong>{selected.qty} × {selected.boxType}</strong>.
-            </p>
+            <div style={{ padding: '12px 14px', background: BG, borderRadius: 10, marginBottom: 16 }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 8px' }}>Request Details</p>
+              <p style={{ fontSize: 13, color: '#1A1A1A', margin: '0 0 4px' }}><strong>{selected.userName}</strong> ({selected.userEmail})</p>
+              {selected.type === 'sample' && <p style={{ fontSize: 13, color: '#555', margin: '0 0 4px' }}>Type: <strong>Physical Sample</strong></p>}
+              {selected.productName && <p style={{ fontSize: 13, color: '#555', margin: '0 0 4px' }}>Product: <strong>{selected.productName}</strong></p>}
+              {selected.boxType && <p style={{ fontSize: 13, color: '#555', margin: '0 0 4px' }}>Box: <strong>{selected.qty} × {selected.boxType}</strong></p>}
+              {selected.deliveryAddress && (
+                <p style={{ fontSize: 13, color: '#555', margin: '0 0 4px' }}>Delivery to: <strong>{selected.deliveryAddress}</strong></p>
+              )}
+            </div>
             <label style={{ fontSize: 11, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 6 }}>Quoted Price per Unit</label>
             <input value={priceInput} onChange={e => setPriceInput(e.target.value)} placeholder="e.g. $1.24/unit"
               style={{ width: '100%', padding: '10px 12px', border: '1.5px solid #E2DDD6', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box', marginBottom: 16 }} />
-            <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
               {['Reviewing', 'Quoted', 'Accepted', 'Rejected'].map(s => (
                 <button key={s} onClick={() => handleUpdateQuote(selected, { status: s, quotedPrice: priceInput })}
-                  style={{ flex: 1, padding: '9px', background: s === 'Quoted' ? G : '#fff', color: s === 'Quoted' ? '#fff' : '#555', border: `1.5px solid ${s === 'Quoted' ? G : '#E2DDD6'}`, borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+                  style={{ flex: 1, minWidth: 80, padding: '9px', background: s === 'Quoted' ? G : '#fff', color: s === 'Quoted' ? '#fff' : '#555', border: `1.5px solid ${s === 'Quoted' ? G : '#E2DDD6'}`, borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
                   {s}
                 </button>
               ))}
@@ -1193,18 +1260,17 @@ function AnalyticsSection() {
     setLoading(false);
   }, []);
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { load(); }, [load]);
 
   if (loading) return <div style={{ padding: 40, textAlign: 'center' }}><RefreshCw size={22} style={{ animation: 'spin 1s linear infinite', color: '#aaa' }} /></div>;
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
         <h2 style={{ fontSize: 22, fontFamily: 'Outfit,sans-serif', fontWeight: 700 }}>Analytics</h2>
         <button onClick={load} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: G, background: 'none', border: `1px solid ${G}`, borderRadius: 8, padding: '7px 14px', cursor: 'pointer' }}><RefreshCw size={13} /> Refresh</button>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 20 }} className="analytics-grid">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(260px,1fr))', gap: 20 }}>
         <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #E2DDD6', padding: 20 }}>
           <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 16, color: '#1A1A1A' }}>Orders by Status</h3>
           <BarChart data={data?.statusCounts || []} color={ACCENT} />
@@ -1227,6 +1293,7 @@ export default function Admin() {
   const { user, logout } = useAuth();
   const { showToast } = useToast();
   const [activeSection, setActiveSection] = useState('dashboard');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     if (user && user.role !== 'admin') {
@@ -1249,10 +1316,25 @@ export default function Admin() {
   const SECTION_MAP = { dashboard: DashboardSection, orders: OrdersSection, users: UsersSection, products: ProductsSection, industries: IndustriesSection, quotes: QuotesSection, analytics: AnalyticsSection };
   const SectionComp = SECTION_MAP[activeSection] || DashboardSection;
 
+  const handleNavClick = (key) => {
+    setActiveSection(key);
+    setSidebarOpen(false);
+  };
+
   return (
     <div style={{ minHeight: '100vh', background: BG, display: 'flex', paddingTop: 72 }}>
+      {/* Mobile overlay */}
+      {sidebarOpen && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200 }} onClick={() => setSidebarOpen(false)} />
+      )}
+
       {/* Sidebar */}
-      <aside style={{ width: 220, flexShrink: 0, background: G, minHeight: 'calc(100vh - 72px)', position: 'sticky', top: 72, display: 'flex', flexDirection: 'column' }}>
+      <aside className="admin-sidebar" style={{
+        width: 220, flexShrink: 0, background: G,
+        minHeight: 'calc(100vh - 72px)', position: 'sticky', top: 72,
+        display: 'flex', flexDirection: 'column',
+        transition: 'transform 0.25s',
+      }}>
         <div style={{ padding: '24px 20px 16px' }}>
           <p style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 4 }}>Admin Panel</p>
           <p style={{ fontSize: 14, fontWeight: 700, color: '#fff', margin: 0 }}>{user.name}</p>
@@ -1260,7 +1342,7 @@ export default function Admin() {
         </div>
         <nav style={{ flex: 1, padding: '8px 12px' }}>
           {NAV_ITEMS.map(({ key, label, icon: Icon }) => (
-            <button key={key} onClick={() => setActiveSection(key)}
+            <button key={key} onClick={() => handleNavClick(key)}
               style={{
                 width: '100%', padding: '11px 14px', borderRadius: 10, border: 'none',
                 background: activeSection === key ? 'rgba(255,255,255,0.12)' : 'transparent',
@@ -1287,14 +1369,32 @@ export default function Admin() {
       </aside>
 
       {/* Content */}
-      <main style={{ flex: 1, padding: '32px 28px', overflowX: 'hidden' }}>
+      <main style={{ flex: 1, padding: '32px 28px', overflowX: 'hidden', minWidth: 0 }}>
+        {/* Mobile hamburger */}
+        <button className="admin-hamburger" onClick={() => setSidebarOpen(s => !s)}
+          style={{ display: 'none', alignItems: 'center', gap: 8, marginBottom: 20, padding: '8px 14px', background: G, color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+          <Menu size={16} /> Menu
+        </button>
         <SectionComp />
       </main>
 
       <style>{`
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @media (max-width: 1024px) { .analytics-grid { grid-template-columns: 1fr 1fr !important; } }
-        @media (max-width: 768px) { .kpi-grid { grid-template-columns: 1fr 1fr !important; } .analytics-grid { grid-template-columns: 1fr !important; } }
+        @media (max-width: 768px) {
+          .admin-sidebar {
+            position: fixed !important;
+            top: 72px !important;
+            left: 0;
+            height: calc(100vh - 72px);
+            z-index: 300;
+            transform: translateX(${sidebarOpen ? '0' : '-100%'}) !important;
+          }
+          .admin-hamburger { display: flex !important; }
+          main { padding: 20px 16px !important; }
+        }
+        @media (max-width: 480px) {
+          main { padding: 16px 12px !important; }
+        }
       `}</style>
     </div>
   );
