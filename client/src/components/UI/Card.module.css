@@ -1,0 +1,62 @@
+.card {
+  padding: var(--space-lg);
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-base);
+  cursor: pointer;
+}
+
+/* ─── Card Variants ─────────────────────────────────────────────────── */
+
+/* Default - Subtle glass effect */
+.variant-default {
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border-light);
+}
+
+.variant-default:hover {
+  border-color: var(--color-border-medium);
+  box-shadow: var(--shadow-md);
+  background: var(--color-bg-hover);
+}
+
+/* Glass - Strong glass morphism */
+.variant-glass {
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.05) 0%, rgba(20, 184, 166, 0.02) 100%);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(20, 184, 166, 0.2);
+}
+
+.variant-glass:hover {
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.1) 0%, rgba(20, 184, 166, 0.05) 100%);
+  border-color: rgba(20, 184, 166, 0.3);
+  box-shadow: var(--shadow-glow);
+}
+
+/* Elevated - Strong shadow, lighter background */
+.variant-elevated {
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border-light);
+  box-shadow: var(--shadow-lg);
+}
+
+.variant-elevated:hover {
+  box-shadow: var(--shadow-xl);
+  transform: translateY(-4px);
+}
+
+/* Outline - Minimal, outline only */
+.variant-outline {
+  background: transparent;
+  border: 2px solid var(--color-border-medium);
+}
+
+.variant-outline:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--glass-sm);
+}
+
+/* ─── No Hover ───────────────────────────────────────────────────── */
+
+.card.noHover {
+  cursor: default;
+}

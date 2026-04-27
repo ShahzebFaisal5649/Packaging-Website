@@ -1,7 +1,143 @@
 import { useState, useEffect, useRef } from 'react';
+import { useAuth } from '../hooks/useAuth';
 import Navbar from '../components/Navbar/Navbar';
 import Footer from '../components/Footer/Footer';
 import styles from './BoxDesignPage.module.css';
+
+/* ─── Sample Request Modal ───────────────────────────────────────────────── */
+function SampleRequestModal({ onClose, productName }) {
+  const { user } = useAuth();
+  const [form, setForm] = useState({
+    name: user?.name || '',
+    email: user?.email || '',
+    phone: '',
+    address: '',
+    city: '',
+    state: '',
+    zip: '',
+    country: 'United States',
+  });
+  const [errors, setErrors] = useState({});
+  const [submitted, setSubmitted] = useState(false);
+
+  const validate = () => {
+    const e = {};
+    if (!form.name.trim()) e.name = 'Required';
+    if (!form.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Valid email required';
+    if (!form.phone.trim()) e.phone = 'Required';
+    if (!form.address.trim()) e.address = 'Required';
+    if (!form.city.trim()) e.city = 'Required';
+    if (!form.zip.trim()) e.zip = 'Required';
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm(p => ({ ...p, [name]: value }));
+    if (errors[name]) setErrors(p => ({ ...p, [name]: '' }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!validate()) return;
+    const fullAddress = `${form.address}, ${form.city}, ${form.state} ${form.zip}, ${form.country}`;
+    const request = {
+      ...form,
+      address: fullAddress,
+      productName: productName || 'Custom Box Sample',
+      userId: user?.id || null,
+      status: 'pending',
+      createdAt: new Date().toISOString(),
+    };
+    const existing = JSON.parse(localStorage.getItem('novapack_sample_requests') || '[]');
+    existing.push(request);
+    localStorage.setItem('novapack_sample_requests', JSON.stringify(existing));
+    setSubmitted(true);
+  };
+
+  return (
+    <div className={styles.modalBackdrop} onClick={e => e.target === e.currentTarget && onClose()}>
+      <div className={styles.modal} role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div className={styles.modalHeader}>
+          <h2 id="modal-title" className={styles.modalTitle}>Request a Physical Sample</h2>
+          <button className={styles.modalClose} onClick={onClose} aria-label="Close">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 4l12 12M16 4L4 16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
+          </button>
+        </div>
+
+        {submitted ? (
+          <div className={styles.modalSuccess}>
+            <div className={styles.successIcon}>
+              <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="20" fill="rgba(16,185,129,0.15)"/><path d="M12 20l6 6 10-12" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            </div>
+            <h3>Request submitted!</h3>
+            <p>We'll ship your sample to <strong>{form.address}, {form.city}</strong> within 24 hours. Check your email at {form.email} for tracking info.</p>
+            <button className={styles.modalBtn} onClick={onClose}>Close</button>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className={styles.modalForm} noValidate>
+            <p className={styles.modalIntro}>We'll send a free physical sample to your address within 24 hours.</p>
+
+            <div className={styles.modalRow}>
+              <div className={styles.modalField}>
+                <label className={styles.modalLabel}>Full Name *</label>
+                <input name="name" className={`${styles.modalInput} ${errors.name ? styles.inputErr : ''}`} value={form.name} onChange={handleChange} placeholder="Jane Smith" />
+                {errors.name && <span className={styles.fieldErr}>{errors.name}</span>}
+              </div>
+              <div className={styles.modalField}>
+                <label className={styles.modalLabel}>Email Address *</label>
+                <input name="email" type="email" className={`${styles.modalInput} ${errors.email ? styles.inputErr : ''}`} value={form.email} onChange={handleChange} placeholder="you@example.com" />
+                {errors.email && <span className={styles.fieldErr}>{errors.email}</span>}
+              </div>
+            </div>
+
+            <div className={styles.modalField}>
+              <label className={styles.modalLabel}>Phone Number *</label>
+              <input name="phone" type="tel" className={`${styles.modalInput} ${errors.phone ? styles.inputErr : ''}`} value={form.phone} onChange={handleChange} placeholder="+1 (555) 000-0000" />
+              {errors.phone && <span className={styles.fieldErr}>{errors.phone}</span>}
+            </div>
+
+            <div className={styles.modalField}>
+              <label className={styles.modalLabel}>Street Address *</label>
+              <input name="address" className={`${styles.modalInput} ${errors.address ? styles.inputErr : ''}`} value={form.address} onChange={handleChange} placeholder="123 Main Street, Apt 4B" />
+              {errors.address && <span className={styles.fieldErr}>{errors.address}</span>}
+            </div>
+
+            <div className={styles.modalRow3}>
+              <div className={styles.modalField}>
+                <label className={styles.modalLabel}>City *</label>
+                <input name="city" className={`${styles.modalInput} ${errors.city ? styles.inputErr : ''}`} value={form.city} onChange={handleChange} placeholder="New York" />
+                {errors.city && <span className={styles.fieldErr}>{errors.city}</span>}
+              </div>
+              <div className={styles.modalField}>
+                <label className={styles.modalLabel}>State / Province</label>
+                <input name="state" className={styles.modalInput} value={form.state} onChange={handleChange} placeholder="NY" />
+              </div>
+              <div className={styles.modalField}>
+                <label className={styles.modalLabel}>ZIP / Postal *</label>
+                <input name="zip" className={`${styles.modalInput} ${errors.zip ? styles.inputErr : ''}`} value={form.zip} onChange={handleChange} placeholder="10001" />
+                {errors.zip && <span className={styles.fieldErr}>{errors.zip}</span>}
+              </div>
+            </div>
+
+            <div className={styles.modalField}>
+              <label className={styles.modalLabel}>Country</label>
+              <select name="country" className={styles.modalInput} value={form.country} onChange={handleChange}>
+                {['United States','United Kingdom','Canada','Australia','Germany','France','Japan','Singapore','UAE','Pakistan','India','Other'].map(c => <option key={c}>{c}</option>)}
+              </select>
+            </div>
+
+            <div className={styles.modalActions}>
+              <button type="button" onClick={onClose} className={styles.modalCancelBtn}>Cancel</button>
+              <button type="submit" className={styles.modalBtn}>Send My Sample</button>
+            </div>
+          </form>
+        )}
+      </div>
+    </div>
+  );
+}
 
 /* ─── Data ──────────────────────────────────────────────────────────────── */
 const HERO_SLIDES = [
@@ -580,6 +716,7 @@ export default function BoxDesignPage() {
   const [heroIdx, setHeroIdx] = useState(0);
   const [procStep, setProcStep] = useState(0);
   const [openFaq, setOpenFaq] = useState(null);
+  const [sampleOpen, setSampleOpen] = useState(false);
   const heroTimer = useRef(null);
   const laptopTimer = useRef(null);
 
@@ -649,12 +786,16 @@ export default function BoxDesignPage() {
                 </ul>
               </div>
               <div className={styles.heroCtas}>
-                <a href="/categories?tab=packaging-label" className={styles.btnPrimary} style={{ background: slide.color, borderColor: slide.color }}>
+                <a href="/custom-box" className={styles.btnPrimary} style={{ background: slide.color, borderColor: slide.color }}>
                   Start a project
                 </a>
-                <a href="/categories?tab=packaging-label" className={styles.btnLink} style={{ color: slide.color, borderColor: slide.color }}>
+                <a href="/contests" className={styles.btnLink} style={{ color: slide.color, borderColor: slide.color }}>
                   Start a contest
                 </a>
+                <button onClick={() => setSampleOpen(true)} className={styles.btnSample}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17,7 17,2 7,2 7,7"/></svg>
+                  Request Free Sample
+                </button>
               </div>
               <div className={styles.heroDots}>
                 {HERO_SLIDES.map((_, i) => (
@@ -785,9 +926,44 @@ export default function BoxDesignPage() {
                   <div className={styles.statDivider} />
                   <span><strong>19</strong> designers</span>
                 </div>
-                <a href="/categories?tab=packaging-label" className={styles.testimonialBtn}>
+                <a href="/contests" className={styles.testimonialBtn}>
                   Start a contest
                 </a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ══ 6b. SAMPLE REQUEST CTA ════════════════════════════════════════ */}
+        <section className={styles.sampleSection} aria-labelledby="sample-title">
+          <div className="container">
+            <div className={styles.sampleInner}>
+              <div className={styles.sampleContent}>
+                <span className={styles.sampleBadge}>Free</span>
+                <h2 className={styles.sampleTitle} id="sample-title">Not sure yet? Get a physical sample first.</h2>
+                <p className={styles.sampleDesc} style={{ textAlign: 'justify' }}>
+                  We'll ship a free physical sample of our packaging materials directly to your door so you can feel the quality before you commit. Samples ship within 24 hours to any address worldwide.
+                </p>
+                <ul className={styles.sampleFeatures}>
+                  {['Free shipping worldwide', 'Ships within 24 hours', 'Multiple material options', 'No credit card required'].map(f => (
+                    <li key={f} className={styles.sampleFeature}>
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="8" fill="rgba(20,184,166,0.2)"/><path d="M5 8l2 2 4-4" stroke="#14b8a6" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                <button onClick={() => setSampleOpen(true)} className={styles.sampleBtn}>
+                  Request Physical Sample
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7h12M7 1l6 6-6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                </button>
+              </div>
+              <div className={styles.sampleVisual}>
+                <img
+                  src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=500&q=80&auto=format"
+                  alt="Sample packaging boxes"
+                  className={styles.sampleImg}
+                  loading="lazy"
+                />
               </div>
             </div>
           </div>
@@ -950,6 +1126,8 @@ export default function BoxDesignPage() {
       </main>
 
       <Footer />
+
+      {sampleOpen && <SampleRequestModal onClose={() => setSampleOpen(false)} productName="Premium Box Sample" />}
     </div>
   );
 }

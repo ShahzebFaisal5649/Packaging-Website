@@ -45,7 +45,7 @@
 }
 
 .logoPack {
-  color: var(--color-brand);
+  color: var(--color-primary);
 }
 
 /* ── Primary nav ── */
@@ -111,6 +111,26 @@
 
 .loginBtn:hover { color: var(--color-text-primary); }
 
+.adminBtn {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-warning);
+  border: 1px solid rgba(245,158,11,0.3);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: all var(--transition-fast);
+}
+
+.adminBtn:hover {
+  background: rgba(245,158,11,0.12);
+  color: var(--color-warning);
+  text-decoration: none;
+}
+
 .ctaBtn {
   display: inline-flex;
   align-items: center;
@@ -119,17 +139,21 @@
   font-size: 14px;
   font-weight: 700;
   color: #fff;
-  background: var(--color-brand);
+  background: var(--color-primary);
   border-radius: var(--radius-md);
   white-space: nowrap;
   text-decoration: none;
+  border: none;
+  cursor: pointer;
   transition: background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .ctaBtn:hover {
-  background: var(--color-brand-dark);
+  background: var(--color-primary-dark);
   transform: translateY(-1px);
-  box-shadow: 0 4px 16px var(--color-brand-glow);
+  box-shadow: var(--shadow-glow);
+  text-decoration: none;
+  color: #fff;
 }
 
 /* ── Hamburger ── */
@@ -225,7 +249,7 @@
   margin: 20px 24px 0;
   border-bottom: none;
   border-radius: var(--radius-md);
-  background: var(--color-brand);
+  background: var(--color-primary);
   color: #fff;
   font-weight: 700;
   text-align: center;
@@ -233,7 +257,7 @@
 }
 
 .drawerCta:hover {
-  background: var(--color-brand-dark);
+  background: var(--color-primary-dark);
   color: #fff;
 }
 

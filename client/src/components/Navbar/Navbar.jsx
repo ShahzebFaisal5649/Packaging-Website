@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import { useScrollShadow } from '../../hooks/useScrollShadow';
+import { useAuth } from '../../hooks/useAuth';
+import { navigate } from '../../hooks/useRoute';
 import styles from './Navbar.module.css';
 
 const NAV_LINKS = [
-  { label: 'Home',             href: '/' },
-  { label: 'Categories',       href: '/categories' },
-  { label: 'Custom Box',       href: '/custom-box' },
-  { label: 'How It Works',     href: '/how-it-works' },
-  { label: 'Box Design',       href: '/box-design' },
+  { label: 'Home',         href: '/' },
+  { label: 'Categories',   href: '/categories' },
+  { label: 'Custom Box',   href: '/custom-box' },
+  { label: 'How It Works', href: '/how-it-works' },
+  { label: 'Box Design',   href: '/box-design' },
 ];
 
 function LogoIcon() {
@@ -15,19 +17,18 @@ function LogoIcon() {
     <svg width="34" height="34" viewBox="0 0 34 34" fill="none" aria-hidden="true">
       <defs>
         <linearGradient id="lg-top" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#ff8c5a"/>
-          <stop offset="100%" stopColor="#ff6b35"/>
+          <stop offset="0%" stopColor="#2dd4bf"/>
+          <stop offset="100%" stopColor="#14b8a6"/>
         </linearGradient>
         <linearGradient id="lg-front" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#e85a22"/>
-          <stop offset="100%" stopColor="#c44818"/>
+          <stop offset="0%" stopColor="#0d9488"/>
+          <stop offset="100%" stopColor="#0a7a72"/>
         </linearGradient>
         <linearGradient id="lg-side" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="#ff6b35"/>
-          <stop offset="100%" stopColor="#e05220"/>
+          <stop offset="0%" stopColor="#14b8a6"/>
+          <stop offset="100%" stopColor="#0d9488"/>
         </linearGradient>
       </defs>
-      {/* Isometric box icon */}
       <polygon points="17,3 31,11 17,19 3,11" fill="url(#lg-top)"/>
       <polygon points="3,11 17,19 17,31 3,23" fill="url(#lg-front)"/>
       <polygon points="31,11 17,19 17,31 31,23" fill="url(#lg-side)"/>
@@ -38,6 +39,13 @@ function LogoIcon() {
 export default function Navbar() {
   const hasShadow = useScrollShadow();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const { user, logout, isAdmin } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+    setDrawerOpen(false);
+  };
 
   return (
     <>
@@ -73,8 +81,18 @@ export default function Navbar() {
               </svg>
               1 800 513 1678
             </a>
-            <a href="/login" className={styles.loginBtn}>Log in</a>
-            <a href="/custom-box" className={styles.ctaBtn}>Get Quote</a>
+            {user ? (
+              <>
+                {isAdmin && <a href="/admin" className={styles.adminBtn}>Admin</a>}
+                <a href="/dashboard" className={styles.loginBtn}>{user.name?.split(' ')[0] || 'Dashboard'}</a>
+                <button onClick={handleLogout} className={styles.ctaBtn}>Log out</button>
+              </>
+            ) : (
+              <>
+                <a href="/login" className={styles.loginBtn}>Log in</a>
+                <a href="/custom-box" className={styles.ctaBtn}>Get Quote</a>
+              </>
+            )}
           </div>
 
           {/* Hamburger */}
@@ -113,8 +131,16 @@ export default function Navbar() {
           <a key={l.href} href={l.href} className={styles.drawerLink} onClick={() => setDrawerOpen(false)}>{l.label}</a>
         ))}
         <a href="tel:18005131678" className={styles.drawerLink}>1 800 513 1678</a>
-        <a href="/login" className={styles.drawerLink}>Log in</a>
-        <a href="/custom-box" className={`${styles.drawerLink} ${styles.drawerCta}`}>Get Quote</a>
+        {user ? (
+          <>
+            {isAdmin && <a href="/admin" className={styles.drawerLink} onClick={() => setDrawerOpen(false)}>Admin Panel</a>}
+            <a href="/dashboard" className={styles.drawerLink} onClick={() => setDrawerOpen(false)}>Dashboard</a>
+            <button onClick={handleLogout} className={styles.drawerLink}>Log out</button>
+          </>
+        ) : (
+          <a href="/login" className={styles.drawerLink} onClick={() => setDrawerOpen(false)}>Log in</a>
+        )}
+        <a href="/custom-box" className={`${styles.drawerLink} ${styles.drawerCta}`} onClick={() => setDrawerOpen(false)}>Get Quote</a>
       </div>
 
       {drawerOpen && (
