@@ -18,17 +18,7 @@ const POSTS = [
     img: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=600&q=80',
     featured: true,
   },
-  {
-    id: 2,
-    title: '10 Sustainable Packaging Trends for 2025',
-    excerpt: 'From FSC-certified kraft to soy-based inks and compostable liners the top eco-friendly packaging trends brands are adopting this year.',
-    author: 'James Kowalski',
-    date: 'Apr 5, 2025',
-    readTime: '7 min read',
-    category: 'Sustainability',
-    img: 'https://images.unsplash.com/photo-1619468579487-430c4d90f93b?w=600&q=80',
-    featured: false,
-  },
+  
   {
     id: 3,
     title: 'The Ultimate Guide to Box Styles for E-Commerce',
@@ -75,11 +65,10 @@ const POSTS = [
   },
 ];
 
-const CATEGORIES = ['All', 'Branding', 'Sustainability', 'E-Commerce', 'Marketing', 'Materials', 'Design'];
+const CATEGORIES = ['All', 'Branding', 'E-Commerce', 'Marketing', 'Materials', 'Design'];
 
 const CATEGORY_COLORS = {
   Branding: ACCENT,
-  Sustainability: '#2E7D32',
   'E-Commerce': '#1565C0',
   Marketing: '#7B1FA2',
   Materials: '#5D4037',
