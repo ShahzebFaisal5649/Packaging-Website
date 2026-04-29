@@ -31,118 +31,51 @@ const CATEGORY_IMGS = {
   default: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=600&q=80',
 };
 
-const staticProducts = [
-  {
-    id: 'pr1', name: 'Seal End Auto Bottom', cat: 'Bottom Closure',
-    desc: 'Secure auto-lock base for heavier items with no tape required on the bottom.',
-    price: '$1.20', img: 'https://images.unsplash.com/photo-1553531384-cc64ac80f931?w=600&q=80',
-    boxType: 'Folding Carton', material: 'SBS Board', finish: 'Matte Lam',
-    dims: '6×4×2 – 18×12×8 in', minQty: '100 units',
-    addons: ['Spot UV', 'Embossing', 'Window Patch'],
-    suggestedDimensions: { l: 6, w: 4, h: 2 },
-  },
-  {
-    id: 'pr2', name: 'Full Flap Auto Bottom', cat: 'Bottom Closure',
-    desc: 'Maximum bottom protection with full flap ideal for retail products.',
-    price: '$1.35', img: 'https://images.unsplash.com/photo-1580822184713-fc5400e7fe10?w=600&q=80',
-    boxType: 'Folding Carton', material: 'SBS Board', finish: 'Gloss Lam',
-    dims: '4×4×4 – 16×12×10 in', minQty: '100 units',
-    addons: ['Foil Stamping', 'Gloss UV', 'Embossing'],
-    suggestedDimensions: { l: 4, w: 4, h: 4 },
-  },
-  {
-    id: 'pr3', name: 'Two Panel CD Cover', cat: 'CD Covers',
-    desc: 'Classic two-panel media packaging with a clean professional look.',
-    price: '$0.85', img: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&q=80',
-    boxType: 'Folding Carton', material: 'SBS Board', finish: 'Gloss Lam',
-    dims: '5.5×5 – 6×6 in', minQty: '250 units',
-    addons: ['Spot UV', 'Gloss Lam', 'Custom Die-Cut'],
-    suggestedDimensions: { l: 6, w: 6, h: 1 },
-  },
-  {
-    id: 'pr4', name: 'Gable Bag', cat: 'Figure & Pattern',
-    desc: 'Unique carrying handle for gift packaging that stands out on any shelf.',
-    price: '$1.50', img: 'https://images.unsplash.com/photo-1619468579487-430c4d90f93b?w=600&q=80',
-    boxType: 'Gable Box', material: 'Kraft', finish: 'Uncoated',
-    dims: '4×4×7 – 12×9×12 in', minQty: '100 units',
-    addons: ['1-Color Print', '4-Color Print', 'Custom Handle'],
-    suggestedDimensions: { l: 4, w: 4, h: 7 },
-  },
-  {
-    id: 'pr5', name: 'Double Wall Tuck Front', cat: 'Fold & Assemble',
-    desc: 'Premium double-wall construction for high-end unboxing experiences.',
-    price: '$2.10', img: 'https://images.unsplash.com/photo-1544816155-12df9643f363?w=600&q=80',
-    boxType: 'Rigid Box', material: 'Rigid Chipboard', finish: 'Matte Lam',
-    dims: '5×5×2 – 14×10×6 in', minQty: '50 units',
-    addons: ['Foil Stamping', 'Embossing', 'Magnetic Closure'],
-    suggestedDimensions: { l: 5, w: 5, h: 2 },
-  },
-  {
-    id: 'pr6', name: 'Dispenser Box', cat: 'Rectangular',
-    desc: 'Perfect for retail counter display with perforated tear strip.',
-    price: '$1.80', img: 'https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=600&q=80',
-    boxType: 'Display Box', material: 'SBS Board', finish: 'Gloss Lam',
-    dims: '6×4×8 – 20×12×16 in', minQty: '100 units',
-    addons: ['Spot UV', 'Window Patch', 'Hang Tab'],
-    suggestedDimensions: { l: 6, w: 4, h: 8 },
-  },
-  {
-    id: 'pr7', name: 'Reverse Tuck End', cat: 'Rectangular',
-    desc: 'Industry-standard versatile tuck-end box with lowest cost per unit.',
-    price: '$1.10', img: 'https://images.unsplash.com/photo-1573408301185-9519f94816b5?w=600&q=80',
-    boxType: 'Mailer Box', material: 'Corrugated E-Flute', finish: 'Matte Lam',
-    dims: '4×4×2 – 18×14×10 in', minQty: '100 units',
-    addons: ['Inside Printing', 'Spot UV', 'Perforation'],
-    suggestedDimensions: { l: 4, w: 4, h: 2 },
-  },
-  {
-    id: 'pr8', name: 'Paper Briefcase', cat: 'Showcase Exhibit',
-    desc: 'Display-ready showcase packaging with premium visual impact.',
-    price: '$3.50', img: 'https://images.unsplash.com/photo-1592921870789-04563d55041c?w=600&q=80',
-    boxType: 'Sleeve Box', material: 'Rigid Chipboard', finish: 'Matte Lam',
-    dims: '9×6×3 – 18×12×6 in', minQty: '50 units',
-    addons: ['Foil Stamping', 'Debossing', 'Ribbon Pull'],
-    suggestedDimensions: { l: 9, w: 6, h: 3 },
-  },
-  {
-    id: 'pr9', name: 'Straight Tuck End', cat: 'Rectangular',
-    desc: 'Classic straight tuck box that is versatile for cosmetics, pharma, and food.',
-    price: '$0.95', img: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=600&q=80',
-    boxType: 'Folding Carton', material: 'SBS Board', finish: 'Gloss Lam',
-    dims: '3×2×5 – 12×8×10 in', minQty: '100 units',
-    addons: ['Matte Lam', 'Soft-Touch', 'Spot UV'],
-    suggestedDimensions: { l: 3, w: 2, h: 5 },
-  },
-  {
-    id: 'pr10', name: 'Four Corner Tray', cat: 'Rectangular',
-    desc: 'Sturdy tray-style base for gift sets, cosmetics, and food display.',
-    price: '$1.65', img: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&q=80',
-    boxType: 'Display Box', material: 'SBS Board', finish: 'Matte Lam',
-    dims: '8×6×2 – 20×16×4 in', minQty: '100 units',
-    addons: ['Foil Stamping', 'Gloss UV', 'Window Patch'],
-    suggestedDimensions: { l: 8, w: 6, h: 2 },
-  },
-  {
-    id: 'pr11', name: 'Five Panel Hanger', cat: 'Showcase Exhibit',
-    desc: 'Retail-ready display box with euro-hole hanger for peg display.',
-    price: '$2.45', img: 'https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=600&q=80',
-    boxType: 'Display Box', material: 'SBS Board', finish: 'Gloss Lam',
-    dims: '4×2×7 – 10×6×14 in', minQty: '100 units',
-    addons: ['Euro Hole', 'Hang Tab', 'Window Patch'],
-    suggestedDimensions: { l: 4, w: 2, h: 7 },
-  },
-  {
-    id: 'pr12', name: 'Hexagon Gift Box', cat: 'Figure & Pattern',
-    desc: 'Eye-catching hexagonal shape for premium gift packaging.',
-    price: '$2.80', img: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=600&q=80',
-    boxType: 'Rigid Box', material: 'Rigid Chipboard', finish: 'Matte Lam',
-    dims: '6×6×4 – 14×14×8 in', minQty: '50 units',
-    addons: ['Foil Stamping', 'Embossing', 'Ribbon Pull'],
-    suggestedDimensions: { l: 6, w: 6, h: 4 },
-  },
-];
+const SidebarContent = ({ search, setSearch, activeCategory, setActiveCategory, allCategories, setSidebarOpen, ACCENT }) => (
+  <>
+    <div style={{ position: 'relative', marginBottom: 28 }}>
+      <Search size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#9A9080' }} />
+      <input
+        type="text"
+        placeholder="Search products..."
+        value={search}
+        onChange={e => setSearch(e.target.value)}
+        style={{ width: '100%', padding: '10px 12px 10px 34px', border: '1.5px solid #D8D3CB', borderRadius: 8, fontSize: 13, color: '#1A1A1A', backgroundColor: '#fff', outline: 'none', boxSizing: 'border-box' }}
+      />
+    </div>
+
+    <p style={{ fontSize: 10, fontWeight: 700, color: '#9A9080', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 14 }}>Categories</p>
+    <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
+      {allCategories.map(cat => (
+        <li key={cat}>
+          <button
+            onClick={() => { setActiveCategory(cat); setSidebarOpen(false); }}
+            style={{
+              width: '100%',
+              textAlign: 'left',
+              padding: '9px 12px',
+              borderRadius: 8,
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: 13,
+              fontWeight: activeCategory === cat ? 700 : 500,
+              backgroundColor: activeCategory === cat ? `${ACCENT}18` : 'transparent',
+              color: activeCategory === cat ? ACCENT : '#6B6B6B',
+              transition: 'all 0.15s',
+            }}
+            onMouseEnter={e => { if (activeCategory !== cat) e.target.style.backgroundColor = '#F0EDE8'; }}
+            onMouseLeave={e => { if (activeCategory !== cat) e.target.style.backgroundColor = 'transparent'; }}
+          >
+            {cat}
+          </button>
+        </li>
+      ))}
+    </ul>
+  </>
+);
 
 function ProductCard({ product }) {
+
   const [hovered, setHovered] = useState(false);
   const { openQuickView: openModal } = useModal();
   const { isFavourite, toggleFavourite } = useFavourites();
@@ -251,27 +184,29 @@ export default function Products() {
   const [search, setSearch] = useState('');
   const [fetchedProducts, setFetchedProducts] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const loadProducts = async () => {
+      setLoading(true);
+      setError('');
       try {
         const data = await api.get('/content/products');
-        if (data.products && data.products.length > 0) {
-          setFetchedProducts(data.products);
-        }
-      // eslint-disable-next-line no-unused-vars
+        setFetchedProducts(Array.isArray(data.products) ? data.products : []);
       } catch (err) {
-        console.log('Using static product data');
+        console.error('Products load failed', err);
+        setError('Unable to load products. Please refresh the page.');
+      } finally {
+        setLoading(false);
       }
     };
     loadProducts();
   }, []);
 
-  const productsList = fetchedProducts.length > 0 ? fetchedProducts : staticProducts;
+  const productsList = fetchedProducts;
 
-  // Build categories dynamically from products list
   const dynamicCategories = ['All Products', ...Array.from(new Set(productsList.map(p => p.cat).filter(Boolean))).sort()];
-  // Merge with static categories to ensure they always appear
   const allCategories = Array.from(new Set([...STATIC_CATEGORIES, ...dynamicCategories]));
 
   const filtered = productsList.filter(p => {
@@ -280,116 +215,87 @@ export default function Products() {
     return matchCat && matchSearch;
   });
 
-  const SidebarContent = () => (
-    <>
-      <div style={{ position: 'relative', marginBottom: 28 }}>
-        <Search size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#9A9080' }} />
-        <input
-          type="text"
-          placeholder="Search products..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          style={{ width: '100%', padding: '10px 12px 10px 34px', border: '1.5px solid #D8D3CB', borderRadius: 8, fontSize: 13, color: '#1A1A1A', backgroundColor: '#fff', outline: 'none', boxSizing: 'border-box' }}
-        />
-      </div>
-
-      <p style={{ fontSize: 10, fontWeight: 700, color: '#9A9080', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 14 }}>Categories</p>
-      <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
-        {allCategories.map(cat => (
-          <li key={cat}>
-            <button
-              onClick={() => { setActiveCategory(cat); setSidebarOpen(false); }}
-              style={{
-                width: '100%',
-                textAlign: 'left',
-                padding: '9px 12px',
-                borderRadius: 8,
-                border: 'none',
-                cursor: 'pointer',
-                fontSize: 13,
-                fontWeight: activeCategory === cat ? 700 : 500,
-                backgroundColor: activeCategory === cat ? `${ACCENT}18` : 'transparent',
-                color: activeCategory === cat ? ACCENT : '#6B6B6B',
-                transition: 'all 0.15s',
-              }}
-              onMouseEnter={e => { if (activeCategory !== cat) e.target.style.backgroundColor = '#F0EDE8'; }}
-              onMouseLeave={e => { if (activeCategory !== cat) e.target.style.backgroundColor = 'transparent'; }}
-            >
-              {cat}
-            </button>
-          </li>
-        ))}
-      </ul>
-    </>
-  );
-
   return (
     <div style={{ backgroundColor: BG, minHeight: '100vh' }}>
 
       {/* Hero */}
-      <section style={{ backgroundColor: G, paddingTop: 120, paddingBottom: 56, paddingLeft: 24, paddingRight: 24 }}>
-        <div style={{ maxWidth: 1400, margin: '0 auto' }}>
-          <p style={{ fontSize: 11, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 12 }}>Full Catalog</p>
-          <h1 style={{ fontSize: 'clamp(28px,4vw,48px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#fff', marginBottom: 12 }}>Shop Products</h1>
-          <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.7)', maxWidth: 520, textAlign: 'justify' }}>
+      <section className="w-full overflow-hidden bg-[#1A4D2E] py-28 px-4">
+        <div className="mx-auto max-w-[1400px]">
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#C8860A] mb-3">Full Catalog</p>
+          <h1 className="text-[clamp(28px,4vw,48px)] font-extrabold text-white mb-3">Shop Products</h1>
+          <p className="max-w-[520px] text-sm text-white/75">
             Browse our full range of custom box styles. Tap any card to see full specs, then configure your exact dimensions.
           </p>
         </div>
       </section>
 
-      <div style={{ maxWidth: 1400, margin: '0 auto', padding: '32px 16px 48px' }}>
+      <div className="max-w-[1400px] mx-auto w-full overflow-x-hidden px-4 py-12">
 
         {/* Mobile filter button */}
-        <button className="products-filter-btn"
-          onClick={() => setSidebarOpen(s => !s)}
-          style={{ display: 'none', alignItems: 'center', gap: 8, marginBottom: 16, padding: '10px 16px', background: G, color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+        <button
+          className="products-filter-btn flex md:hidden items-center gap-2 mb-4 rounded-xl bg-[#1A4D2E] px-4 py-3 text-sm font-bold text-white"
+          onClick={() => setSidebarOpen(s => !s)}>
           <Filter size={14} /> {sidebarOpen ? 'Close Filters' : 'Filter & Search'}
         </button>
 
         {/* Mobile sidebar overlay */}
         {sidebarOpen && (
-          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 200 }} onClick={() => setSidebarOpen(false)} />
+          <div className="fixed inset-0 bg-black/40 z-40" onClick={() => setSidebarOpen(false)} />
         )}
 
         {/* Mobile sidebar drawer */}
-        <div className="products-sidebar-mobile" style={{
-          position: 'fixed', top: 0, left: 0, bottom: 0, width: 280, background: '#fff',
-          zIndex: 300, padding: '80px 20px 20px', overflowY: 'auto',
-          transform: sidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
-          transition: 'transform 0.25s', display: 'none', boxShadow: '4px 0 20px rgba(0,0,0,0.15)',
-        }}>
+        <div className={`products-sidebar-mobile md:hidden fixed inset-y-0 left-0 z-50 flex h-full w-full max-w-sm flex-col bg-white p-6 pt-24 shadow-[4px_0_20px_rgba(0,0,0,0.15)] transition-transform duration-200 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
           <button onClick={() => setSidebarOpen(false)}
             style={{ position: 'absolute', top: 20, right: 16, background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}>
             <X size={20} color="#666" />
           </button>
-          <SidebarContent />
+          <SidebarContent search={search} setSearch={setSearch} activeCategory={activeCategory} setActiveCategory={setActiveCategory} allCategories={allCategories} setSidebarOpen={setSidebarOpen} ACCENT={ACCENT} />
         </div>
 
-        <div className="products-layout" style={{ display: 'flex', gap: 40, alignItems: 'flex-start' }}>
+        <div className="products-layout flex gap-10 md:flex-row flex-col">
 
           {/* Desktop Sidebar */}
-          <div className="products-sidebar-desktop" style={{ width: 200, flexShrink: 0, position: 'sticky', top: 120 }}>
-            <SidebarContent />
+          <div className="products-sidebar-desktop hidden md:block md:w-64 shrink-0 sticky top-28 self-start">
+            <SidebarContent search={search} setSearch={setSearch} activeCategory={activeCategory} setActiveCategory={setActiveCategory} allCategories={allCategories} setSidebarOpen={setSidebarOpen} ACCENT={ACCENT} />
           </div>
 
           {/* Grid */}
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 8 }}>
-              <p style={{ fontSize: 13, color: '#6B6B6B' }}>
-                Showing <strong style={{ color: '#1A1A1A' }}>{filtered.length}</strong> {filtered.length === 1 ? 'product' : 'products'}
+          <div className="flex-1 min-w-0">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-6">
+              <p className="text-sm text-[#6B6B6B]">
+                Showing <strong className="text-[#1A1A1A]">{filtered.length}</strong> {filtered.length === 1 ? 'product' : 'products'}
               </p>
-              <p style={{ fontSize: 11, color: '#9A9080', fontStyle: 'italic' }}>Click any card to see full specifications</p>
+              <p className="text-xs italic text-[#9A9080]">Click any card to see full specifications</p>
             </div>
 
-            {filtered.length > 0 ? (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 20 }}>
+            {loading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+                {Array.from({ length: 6 }).map((_, idx) => (
+                  <div key={idx} className="animate-pulse rounded-3xl bg-white p-5 shadow-sm">
+                    <div className="mb-4 h-52 rounded-3xl bg-[#E8E3DC]" />
+                    <div className="space-y-3">
+                      <div className="h-4 w-3/4 rounded-full bg-[#E8E3DC]" />
+                      <div className="h-4 w-1/2 rounded-full bg-[#E8E3DC]" />
+                      <div className="h-3 w-full rounded-full bg-[#E8E3DC]" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : error ? (
+              <div className="rounded-3xl bg-white p-10 text-center text-sm text-[#6B6B6B] shadow-sm">
+                <Package size={48} className="mx-auto mb-4 text-[#D0CAC0]" />
+                <p className="font-semibold text-[#1A1A1A]">Unable to load products</p>
+                <p className="mt-2">Please refresh the page or try again later.</p>
+              </div>
+            ) : filtered.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
                 {filtered.map(p => <ProductCard key={p.id || p._id} product={p} />)}
               </div>
             ) : (
-              <div style={{ textAlign: 'center', padding: '80px 24px', color: '#9A9080' }}>
-                <Package size={48} style={{ color: '#D0CAC0', margin: '0 auto 16px' }} />
-                <p style={{ fontSize: 16, fontWeight: 600 }}>No products found</p>
-                <p style={{ fontSize: 13, marginTop: 6 }}>Try a different search or category</p>
+              <div className="rounded-3xl bg-white p-10 text-center text-sm text-[#6B6B6B] shadow-sm">
+                <Package size={48} className="mx-auto mb-4 text-[#D0CAC0]" />
+                <p className="font-semibold text-[#1A1A1A]">No products found</p>
+                <p className="mt-2">Try a different search or category.</p>
               </div>
             )}
           </div>

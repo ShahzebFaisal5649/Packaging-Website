@@ -181,13 +181,12 @@ export default function Navbar() {
 
   return (
     <>
-      <header
+      <nav
         ref={navRef}
+        className="w-full overflow-hidden fixed top-0 left-0 right-0 z-50"
         style={{
-          position: 'fixed',
-          top: 0,
           width: '100%',
-          zIndex: 9999,
+          maxWidth: '100%',
           background: navBg,
           boxShadow: isScrolled ? '0 2px 20px rgba(0,0,0,0.18)' : 'none',
           transition: 'background 0.3s, box-shadow 0.3s',
@@ -208,7 +207,7 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Nav */}
-          <nav style={{ display: 'flex', alignItems: 'center', gap: 32, flex: 1, justifyContent: 'center' }} className="hidden lg:flex">
+          <nav style={{ display: 'flex', alignItems: 'center', gap: 32, flex: 1, justifyContent: 'center' }} className="hidden md:flex">
 
             {/* Products */}
             <div className="relative py-1" onMouseEnter={() => setActiveMenu('Products')} onMouseLeave={() => setActiveMenu(null)}>
@@ -241,7 +240,7 @@ export default function Navbar() {
           </nav>
 
           {/* Right Actions */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 18, flexShrink: 0 }} className="hidden lg:flex">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 18, flexShrink: 0 }} className="hidden md:flex">
 
             {/* Favourites */}
             <Link to="/favourites" style={{ position: 'relative', color: 'rgba(255,255,255,0.8)', transition: 'color 0.15s' }}
@@ -351,7 +350,7 @@ export default function Navbar() {
           {/* Mobile hamburger */}
           <button
             style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', padding: 4, zIndex: 50 }}
-            className="lg:hidden"
+            className="md:hidden"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
             {mobileMenuOpen ? <X size={26} /> : <Menu size={26} />}
           </button>
@@ -373,7 +372,7 @@ export default function Navbar() {
           position: 'fixed', inset: 0, background: G, zIndex: 10000,
           transform: mobileMenuOpen ? 'translateX(0)' : 'translateX(100%)',
           transition: 'transform 0.3s ease', overflowY: 'auto', paddingTop: 80, paddingBottom: 32,
-        }} className="lg:hidden">
+        }} className="md:hidden">
           <nav style={{ padding: '0 24px' }}>
             {[
               { to: '/products', label: 'Products', hasDropdown: true, key: 'Products', items: [...productCategories.col1, ...productCategories.col2] },
@@ -427,7 +426,7 @@ export default function Navbar() {
             </Link>
           </div>
         </div>
-      </header>
+      </nav>
 
       {(activeMenu || userDropdownOpen) && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 9997 }} onClick={() => { setActiveMenu(null); setUserDropdownOpen(false); }} />

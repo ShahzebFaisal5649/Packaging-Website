@@ -14,43 +14,36 @@ export default function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer style={{ backgroundColor: '#0F2E1A', color: '#fff' }}>
+    <footer className="w-full overflow-x-hidden" style={{ backgroundColor: '#0F2E1A', color: '#fff' }}>
 
       {/* Newsletter strip */}
-      <div style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-        <div style={{ maxWidth: 1400, margin: '0 auto', padding: '56px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-          <h3 style={{ fontSize: 24, fontFamily: 'Outfit,sans-serif', fontWeight: 700, marginBottom: 8 }}>Stay in the Loop</h3>
-          <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.65)', marginBottom: 28, maxWidth: 400 }}>
+      <div className="border-b border-white/10">
+        <div className="mx-auto flex w-full max-w-[1400px] flex-col items-center px-4 py-14 text-center">
+          <h3 className="text-2xl font-bold tracking-tight text-white mb-2">Stay in the Loop</h3>
+          <p className="max-w-[400px] text-sm text-white/70 mb-7">
             Subscribe for packaging insights, trends, and special offers.
           </p>
-          <form style={{ display: 'flex', width: '100%', maxWidth: 440 }} onSubmit={e => e.preventDefault()}>
+          <form className="flex w-full max-w-[440px] flex-col gap-3 sm:flex-row" onSubmit={e => e.preventDefault()}>
             <input
               type="email"
               placeholder="Enter your email address"
               required
-              style={{ flex: 1, background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.2)', borderRight: 'none', borderRadius: '6px 0 0 6px', padding: '12px 16px', fontSize: 14, color: '#fff', outline: 'none' }}
+              className="w-full rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-sm text-white outline-none placeholder:text-white/50"
             />
-            <button type="submit" style={{ background: ACCENT, border: 'none', borderRadius: '0 6px 6px 0', padding: '0 20px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, color: '#fff', fontWeight: 700, fontSize: 13 }}>
+            <button type="submit" className="rounded-2xl bg-[#C8860A] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#b37308]">
               Subscribe <ArrowRight size={14} />
             </button>
           </form>
         </div>
       </div>
 
-      {/* Main 5-column grid */}
-      <div style={{ maxWidth: 1400, margin: '0 auto', padding: '64px 24px' }}>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '2fr 1fr 1fr 1fr 1.4fr',
-          gap: 40,
-          alignItems: 'start',
-        }}
-          className="footer-grid"
-        >
+      {/* Main grid */}
+      <div className="mx-auto w-full max-w-[1400px] px-4 py-16">
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4 items-start">
 
           {/* Col 1 — Brand */}
-          <div>
-            <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, marginBottom: 20, textDecoration: 'none' }}>
+          <div className="flex flex-col items-center text-center sm:items-start sm:text-left gap-6">
+            <Link to="/" className="inline-flex items-center gap-3 text-white no-underline">
               {/* Logo container — uses accent bg so white-bg PNG is invisible and only the N monogram shows */}
               <div style={{ width: 44, height: 44, borderRadius: 10, backgroundColor: ACCENT, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
                 <img
@@ -67,7 +60,7 @@ export default function Footer() {
             <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)', lineHeight: 1.7, maxWidth: 280, marginBottom: 24 }}>
               Premium, industry-grade custom packaging for brands that want to stand out. Fast turnaround, exceptional quality.
             </p>
-            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+            <div className="flex flex-wrap justify-center gap-3 sm:justify-start">
               {[
                 { Icon: FacebookIcon, href: 'https://facebook.com', label: 'Facebook' },
                 { Icon: InstagramIcon, href: 'https://instagram.com', label: 'Instagram' },
@@ -87,8 +80,8 @@ export default function Footer() {
           </div>
 
           {/* Col 2 — Products */}
-          <div>
-            <h4 style={{ fontSize: 11, fontFamily: 'Outfit,sans-serif', fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.09em', marginBottom: 20 }}>Products</h4>
+          <div className="flex flex-col items-center text-center sm:items-start sm:text-left gap-4">
+            <h4 className="text-[11px] font-bold uppercase tracking-[0.09em] text-[#C8860A]">Products</h4>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 14 }}>
               {['Mailer Boxes', 'Shipping Boxes', 'Product Boxes', 'Folding Cartons', 'Rigid Boxes', 'Eco-Friendly'].map(link => (
                 <li key={link}>
@@ -102,8 +95,8 @@ export default function Footer() {
           </div>
 
           {/* Col 3 — Industries */}
-          <div>
-            <h4 style={{ fontSize: 11, fontFamily: 'Outfit,sans-serif', fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.09em', marginBottom: 20 }}>Industries</h4>
+          <div className="flex flex-col items-center text-center sm:items-start sm:text-left gap-4">
+            <h4 className="text-[11px] font-bold uppercase tracking-[0.09em] text-[#C8860A]">Industries</h4>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 14 }}>
               {['Food & Beverage', 'Cosmetics', 'E-commerce', 'Apparel & Retail', 'Electronics', 'Cannabis & CBD'].map(link => (
                 <li key={link}>
@@ -117,8 +110,8 @@ export default function Footer() {
           </div>
 
           {/* Col 4 — Company */}
-          <div>
-            <h4 style={{ fontSize: 11, fontFamily: 'Outfit,sans-serif', fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.09em', marginBottom: 20 }}>Company</h4>
+          <div className="flex flex-col items-center text-center sm:items-start sm:text-left gap-4">
+            <h4 className="text-[11px] font-bold uppercase tracking-[0.09em] text-[#C8860A]">Company</h4>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 14 }}>
               {[
                 { label: 'About Us', to: '/about' },
@@ -137,8 +130,8 @@ export default function Footer() {
           </div>
 
           {/* Col 5 — Support & Contact */}
-          <div>
-            <h4 style={{ fontSize: 11, fontFamily: 'Outfit,sans-serif', fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.09em', marginBottom: 20 }}>Support & Contact</h4>
+          <div className="flex flex-col items-center text-center sm:items-start sm:text-left gap-4">
+            <h4 className="text-[11px] font-bold uppercase tracking-[0.09em] text-[#C8860A]">Support & Contact</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
               <a href="tel:18007259660" style={{ display: 'flex', gap: 12, alignItems: 'flex-start', textDecoration: 'none', color: 'rgba(255,255,255,0.65)', fontSize: 13 }}>
                 <Phone size={16} style={{ color: ACCENT, flexShrink: 0, marginTop: 2 }} />
@@ -171,31 +164,19 @@ export default function Footer() {
       </div>
 
       {/* Bottom bar */}
-      <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', padding: '20px 24px' }}>
-        <div style={{ maxWidth: 1400, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
-          <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', margin: 0 }}>
-            © {year} NovaPack Industries. All rights reserved.
-          </p>
-          <div style={{ display: 'flex', gap: 20, fontSize: 12 }}>
+      <div className="border-t border-white/10 py-6">
+        <div className="mx-auto flex w-full max-w-[1400px] flex-col items-center justify-between gap-3 px-4 text-center text-sm text-white/70 sm:flex-row sm:text-left">
+          <p className="m-0">© {year} NovaPack Industries. All rights reserved.</p>
+          <div className="flex flex-wrap justify-center gap-4 text-sm sm:justify-start">
             {['Privacy Policy', 'Terms of Service', 'Refund Policy'].map(t => (
-              <Link key={t} to="/" style={{ color: 'rgba(255,255,255,0.45)', textDecoration: 'none', transition: 'color 0.15s' }}
-                onMouseEnter={e => e.target.style.color = '#fff'}
-                onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.45)'}
-              >{t}</Link>
+              <Link key={t} to="/" className="text-white/70 transition hover:text-white">
+                {t}
+              </Link>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Responsive CSS */}
-      <style>{`
-        @media (max-width: 1100px) {
-          .footer-grid { grid-template-columns: 1fr 1fr 1fr !important; }
-        }
-        @media (max-width: 768px) {
-          .footer-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
-        }
-      `}</style>
     </footer>
   );
 }
