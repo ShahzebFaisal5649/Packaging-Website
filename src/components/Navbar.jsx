@@ -352,6 +352,9 @@ export default function Navbar() {
               color: '#fff',
               cursor: 'pointer',
               padding: 6,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
               borderRadius: 6,
               position: 'relative',
               zIndex: 10001,
@@ -383,7 +386,7 @@ export default function Navbar() {
 
       {/* ── Mobile Drawer (slides in from right) ── */}
       <div
-        className="flex flex-col md:hidden"
+        className="md:hidden"
         style={{
           position: 'fixed',
           top: 0,
@@ -396,6 +399,8 @@ export default function Navbar() {
           transform: mobileMenuOpen ? 'translateX(0)' : 'translateX(100%)',
           transition: 'transform 0.3s ease',
           overflowY: 'auto',
+          display: 'flex',
+          flexDirection: 'column',
           paddingBottom: 32,
         }}
       >
