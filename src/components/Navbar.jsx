@@ -131,7 +131,6 @@ export default function Navbar() {
     const timer = setTimeout(() => {
       setMobileMenuOpen(false);
       setActiveMenu(null);
-      setUserDropdownOpen(false);
       setMobileExpanded({});
     }, 0);
     return () => clearTimeout(timer);
@@ -140,7 +139,8 @@ export default function Navbar() {
   useEffect(() => {
     const handleClick = (e) => {
       if (navRef.current && !navRef.current.contains(e.target)) {
-        setActiveMenu(null); setUserDropdownOpen(false);
+        setActiveMenu(null);
+        setUserDropdownOpen(false);
       }
     };
     const handleKey = (e) => {
@@ -150,24 +150,21 @@ export default function Navbar() {
         setMobileMenuOpen(false);
       }
     };
-    const handleResize = () => {
-      if (window.innerWidth >= 1024) {
-        setMobileMenuOpen(false);
-      }
-    };
     document.addEventListener('mousedown', handleClick);
     document.addEventListener('keydown', handleKey);
-    window.addEventListener('resize', handleResize);
     return () => {
       document.removeEventListener('mousedown', handleClick);
       document.removeEventListener('keydown', handleKey);
-      window.removeEventListener('resize', handleResize);
     };
   }, []);
 
-  const navBg = isScrolled
-    ? 'rgba(20,60,36,0.97)'
-    : G;
+  // Lock body scroll when mobile drawer is open
+  useEffect(() => {
+    document.body.style.overflow = mobileMenuOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [mobileMenuOpen]);
+
+  const navBg = isScrolled ? 'rgba(20,60,36,0.97)' : G;
 
   const linkStyle = {
     fontSize: 14,
@@ -181,22 +178,32 @@ export default function Navbar() {
 
   return (
     <>
-      <nav
+      {/* ── HEADER ── */}
+      <header
         ref={navRef}
-        className="w-full overflow-hidden fixed top-0 left-0 right-0 z-50"
         style={{
+          position: 'fixed',
+          top: 0,
           width: '100%',
-          maxWidth: '100%',
+          zIndex: 9999,
           background: navBg,
           boxShadow: isScrolled ? '0 2px 20px rgba(0,0,0,0.18)' : 'none',
           transition: 'background 0.3s, box-shadow 0.3s',
-          borderBottom: isScrolled ? 'none' : `1px solid rgba(255,255,255,0.1)`,
+          borderBottom: isScrolled ? 'none' : '1px solid rgba(255,255,255,0.1)',
         }}
       >
-        <div style={{ maxWidth: 1400, margin: '0 auto', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 68 }}>
+        <div style={{
+          maxWidth: 1400,
+          margin: '0 auto',
+          padding: '0 24px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          height: 68,
+        }}>
 
           {/* Logo */}
-          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', flexShrink: 0, zIndex: 50 }}>
+          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', flexShrink: 0 }}>
             <div style={{ width: 40, height: 40, borderRadius: 10, background: ACCENT, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
               <img src={logo} alt="NovaPack" style={{ height: 32, width: 32, objectFit: 'contain', mixBlendMode: 'multiply' }}
                 onError={e => { e.target.style.display = 'none'; }} />
@@ -206,10 +213,8 @@ export default function Navbar() {
             </span>
           </Link>
 
-          {/* Desktop Nav */}
+          {/* ── Desktop Nav — hidden below lg (1024px) ── */}
           <nav style={{ display: 'flex', alignItems: 'center', gap: 32, flex: 1, justifyContent: 'center' }} className="hidden md:flex">
-
-            {/* Products */}
             <div className="relative py-1" onMouseEnter={() => setActiveMenu('Products')} onMouseLeave={() => setActiveMenu(null)}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
                 <Link to="/products" style={linkStyle}
@@ -219,7 +224,6 @@ export default function Navbar() {
               </div>
             </div>
 
-            {/* Industries */}
             <div className="relative py-1" onMouseEnter={() => setActiveMenu('Industries')} onMouseLeave={() => setActiveMenu(null)}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
                 <Link to="/industries" style={linkStyle}
@@ -229,20 +233,14 @@ export default function Navbar() {
               </div>
             </div>
 
-            <Link to="/about" style={linkStyle}
-              onMouseEnter={e => e.target.style.color = ACCENT} onMouseLeave={e => e.target.style.color = '#fff'}>About</Link>
-            <Link to="/success-stories" style={linkStyle}
-              onMouseEnter={e => e.target.style.color = ACCENT} onMouseLeave={e => e.target.style.color = '#fff'}>Inspiration</Link>
-            <Link to="/blog" style={linkStyle}
-              onMouseEnter={e => e.target.style.color = ACCENT} onMouseLeave={e => e.target.style.color = '#fff'}>Blog</Link>
-            <Link to="/contact-us" style={linkStyle}
-              onMouseEnter={e => e.target.style.color = ACCENT} onMouseLeave={e => e.target.style.color = '#fff'}>Contact</Link>
+            <Link to="/about" style={linkStyle} onMouseEnter={e => e.target.style.color = ACCENT} onMouseLeave={e => e.target.style.color = '#fff'}>About</Link>
+            <Link to="/success-stories" style={linkStyle} onMouseEnter={e => e.target.style.color = ACCENT} onMouseLeave={e => e.target.style.color = '#fff'}>Inspiration</Link>
+            <Link to="/blog" style={linkStyle} onMouseEnter={e => e.target.style.color = ACCENT} onMouseLeave={e => e.target.style.color = '#fff'}>Blog</Link>
+            <Link to="/contact-us" style={linkStyle} onMouseEnter={e => e.target.style.color = ACCENT} onMouseLeave={e => e.target.style.color = '#fff'}>Contact</Link>
           </nav>
 
-          {/* Right Actions */}
+          {/* ── Desktop Right Actions — hidden below lg ── */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 18, flexShrink: 0 }} className="hidden md:flex">
-
-            {/* Favourites */}
             <Link to="/favourites" style={{ position: 'relative', color: 'rgba(255,255,255,0.8)', transition: 'color 0.15s' }}
               onMouseEnter={e => e.currentTarget.style.color = '#fff'} onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.8)'}>
               <Heart size={20} strokeWidth={1.5} />
@@ -251,7 +249,6 @@ export default function Navbar() {
               )}
             </Link>
 
-            {/* Cart */}
             <button onClick={() => toggleDrawer()}
               style={{ position: 'relative', color: 'rgba(255,255,255,0.8)', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.15s', padding: 0 }}
               onMouseEnter={e => e.currentTarget.style.color = '#fff'} onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.8)'}>
@@ -261,7 +258,6 @@ export default function Navbar() {
               )}
             </button>
 
-            {/* User */}
             <div style={{ position: 'relative' }} onMouseEnter={() => setUserDropdownOpen(true)} onMouseLeave={() => setUserDropdownOpen(false)}>
               {isAuthenticated ? (
                 <div style={{ width: 36, height: 36, borderRadius: '50%', background: ACCENT, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, cursor: 'pointer', border: '2px solid rgba(255,255,255,0.3)' }}>
@@ -274,7 +270,6 @@ export default function Navbar() {
                 </Link>
               )}
 
-              {/* Auth dropdown */}
               {isAuthenticated && (
                 <div style={{
                   position: 'absolute', top: '100%', right: 0, marginTop: 8, width: 240, background: '#fff', borderRadius: 12,
@@ -320,7 +315,6 @@ export default function Navbar() {
                 </div>
               )}
 
-              {/* Guest mini dropdown */}
               {!isAuthenticated && (
                 <div style={{
                   position: 'absolute', top: '100%', right: 0, marginTop: 8, width: 180, background: '#fff', borderRadius: 12,
@@ -347,11 +341,22 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Mobile hamburger */}
+          {/* ── Mobile Hamburger — only visible below lg ── */}
           <button
-            style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', padding: 4, zIndex: 50 }}
             className="md:hidden"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#fff',
+              cursor: 'pointer',
+              padding: 6,
+              borderRadius: 6,
+              position: 'relative',
+              zIndex: 10001,
+            }}
+          >
             {mobileMenuOpen ? <X size={26} /> : <Menu size={26} />}
           </button>
 
@@ -359,77 +364,139 @@ export default function Navbar() {
           <MegaMenu categories={productCategories} title="Products" isOpen={activeMenu === 'Products'} setActiveMenu={setActiveMenu} />
           <MegaMenu categories={industryCategories} title="Industries" isOpen={activeMenu === 'Industries'} setActiveMenu={setActiveMenu} />
         </div>
+      </header>
 
-        {/* Mobile Drawer */}
-        {mobileMenuOpen && (
-          <button onClick={() => setMobileMenuOpen(false)}
-            type="button"
-            aria-label="Close mobile menu"
-            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 9998, border: 'none', padding: 0, margin: 0, cursor: 'default' }}
-          />
-        )}
-        <div style={{
-          position: 'fixed', inset: 0, background: G, zIndex: 10000,
+      {/* ── Mobile Backdrop ── */}
+      <div
+        className="md:hidden"
+        onClick={() => setMobileMenuOpen(false)}
+        style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0,0,0,0.55)',
+          zIndex: 9997,
+          opacity: mobileMenuOpen ? 1 : 0,
+          visibility: mobileMenuOpen ? 'visible' : 'hidden',
+          transition: 'opacity 0.3s, visibility 0.3s',
+        }}
+      />
+
+      {/* ── Mobile Drawer (slides in from right) ── */}
+      <div
+        className="flex flex-col md:hidden"
+        style={{
+          position: 'fixed',
+          top: 0,
+          right: 0,
+          bottom: 0,
+          width: '100%',
+          maxWidth: 340,
+          background: G,
+          zIndex: 9998,
           transform: mobileMenuOpen ? 'translateX(0)' : 'translateX(100%)',
-          transition: 'transform 0.3s ease', overflowY: 'auto', paddingTop: 80, paddingBottom: 32,
-        }} className="md:hidden">
-          <nav style={{ padding: '0 24px' }}>
-            {[
-              { to: '/products', label: 'Products', hasDropdown: true, key: 'Products', items: [...productCategories.col1, ...productCategories.col2] },
-              { to: '/industries', label: 'Industries', hasDropdown: true, key: 'Industries', items: [...industryCategories.col1, ...industryCategories.col2] },
-            ].map(item => (
-              <div key={item.key} style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', padding: '16px 0' }}>
-                  <Link to={item.to} style={{ flex: 1, fontSize: 17, fontWeight: 700, color: '#fff', textDecoration: 'none' }} onClick={() => { setMobileMenuOpen(false); setMobileExpanded({}); }}>{item.label}</Link>
-                  <button onClick={() => setMobileExpanded(p => ({ ...p, [item.key]: !p[item.key] }))} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.6)', cursor: 'pointer' }} aria-expanded={!!mobileExpanded[item.key]} aria-controls={`${item.key}-submenu`}>
-                    <ChevronDown size={18} style={{ transform: mobileExpanded[item.key] ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
-                  </button>
-                </div>
-                {mobileExpanded[item.key] && (
-                  <div id={`${item.key}-submenu`} style={{ paddingLeft: 16, paddingBottom: 12, display: 'flex', flexDirection: 'column', gap: 10 }}>
-                    {item.items.map((sub, si) => (
-                      <Link key={si} to={`/${item.key.toLowerCase()}/${sub.name.toLowerCase().replace(/ /g, '-')}`}
-                        style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)', textDecoration: 'none' }} onClick={() => setMobileMenuOpen(false)}>{sub.name}</Link>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
-            {[
-              { to: '/about', label: 'About' },
-              { to: '/success-stories', label: 'Inspiration' },
-              { to: '/blog', label: 'Blog' },
-              { to: '/contact-us', label: 'Contact' },
-              { to: '/favourites', label: `Favourites${favCount > 0 ? ` (${favCount})` : ''}` },
-            ].map(item => (
-              <Link key={item.to} to={item.to} style={{ display: 'block', padding: '16px 0', fontSize: 17, fontWeight: 700, color: '#fff', textDecoration: 'none', borderBottom: '1px solid rgba(255,255,255,0.1)' }} onClick={() => setMobileMenuOpen(false)}>
-                {item.label}
-              </Link>
-            ))}
-            <div style={{ paddingTop: 24, display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {isAuthenticated ? (
-                <>
-                  <Link to="/profile" style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 15, fontWeight: 600, color: '#fff', textDecoration: 'none' }} onClick={() => setMobileMenuOpen(false)}><UserCircle size={18} /> My Profile</Link>
-                  <button onClick={() => { handleLogout(); setMobileMenuOpen(false); }} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 15, fontWeight: 600, color: '#EF4444', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}><LogOut size={18} /> Logout</button>
-                </>
-              ) : (
-                <Link to="/login" style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 15, fontWeight: 600, color: '#fff', textDecoration: 'none' }} onClick={() => setMobileMenuOpen(false)}><User size={18} /> Sign In</Link>
-              )}
-              <button onClick={() => { setMobileMenuOpen(false); toggleDrawer(); }} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 15, fontWeight: 600, color: '#fff', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-                <ShoppingCart size={18} /> Cart ({cartCount})
-              </button>
-            </div>
-          </nav>
-          <div style={{ padding: '24px 24px 0' }}>
-            <Link to="/custom-box" style={{ display: 'block', width: '100%', padding: '16px', background: ACCENT, color: '#fff', textAlign: 'center', borderRadius: 10, fontWeight: 700, fontSize: 15, textDecoration: 'none' }} onClick={() => setMobileMenuOpen(false)}>
-              Get a Custom Box
-            </Link>
-          </div>
-        </div>
-      </nav>
+          transition: 'transform 0.3s ease',
+          overflowY: 'auto',
+          paddingBottom: 32,
+        }}
+      >
+        {/* Spacer for fixed header */}
+        <div style={{ height: 68, flexShrink: 0 }} />
 
+        <nav style={{ padding: '8px 24px 0' }}>
+          {/* Expandable: Products & Industries */}
+          {[
+            { to: '/products',   label: 'Products',   key: 'Products',   items: [...productCategories.col1,  ...productCategories.col2]  },
+            { to: '/industries', label: 'Industries', key: 'Industries', items: [...industryCategories.col1, ...industryCategories.col2] },
+          ].map(item => (
+            <div key={item.key} style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', padding: '16px 0' }}>
+                <Link to={item.to}
+                  style={{ flex: 1, fontSize: 17, fontWeight: 700, color: '#fff', textDecoration: 'none' }}
+                  onClick={() => setMobileMenuOpen(false)}>
+                  {item.label}
+                </Link>
+                <button
+                  onClick={() => setMobileExpanded(p => ({ ...p, [item.key]: !p[item.key] }))}
+                  style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', padding: 4 }}>
+                  <ChevronDown size={18} style={{ transform: mobileExpanded[item.key] ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+                </button>
+              </div>
+              {mobileExpanded[item.key] && (
+                <div style={{ paddingLeft: 16, paddingBottom: 12, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {item.items.map((sub, si) => (
+                    <Link key={si}
+                      to={`/${item.key.toLowerCase()}/${sub.name.toLowerCase().replace(/ /g, '-')}`}
+                      style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)', textDecoration: 'none' }}
+                      onClick={() => setMobileMenuOpen(false)}>
+                      {sub.name}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+
+          {/* Simple links */}
+          {[
+            { to: '/about',           label: 'About' },
+            { to: '/success-stories', label: 'Inspiration' },
+            { to: '/blog',            label: 'Blog' },
+            { to: '/contact-us',      label: 'Contact' },
+            { to: '/favourites',      label: favCount > 0 ? `Favourites (${favCount})` : 'Favourites' },
+          ].map(item => (
+            <Link key={item.to} to={item.to}
+              style={{ display: 'block', padding: '16px 0', fontSize: 17, fontWeight: 700, color: '#fff', textDecoration: 'none', borderBottom: '1px solid rgba(255,255,255,0.1)' }}
+              onClick={() => setMobileMenuOpen(false)}>
+              {item.label}
+            </Link>
+          ))}
+
+          {/* Auth + Cart */}
+          <div style={{ paddingTop: 24, display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {isAuthenticated ? (
+              <>
+                <Link to="/profile"
+                  style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 15, fontWeight: 600, color: '#fff', textDecoration: 'none' }}
+                  onClick={() => setMobileMenuOpen(false)}>
+                  <UserCircle size={18} /> My Profile
+                </Link>
+                <button
+                  onClick={() => { handleLogout(); setMobileMenuOpen(false); }}
+                  style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 15, fontWeight: 600, color: '#EF4444', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                  <LogOut size={18} /> Logout
+                </button>
+              </>
+            ) : (
+              <Link to="/login"
+                style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 15, fontWeight: 600, color: '#fff', textDecoration: 'none' }}
+                onClick={() => setMobileMenuOpen(false)}>
+                <User size={18} /> Sign In
+              </Link>
+            )}
+            <button
+              onClick={() => { setMobileMenuOpen(false); toggleDrawer(); }}
+              style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 15, fontWeight: 600, color: '#fff', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+              <ShoppingCart size={18} /> Cart ({cartCount})
+            </button>
+          </div>
+        </nav>
+
+        {/* CTA */}
+        <div style={{ padding: '24px 24px 0', marginTop: 'auto' }}>
+          <Link to="/custom-box"
+            style={{ display: 'block', width: '100%', padding: '16px', background: ACCENT, color: '#fff', textAlign: 'center', borderRadius: 10, fontWeight: 700, fontSize: 15, textDecoration: 'none', boxSizing: 'border-box' }}
+            onClick={() => setMobileMenuOpen(false)}>
+            Get a Custom Box
+          </Link>
+        </div>
+      </div>
+
+      {/* Desktop mega-menu backdrop */}
       {(activeMenu || userDropdownOpen) && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 9997 }} onClick={() => { setActiveMenu(null); setUserDropdownOpen(false); }} />
+        <div
+          style={{ position: 'fixed', inset: 0, zIndex: 9997 }}
+          onClick={() => { setActiveMenu(null); setUserDropdownOpen(false); }}
+        />
       )}
     </>
   );
