@@ -128,7 +128,12 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
-    const timer = setTimeout(() => { setMobileMenuOpen(false); setActiveMenu(null); }, 0);
+    const timer = setTimeout(() => {
+      setMobileMenuOpen(false);
+      setActiveMenu(null);
+      setUserDropdownOpen(false);
+      setMobileExpanded({});
+    }, 0);
     return () => clearTimeout(timer);
   }, [location.pathname]);
 
@@ -139,11 +144,25 @@ export default function Navbar() {
       }
     };
     const handleKey = (e) => {
-      if (e.key === 'Escape') { setActiveMenu(null); setUserDropdownOpen(false); }
+      if (e.key === 'Escape') {
+        setActiveMenu(null);
+        setUserDropdownOpen(false);
+        setMobileMenuOpen(false);
+      }
+    };
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setMobileMenuOpen(false);
+      }
     };
     document.addEventListener('mousedown', handleClick);
     document.addEventListener('keydown', handleKey);
-    return () => { document.removeEventListener('mousedown', handleClick); document.removeEventListener('keydown', handleKey); };
+    window.addEventListener('resize', handleResize);
+    return () => {
+      document.removeEventListener('mousedown', handleClick);
+      document.removeEventListener('keydown', handleKey);
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
 
   const navBg = isScrolled
@@ -343,8 +362,15 @@ export default function Navbar() {
         </div>
 
         {/* Mobile Drawer */}
+        {mobileMenuOpen && (
+          <button onClick={() => setMobileMenuOpen(false)}
+            type="button"
+            aria-label="Close mobile menu"
+            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 9998, border: 'none', padding: 0, margin: 0, cursor: 'default' }}
+          />
+        )}
         <div style={{
-          position: 'fixed', inset: 0, background: G, zIndex: 9998,
+          position: 'fixed', inset: 0, background: G, zIndex: 10000,
           transform: mobileMenuOpen ? 'translateX(0)' : 'translateX(100%)',
           transition: 'transform 0.3s ease', overflowY: 'auto', paddingTop: 80, paddingBottom: 32,
         }} className="lg:hidden">
@@ -355,13 +381,13 @@ export default function Navbar() {
             ].map(item => (
               <div key={item.key} style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', padding: '16px 0' }}>
-                  <Link to={item.to} style={{ flex: 1, fontSize: 17, fontWeight: 700, color: '#fff', textDecoration: 'none' }} onClick={() => setMobileMenuOpen(false)}>{item.label}</Link>
-                  <button onClick={() => setMobileExpanded(p => ({ ...p, [item.key]: !p[item.key] }))} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.6)', cursor: 'pointer' }}>
+                  <Link to={item.to} style={{ flex: 1, fontSize: 17, fontWeight: 700, color: '#fff', textDecoration: 'none' }} onClick={() => { setMobileMenuOpen(false); setMobileExpanded({}); }}>{item.label}</Link>
+                  <button onClick={() => setMobileExpanded(p => ({ ...p, [item.key]: !p[item.key] }))} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.6)', cursor: 'pointer' }} aria-expanded={!!mobileExpanded[item.key]} aria-controls={`${item.key}-submenu`}>
                     <ChevronDown size={18} style={{ transform: mobileExpanded[item.key] ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
                   </button>
                 </div>
                 {mobileExpanded[item.key] && (
-                  <div style={{ paddingLeft: 16, paddingBottom: 12, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  <div id={`${item.key}-submenu`} style={{ paddingLeft: 16, paddingBottom: 12, display: 'flex', flexDirection: 'column', gap: 10 }}>
                     {item.items.map((sub, si) => (
                       <Link key={si} to={`/${item.key.toLowerCase()}/${sub.name.toLowerCase().replace(/ /g, '-')}`}
                         style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)', textDecoration: 'none' }} onClick={() => setMobileMenuOpen(false)}>{sub.name}</Link>

@@ -252,7 +252,7 @@ export default function Industries() {
         if (data.industries && data.industries.length > 0) {
           setFetchedIndustries(data.industries);
         }
-      } catch (_err) {
+      } catch {
         console.log('Using static industry data');
       }
     };
