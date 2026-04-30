@@ -167,13 +167,13 @@ export default function Industries() {
 
       {/* Hero */}
       <section style={{ position: 'relative', overflow: 'hidden', minHeight: 420, backgroundColor: '#1A4D2E' }}>
-        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'url(https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=1600&q=80)', backgroundSize: 'cover', backgroundPosition: 'center', filter: 'brightness(0.55)' }} />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(20,60,36,0.84), rgba(20,60,36,0.95))' }} />
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'url(https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=1600&q=80)', backgroundSize: 'cover', backgroundPosition: 'center', filter: 'brightness(0.75)' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(20,60,36,0.3), rgba(20,60,36,0.6))' }} />
         <div className="mx-auto max-w-[1400px]" style={{ position: 'relative', padding: '60px 24px', display: 'flex', alignItems: 'center' }}>
           <div style={{ maxWidth: 700 }}>
             <p style={{ fontSize: 11, fontWeight: 700, color: '#F9C054', textTransform: 'uppercase', letterSpacing: '0.18em', marginBottom: 14 }}>Tailored Solutions</p>
-            <h1 style={{ fontSize: 'clamp(32px,4vw,52px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#fff', marginBottom: 18, lineHeight: 1.05 }}>Shop by Industry</h1>
-            <p style={{ maxWidth: 560, color: 'rgba(255,255,255,0.82)', fontSize: 16, lineHeight: 1.8, textAlign: 'left' }}>Packaging built for your market. Tap any card to see full specs, materials, and options then configure your perfect box.</p>
+            <h1 style={{ fontSize: 'clamp(32px,4vw,52px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#fff', marginBottom: 18, lineHeight: 1.05 }}>Industries</h1>
+            <p style={{ maxWidth: 560, color: 'rgba(255,255,255,0.95)', fontSize: 16, lineHeight: 1.8, textAlign: 'left', textShadow: '0 2px 4px rgba(0,0,0,0.3)' }}>Packaging built for your market. Just tap any card to see full specs, materials, and options then pick your perfect box.</p>
           </div>
         </div>
       </section>

@@ -27,20 +27,20 @@ export default function HowItWorks() {
   return (
     <div style={{ backgroundColor: BG }}>
       <section style={{ position: 'relative', overflow: 'hidden', padding: '80px 24px 60px', backgroundColor: G, minHeight: 420 }}>
-        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'url(https://images.unsplash.com/photo-1556740749-887f6717d7e4?w=1600&q=80)', backgroundSize: 'cover', backgroundPosition: 'center', filter: 'brightness(0.45)' }} />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(26,77,46,0.84), rgba(26,77,46,0.92))' }} />
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'url(https://images.unsplash.com/photo-1556740749-887f6717d7e4?w=1600&q=80)', backgroundSize: 'cover', backgroundPosition: 'center', filter: 'brightness(1.1) contrast(1.15)' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(26,77,46,0.35), rgba(26,77,46,0.65))' }} />
         <div className="max-w-7xl mx-auto px-4 sm:px-6" style={{ position: 'relative', zIndex: 1 }}>
-          <div className="flex items-center gap-2 text-white/70 text-xs mb-5">
+          <div className="flex items-center gap-2 text-white/70 text-xs mb-5 mobile-center-header">
             <Link to="/" className="hover:text-white transition-colors">Home</Link>
             <ChevronRight size={12} />
             <span className="text-white font-semibold">How It Works</span>
           </div>
-          <div className="max-w-2xl">
+          <div className="max-w-2xl mobile-center-text">
             <SectionLabel text="Our Process" />
             <h1 className="text-4xl sm:text-5xl font-bold text-white mt-1 mb-4 leading-tight">
               How It Works
             </h1>
-            <p className="text-white/80 text-base leading-relaxed text-left">
+            <p className="text-white/80 text-base leading-relaxed mobile-center-text">
               Ordering custom packaging has never been easier. Our 4-step process gets you from
               idea to delivery as smoothly and reliably as possible.
             </p>

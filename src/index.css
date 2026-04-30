@@ -26,17 +26,24 @@
   }
 
   /* Mobile globally - NO JUSTIFY */
+  /* Mobile globally - Center headers and specific text */
   @media (max-width: 768px) {
-    * {
-      text-align: left;
-    }
     h1, h2, h3, .section-heading, .section-title {
       text-align: center !important;
     }
-    p, span, div {
-      text-align: left !important;
+    .mobile-center-header {
+      justify-content: center !important;
+      text-align: center !important;
     }
-    .text-center {
+    .mobile-center-text {
+      text-align: center !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      margin-left: auto !important;
+      margin-right: auto !important;
+    }
+    .mobile-center-text p, .mobile-center-text span, .mobile-center-text div {
       text-align: center !important;
     }
   }

@@ -122,9 +122,9 @@ const STEPS = [
   },
   {
     step: '04', title: 'Production & Delivery',
-    desc: 'We manufacture and ship directly to your door in 8–10 business days.',
+    desc: 'We manufacture and ship directly to your door in 8 to 10 business days.',
     img: 'https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=600&q=80',
-    time: '8–10 days',
+    time: '8 to 10 days',
   },
 ];
 
@@ -134,7 +134,7 @@ const TESTIMONIALS = [
     role: 'Founder, Lumière Beauty',
     company: 'Lumière Beauty',
     avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80',
-    quote: 'NovaPack delivered our skincare boxes in 7 days with flawless matte finish, zero defects. Our customers love the unboxing experience.',
+    quote: 'Design Custom Box delivered our skincare boxes in 7 days with flawless matte finish, zero defects. Our customers love the unboxing experience.',
     rating: 5,
     metric: '3× increase in repeat purchases',
   },
@@ -143,7 +143,7 @@ const TESTIMONIALS = [
     role: 'Ops Manager, TechShip Inc.',
     company: 'TechShip Inc.',
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80',
-    quote: 'Scaled from 2,000 to 80,000 units in six months. NovaPack handled every order on time with consistent quality across all batches.',
+    quote: 'Scaled from 2,000 to 80,000 units in six months. Design Custom Box handled every order on time with consistent quality across all batches.',
     rating: 5,
     metric: '40× volume scale in 6 months',
   },
@@ -169,10 +169,10 @@ const INSP_GALLERY = [
 
 const FEATURES = [
   { icon: <ShieldCheck size={26} color={G} />, title: 'Quality Guaranteed', desc: 'Every batch is inspected. We re-print at no charge if it doesn\'t meet spec.' },
-  { icon: <Zap size={26} color={ACCENT} />, title: '8-Day Turnaround', desc: 'Standard orders ship in 8–10 business days. Expedited options available.' },
+  { icon: <Zap size={26} color={ACCENT} />, title: '8 Day Turnaround', desc: 'Standard orders ship in 8 to 10 business days. Fast options available.' },
   { icon: <Users size={26} color={G} />, title: 'Dedicated Specialist', desc: 'A packaging expert assigned to your account from day one.' },
-  { icon: <BarChart3 size={26} color={ACCENT} />, title: 'Volume Pricing', desc: 'Prices drop significantly at 500, 1,000, and 5,000+ units.' },
-  { icon: <Leaf size={26} color="#2E7D32" />, title: 'Sustainable Materials', desc: 'FSC-certified board, soy inks, and 100% recyclable substrates.' },
+  { icon: <BarChart3 size={26} color={ACCENT} />, title: 'Volume Pricing', desc: 'Prices drop significantly at 500, 1,000, and 5,000 plus units.' },
+  { icon: <Leaf size={26} color="#2E7D32" />, title: 'Sustainable Materials', desc: 'FSC certified board, soy inks, and 100% recyclable substrates.' },
   { icon: <Sparkles size={26} color={ACCENT} />, title: 'Free Design Support', desc: 'Our in-house designers will polish your artwork before we print.' },
 ];
 
@@ -304,17 +304,17 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── 5. Why NovaPack ─────────────────────────────────────────────────── */}
+      {/* ── 5. Why Design Custom Box ─────────────────────────────────────────── */}
       <section style={{ padding: '100px 24px', backgroundColor: BG }}>
         <div style={{ maxWidth: 1300, margin: '0 auto' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'center' }} className="why-grid">
             <div data-aos="fade-right">
-              <span style={{ fontSize: 11, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.14em', display: 'block', marginBottom: 16 }}>The NovaPack Difference</span>
+              <span style={{ fontSize: 11, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.14em', display: 'block', marginBottom: 16 }}>The Design Custom Box Difference</span>
               <h2 style={{ fontSize: 'clamp(28px,3.5vw,44px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#1A1A1A', lineHeight: 1.15, marginBottom: 20 }}>
                 Why 10,000+ brands choose us
               </h2>
               <p style={{ fontSize: 16, color: '#666', lineHeight: 1.8, marginBottom: 36 }}>
-                From startup brands to enterprise operations, NovaPack delivers custom packaging with the speed, quality, and service that modern businesses demand.
+                From startup brands to enterprise operations, Design Custom Box delivers custom packaging with the speed, quality, and service that modern businesses demand.
               </p>
               <div style={{ display: 'flex', gap: 16, marginBottom: 40 }}>
                 <div style={{ padding: '20px 24px', background: '#fff', borderRadius: 14, border: `2px solid ${G}20`, flex: 1, textAlign: 'center' }}>
@@ -578,7 +578,7 @@ export default function Home() {
             Ready to elevate your packaging?
           </h2>
           <p style={{ fontSize: 17, color: 'rgba(255,255,255,0.62)', marginBottom: 44, maxWidth: 500, margin: '0 auto 44px', lineHeight: 1.75 }}>
-            Join 10,000+ brands who trust NovaPack for consistent quality, fast delivery, and packaging that sells.
+            Join 10,000+ brands who trust Design Custom Box for consistent quality, fast delivery, and packaging that sells.
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: 14 }}>
             <Link to="/custom-box"

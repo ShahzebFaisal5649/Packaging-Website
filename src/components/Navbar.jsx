@@ -236,13 +236,13 @@ export default function Navbar() {
         }}>
 
           {/* Logo */}
-          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', flexShrink: 0 }}>
-            <div style={{ width: 40, height: 40, borderRadius: 10, background: ACCENT, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
-              <img src={logo} alt="NovaPack" style={{ height: 32, width: 32, objectFit: 'contain', mixBlendMode: 'multiply' }}
+          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none', flexShrink: 0 }}>
+            <div style={{ width: 44, height: 44, borderRadius: 12, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0, boxShadow: '0 4px 15px rgba(0,0,0,0.15)' }}>
+              <img src={logo} alt="Design Custom Box" style={{ height: '85%', width: '85%', objectFit: 'contain' }}
                 onError={e => { e.target.style.display = 'none'; }} />
             </div>
-            <span style={{ fontSize: 20, fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#fff', letterSpacing: '-0.01em' }}>
-              Nova<span style={{ color: ACCENT }}>Pack</span>
+            <span style={{ fontSize: 22, fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#fff', letterSpacing: '-0.02em' }}>
+              Design Custom <span style={{ color: ACCENT }}>Box</span>
             </span>
           </Link>
 

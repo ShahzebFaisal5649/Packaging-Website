@@ -27,10 +27,10 @@ export default function ReadyBanner() {
             Get free quote
           </Link>
           <a 
-            href="tel:18007259660" 
+            href="tel:9132282682" 
             className="px-12 py-5 bg-transparent border-2 border-white text-white font-black text-lg rounded-full hover:bg-white hover:text-brand-coral transition-all"
           >
-            1 (800) 725-9660
+            (913) 228-2682
           </a>
         </div>
       </div>

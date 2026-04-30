@@ -6,34 +6,34 @@ const industries = [
   {
     id: 'food',
     name: 'Food & Beverage',
-    title: 'Food-Safe Packaging that Preserves Quality',
-    desc: 'From custom printed boxes for artisanal chocolates to durable shipping cartons for subscription meals, our food-grade packaging ensures your products arrive fresh and looking appetizing.',
+    title: 'Food safe packaging that preserves quality',
+    desc: 'From custom printed boxes for artisanal chocolates to durable shipping cartons for subscription meals, our food grade packaging ensures your products arrive fresh and looking appetizing.',
     img: 'https://images.unsplash.com/photo-1559598467-f8b76c8155d0?q=80&w=1200&auto=format&fit=crop',
-    features: ['FDA-Compliant Materials', 'Grease-Resistant Coatings', 'Temperature-Safe']
+    features: ['FDA Compliant Materials', 'Grease Resistant Coatings', 'Temperature Safe']
   },
   {
     id: 'cosmetics',
     name: 'Cosmetics',
-    title: 'Luxurious Boxes for Beauty Brands',
-    desc: 'Elevate your skincare and makeup products with premium packaging. We offer specialty finishes like foil stamping and soft-touch lamination to create an unforgettable unboxing experience.',
+    title: 'Luxurious boxes for beauty brands',
+    desc: 'Elevate your skincare and makeup products with premium packaging. We offer specialty finishes like foil stamping and soft touch lamination to create an unforgettable unboxing experience.',
     img: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?q=80&w=1200&auto=format&fit=crop',
-    features: ['Premium Finishes', 'Custom Inserts', 'Eco-Friendly Options']
+    features: ['Premium Finishes', 'Custom Inserts', 'Eco Friendly Options']
   },
   {
     id: 'ecommerce',
     name: 'E-commerce',
-    title: 'Durable Mailers Built for Transit',
+    title: 'Durable mailers built for transit',
     desc: 'Protect your products while making a great first impression. Our corrugated mailer boxes are designed to withstand the rigors of shipping while showcasing your brand the moment they arrive.',
     img: 'https://images.unsplash.com/photo-1580674285054-bed31e145f59?q=80&w=1200&auto=format&fit=crop',
-    features: ['Crush-Resistant', 'Inside Printing Available', 'Self-Locking Design']
+    features: ['Crush Resistant', 'Inside Printing Available', 'Self Locking Design']
   },
   {
     id: 'apparel',
     name: 'Apparel & Retail',
-    title: 'Boutique Packaging for Fashion',
+    title: 'Boutique packaging for fashion',
     desc: 'Create a retail experience that customers want to share. Our apparel boxes, tissue paper, and custom stickers help fashion brands build loyalty and drive social media engagement.',
     img: 'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?q=80&w=1200&auto=format&fit=crop',
-    features: ['Custom Sizes', 'Brand Color Matching', 'Retail-Ready']
+    features: ['Custom Sizes', 'Brand Color Matching', 'Retail Ready']
   }
 ];
 

@@ -35,7 +35,7 @@ export default function LiveChat() {
   const [messages, setMessages] = useState([
     {
       from: 'agent',
-      text: "Hi there! 👋 Welcome to NovaPack. I'm here to help with any packaging questions.",
+      text: "Hi there! 👋 Welcome to Design Custom Box. I'm here to help with any packaging questions.",
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     },
   ]);
@@ -84,7 +84,7 @@ export default function LiveChat() {
     setTimeout(() => {
       setMessages(prev => [...prev, {
         from: 'agent',
-        text: "Thanks for your message! Our team will get back to you shortly. For immediate help, email us at support@novapack.com or call +1 (555) 123-4567.",
+        text: "Thanks for your message! Our team will get back to you shortly. For immediate help, email us at support@designcustombox.com or call (913) 228-2682.",
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       }]);
       setSent(true);
@@ -149,7 +149,7 @@ export default function LiveChat() {
           >
             <X size={13} />
           </button>
-          <p style={{ fontSize: 13, fontWeight: 700, color: '#1A1A1A', margin: '0 0 4px' }}>NovaPack Support</p>
+          <p style={{ fontSize: 13, fontWeight: 700, color: '#1A1A1A', margin: '0 0 4px' }}>Design Custom Box Support</p>
           <p style={{ fontSize: 12, color: '#666', margin: '0 0 10px', lineHeight: 1.5 }}>
             Need help with your packaging order? Chat with us!
           </p>
@@ -176,7 +176,7 @@ export default function LiveChat() {
                   <span style={{ position: 'absolute', bottom: 1, right: 1, width: 10, height: 10, borderRadius: '50%', background: '#4ADE80', border: '2px solid #1A4D2E' }} />
                 </div>
                 <div style={{ minWidth: 0 }}>
-                  <p style={{ fontSize: 14, fontWeight: 800, color: '#fff', margin: 0 }}>NovaPack Support</p>
+                  <p style={{ fontSize: 14, fontWeight: 800, color: '#fff', margin: 0 }}>Design Custom Box Support</p>
                   <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', margin: '6px 0 0', display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
                     <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ADE80', display: 'inline-block' }} />
                     Online · Typically replies in minutes
@@ -267,7 +267,7 @@ export default function LiveChat() {
 
           {/* Footer links */}
           <div style={{ padding: '10px 14px', background: '#F5F2ED', borderTop: '1px solid #E8E4DC', display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <a href="mailto:support@novapack.com" style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, fontWeight: 700, color: G, textDecoration: 'none' }}>
+            <a href="mailto:support@designcustombox.com" style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, fontWeight: 700, color: G, textDecoration: 'none' }}>
               <Mail size={12} /> Email Us
             </a>
             <span style={{ color: '#ddd' }}>|</span>

@@ -8,7 +8,7 @@ const faqs = [
   },
   {
     q: "How long does shipping take?",
-    a: "Standard production and shipping time is 8-10 business days after artwork approval. We also offer expedited shipping options if you need your boxes sooner."
+    a: "Standard production and shipping time is 8 to 10 business days after artwork approval. We also offer fast shipping options if you need your boxes sooner."
   },
   {
     q: "Do you offer free design support?",
@@ -20,15 +20,15 @@ const faqs = [
   },
   {
     q: "What printing methods do you use?",
-    a: "We use high-quality offset and digital printing to ensure vibrant colors and sharp details. We also offer specialty finishes like spot UV, foil stamping, and embossing."
+    a: "We use high quality offset and digital printing to ensure vibrant colors and sharp details. We also offer specialty finishes like spot UV, foil stamping, and embossing."
   },
   {
     q: "Are your materials eco-friendly?",
-    a: "Yes, we are committed to sustainability. Our materials are FSC-certified and we use soy-based, eco-friendly inks for all our printing."
+    a: "Yes, we are committed to sustainability. Our materials are FSC certified and we use soy based, eco friendly inks for all our printing."
   },
   {
     q: "How do I get a price quote?",
-    a: "You can use our online configurator to get an instant estimate, or click 'Get Free Quote' to send us your project details for a custom 1-on-1 consultation."
+    a: "You can use our online tool to get an instant estimate, or click 'Get Free Quote' to send us your project details for a personal consultation."
   }
 ];
 

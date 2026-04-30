@@ -122,7 +122,7 @@ export default function App() {
                   <ModalProvider>
                     <ScrollToTop />
                     <Layout>
-                      <Suspense fallback={<div className="flex items-center justify-center min-h-[60vh] text-brand-primary font-black animate-pulse text-2xl">NovaPack Loading...</div>}>
+                      <Suspense fallback={<div className="flex items-center justify-center min-h-[60vh] text-brand-primary font-black animate-pulse text-2xl">Design Custom Box Loading...</div>}>
                         <Routes>
                           <Route path="/" element={<Home />} />
                           <Route path="/products" element={<Products />} />

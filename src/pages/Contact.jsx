@@ -145,18 +145,15 @@ export default function Contact() {
   const [openFaq, setOpenFaq] = useState(null);
 
   const infoCards = [
-    { icon: Phone, label: 'Call Us', value: '1-800-725-9660', sub: 'Mon–Fri 9am–6pm EST', href: 'tel:18007259660' },
-    { icon: Mail, label: 'Email', value: 'support@novapack.com', sub: 'Response within 2 hours', href: 'mailto:support@novapack.com' },
-    { icon: MapPin, label: 'Headquarters', value: '123 Packaging Blvd, Suite 400', sub: 'Chicago, IL 60601', href: null },
-    { icon: MessageCircle, label: 'Live Chat', value: 'Chat on WhatsApp', sub: 'Instant responses', href: 'https://wa.me/18007259660' },
+    { icon: Phone, label: 'Call Us', value: '(913) 228-2682', sub: 'Mon–Fri 9am–6pm EST', href: 'tel:9132282682' },
+    { icon: Mail, label: 'Email', value: 'support@designcustombox.com', sub: 'Response within 2 hours', href: 'mailto:support@designcustombox.com' },
+    { icon: MapPin, label: 'Headquarters', value: '5532 Big River Dr', sub: 'The Colony Texas US 75056', href: null },
+    { icon: MessageCircle, label: 'Live Support', value: 'Chat with Us', sub: 'Instant responses', href: '#' },
   ];
 
   const socials = [
     { Icon: FacebookIcon, href: 'https://facebook.com', label: 'Facebook' },
     { Icon: InstagramIcon, href: 'https://instagram.com', label: 'Instagram' },
-    { Icon: LinkedinIcon, href: 'https://linkedin.com', label: 'LinkedIn' },
-    { Icon: TwitterIcon, href: 'https://twitter.com', label: 'Twitter' },
-    { Icon: YoutubeIcon, href: 'https://youtube.com', label: 'YouTube' },
   ];
 
   return (
@@ -164,12 +161,12 @@ export default function Contact() {
 
       {/* Section 1 — Hero */}
       <section style={{ minHeight: 320, backgroundColor: G, position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'url(https://images.unsplash.com/photo-1589939705384-5185137a7f0f?q=80&w=1600&auto=format&fit=crop)', backgroundSize: 'cover', backgroundPosition: 'center', filter: 'brightness(0.4)' }} />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(20,77,46,0.85), rgba(20,77,46,0.95))' }} />
-        <div style={{ position: 'relative', zIndex: 10, textAlign: 'center', padding: '0 24px', width: '100%', maxWidth: 880 }}>
-          <p style={{ fontSize: 11, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 14, textAlign: 'center' }}>We'd Love to Hear from You</p>
-          <h1 style={{ fontSize: 'clamp(32px,5vw,52px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#fff', marginBottom: 16, lineHeight: 1.03, textAlign: 'center' }}>Get In Touch</h1>
-          <p style={{ fontSize: 18, color: ACCENT, fontWeight: 500, maxWidth: 640, margin: '0 auto', textAlign: 'center' }}>Our team responds within 2 hours.</p>
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'url(https://images.unsplash.com/photo-1589939705384-5185137a7f0f?q=80&w=1600&auto=format&fit=crop)', backgroundSize: 'cover', backgroundPosition: 'center', filter: 'brightness(0.7)' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(20,77,46,0.3), rgba(20,77,46,0.6))' }} />
+        <div style={{ position: 'relative', zIndex: 10, textAlign: 'center', padding: '0 24px', width: '100%', maxWidth: 880 }} className="mobile-center-text">
+          <p style={{ fontSize: 11, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 14, textAlign: 'center' }} className="mobile-center-header">We would love to hear from you</p>
+          <h1 style={{ fontSize: 'clamp(32px,5vw,52px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#fff', marginBottom: 16, lineHeight: 1.03, textAlign: 'center', textShadow: '0 2px 4px rgba(0,0,0,0.3)' }} className="mobile-center-header">Get In Touch</h1>
+          <p style={{ fontSize: 18, color: ACCENT, fontWeight: 700, maxWidth: 640, margin: '0 auto', textAlign: 'center' }} className="mobile-center-text">Our team gets back to you within 2 hours.</p>
         </div>
       </section>
 
@@ -216,8 +213,8 @@ export default function Contact() {
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div style={{ borderRadius: 16, overflow: 'hidden', border: '1px solid #D0CAC0', boxShadow: '0 4px 24px rgba(0,0,0,0.08)', position: 'relative' }}>
             <iframe
-              title="NovaPack HQ Location"
-              src="https://www.openstreetmap.org/export/embed.html?bbox=-87.6500%2C41.8700%2C-87.6100%2C41.8950&layer=mapnik&marker=41.8827%2C-87.6233"
+              title="Design Custom Box HQ Location"
+              src="https://www.openstreetmap.org/export/embed.html?bbox=-96.9000%2C33.0500%2C-96.8500%2C33.1000&layer=mapnik&marker=33.0888%2C-96.8778"
               width="100%"
               height="360"
               style={{ display: 'block', border: 0 }}
@@ -230,12 +227,12 @@ export default function Contact() {
                 <MapPin size={18} style={{ color: G }} />
               </div>
               <div>
-                <p style={{ fontSize: 13, fontWeight: 700, color: G, marginBottom: 2 }}>NovaPack HQ</p>
-                <p style={{ fontSize: 11, color: '#6B6B6B', lineHeight: 1.4 }}>123 Packaging Blvd, Suite 400<br />Chicago, IL 60601</p>
+                <p style={{ fontSize: 13, fontWeight: 700, color: G, marginBottom: 2 }}>Design Custom Box HQ</p>
+                <p style={{ fontSize: 11, color: '#6B6B6B', lineHeight: 1.4 }}>5532 Big River Dr<br />The Colony Texas US 75056</p>
               </div>
             </div>
             <a
-              href="https://www.openstreetmap.org/?mlat=41.8827&mlon=-87.6233#map=14/41.8827/-87.6233"
+              href="https://www.openstreetmap.org/?mlat=33.0888&mlon=-96.8778#map=14/33.0888/-96.8778"
               target="_blank"
               rel="noreferrer"
               style={{ position: 'absolute', bottom: 16, right: 16, backgroundColor: '#fff', padding: '8px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, color: G, textDecoration: 'none', boxShadow: '0 2px 8px rgba(0,0,0,0.12)', display: 'flex', alignItems: 'center', gap: 6 }}

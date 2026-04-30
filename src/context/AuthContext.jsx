@@ -8,9 +8,9 @@ export const useAuth = () => useContext(AuthContext);
 // Fallback: seed admin in localStorage so the site works even when server is offline
 const seedLocalAdmin = () => {
   const list = JSON.parse(localStorage.getItem('packagingUsersList')) || [];
-  if (!list.find(u => u.email === 'admin@packaging.com')) {
+  if (!list.find(u => u.email === 'admin@designcustombox.com')) {
     list.push({
-      id: 'admin_1', name: 'Admin', email: 'admin@packaging.com',
+      id: 'admin_1', name: 'Admin', email: 'admin@designcustombox.com',
       password: 'Admin@123', role: 'admin', createdAt: new Date().toISOString(),
       orders: [], addresses: [], savedDesigns: [], loyaltyPoints: 0, favorites: [],
     });
@@ -145,8 +145,8 @@ export const AuthProvider = ({ children }) => {
     api.setToken(null);
     setUser(null);
     localStorage.removeItem('packagingUser');
-    localStorage.removeItem('novapack_token');
-    localStorage.removeItem('novapack_user');
+    localStorage.removeItem('designcustombox_token');
+    localStorage.removeItem('designcustombox_user');
   };
 
   const updateUser = async (updates) => {

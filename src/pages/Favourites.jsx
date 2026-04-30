@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Heart, Trash2, X, ShoppingBag, Search } from 'lucide-react';
+import { Heart, Trash2, X, ShoppingBag, Search, ChevronRight } from 'lucide-react';
 import { useFavourites } from '../context/FavouritesContext';
 import { useToast } from '../context/ToastContext';
 import { useCart } from '../context/CartContext';
@@ -86,13 +86,37 @@ export default function Favourites() {
   };
 
   return (
-    <div className="min-h-screen pt-[100px] pb-24" style={{ backgroundColor: '#F5F2ED' }}>
-      <div className="max-w-[1200px] mx-auto px-6 py-12">
+    <div style={{ backgroundColor: '#fff' }}>
+      {/* Hero Section */}
+      <section style={{ position: 'relative', overflow: 'hidden', padding: '100px 24px 80px', backgroundColor: '#1A4D2E', minHeight: 450, display: 'flex', alignItems: 'center' }}>
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'url(https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=1600&q=80)', backgroundSize: 'cover', backgroundPosition: 'center', filter: 'brightness(1.1) contrast(1.15)' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(26,77,46,0.35), rgba(26,77,46,0.65))' }} />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6" style={{ position: 'relative', zIndex: 1, width: '100%' }}>
+          <div className="flex items-center gap-2 text-white/70 text-xs mb-5 mobile-center-header">
+            <Link to="/" className="hover:text-white transition-colors">Home</Link>
+            <ChevronRight size={12} />
+            <span className="text-white font-semibold">Favourites</span>
+          </div>
+          <div className="max-w-2xl mobile-center-text">
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 12px', background: 'rgba(200,134,10,0.15)', border: '1px solid rgba(200,134,10,0.3)', borderRadius: 100, marginBottom: 16 }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#C8860A' }} />
+              <span style={{ fontSize: 10, fontWeight: 700, color: '#C8860A', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Your Collection</span>
+            </div>
+            <h1 className="text-4xl sm:text-6xl font-bold text-white mt-1 mb-6 leading-tight">
+              My Favourites
+            </h1>
+            <p className="text-white/90 text-lg leading-relaxed text-left mobile-center-text max-w-xl">
+              Your curated collection of premium packaging. Access your saved designs and start your custom project in seconds.
+            </p>
+          </div>
+        </div>
+      </section>
 
-        {/* Header */}
+      <div className="max-w-[1200px] mx-auto px-6 py-12">
+        {/* Actions Bar */}
         <div className="flex items-center justify-between mb-10">
           <div className="flex items-center gap-4">
-            <h1 className="text-4xl md:text-5xl font-display font-bold text-brand-textPrimary">My Favourites</h1>
+            <h2 className="text-2xl font-bold text-brand-textPrimary">Saved Items</h2>
             {count > 0 && (
               <span className="px-3 py-1 bg-brand-primary text-white rounded-full text-[14px] font-bold">{count} {count === 1 ? 'item' : 'items'}</span>
             )}

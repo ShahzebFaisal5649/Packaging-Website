@@ -163,10 +163,12 @@ export default function CustomBox() {
     };
     try {
       if (isAuthenticated) {
-        await api.post('/users/quotes', quoteData);
+        await api.post('/users/quotes', quoteData, {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('designcustombox_token')}` }
+        });
       } else {
         // Save to localStorage as guest
-        const guestList = JSON.parse(localStorage.getItem('packagingUsersList') || '[]');
+        const guestList = JSON.parse(localStorage.getItem('designcustombox_usersList') || '[]');
         const guestIdx = guestList.findIndex(u => u.email === email);
         const entry = { quoteId: `QT-${Date.now()}`, ...quoteData, userName: name, userEmail: email };
         if (guestIdx > -1) {
@@ -200,7 +202,7 @@ export default function CustomBox() {
     const H = parseFloat(config.h) || 3;
     const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400">
       <rect x="10" y="10" width="580" height="380" fill="none" stroke="#ccc" stroke-width="1" stroke-dasharray="5,5"/>
-      <text x="300" y="30" text-anchor="middle" font-size="14" fill="#333">NovaPack Dieline — ${config.boxType}</text>
+      <text x="300" y="30" text-anchor="middle" font-size="14" fill="#333">Design Custom Box Dieline — ${config.boxType}</text>
       <rect x="50" y="60" width="${W * 20}" height="${H * 20}" fill="none" stroke="#1A4D2E" stroke-width="2"/>
       <text x="${50 + W * 10}" y="${65 + H * 10}" text-anchor="middle" font-size="11" fill="#666">Side (${W}×${H})</text>
       <rect x="${55 + W * 20}" y="60" width="${L * 20}" height="${H * 20}" fill="none" stroke="#C8860A" stroke-width="2"/>
@@ -212,7 +214,7 @@ export default function CustomBox() {
     const blob = new Blob([svgContent], { type: 'image/svg+xml' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url; a.download = `novapack-dieline-${config.boxType.toLowerCase().replace(/ /g, '-')}.svg`; a.click();
+    a.href = url; a.download = `design-custom-box-dieline-${config.boxType.toLowerCase().replace(/ /g, '-')}.svg`; a.click();
     URL.revokeObjectURL(url);
     showToast('Dieline downloaded!', 'success');
   };

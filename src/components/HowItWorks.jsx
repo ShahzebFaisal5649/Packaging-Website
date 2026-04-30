@@ -4,23 +4,23 @@ import { Link } from 'react-router-dom';
 const steps = [
   {
     num: '1',
-    title: 'Choose your custom shipping boxes',
-    desc: 'Explore our range of curated custom packaging solutions to discover the packaging solution that\'s right for your business. If you\'re not sure what custom box design, box style or dimensions to go for, chat with us - we\'re happy to help!'
+    title: 'Pick your custom shipping boxes',
+    desc: 'Take a look at our range of curated custom packaging solutions to find the one that fits your business perfectly. If you are not sure about the design, style, or size, just chat with us – we are happy to help you figure it out!'
   },
   {
     num: '2',
-    title: 'Request a free instant quote',
-    desc: 'It\'s simple, speedy and free to request a quote from us. Remember to include valuable packaging needs like box dimensions, existing supply chain, custom options, the quantity of boxes you need, design ideas and internal deadlines.'
+    title: 'Get a free instant quote',
+    desc: 'It is simple, fast, and free to get a quote from us. Just let us know things like your box dimensions, how you ship, any custom options you want, the amount of boxes you need, and when you need them by.'
   },
   {
     num: '3',
-    title: 'Finalize your order',
-    desc: 'As soon as we\'ve received your request, our customer support team will prepare your tailored quote. We guarantee to come back to you within 1-2 hours, so you can swiftly start your packaging journey.'
+    title: 'Confirm your order',
+    desc: 'Once we get your request, our team will put together a quote just for you. We promise to get back to you within 1 to 2 hours so you can get started on your packaging journey right away.'
   },
   {
     num: '4',
-    title: 'Roll-on production!',
-    desc: 'Get creative and add your own artwork to your custom dieline file. We\'ll then prepare a 2D and 3D rendering of your beautiful packaging for review. After everything is approved, you can sit back and relax while we customize and create your attention-grabbing branded packaging.'
+    title: 'Start production!',
+    desc: 'Get creative and add your own artwork to your custom template. We will prepare a 2D and 3D preview of your packaging for you to check. After you approve everything, you can relax while we create your eye catching branded packaging.'
   }
 ];
 

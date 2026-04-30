@@ -37,10 +37,10 @@ const connectDB = () => {
     connectTimeoutMS: 8000,
   }).then(async () => {
     console.log('✅ MongoDB connected');
-    const adminExists = await User.findOne({ email: 'admin@novapack.com' });
+    const adminExists = await User.findOne({ email: 'admin@designcustombox.com' });
     if (!adminExists) {
       await User.create({
-        name: 'Admin', email: 'admin@novapack.com', password: 'Admin@123',
+        name: 'Admin', email: 'admin@designcustombox.com', password: 'Admin@123',
         role: 'admin', loyaltyPoints: 0,
       });
       console.log('✅ Admin seeded');
@@ -99,7 +99,7 @@ if (!process.env.VERCEL) {
   connectDB(); // eagerly connect for local dev
   const PORT = process.env.PORT || 5000;
   app.listen(PORT, () => {
-    console.log(`🚀 NovaPack server running on http://localhost:${PORT}`);
+    console.log(`🚀 Design Custom Box server running on http://localhost:${PORT}`);
   });
 }
 

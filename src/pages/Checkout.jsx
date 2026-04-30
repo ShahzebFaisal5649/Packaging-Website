@@ -98,7 +98,7 @@ function PaymentForm({ clientSecret, amount }) {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${localStorage.getItem('novapack_token')}`,
+              'Authorization': `Bearer ${localStorage.getItem('designcustombox_token')}`,
             },
             body: JSON.stringify(orderData),
           });

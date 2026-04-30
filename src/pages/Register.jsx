@@ -50,7 +50,7 @@ export default function Register() {
     setIsSubmitting(true);
     try {
       await register(form);
-      showToast('Account created! Welcome to NovaPack.', 'success');
+      showToast('Account created! Welcome to Design Custom Box.', 'success');
       navigate('/profile');
     } catch (error) {
       showToast(error.message || 'Registration failed', 'error');
@@ -88,12 +88,12 @@ export default function Register() {
       <div style={{ position: 'relative', overflow: 'hidden', minHeight: 600 }} className="auth-left">
         <img
           src="https://images.unsplash.com/photo-1553481187-be93c21490a9?w=1000&q=80"
-          alt="NovaPack facility"
+          alt="Design Custom Box facility"
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
         />
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(20,60,36,0.92) 0%, rgba(20,60,36,0.65) 100%)' }} />
         <div style={{ position: 'relative', zIndex: 2, padding: '60px 56px', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-          <p style={{ fontSize: 11, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 14 }}>Join NovaPack</p>
+          <p style={{ fontSize: 11, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 14 }}>Join Design Custom Box</p>
           <h2 style={{ fontSize: 'clamp(26px,2.8vw,38px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#fff', lineHeight: 1.15, marginBottom: 20 }}>
             Everything you need to manage your packaging, in one place.
           </h2>
@@ -114,7 +114,7 @@ export default function Register() {
         <div style={{ width: '100%', maxWidth: 440 }}>
           <div style={{ marginBottom: 32 }}>
             <h1 style={{ fontSize: 28, fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#1A1A1A', marginBottom: 8 }}>Create your account</h1>
-            <p style={{ fontSize: 14, color: '#777' }}>Join 10,000+ brands on NovaPack. It's free.</p>
+            <p style={{ fontSize: 14, color: '#777' }}>Join 10,000+ brands on Design Custom Box. It's free.</p>
           </div>
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>

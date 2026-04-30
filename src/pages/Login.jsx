@@ -82,12 +82,12 @@ export default function Login() {
         />
         <div style={{ position: 'absolute', inset: 0, background: `linear-gradient(135deg, rgba(20,60,36,0.92) 0%, rgba(20,60,36,0.70) 100%)` }} />
         <div style={{ position: 'relative', zIndex: 2, padding: '60px 56px', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-          <p style={{ fontSize: 11, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 14 }}>NovaPack Portal</p>
+          <p style={{ fontSize: 11, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 14 }}>Design Custom Box Portal</p>
           <h2 style={{ fontSize: 'clamp(28px,3vw,40px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#fff', lineHeight: 1.15, marginBottom: 20 }}>
             Your packaging command center in all in one place.
           </h2>
           <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.65)', lineHeight: 1.75, marginBottom: 40, maxWidth: 380 }}>
-            Manage orders, save custom box designs, get quotes, and track shipments with your NovaPack account.
+            Manage orders, save custom box designs, get quotes, and track shipments with your Design Custom Box account.
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             {PERKS.map((p, i) => (

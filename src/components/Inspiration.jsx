@@ -14,7 +14,7 @@ export default function Inspiration() {
     <section className="bg-white py-24">
       <div className="max-w-7xl mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-5xl font-black text-brand-navy mb-6">Get Creative Packaging Design Inspiration</h2>
+          <h2 className="text-3xl md:text-5xl font-black text-brand-navy mb-6">Inspiration</h2>
           <p className="text-brand-navy/60 text-lg max-w-3xl mx-auto mb-4">
             Need some #PackagingInspo? Take a look at some of our past and recent projects and get inspired by brands who turned their branded boxes into marketing powerhouses.
           </p>

@@ -1,5 +1,8 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Phone, MapPin, Mail } from 'lucide-react';
+import { useToast } from '../context/ToastContext';
+import logo from '../assets/logo.png';
 
 // Inline SVG social icons — no lucide-react dependency issues
 const FacebookIcon = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>;
@@ -11,7 +14,16 @@ const YoutubeIcon = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="
 const ACCENT = '#C8860A';
 
 export default function Footer() {
+  const [email, setEmail] = useState('');
+  const { showToast } = useToast();
   const year = new Date().getFullYear();
+
+  const handleSubscribe = (e) => {
+    e.preventDefault();
+    if (!email) return;
+    showToast('Success! You have been subscribed to our newsletter.', 'success');
+    setEmail('');
+  };
 
   return (
     <footer className="w-full overflow-x-hidden" style={{ backgroundColor: '#0F2E1A', color: '#fff' }}>
@@ -23,11 +35,13 @@ export default function Footer() {
           <p className="max-w-[400px] text-sm text-white/70 mb-7">
             Subscribe for packaging insights, trends, and special offers.
           </p>
-          <form className="flex w-full max-w-[440px] flex-col gap-3 sm:flex-row" onSubmit={e => e.preventDefault()}>
+          <form className="flex w-full max-w-[440px] flex-col gap-3 sm:flex-row" onSubmit={handleSubscribe}>
             <input
               type="email"
               placeholder="Enter your email address"
               required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-sm text-white outline-none placeholder:text-white/50"
             />
             <button type="submit" className="rounded-2xl bg-[#C8860A] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#b37308]">
@@ -50,18 +64,17 @@ export default function Footer() {
 
           {/* Col 1 — Brand */}
           <div>
-            <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, marginBottom: 20, textDecoration: 'none' }}>
-              {/* Logo container — uses accent bg so white-bg PNG is invisible and only the N monogram shows */}
-              <div style={{ width: 44, height: 44, borderRadius: 10, backgroundColor: ACCENT, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
+            <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 12, marginBottom: 20, textDecoration: 'none' }}>
+              <div style={{ width: 44, height: 44, borderRadius: 10, backgroundColor: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden', boxShadow: '0 4px 10px rgba(0,0,0,0.2)' }}>
                 <img
-                  src="/logo.png"
-                  alt=""
+                  src={logo}
+                  alt="Design Custom Box"
                   onError={e => { e.target.style.display = 'none'; }}
-                  style={{ height: 36, width: 36, objectFit: 'contain', display: 'block', mixBlendMode: 'multiply' }}
+                  style={{ height: '85%', width: '85%', objectFit: 'contain', display: 'block' }}
                 />
               </div>
               <span style={{ fontFamily: 'Outfit,sans-serif', fontWeight: 800, fontSize: 22, color: '#fff', letterSpacing: '-0.5px' }}>
-                NOVA<span style={{ color: ACCENT }}>PACK</span>
+                DESIGN CUSTOM <span style={{ color: ACCENT }}>BOX</span>
               </span>
             </Link>
             <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)', lineHeight: 1.7, maxWidth: 280, marginBottom: 24 }}>
@@ -71,9 +84,6 @@ export default function Footer() {
               {[
                 { Icon: FacebookIcon, href: 'https://facebook.com', label: 'Facebook' },
                 { Icon: InstagramIcon, href: 'https://instagram.com', label: 'Instagram' },
-                { Icon: LinkedInIcon, href: 'https://linkedin.com', label: 'LinkedIn' },
-                { Icon: TwitterIcon, href: 'https://twitter.com', label: 'Twitter' },
-                { Icon: YoutubeIcon, href: 'https://youtube.com', label: 'YouTube' },
               ].map(({ Icon, href, label }) => (
                 <a key={label} href={href} target="_blank" rel="noreferrer" aria-label={label}
                   style={{ width: 34, height: 34, borderRadius: '50%', border: '1px solid rgba(255,255,255,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.7)', transition: 'all 0.2s', textDecoration: 'none' }}
@@ -140,19 +150,19 @@ export default function Footer() {
           <div>
             <h4 style={{ fontSize: 11, fontFamily: 'Outfit,sans-serif', fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.09em', marginBottom: 20 }}>Support & Contact</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-              <a href="tel:18007259660" style={{ display: 'flex', gap: 12, alignItems: 'flex-start', textDecoration: 'none', color: 'rgba(255,255,255,0.65)', fontSize: 13 }}>
+              <a href="tel:9132282682" style={{ display: 'flex', gap: 12, alignItems: 'flex-start', textDecoration: 'none', color: 'rgba(255,255,255,0.65)', fontSize: 13 }}>
                 <Phone size={16} style={{ color: ACCENT, flexShrink: 0, marginTop: 2 }} />
                 <div>
-                  <div style={{ color: '#fff', fontWeight: 600, marginBottom: 2, fontSize: 13 }}>Call Us Toll-Free</div>
-                  <div>1-800-725-9660</div>
+                  <div style={{ color: '#fff', fontWeight: 600, marginBottom: 2, fontSize: 13 }}>Call Us</div>
+                  <div>(913) 228-2682</div>
                   <div style={{ fontSize: 11, marginTop: 2 }}>Mon–Fri 9am–6pm EST</div>
                 </div>
               </a>
-              <a href="mailto:support@novapack.com" style={{ display: 'flex', gap: 12, alignItems: 'flex-start', textDecoration: 'none', color: 'rgba(255,255,255,0.65)', fontSize: 13 }}>
+              <a href="mailto:support@designcustombox.com" style={{ display: 'flex', gap: 12, alignItems: 'flex-start', textDecoration: 'none', color: 'rgba(255,255,255,0.65)', fontSize: 13 }}>
                 <Mail size={16} style={{ color: ACCENT, flexShrink: 0, marginTop: 2 }} />
                 <div>
                   <div style={{ color: '#fff', fontWeight: 600, marginBottom: 2, fontSize: 13 }}>Email Support</div>
-                  <div>support@novapack.com</div>
+                  <div>support@designcustombox.com</div>
                   <div style={{ fontSize: 11, marginTop: 2 }}>Reply within 2 hours</div>
                 </div>
               </a>
@@ -160,8 +170,8 @@ export default function Footer() {
                 <MapPin size={16} style={{ color: ACCENT, flexShrink: 0, marginTop: 2 }} />
                 <div>
                   <div style={{ color: '#fff', fontWeight: 600, marginBottom: 2, fontSize: 13 }}>Headquarters</div>
-                  <div>123 Packaging Blvd, Suite 400</div>
-                  <div>Chicago, IL 60601</div>
+                  <div>5532 Big River Dr</div>
+                  <div>The Colony Texas US 75056</div>
                 </div>
               </div>
             </div>
@@ -174,7 +184,7 @@ export default function Footer() {
       <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', padding: '20px 24px' }}>
         <div style={{ maxWidth: 1400, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
           <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', margin: 0 }}>
-            © {year} NovaPack Industries. All rights reserved.
+            © {year} Design Custom Box. reserved by NextStac.
           </p>
           <div style={{ display: 'flex', gap: 20, fontSize: 12 }}>
             {['Privacy Policy', 'Terms of Service', 'Refund Policy'].map(t => (

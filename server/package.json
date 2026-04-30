@@ -1,7 +1,7 @@
 {
-  "name": "novapack-server",
+  "name": "design-custom-box-server",
   "version": "1.0.0",
-  "description": "NovaPack backend API with MongoDB",
+  "description": "Design Custom Box backend API with MongoDB",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",

@@ -179,9 +179,10 @@ export default function ProductSlider({ products = [], title = 'Featured Product
                     <button
                       onClick={(e) => handleConfigure(e, product)}
                       style={{ pointerEvents: isDragging ? 'none' : 'auto' }}
-                      className="w-full py-2.5 bg-brand-primary text-white text-[13px] font-bold rounded-button hover:bg-brand-accent transition-colors"
+                      className="w-full mt-auto py-3 bg-brand-primary text-white text-[14px] font-bold rounded-button hover:bg-brand-accent transition-all duration-300 flex items-center justify-center gap-2 group/btn active:scale-95 shadow-sm hover:shadow-md"
                     >
-                      Get a Custom Box
+                      <span>Get a Custom Box</span>
+                      <ChevronRight size={16} className="transition-transform duration-300 group-hover/btn:translate-x-1" />
                     </button>
                   </div>
                 </div>

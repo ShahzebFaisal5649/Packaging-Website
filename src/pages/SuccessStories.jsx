@@ -83,7 +83,7 @@ const TRENDING = [
 ];
 
 const SHOWCASES = [
-  { brand: 'BiteBox Co.', industry: 'Food & Beverage', img: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&q=80', quote: 'NovaPack transformed our unboxing into a viral moment. Sales jumped 40% after our rebrand.' },
+  { brand: 'BiteBox Co.', industry: 'Food & Beverage', img: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&q=80', quote: 'Design Custom Box transformed our unboxing into a viral moment. Sales jumped 40% after our rebrand.' },
   { brand: 'Lumière Beauty', industry: 'Cosmetics', img: 'https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?w=400&q=80', quote: 'The soft-touch matte finish on our boxes feels as luxurious as the products inside.' },
   { brand: 'TechShip Inc.', industry: 'E-Commerce', img: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&q=80', quote: 'Production on time, every time. We scaled from 1,000 to 100,000 units with ease.' },
   { brand: 'GreenLeaf Organics', industry: 'Eco-Friendly', img: 'https://images.unsplash.com/photo-1619468579487-430c4d90f93b?w=400&q=80', quote: 'The FSC-certified kraft boxes perfectly align with our sustainability values.' },
@@ -226,7 +226,7 @@ export default function SuccessStories() {
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0.6))' }} />
         <div style={{ position: 'relative', zIndex: 10, textAlign: 'center', padding: '0 24px' }}>
           <p style={{ fontSize: 11, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 14 }}>Design Lookbook</p>
-          <h1 style={{ fontSize: 'clamp(32px,5vw,52px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#fff', marginBottom: 16, lineHeight: 1.1 }}>Design Inspiration</h1>
+          <h1 style={{ fontSize: 'clamp(32px,5vw,52px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#fff', marginBottom: 16, lineHeight: 1.1 }}>Inspiration</h1>
           <p style={{ fontSize: 18, color: 'rgba(255,255,255,0.7)', maxWidth: 500, margin: '0 auto', textAlign: 'center' }}>Explore packaging ideas across industries and find your perfect style.</p>
         </div>
       </section>

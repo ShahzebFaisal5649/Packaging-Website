@@ -1,7 +1,7 @@
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 const getHeaders = () => {
-  const token = localStorage.getItem('novapack_token');
+  const token = localStorage.getItem('designcustombox_token');
   return {
     'Content-Type': 'application/json',
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -37,11 +37,11 @@ const api = {
   delete: (endpoint) => request('DELETE', endpoint),
 
   setToken: (token) => {
-    if (token) localStorage.setItem('novapack_token', token);
-    else localStorage.removeItem('novapack_token');
+    if (token) localStorage.setItem('designcustombox_token', token);
+    else localStorage.removeItem('designcustombox_token');
   },
 
-  getToken: () => localStorage.getItem('novapack_token'),
+  getToken: () => localStorage.getItem('designcustombox_token'),
 };
 
 export default api;

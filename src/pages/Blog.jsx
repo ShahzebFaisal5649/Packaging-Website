@@ -112,16 +112,16 @@ export default function Blog() {
 
       {/* Hero */}
       <section style={{ position: 'relative', minHeight: 420, backgroundColor: G, padding: '96px 24px 64px', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'url(https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1600&q=80)', backgroundSize: 'cover', backgroundPosition: 'center', filter: 'brightness(0.42)' }} />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(20,77,46,0.82), rgba(20,77,46,0.92))' }} />
-        <div style={{ position: 'relative', maxWidth: 980, margin: '0 auto', textAlign: 'left', zIndex: 1 }}>
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'url(https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1600&q=80)', backgroundSize: 'cover', backgroundPosition: 'center', filter: 'brightness(0.7)' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(20,77,46,0.3), rgba(20,77,46,0.6))' }} />
+        <div style={{ position: 'relative', maxWidth: 980, margin: '0 auto', textAlign: 'left', zIndex: 1 }} className="mobile-center-text">
           <p style={{ fontSize: 11, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 14 }}>
-            NovaPack Journal
+            Design Custom Box Journal
           </p>
-          <h1 style={{ fontSize: 'clamp(34px,5vw,58px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#fff', marginBottom: 18, lineHeight: 1.05 }}>
+          <h1 style={{ fontSize: 'clamp(34px,5vw,58px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#fff', marginBottom: 18, lineHeight: 1.05 }} className="mobile-center-header">
             Packaging Insights & Trends
           </h1>
-          <p style={{ fontSize: 17, color: 'rgba(255,255,255,0.82)', maxWidth: 640, lineHeight: 1.8, textAlign: 'left' }}>
+          <p style={{ fontSize: 17, color: 'rgba(255,255,255,0.95)', maxWidth: 640, lineHeight: 1.8, textAlign: 'left', textShadow: '0 2px 4px rgba(0,0,0,0.3)' }} className="mobile-center-text">
             Expert tips, industry trends, and design inspiration to help your brand stand out.
           </p>
         </div>

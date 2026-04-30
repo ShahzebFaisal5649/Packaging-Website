@@ -225,13 +225,13 @@ export default function Products() {
 
       {/* Hero */}
       <section style={{ position: 'relative', overflow: 'hidden', minHeight: 420, backgroundColor: '#1A4D2E' }}>
-        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'url(https://images.unsplash.com/photo-1580822184713-fc5400e7fe10?w=1600&q=80)', backgroundSize: 'cover', backgroundPosition: 'center', filter: 'brightness(0.55)' }} />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(20,60,36,0.84), rgba(20,60,36,0.95))' }} />
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'url(https://images.unsplash.com/photo-1580822184713-fc5400e7fe10?w=1600&q=80)', backgroundSize: 'cover', backgroundPosition: 'center', filter: 'brightness(0.75)' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(20,60,36,0.3), rgba(20,60,36,0.6))' }} />
         <div className="mx-auto max-w-[1400px]" style={{ position: 'relative', padding: '60px 24px', display: 'flex', alignItems: 'center' }}>
-          <div style={{ maxWidth: 700 }}>
+          <div style={{ maxWidth: 700 }} className="mobile-center-text">
             <p style={{ fontSize: 11, fontWeight: 700, color: '#F9C054', textTransform: 'uppercase', letterSpacing: '0.18em', marginBottom: 14 }}>Full Catalog</p>
-            <h1 style={{ fontSize: 'clamp(32px,4vw,52px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#fff', marginBottom: 18, lineHeight: 1.05 }}>Shop Products</h1>
-            <p style={{ maxWidth: 560, color: 'rgba(255,255,255,0.82)', fontSize: 16, lineHeight: 1.8, textAlign: 'left' }}>Browse our full range of custom box styles. Tap any card to see full specs, then configure your exact dimensions.</p>
+            <h1 style={{ fontSize: 'clamp(32px,4vw,52px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#fff', marginBottom: 18, lineHeight: 1.05 }}>Products</h1>
+            <p style={{ maxWidth: 560, color: 'rgba(255,255,255,0.95)', fontSize: 16, lineHeight: 1.8, textAlign: 'left', textShadow: '0 2px 4px rgba(0,0,0,0.3)' }} className="mobile-center-text">Browse our full range of custom box styles. Just tap any card to see full details, then pick your exact sizes.</p>
           </div>
         </div>
       </section>

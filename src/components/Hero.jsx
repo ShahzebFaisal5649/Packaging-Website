@@ -6,9 +6,9 @@ const CYCLING_WORDS = ['Your Brand', 'Your Vision', 'Your Identity', 'Your Story
 
 const STATS = [
   { num: '500K+', label: 'Boxes Shipped' },
-  { num: '98%', label: 'Satisfaction Rate' },
+  { num: '98%', label: 'Happy Customers' },
   { num: '50+', label: 'Countries Served' },
-  { num: '7-Day', label: 'Avg Turnaround' },
+  { num: '7 Day', label: 'Average Turnaround' },
 ];
 
 const TRUST_ITEMS = [
@@ -61,18 +61,18 @@ export default function Hero() {
         <div className="hero-grid">
 
           {/* LEFT */}
-          <div className="hero-left">
+          <div className="hero-left mobile-center-text">
 
             {/* Badge */}
-            <div className="hero-badge">
+            <div className="hero-badge mobile-center-header">
               <span className="hero-badge-dot" />
               <span className="hero-badge-text">
-                Industry-Leading Custom Packaging
+                Industry leading custom packaging
               </span>
             </div>
 
             {/* Headline */}
-            <h1 className="hero-headline">
+            <h1 className="hero-headline text-left md:text-left">
               Packaging That<br />
               Elevates<br />
               <span className="hero-cycling-word" style={{
@@ -84,13 +84,13 @@ export default function Hero() {
             </h1>
 
             {/* Subtext */}
-            <p className="hero-subtext">
-              Deliver unforgettable unboxing experiences with custom-printed,
-              premium-grade packaging. Fast turnaround. No minimums. Just results.
+            <p className="hero-subtext text-left md:text-left">
+              Deliver unforgettable unboxing experiences with custom printed,
+              premium grade packaging. Fast turnaround. No minimums. Just results.
             </p>
 
             {/* CTA Buttons */}
-            <div className="hero-actions">
+            <div className="hero-actions mobile-center-header">
               <Link to="/custom-box" className="hero-btn-primary">
                 Start Designing Free <ArrowRight size={17} />
               </Link>
@@ -104,7 +104,7 @@ export default function Hero() {
             </div>
 
             {/* Social proof row */}
-            <div className="hero-social-proof">
+            <div className="hero-social-proof mobile-center-header">
               <div className="avatar-group">
                 {['A', 'S', 'M', 'J', 'R'].map((l, i) => (
                   <div key={i} className="avatar-item" style={{
@@ -124,7 +124,7 @@ export default function Hero() {
             </div>
 
             {/* Trust pills */}
-            <div className="hero-trust-pills">
+            <div className="hero-trust-pills mobile-center-header">
               {TRUST_ITEMS.map((t, i) => (
                 <div key={i} className="trust-pill">
                   <span className="trust-pill-icon">{t.icon}</span>
@@ -165,7 +165,7 @@ export default function Hero() {
             <div className="hero-card hero-card-2">
               <div className="card-icon-gold"><Zap size={19} color="#fff" /></div>
               <div>
-                <div className="card-value">7-Day</div>
+                <div className="card-value">7 Day</div>
                 <div className="card-label">Fast Delivery</div>
               </div>
             </div>
@@ -173,7 +173,7 @@ export default function Hero() {
             {/* Floating badge — Eco */}
             <div className="hero-eco-badge">
               <Shield size={14} color="#1A4D2E" />
-              <span>Eco-Certified</span>
+              <span>Eco Certified</span>
             </div>
 
             {/* Rating badge */}

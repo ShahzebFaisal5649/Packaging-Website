@@ -38,13 +38,13 @@ function CountUp({ target, suffix = '', duration = 2000 }) {
 }
 
 const TEAM = [
-  { name: 'James Carter', title: 'Chief Executive Officer', img: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&q=80', bio: 'Visionary leader with 15+ years in packaging and manufacturing.' },
+  { name: 'James Carter', title: 'Chief Executive Officer', img: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&q=80', bio: 'Visionary leader with 15 years in packaging and manufacturing.' },
   { name: 'Sarah Mitchell', title: 'Chief Operating Officer', img: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&q=80', bio: 'Operations expert driving efficiency across all production lines.' },
-  { name: 'Tom Reynolds', title: 'Head of Design', img: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&q=80', bio: 'Award-winning designer with 12 years of brand storytelling experience.' },
+  { name: 'Tom Reynolds', title: 'Head of Design', img: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&q=80', bio: 'Award winning designer with 12 years of brand storytelling experience.' },
   { name: 'Aisha Johnson', title: 'Head of Operations', img: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&q=80', bio: 'Supply chain specialist ensuring every order ships on time.' },
 ];
 
-const CERTS = ['FSC Certified', 'ISO 9001', 'SGP Member', 'Eco-Friendly Alliance', 'ISTA Certified'];
+const CERTS = ['FSC Certified', 'ISO 9001', 'SGP Member', 'Eco Friendly Alliance', 'ISTA Certified'];
 
 const PROCESS = [
   { num: '01', title: 'Configure', desc: 'Use our online 3D configurator to set your box type, material, dimensions, and print specs.', img: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=500&q=80' },
@@ -55,12 +55,12 @@ const PROCESS = [
 ];
 
 const VALUES = [
-  { icon: <ShieldCheck size={24} color={G} />, title: 'Precision', desc: 'Every dimension, color, and finish is produced to exact specifications no exceptions.' },
-  { icon: <Leaf size={24} color="#2E7D32" />, title: 'Sustainability', desc: 'FSC-certified materials, soy-based inks, and a commitment to zero-landfill production.' },
-  { icon: <Clock size={24} color={ACCENT} />, title: 'Speed', desc: '8–10 day standard turnaround with rush options available because your launch dates matter.' },
-  { icon: <Users size={24} color={G} />, title: 'Partnership', desc: 'Dedicated account managers for every client, from first order to 1 million units.' },
-  { icon: <Award size={24} color={ACCENT} />, title: 'Excellence', desc: 'Industry-leading print quality backed by a 100% satisfaction guarantee on every order.' },
-  { icon: <Globe size={24} color={G} />, title: 'Reach', desc: 'Shipping to 40+ countries with a global logistics network that scales with your brand.' },
+  { icon: <ShieldCheck size={24} color={G} />, title: 'Precision', desc: 'Every dimension, color, and finish is produced to exact specifications without exceptions.' },
+  { icon: <Leaf size={24} color="#2E7D32" />, title: 'Sustainability', desc: 'FSC certified materials, soy based inks, and a commitment to zero landfill production.' },
+  { icon: <Clock size={24} color={ACCENT} />, title: 'Speed', desc: '8 to 10 day standard turnaround with rush options available because your dates matter.' },
+  { icon: <Users size={24} color={G} />, title: 'Partnership', desc: 'Dedicated account managers for every client, from the first order onwards.' },
+  { icon: <Award size={24} color={ACCENT} />, title: 'Excellence', desc: 'Industry leading print quality backed by a 100% satisfaction guarantee on every order.' },
+  { icon: <Globe size={24} color={G} />, title: 'Reach', desc: 'Shipping to 40 plus countries with a global logistics network that scales with your brand.' },
 ];
 
 export default function About() {
@@ -75,26 +75,26 @@ export default function About() {
       <section style={{ position: 'relative', minHeight: 560, display: 'flex', alignItems: 'center', overflow: 'hidden' }}>
         <img
           src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1600&q=75"
-          alt="NovaPack facility"
-          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }}
+          alt="Design Custom Box facility"
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', filter: 'brightness(0.7)' }}
         />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(20,60,36,0.90) 40%, rgba(20,60,36,0.40) 100%)' }} />
-        <div style={{ position: 'relative', zIndex: 2, maxWidth: 1040, margin: '0 auto', padding: '60px 24px 40px', width: '100%', textAlign: 'left' }}>
-          <div style={{ maxWidth: 640 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(20,60,36,0.3) 40%, rgba(20,60,36,0.6) 100%)' }} />
+        <div style={{ position: 'relative', zIndex: 2, maxWidth: 1040, margin: '0 auto', padding: '60px 24px 40px', width: '100%', textAlign: 'left' }} className="mobile-center-text">
+          <div style={{ maxWidth: 640 }} className="mobile-center-text">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }} className="mobile-center-header">
               <Link to="/" style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', textDecoration: 'none', transition: 'color 0.15s' }}
                 onMouseEnter={e => e.target.style.color = '#fff'} onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.55)'}>Home</Link>
               <ChevronRight size={14} color="rgba(255,255,255,0.4)" />
               <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)' }}>About Us</span>
             </div>
             <p style={{ fontSize: 12, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.16em', marginBottom: 16 }}>Our Story</p>
-            <h1 style={{ fontSize: 'clamp(36px,5vw,60px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#fff', lineHeight: 1.08, marginBottom: 22 }}>
+            <h1 style={{ fontSize: 'clamp(36px,5vw,60px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#fff', lineHeight: 1.08, marginBottom: 22 }} className="mobile-center-header">
               Built on Craft.<br />Driven by Brand.
             </h1>
-            <p style={{ fontSize: 17, color: 'rgba(255,255,255,0.75)', lineHeight: 1.75, maxWidth: 520, marginBottom: 36, textAlign: 'left' }}>
-              Since 2010, NovaPack has helped over 10,000 brands create packaging that makes a lasting first impression from independent startups to Fortune 500 companies.
+            <p style={{ fontSize: 17, color: 'rgba(255,255,255,0.75)', lineHeight: 1.75, maxWidth: 520, marginBottom: 36, textAlign: 'left' }} className="mobile-center-text">
+              Since 2010, Design Custom Box has helped over 10,000 brands create packaging that makes a lasting first impression—from independent startups to Fortune 500 companies.
             </p>
-            <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }} className="mobile-center-header">
               <Link to="/custom-box"
                 style={{ padding: '14px 28px', background: ACCENT, color: '#fff', borderRadius: 10, fontWeight: 700, textDecoration: 'none', fontSize: 14, display: 'inline-flex', alignItems: 'center', gap: 8, transition: 'filter 0.15s' }}
                 onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.1)'}
@@ -140,7 +140,7 @@ export default function About() {
               <div style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', boxShadow: '0 24px 60px rgba(0,0,0,0.12)' }}>
                 <img
                   src="https://images.unsplash.com/photo-1553481187-be93c21490a9?w=800&q=80"
-                  alt="NovaPack warehouse"
+                  alt="Design Custom Box warehouse"
                   style={{ width: '100%', height: 500, objectFit: 'cover', display: 'block' }}
                 />
                 <div style={{ position: 'absolute', bottom: 24, left: 24, background: G, borderRadius: 12, padding: '16px 22px' }}>
@@ -154,7 +154,7 @@ export default function About() {
               <h2 style={{ fontSize: 'clamp(28px,3vw,42px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: G, marginBottom: 28, lineHeight: 1.15 }}>From Small Shop to Industry Leader</h2>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
                 {[
-                  'Founded in 2010, NovaPack grew from a small print shop in Chicago to one of North America\'s leading custom packaging companies shipping over 500,000 boxes annually across 30+ industries.',
+                  'Founded in 2010, Design Custom Box grew from a small print shop in Chicago to one of North America\'s leading custom packaging companies shipping over 500,000 boxes annually across 30+ industries.',
                   'What started as a passion for beautiful, functional packaging has evolved into a comprehensive digital platform that empowers brands of all sizes, from solo entrepreneurs to Fortune 500 companies.',
                   'Today, we combine cutting-edge 3D design tools, sustainably sourced materials, and an expert team of designers and engineers to deliver packaging solutions that tell your brand\'s unique story.',
                 ].map((p, i) => (
@@ -162,7 +162,7 @@ export default function About() {
                 ))}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 28 }}>
-                {['Free digital 3D proof on every order', 'Dedicated account manager from day one', 'FSC-certified and eco-friendly material options'].map((item, i) => (
+                {['Free digital 3D proof on every order', 'Dedicated account manager from day one', 'FSC certified and eco friendly material options'].map((item, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <CheckCircle size={16} color={G} strokeWidth={2.5} />
                     <span style={{ fontSize: 14, color: '#3A3A3A', fontWeight: 500 }}>{item}</span>
@@ -233,7 +233,7 @@ export default function About() {
       <section style={{ padding: '96px 24px', backgroundColor: BG }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 60 }} data-aos="fade-up">
-            <p style={{ fontSize: 11, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 12 }}>The People Behind NovaPack</p>
+            <p style={{ fontSize: 11, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 12 }}>The People Behind Design Custom Box</p>
             <h2 style={{ fontSize: 'clamp(28px,3vw,42px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: G }}>Meet the Leadership Team</h2>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 28 }} className="team-grid">
@@ -343,7 +343,7 @@ export default function About() {
             Ready to create packaging that stands out?
           </h2>
           <p style={{ fontSize: 17, color: 'rgba(255,255,255,0.65)', marginBottom: 40, lineHeight: 1.7 }}>
-            Join 10,000+ brands who trust NovaPack for premium custom packaging.
+            Join 10,000+ brands who trust Design Custom Box for premium custom packaging.
           </p>
           <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link to="/custom-box"
