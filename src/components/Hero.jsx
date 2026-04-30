@@ -464,8 +464,13 @@ export default function Hero() {
         @keyframes heroCard3 { 0%, 100% { transform: translateX(0) rotate(-0.5deg); } 50% { transform: translateX(-6px) rotate(0.5deg); } }
         @keyframes heroPulse { 0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(200,134,10,0.4); } 50% { opacity: 0.7; box-shadow: 0 0 0 5px rgba(200,134,10,0); } }
 
+        .hero-container {
+          position: relative;
+          overflow: hidden;
+          width: 100%;
+        }
         @media (max-width: 1024px) {
-          .hero-grid { grid-template-columns: 1fr !important; gap: 48px !important; }
+          .hero-grid { grid-template-columns: 1fr !important; gap: 48px !important; overflow: hidden; }
           .hero-left { text-align: center; }
           .hero-actions { justify-content: center; }
           .hero-social-proof { justify-content: center; }
