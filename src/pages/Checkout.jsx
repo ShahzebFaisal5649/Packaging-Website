@@ -284,17 +284,17 @@ export default function Checkout() {
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '36px 24px 60px' }}>
 
         {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 32 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 32, flexWrap: 'wrap', justifyContent: 'space-between' }}>
           <Link to="/products" style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: '#666', textDecoration: 'none' }}>
             <ArrowLeft size={16} /> Back
           </Link>
-          <div style={{ flex: 1, textAlign: 'center' }}>
+          <div style={{ flex: '1 1 100%', textAlign: 'center' }}>
             <h1 style={{ fontSize: 26, fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#1A1A1A', margin: 0 }}>
               <Lock size={20} style={{ verticalAlign: 'middle', marginRight: 8, color: G }} />
               Secure Checkout
             </h1>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#059669', fontWeight: 700 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#059669', fontWeight: 700, minWidth: 170, justifyContent: 'flex-end' }}>
             <Shield size={14} /> SSL Encrypted
           </div>
         </div>
@@ -326,8 +326,8 @@ export default function Checkout() {
           </div>
 
           {/* RIGHT — order summary */}
-          <div style={{ position: 'sticky', top: 100 }}>
-            <div style={{ background: '#fff', borderRadius: 16, overflow: 'hidden', boxShadow: '0 2px 16px rgba(0,0,0,0.06)' }}>
+          <div className="checkout-summary" style={{ position: 'sticky', top: 100 }}>
+            <div className="checkout-summary-card" style={{ background: '#fff', borderRadius: 16, overflow: 'hidden', boxShadow: '0 2px 16px rgba(0,0,0,0.06)' }}>
               {/* Header */}
               <div style={{ background: G, padding: '16px 22px', display: 'flex', alignItems: 'center', gap: 10 }}>
                 <Package size={17} color="#fff" />
@@ -388,8 +388,13 @@ export default function Checkout() {
 
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
-        @media (max-width: 768px) {
+        @media (max-width: 960px) {
           .checkout-grid { grid-template-columns: 1fr !important; }
+          .checkout-summary { position: static !important; top: auto !important; width: 100% !important; }
+          .checkout-summary-card { width: 100% !important; }
+        }
+        @media (max-width: 680px) {
+          .checkout-grid { gap: 20px !important; }
         }
       `}</style>
     </div>

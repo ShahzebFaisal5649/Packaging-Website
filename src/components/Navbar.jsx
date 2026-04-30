@@ -527,9 +527,17 @@ export default function Navbar() {
                     onClick={() => setMobileMenuOpen(false)}>
                     <UserCircle size={18} /> My Profile
                   </Link>
+                  {user?.role === 'admin' && (
+                    <Link to="/admin"
+                      style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 15, fontWeight: 600, color: '#fff', textDecoration: 'none' }}
+                      onClick={() => setMobileMenuOpen(false)}>
+                      <Settings size={18} /> Admin Panel
+                    </Link>
+                  )}
                   <button
                     onClick={() => { handleLogout(); setMobileMenuOpen(false); }}
-                    style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 15, fontWeight: 600, color: '#EF4444', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                    style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 15, fontWeight: 600, color: '#EF4444', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                    onMouseEnter={e => e.currentTarget.style.background = '#fef2f2'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                     <LogOut size={18} /> Logout
                   </button>
                 </>
