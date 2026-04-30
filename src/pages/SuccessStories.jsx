@@ -141,7 +141,7 @@ function TrendingCard({ t }) {
       <div style={{ padding: '16px' }}>
         <p style={{ fontSize: 10, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>{t.cat}</p>
         <h4 style={{ fontSize: 15, fontFamily: 'Outfit,sans-serif', fontWeight: 700, color: G, marginBottom: 4 }}>{t.name}</h4>
-        <p style={{ fontSize: 12, color: '#6B6B6B', marginBottom: 12 }}>{t.style}</p>
+        <p style={{ fontSize: 12, color: '#6B6B6B', marginBottom: 12, textAlign: 'left' }}>{t.style}</p>
 
         {/* Spec pills */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 12px', padding: '10px 12px', backgroundColor: BG, borderRadius: 8, marginBottom: 12 }}>
@@ -219,7 +219,7 @@ export default function SuccessStories() {
     <div style={{ backgroundColor: BG, minHeight: '100vh' }}>
 
       {/* Section 1 — Hero */}
-      <section style={{ height: 400, backgroundColor: '#1A1A1A', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+      <section style={{ height: 320, backgroundColor: '#1A1A1A', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
         {GALLERY.slice(0, 4).map((g, i) => (
           <div key={i} style={{ position: 'absolute', width: '25%', height: '100%', left: `${i * 25}%`, backgroundImage: `url(${g.src})`, backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.25 }} />
         ))}
@@ -227,7 +227,7 @@ export default function SuccessStories() {
         <div style={{ position: 'relative', zIndex: 10, textAlign: 'center', padding: '0 24px' }}>
           <p style={{ fontSize: 11, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 14 }}>Design Lookbook</p>
           <h1 style={{ fontSize: 'clamp(32px,5vw,52px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#fff', marginBottom: 16, lineHeight: 1.1 }}>Design Inspiration</h1>
-          <p style={{ fontSize: 18, color: 'rgba(255,255,255,0.7)', maxWidth: 500, margin: '0 auto' }}>Explore packaging ideas across industries and find your perfect style.</p>
+          <p style={{ fontSize: 18, color: 'rgba(255,255,255,0.7)', maxWidth: 500, margin: '0 auto', textAlign: 'center' }}>Explore packaging ideas across industries and find your perfect style.</p>
         </div>
       </section>
 

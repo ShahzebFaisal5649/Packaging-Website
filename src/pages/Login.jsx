@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, ArrowRight, CheckCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import GoogleLoginModal from '../components/GoogleLoginModal';
 
 const G = '#1A4D2E';
 const ACCENT = '#C8860A';
@@ -19,6 +20,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showGoogleModal, setShowGoogleModal] = useState(false);
 
   const { login, googleLogin } = useAuth();
   const { showToast } = useToast();
@@ -46,18 +48,28 @@ export default function Login() {
     }
   };
 
-  const handleGoogleLogin = async () => {
+  const handleGoogleSelect = async (account) => {
+    setShowGoogleModal(false);
+    setIsSubmitting(true);
     try {
-      await googleLogin();
-      showToast('Signed in with Google', 'success');
+      await new Promise(resolve => setTimeout(resolve, 1200));
+      await googleLogin(account);
+      showToast(`Welcome back, ${account.name}!`, 'success');
       navigate('/profile');
     } catch {
       showToast('Google login failed', 'error');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'grid', gridTemplateColumns: '1fr 1fr', paddingTop: 68 }} className="auth-grid">
+    <div style={{ minHeight: 'calc(100vh - (var(--nav-h) + var(--ann-h)))', display: 'grid', gridTemplateColumns: '1fr 1fr' }} className="auth-grid">
+      <GoogleLoginModal 
+        isOpen={showGoogleModal} 
+        onClose={() => setShowGoogleModal(false)} 
+        onSelect={handleGoogleSelect} 
+      />
 
       {/* Left panel — image + branding */}
       <div style={{ position: 'relative', overflow: 'hidden', minHeight: 600 }} className="auth-left">
@@ -143,7 +155,7 @@ export default function Login() {
             <div style={{ flex: 1, height: 1, background: '#E0DBD3' }} />
           </div>
 
-          <button onClick={handleGoogleLogin}
+          <button onClick={() => setShowGoogleModal(true)}
             style={{ width: '100%', padding: '13px', background: '#fff', border: '1.5px solid #E0DBD3', borderRadius: 10, fontSize: 14, fontWeight: 700, color: '#333', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, transition: 'background 0.15s' }}
             onMouseEnter={e => e.currentTarget.style.background = '#fafafa'} onMouseLeave={e => e.currentTarget.style.background = '#fff'}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none">

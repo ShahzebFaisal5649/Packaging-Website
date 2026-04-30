@@ -40,7 +40,7 @@ function Modal({ onClose, title, children, wide }) {
   return (
     <>
       <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 9000 }} onClick={onClose} />
-      <div style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', backgroundColor: '#fff', borderRadius: 16, padding: 28, width: `min(95vw,${wide ? '760px' : '540px'})`, zIndex: 9001, maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.18)' }}>
+      <div style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', backgroundColor: '#fff', borderRadius: 16, padding: 24, width: `min(95vw,${wide ? '760px' : '540px'})`, zIndex: 9001, maxHeight: 'calc(100vh - 24px)', overflowY: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.18)', boxSizing: 'border-box' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, paddingBottom: 16, borderBottom: '1px solid #F0EDE8' }}>
           <h3 style={{ fontSize: 18, fontFamily: 'Outfit,sans-serif', fontWeight: 700, color: '#1A1A1A' }}>{title}</h3>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B6B6B', padding: 4, borderRadius: 6 }}><X size={18} /></button>
@@ -269,13 +269,15 @@ function DashboardSection() {
 
 // ── Products ─────────────────────────────────────────────────────────────────
 function ProductsSection() {
+  const { showToast } = useToast();
   const [products, setProducts] = useState([]);
+  const [industryOptions, setIndustryOptions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [editForm, setEditForm] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
 
-  const emptyForm = { name: '', slug: '', cat: '', description: '', price: '', img: '', featured: false, boxType: '', material: '', finish: '', dims: '', minQty: '', addons: [] };
+  const emptyForm = { name: '', slug: '', cat: '', description: '', price: '', img: '', featured: false, boxType: '', material: '', finish: '', dims: '', minQty: '', addons: [], customIndustry: '' };
 
   async function loadProducts() {
     let cancelled = false;
@@ -290,15 +292,32 @@ function ProductsSection() {
     }
   }
 
+  async function loadIndustryOptions() {
+    let cancelled = false;
+    try {
+      const data = await api.get('/admin/industries');
+      if (!cancelled) setIndustryOptions(data.industries || []);
+    } catch (err) {
+      if (!cancelled) console.error('Failed to load industry options:', err);
+    }
+    return () => { cancelled = true; };
+  }
+
   useEffect(() => {
     let cancelled = false;
     async function load() {
       setLoading(true);
       try {
-        const data = await api.get('/admin/products');
-        if (!cancelled) setProducts(data.products || []);
+        const [productsData, industriesData] = await Promise.all([
+          api.get('/admin/products'),
+          api.get('/admin/industries'),
+        ]);
+        if (!cancelled) {
+          setProducts(productsData.products || []);
+          setIndustryOptions(industriesData.industries || []);
+        }
       } catch (err) {
-        if (!cancelled) console.error('Failed to load products:', err);
+        if (!cancelled) console.error('Failed to load products or industries:', err);
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -308,6 +327,8 @@ function ProductsSection() {
   }, []);
 
   const handleEdit = (product) => {
+    const industryName = product.cat || '';
+    const matchedIndustry = industryOptions.find(i => i.name.toLowerCase() === industryName.toLowerCase());
     setEditForm({
       id: product._id,
       name: product.name || '',
@@ -323,15 +344,46 @@ function ProductsSection() {
       dims: product.dims || '',
       minQty: product.minQty || '',
       addons: product.addons || [],
+      customIndustry: matchedIndustry ? '' : industryName,
     });
   };
 
   const autoSlug = (name) => name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
   const handleSave = async () => {
-    const payload = { ...editForm };
-    delete payload.id;
+    const productData = { ...editForm };
+    delete productData.id;
+    const industryName = editForm.cat === '__other' ? editForm.customIndustry?.trim() : editForm.cat;
+    if (!industryName) {
+      showToast('Please select or add an industry for this product.', 'warning');
+      return;
+    }
+    let finalIndustry = industryName;
+
     try {
+      const existingIndustry = industryOptions.find(i => i.name.toLowerCase() === industryName.toLowerCase());
+      if (!existingIndustry) {
+        const newIndustry = await api.post('/admin/industries', {
+          name: industryName,
+          slug: autoSlug(industryName),
+          cat: '',
+          description: '',
+          img: '',
+          products: [],
+        });
+        finalIndustry = newIndustry.industry?.name || newIndustry.name || industryName;
+        setIndustryOptions(prev => [...prev, { name: finalIndustry, slug: autoSlug(finalIndustry) }]);
+        showToast(`Created new industry “${finalIndustry}”.`, 'success');
+      } else {
+        finalIndustry = existingIndustry.name;
+      }
+
+      const payload = {
+        ...productData,
+        cat: finalIndustry,
+      };
+      delete payload.customIndustry;
+
       if (editForm.id) {
         await api.put(`/admin/products/${editForm.id}`, payload);
       } else {
@@ -339,10 +391,10 @@ function ProductsSection() {
         await api.post('/admin/products', payload);
       }
       setEditForm(null);
-      loadProducts();
+      await Promise.all([loadProducts(), loadIndustryOptions()]);
     } catch (err) {
       console.error('Failed to save product:', err);
-      alert(err.message || 'Save failed');
+      showToast(err.message || 'Save failed', 'error');
     }
   };
 
@@ -453,9 +505,16 @@ function ProductsSection() {
                 placeholder="mailer-box-premium" style={inputStyle} />
             </div>
             <div>
-              <label style={{ fontSize: 11, fontWeight: 700, color: '#555', display: 'block', marginBottom: 4 }}>Category *</label>
-              <input value={editForm.cat} onChange={e => setEditForm(f => ({ ...f, cat: e.target.value }))}
-                placeholder="e.g. Rectangular" style={inputStyle} />
+              <label style={{ fontSize: 11, fontWeight: 700, color: '#555', display: 'block', marginBottom: 4 }}>Industry *</label>
+              <select value={editForm.cat} onChange={e => setEditForm(f => ({ ...f, cat: e.target.value, customIndustry: '' }))} style={inputStyle}>
+                <option value="">— Select existing industry —</option>
+                {industryOptions.map(ind => <option key={ind._id || ind.name} value={ind.name}>{ind.name}</option>)}
+                <option value="__other">Add new industry…</option>
+              </select>
+              {editForm.cat === '__other' && (
+                <input value={editForm.customIndustry} onChange={e => setEditForm(f => ({ ...f, customIndustry: e.target.value }))}
+                  placeholder="Type a new industry name" style={{ ...inputStyle, marginTop: 10 }} />
+              )}
             </div>
             <div>
               <label style={{ fontSize: 11, fontWeight: 700, color: '#555', display: 'block', marginBottom: 4 }}>Price (per unit)</label>
@@ -914,20 +973,21 @@ function OrdersSection() {
 
       {selected && (
         <Modal onClose={() => setSelected(null)} title={`Order ${selected.id || selected.orderId}`} wide>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12, marginBottom: 20 }}>
             {[
+              { label: 'Order ID', value: selected.id || selected.orderId, break: true },
               { label: 'Customer', value: selected.userName },
-              { label: 'Email', value: selected.userEmail },
+              { label: 'Email', value: selected.userEmail, break: true },
               { label: 'Product', value: selected.product },
               { label: 'Quantity', value: `${selected.qty} units` },
               { label: 'Total', value: `$${(+selected.total || 0).toFixed(2)}` },
               { label: 'Date', value: selected.date || '—' },
               { label: 'Address', value: selected.address || '—' },
               { label: 'Status', value: <Badge status={selected.status} /> },
-            ].map(({ label, value }) => (
-              <div key={label} style={{ background: BG, borderRadius: 10, padding: '12px 14px' }}>
-                <p style={{ fontSize: 10, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 4px' }}>{label}</p>
-                <p style={{ fontSize: 13, color: '#1A1A1A', fontWeight: 600, margin: 0 }}>{value}</p>
+            ].map((item) => (
+              <div key={item.label} style={{ background: BG, borderRadius: 10, padding: '12px 14px', wordBreak: item.break ? 'break-all' : 'normal' }}>
+                <p style={{ fontSize: 10, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 4px' }}>{item.label}</p>
+                <p style={{ fontSize: 13, color: '#1A1A1A', fontWeight: 600, margin: 0 }}>{item.value}</p>
               </div>
             ))}
           </div>
@@ -1423,7 +1483,7 @@ export default function Admin() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: BG, display: 'flex', paddingTop: 72 }}>
+    <div style={{ minHeight: '100vh', background: BG, display: 'flex' }}>
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200 }} onClick={() => setSidebarOpen(false)} />
@@ -1432,9 +1492,10 @@ export default function Admin() {
       {/* Sidebar */}
       <aside className="admin-sidebar" style={{
         width: 220, flexShrink: 0, background: G,
-        minHeight: 'calc(100vh - 72px)', position: 'sticky', top: 72,
+        minHeight: 'calc(100vh - var(--nav-h))', position: 'sticky', top: 'var(--nav-h)',
         display: 'flex', flexDirection: 'column',
         transition: 'transform 0.25s',
+        borderRight: '1px solid rgba(255,255,255,0.05)',
       }}>
         <div style={{ padding: '24px 20px 16px' }}>
           <p style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 4 }}>Admin Panel</p>
@@ -1484,13 +1545,14 @@ export default function Admin() {
         @media (max-width: 768px) {
           .admin-sidebar {
             position: fixed !important;
-            top: 72px !important;
+            top: 0 !important;
             left: 0;
             width: 280px !important;
-            max-width: 100% !important;
-            height: calc(100vh - 72px);
-            z-index: 300;
+            max-width: 85% !important;
+            height: 100vh !important;
+            z-index: 10001;
             transform: translateX(${sidebarOpen ? '0' : '-100%'}) !important;
+            box-shadow: ${sidebarOpen ? '20px 0 60px rgba(0,0,0,0.5)' : 'none'};
           }
           .admin-hamburger { display: flex !important; }
           main { padding: 20px 16px !important; }

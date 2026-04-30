@@ -79,7 +79,7 @@ export default function About() {
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }}
         />
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(20,60,36,0.90) 40%, rgba(20,60,36,0.40) 100%)' }} />
-        <div style={{ position: 'relative', zIndex: 2, maxWidth: 1400, margin: '0 auto', padding: '120px 24px 80px', width: '100%' }}>
+        <div style={{ position: 'relative', zIndex: 2, maxWidth: 1040, margin: '0 auto', padding: '60px 24px 40px', width: '100%', textAlign: 'left' }}>
           <div style={{ maxWidth: 640 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
               <Link to="/" style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', textDecoration: 'none', transition: 'color 0.15s' }}
@@ -91,7 +91,7 @@ export default function About() {
             <h1 style={{ fontSize: 'clamp(36px,5vw,60px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#fff', lineHeight: 1.08, marginBottom: 22 }}>
               Built on Craft.<br />Driven by Brand.
             </h1>
-            <p style={{ fontSize: 17, color: 'rgba(255,255,255,0.75)', lineHeight: 1.75, maxWidth: 520, marginBottom: 36 }}>
+            <p style={{ fontSize: 17, color: 'rgba(255,255,255,0.75)', lineHeight: 1.75, maxWidth: 520, marginBottom: 36, textAlign: 'left' }}>
               Since 2010, NovaPack has helped over 10,000 brands create packaging that makes a lasting first impression from independent startups to Fortune 500 companies.
             </p>
             <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
@@ -207,7 +207,7 @@ export default function About() {
                 <div style={{ padding: '28px 32px 32px' }}>
                   <p style={{ fontSize: 11, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 10 }}>{c.label}</p>
                   <h3 style={{ fontSize: 20, fontWeight: 700, color: G, fontFamily: 'Outfit,sans-serif', marginBottom: 14, lineHeight: 1.25 }}>{c.title}</h3>
-                  <p style={{ fontSize: 14, color: '#555', lineHeight: 1.75 }}>{c.desc}</p>
+                  <p style={{ fontSize: 14, color: '#555', lineHeight: 1.75, textAlign: 'left' }}>{c.desc}</p>
                 </div>
               </div>
             ))}

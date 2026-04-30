@@ -31,6 +31,7 @@ export default function LiveChat() {
   const [hidden, setHidden] = useState(false);
   const [message, setMessage] = useState('');
   const [sent, setSent] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
   const [messages, setMessages] = useState([
     {
       from: 'agent',
@@ -64,6 +65,12 @@ export default function LiveChat() {
   }, []);
 
   useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
     msgEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
@@ -89,31 +96,52 @@ export default function LiveChat() {
   // When Tawk.to is configured it handles itself
   if (TAWK_PROPERTY_ID) return null;
 
+  const isMobile = windowWidth <= 480;
+  const chatWindowStyle = {
+    position: 'fixed',
+    right: isMobile ? 0 : 20,
+    bottom: isMobile ? 0 : 90,
+    zIndex: 9999,
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'hidden',
+    background: '#fff',
+    boxShadow: '0 20px 60px rgba(0,0,0,0.18)',
+    borderRadius: isMobile ? 0 : 16,
+    width: isMobile ? '100vw' : 360,
+    maxWidth: isMobile ? '100vw' : 360,
+    height: isMobile ? '100%' : 'auto',
+    top: isMobile ? 0 : 'auto',
+    maxHeight: isMobile ? '100%' : 600,
+  };
+
   if (hidden) {
     return (
       <button
         onClick={() => setHidden(false)}
         style={{
           position: 'fixed', bottom: 24, right: 24, zIndex: 9990,
-          background: 'rgba(26,77,46,0.85)', border: 'none', borderRadius: 100,
-          padding: '7px 14px', cursor: 'pointer', color: '#fff',
-          fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6,
+          background: 'rgba(26,77,46,0.9)', border: 'none', borderRadius: 100,
+          padding: '12px 24px', cursor: 'pointer', color: '#fff',
+          fontSize: 14, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8,
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
         }}
       >
-        <MessageCircle size={14} /> Chat
+        <MessageCircle size={16} /> Chat
       </button>
     );
   }
 
   return (
-    <div style={{ position: 'fixed', bottom: 24, right: 24, zIndex: 9990, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 10 }}>
+    <div style={{ position: 'fixed', bottom: isMobile && open ? 0 : 24, right: isMobile && open ? 0 : 16, zIndex: 9990, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 10, width: open && isMobile ? '100%' : 'auto', maxWidth: '100vw' }}>
 
       {/* Notification bubble */}
       {showNotif && !open && (
         <div style={{
-          background: '#fff', borderRadius: 14, padding: '12px 16px', width: 230,
+          position: 'relative', background: '#fff', borderRadius: 14, padding: '12px 16px', width: 230,
           boxShadow: '0 8px 32px rgba(0,0,0,0.14)', border: '1px solid #E8E4DC',
           animation: 'chatSlide 0.25s ease-out',
+          pointerEvents: 'auto',
         }}>
           <button
             onClick={() => setShowNotif(false)}
@@ -127,7 +155,7 @@ export default function LiveChat() {
           </p>
           <button
             onClick={() => { setOpen(true); setShowNotif(false); }}
-            style={{ width: '100%', padding: '8px', background: G, color: '#fff', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}
+            style={{ width: '100%', padding: '12px', background: G, color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
           >
             Start Chat
           </button>
@@ -136,43 +164,38 @@ export default function LiveChat() {
 
       {/* Chat window */}
       {open && (
-        <div style={{
-          width: 340, background: '#fff', borderRadius: 18,
-          boxShadow: '0 16px 56px rgba(0,0,0,0.18)', border: '1px solid #E8E4DC',
-          overflow: 'hidden', animation: 'chatSlide 0.22s ease-out',
-          display: 'flex', flexDirection: 'column', maxHeight: '82vh',
-        }}>
+        <div style={{ ...chatWindowStyle, pointerEvents: 'auto' }}>
           {/* Header */}
-          <div style={{ background: `linear-gradient(135deg, ${G}, #2E6B47)`, padding: '16px 18px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
+          <div style={{ background: `linear-gradient(135deg, ${G}, #2E6B47)`, padding: '16px 18px', position: 'sticky', top: 0, zIndex: 3 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 11, minWidth: 0 }}>
                 <div style={{ position: 'relative' }}>
                   <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <MessageCircle size={19} color="#fff" />
                   </div>
                   <span style={{ position: 'absolute', bottom: 1, right: 1, width: 10, height: 10, borderRadius: '50%', background: '#4ADE80', border: '2px solid #1A4D2E' }} />
                 </div>
-                <div>
+                <div style={{ minWidth: 0 }}>
                   <p style={{ fontSize: 14, fontWeight: 800, color: '#fff', margin: 0 }}>NovaPack Support</p>
-                  <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', margin: 0, display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', margin: '6px 0 0', display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
                     <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ADE80', display: 'inline-block' }} />
                     Online · Typically replies in minutes
                   </p>
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: 6 }}>
-                <button onClick={() => setOpen(false)} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: '50%', width: 28, height: 28, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
-                  <ChevronDown size={14} />
+              <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+                <button onClick={() => setOpen(false)} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: '50%', width: 44, height: 44, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
+                  <ChevronDown size={20} />
                 </button>
-                <button onClick={() => { setOpen(false); setHidden(true); }} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: '50%', width: 28, height: 28, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
-                  <X size={14} />
+                <button onClick={() => { setOpen(false); setHidden(true); }} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: '50%', width: 44, height: 44, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
+                  <X size={20} />
                 </button>
               </div>
             </div>
           </div>
 
           {/* Messages */}
-          <div style={{ flex: 1, overflowY: 'auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: 12, minHeight: 220, maxHeight: 300, background: '#FAFAF9' }}>
+          <div style={{ flex: 1, overflowY: 'auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: 12, minHeight: 220, background: '#FAFAF9' }}>
             {messages.map((m, i) => (
               <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: m.from === 'user' ? 'flex-end' : 'flex-start' }}>
                 <div style={{
@@ -243,7 +266,7 @@ export default function LiveChat() {
           </div>
 
           {/* Footer links */}
-          <div style={{ padding: '10px 14px', background: '#F5F2ED', borderTop: '1px solid #E8E4DC', display: 'flex', gap: 16, justifyContent: 'center' }}>
+          <div style={{ padding: '10px 14px', background: '#F5F2ED', borderTop: '1px solid #E8E4DC', display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
             <a href="mailto:support@novapack.com" style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, fontWeight: 700, color: G, textDecoration: 'none' }}>
               <Mail size={12} /> Email Us
             </a>
@@ -256,25 +279,45 @@ export default function LiveChat() {
       )}
 
       {/* Toggle button */}
-      <button
-        onClick={() => { setOpen(!open); setShowNotif(false); }}
-        style={{
-          width: 58, height: 58, borderRadius: '50%',
-          background: open ? '#374151' : `linear-gradient(135deg, ${G}, #2E6B47)`,
-          border: 'none', cursor: 'pointer',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: `0 6px 24px rgba(26,77,46,0.45)`,
-          transition: 'transform 0.2s, background 0.2s',
-        }}
-        onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.08)'}
-        onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
-        title={open ? 'Close chat' : 'Chat with us'}
-        aria-label="Live chat"
-      >
-        {open
-          ? <X size={24} color="#fff" />
-          : <MessageCircle size={24} color="#fff" />}
-      </button>
+      {!isMobile && (
+        <button
+          onClick={() => { setOpen(!open); setShowNotif(false); }}
+          style={{
+            width: 58, height: 58, borderRadius: '50%',
+            background: open ? '#374151' : `linear-gradient(135deg, ${G}, #2E6B47)`,
+            border: 'none', cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: `0 6px 24px rgba(26,77,46,0.45)`,
+            transition: 'transform 0.2s, background 0.2s',
+            pointerEvents: 'auto',
+          }}
+          onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.08)'}
+          onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+          title={open ? 'Close chat' : 'Chat with us'}
+          aria-label="Live chat"
+        >
+          {open
+            ? <X size={24} color="#fff" />
+            : <MessageCircle size={24} color="#fff" />}
+        </button>
+      )}
+
+      {isMobile && !open && (
+        <button
+          onClick={() => { setOpen(true); setShowNotif(false); }}
+          style={{
+            width: 56, height: 56, borderRadius: '50%',
+            background: `linear-gradient(135deg, ${G}, #2E6B47)`,
+            border: 'none', cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: `0 6px 24px rgba(26,77,46,0.45)`,
+            pointerEvents: 'auto',
+          }}
+          aria-label="Live chat"
+        >
+          <MessageCircle size={26} color="#fff" />
+        </button>
+      )}
 
       <style>{`
         @keyframes chatSlide {

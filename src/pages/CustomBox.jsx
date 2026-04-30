@@ -265,7 +265,7 @@ export default function CustomBox() {
   };
 
   return (
-    <div style={{ backgroundColor: BG, minHeight: '100vh', paddingTop: 90, paddingBottom: 0 }}>
+    <div style={{ backgroundColor: BG, minHeight: 'calc(100vh - (var(--nav-h) + var(--ann-h)))', paddingTop: 32, paddingBottom: 64 }}>
 
       {/* ── Page Header ───────────────────────────────────────────────────────── */}
       <div style={{ background: `linear-gradient(135deg, ${G} 0%, #0D3520 100%)`, padding: '48px 24px 60px', position: 'relative', overflow: 'hidden' }}>

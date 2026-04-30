@@ -12,7 +12,15 @@ const request = async (method, endpoint, body) => {
   const options = { method, headers: getHeaders() };
   if (body) options.body = JSON.stringify(body);
   const res = await fetch(`${BASE_URL}${endpoint}`, options);
-  const data = await res.json();
+
+  let data = null;
+  const text = await res.text();
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch {
+    data = { message: text || res.statusText || 'Unexpected response format' };
+  }
+
   if (!res.ok) {
     const err = new Error(data.message || `HTTP ${res.status}`);
     err.status = res.status;

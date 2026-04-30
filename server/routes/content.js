@@ -1,6 +1,7 @@
 const express = require('express');
 const Product = require('../models/Product');
 const Industry = require('../models/Industry');
+const Subscriber = require('../models/Subscriber');
 
 const router = express.Router();
 
@@ -42,6 +43,24 @@ router.get('/industries/:id', async (req, res) => {
     res.json({ industry });
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+});
+
+router.post('/subscribe', async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ message: 'Email is required' });
+    
+    // Check if already subscribed
+    const existing = await Subscriber.findOne({ email });
+    if (existing) {
+      return res.status(200).json({ message: 'You are already subscribed!' });
+    }
+    
+    await Subscriber.create({ email });
+    res.status(201).json({ message: 'Successfully subscribed to the newsletter!' });
+  } catch (err) {
+    res.status(500).json({ message: 'Subscription failed. Please try again later.' });
   }
 });
 

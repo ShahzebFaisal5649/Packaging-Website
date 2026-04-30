@@ -18,7 +18,7 @@ export default function TrendingProducts() {
         <div className="mb-2">
           <span className="text-[11px] font-bold text-brand-accent uppercase tracking-widest">Best Sellers</span>
         </div>
-        <ProductSlider products={productsList} title="Trending Now" autoPlayDelay={4000} />
+        <ProductSlider products={productsList} title="Trending Now" autoPlayDelay={1000} />
       </div>
     </section>
   );

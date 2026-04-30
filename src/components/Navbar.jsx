@@ -40,25 +40,15 @@ const industryCategories = {
   ]
 };
 
-// ── Hook: track whether viewport is desktop (≥768px) ──
-// onSwitchToDesktop is called (inside the browser event) when crossing into desktop
-function useIsDesktop(onSwitchToDesktop) {
-  const [isDesktop, setIsDesktop] = useState(() =>
-    typeof window !== 'undefined' ? window.innerWidth >= 768 : true
-  );
-  const callbackRef = useRef(onSwitchToDesktop);
-  useEffect(() => { callbackRef.current = onSwitchToDesktop; });
-
+// ── Hook: track window width ──
+function useWindowWidth() {
+  const [width, setWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
   useEffect(() => {
-    const mq = window.matchMedia('(min-width: 768px)');
-    const handler = (e) => {
-      setIsDesktop(e.matches);
-      if (e.matches) callbackRef.current?.();
-    };
-    mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
+    const handleResize = () => setWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
-  return isDesktop;
+  return width;
 }
 
 const MegaMenu = ({ categories, title, isOpen, setActiveMenu }) => (
@@ -143,7 +133,8 @@ export default function Navbar() {
   const [mobileExpanded, setMobileExpanded] = useState({});
   const navRef = useRef(null);
 
-  const isDesktop = useIsDesktop(() => setMobileMenuOpen(false));
+  const width = useWindowWidth();
+  const isDesktop = width >= 1024;
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -165,12 +156,9 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setMobileMenuOpen(false);
-      setActiveMenu(null);
-      setMobileExpanded({});
-    }, 0);
-    return () => clearTimeout(timer);
+    setMobileMenuOpen(false);
+    setActiveMenu(null);
+    setMobileExpanded({});
   }, [location.pathname]);
 
   useEffect(() => {
@@ -221,24 +209,30 @@ export default function Navbar() {
       <header
         ref={navRef}
         style={{
-          position: 'fixed',
-          top: 0,
+          position: 'sticky',
+          top: isScrolled ? (width < 768 ? 6 : 12) : 0,
           width: '100%',
-          zIndex: 9999,
-          background: navBg,
-          boxShadow: isScrolled ? '0 2px 20px rgba(0,0,0,0.18)' : 'none',
-          transition: 'background 0.3s, box-shadow 0.3s',
-          borderBottom: isScrolled ? 'none' : '1px solid rgba(255,255,255,0.1)',
+          zIndex: 10000,
+          transition: 'top 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+          pointerEvents: 'none',
         }}
       >
         <div style={{
-          maxWidth: 1400,
+          maxWidth: isScrolled ? (width < 768 ? 'calc(100% - 16px)' : 'calc(100% - 48px)') : '100%',
+          width: isScrolled ? 1360 : '100%',
           margin: '0 auto',
-          padding: '0 24px',
+          padding: width < 768 ? '0 16px' : '0 24px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          height: 68,
+          height: isScrolled ? 58 : 68,
+          background: isScrolled ? 'rgba(26, 77, 46, 0.82)' : G,
+          backdropFilter: isScrolled ? 'blur(16px)' : 'none',
+          borderRadius: isScrolled ? (width < 768 ? 16 : 24) : 0,
+          boxShadow: isScrolled ? '0 12px 40px rgba(0,0,0,0.3)' : 'none',
+          transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+          border: isScrolled ? '1px solid rgba(255,255,255,0.1)' : 'none',
+          pointerEvents: 'auto',
         }}>
 
           {/* Logo */}
@@ -252,9 +246,9 @@ export default function Navbar() {
             </span>
           </Link>
 
-          {/* ── Desktop Nav — only on md+ ── */}
+          {/* ── Desktop Nav — only on desktop ── */}
           {isDesktop && (
-            <nav style={{ display: 'flex', alignItems: 'center', gap: 32, flex: 1, justifyContent: 'center' }}>
+            <nav style={{ display: 'flex', alignItems: 'center', gap: 24, flex: 1, justifyContent: 'center' }}>
               <div style={{ position: 'relative', padding: '4px 0' }}
                 onMouseEnter={() => setActiveMenu('Products')}
                 onMouseLeave={() => setActiveMenu(null)}>
@@ -278,6 +272,7 @@ export default function Navbar() {
               </div>
 
               <Link to="/about" style={linkStyle} onMouseEnter={e => e.target.style.color = ACCENT} onMouseLeave={e => e.target.style.color = '#fff'}>About</Link>
+              <Link to="/how-it-works" style={linkStyle} onMouseEnter={e => e.target.style.color = ACCENT} onMouseLeave={e => e.target.style.color = '#fff'}>How It Works</Link>
               <Link to="/success-stories" style={linkStyle} onMouseEnter={e => e.target.style.color = ACCENT} onMouseLeave={e => e.target.style.color = '#fff'}>Inspiration</Link>
               <Link to="/blog" style={linkStyle} onMouseEnter={e => e.target.style.color = ACCENT} onMouseLeave={e => e.target.style.color = '#fff'}>Blog</Link>
               <Link to="/contact-us" style={linkStyle} onMouseEnter={e => e.target.style.color = ACCENT} onMouseLeave={e => e.target.style.color = '#fff'}>Contact</Link>
@@ -457,13 +452,14 @@ export default function Navbar() {
             width: '100%',
             maxWidth: 340,
             background: G,
-            zIndex: 9998,
+            zIndex: 10005,
             transform: mobileMenuOpen ? 'translateX(0)' : 'translateX(100%)',
-            transition: 'transform 0.3s ease',
+            transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
             overflowY: 'auto',
-            paddingBottom: 32,
+            paddingBottom: 40,
             display: 'flex',
             flexDirection: 'column',
+            boxShadow: mobileMenuOpen ? '-10px 0 30px rgba(0,0,0,0.3)' : 'none',
           }}
         >
           {/* Spacer for fixed header */}
@@ -506,6 +502,7 @@ export default function Navbar() {
             {/* Simple links */}
             {[
               { to: '/about',           label: 'About' },
+              { to: '/how-it-works',    label: 'How It Works' },
               { to: '/success-stories', label: 'Inspiration' },
               { to: '/blog',            label: 'Blog' },
               { to: '/contact-us',      label: 'Contact' },

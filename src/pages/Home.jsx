@@ -259,7 +259,7 @@ export default function Home() {
               />
             </div>
             <div style={{ padding: '52px 48px', display: 'flex', flexDirection: 'column', justifyContent: 'center', background: BG }}>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 14px', background: MATERIALS[activeMaterial].badgeColor, color: '#fff', borderRadius: 100, fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 20, width: 'fit-content' }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', background: `${MATERIALS[activeMaterial].badgeColor}22`, color: MATERIALS[activeMaterial].badgeColor, borderRadius: 8, fontSize: 11, fontWeight: 700, textTransform: 'none', letterSpacing: '0.04em', marginBottom: 20, width: 'fit-content' }}>
                 {MATERIALS[activeMaterial].badge}
               </span>
               <h3 style={{ fontSize: 32, fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#1A1A1A', marginBottom: 16 }}>{MATERIALS[activeMaterial].name}</h3>
@@ -268,10 +268,13 @@ export default function Home() {
                 <CheckCircle size={18} color={G} />
                 <span style={{ fontSize: 14, fontWeight: 600, color: G }}>{MATERIALS[activeMaterial].highlight}</span>
               </div>
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 36 }}>
-                {MATERIALS[activeMaterial].usedFor.map(u => (
-                  <span key={u} style={{ fontSize: 11, fontWeight: 700, padding: '5px 12px', borderRadius: 6, background: `${G}14`, color: G, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{u}</span>
-                ))}
+              <div style={{ marginBottom: 36 }}>
+                <p style={{ fontSize: 11, fontWeight: 700, color: '#6B6B6B', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 12 }}>Industries covered</p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+                  {MATERIALS[activeMaterial].usedFor.map(u => (
+                    <span key={u} style={{ fontSize: 10, fontWeight: 700, padding: '4px 10px', borderRadius: 6, background: '#fff', color: G, border: `1px solid ${G}15`, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{u}</span>
+                  ))}
+                </div>
               </div>
               <Link to="/custom-box" state={{ material: MATERIALS[activeMaterial].name }}
                 style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '14px 28px', background: G, color: '#fff', borderRadius: 10, fontWeight: 700, fontSize: 14, textDecoration: 'none', width: 'fit-content', transition: 'background 0.15s' }}
@@ -383,7 +386,7 @@ export default function Home() {
                 </div>
                 <div style={{ padding: '22px 24px 28px' }}>
                   <h3 style={{ fontSize: 16, fontWeight: 800, color: '#1A1A1A', marginBottom: 10, fontFamily: 'Outfit,sans-serif' }}>{s.title}</h3>
-                  <p style={{ fontSize: 13, color: '#777', lineHeight: 1.65 }}>{s.desc}</p>
+                  <p style={{ fontSize: 13, color: '#777', lineHeight: 1.65, textAlign: 'left' }}>{s.desc}</p>
                 </div>
               </div>
             ))}

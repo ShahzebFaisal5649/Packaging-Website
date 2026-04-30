@@ -35,7 +35,7 @@ export default function Hero() {
   }, []);
 
   return (
-    <div style={{ position: 'relative', overflow: 'hidden', paddingTop: 72 }}>
+    <div style={{ position: 'relative', overflow: 'hidden', paddingTop: 0 }}>
 
       {/* ── Background ────────────────────────────────────────────────── */}
       <div style={{
@@ -57,7 +57,7 @@ export default function Hero() {
       <div className="hero-blob hero-blob-3" />
 
       {/* ── Main Content ──────────────────────────────────────────────── */}
-      <div style={{ position: 'relative', zIndex: 10, maxWidth: 1400, margin: '0 auto', padding: '72px 24px 0' }}>
+      <div style={{ position: 'relative', zIndex: 10, maxWidth: 1400, margin: '0 auto', padding: '32px 24px 0' }}>
         <div className="hero-grid">
 
           {/* LEFT */}

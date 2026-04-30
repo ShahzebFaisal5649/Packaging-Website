@@ -107,10 +107,14 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const googleLogin = async () => {
+  const googleLogin = async (profile) => {
     const mockUser = {
-      id: `google_${Date.now()}`, name: 'Google User', email: 'user@gmail.com',
-      role: 'user', createdAt: new Date().toISOString(),
+      id: profile?.id || `google_${Date.now()}`,
+      name: profile?.name || 'Google User',
+      email: profile?.email || 'user@gmail.com',
+      avatar: profile?.avatar || null,
+      role: 'user',
+      createdAt: new Date().toISOString(),
       orders: [], addresses: [], savedDesigns: [], loyaltyPoints: 100, favorites: [],
     };
     setUser(mockUser);

@@ -24,7 +24,7 @@ app.use(cors({
   },
   credentials: true,
 }));
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 // ── MongoDB connection (cached for serverless — reuse across warm invocations) ─
@@ -87,6 +87,9 @@ app.use((req, res) => res.status(404).json({ message: 'Route not found' }));
 
 // Error handler
 app.use((err, req, res, _next) => {
+  if (err.type === 'entity.too.large') {
+    return res.status(413).json({ message: 'Payload too large. Please use a smaller image (max 50MB).' });
+  }
   console.error(err.stack);
   res.status(500).json({ message: 'Internal server error' });
 });

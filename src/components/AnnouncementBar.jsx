@@ -10,13 +10,15 @@ const messages = [
   "Free Ebook: Download Our Custom Packaging Buying Guide"
 ];
 
+const G = '#1A4D2E';
+
 export default function AnnouncementBar() {
   return (
-    <div className="bg-brand-navy text-white text-[13px] py-2 relative group overflow-hidden">
+    <div style={{ backgroundColor: '#071810', color: '#fff' }} className="text-[11px] md:text-[13px] py-2 relative group overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 relative">
         <Swiper
           modules={[Autoplay, Navigation]}
-          autoplay={{ delay: 3000, disableOnInteraction: false }}
+          autoplay={{ delay: 3500, disableOnInteraction: false }}
           loop={true}
           navigation={{
             prevEl: '.announce-prev',

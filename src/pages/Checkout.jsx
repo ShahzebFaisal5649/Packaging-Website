@@ -272,7 +272,7 @@ export default function Checkout() {
   }, [cartItems.length, orderTotal, navigate]);
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F5F2ED', paddingTop: 80 }}>
+    <div style={{ minHeight: 'calc(100vh - (var(--nav-h) + var(--ann-h)))', background: '#F5F2ED', paddingTop: 32, paddingBottom: 64 }}>
 
       {/* Test mode banner */}
       <div style={{ background: '#FEF3C7', borderBottom: '1px solid #FDE68A', padding: '10px 24px', textAlign: 'center' }}>
@@ -284,25 +284,27 @@ export default function Checkout() {
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '36px 24px 60px' }}>
 
         {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 32, flexWrap: 'wrap', justifyContent: 'space-between' }}>
-          <Link to="/products" style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: '#666', textDecoration: 'none' }}>
-            <ArrowLeft size={16} /> Back
-          </Link>
-          <div style={{ flex: '1 1 100%', textAlign: 'center' }}>
-            <h1 style={{ fontSize: 26, fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#1A1A1A', margin: 0 }}>
+        <div className="checkout-header" style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 32, flexWrap: 'wrap', justifyContent: 'space-between' }}>
+          <div className="checkout-header-top" style={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+            <Link to="/products" style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: '#666', textDecoration: 'none' }}>
+              <ArrowLeft size={16} /> Back
+            </Link>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#059669', fontWeight: 700 }}>
+              <Shield size={14} /> SSL Encrypted
+            </div>
+          </div>
+          <div style={{ width: '100%', textAlign: 'center' }}>
+            <h1 style={{ fontSize: 'clamp(20px, 4vw, 26px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#1A1A1A', margin: 0 }}>
               <Lock size={20} style={{ verticalAlign: 'middle', marginRight: 8, color: G }} />
               Secure Checkout
             </h1>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#059669', fontWeight: 700, minWidth: 170, justifyContent: 'flex-end' }}>
-            <Shield size={14} /> SSL Encrypted
           </div>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: 28, alignItems: 'start' }} className="checkout-grid">
 
           {/* LEFT — payment form */}
-          <div style={{ background: '#fff', borderRadius: 16, padding: 28, boxShadow: '0 2px 16px rgba(0,0,0,0.06)' }}>
+          <div className="checkout-payment-card" style={{ background: '#fff', borderRadius: 16, padding: 'clamp(16px, 4vw, 28px)', boxShadow: '0 2px 16px rgba(0,0,0,0.06)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
               <CreditCard size={20} color={G} />
               <h2 style={{ fontSize: 17, fontWeight: 800, color: '#1A1A1A', margin: 0 }}>Payment Details</h2>
@@ -390,11 +392,13 @@ export default function Checkout() {
         @keyframes spin { to { transform: rotate(360deg); } }
         @media (max-width: 960px) {
           .checkout-grid { grid-template-columns: 1fr !important; }
-          .checkout-summary { position: static !important; top: auto !important; width: 100% !important; }
+          .checkout-summary { position: static !important; top: auto !important; width: 100% !important; order: -1; }
           .checkout-summary-card { width: 100% !important; }
+          .checkout-payment-card { padding: 20px !important; }
         }
         @media (max-width: 680px) {
           .checkout-grid { gap: 20px !important; }
+          .checkout-header-top { margin-bottom: 20px !important; }
         }
       `}</style>
     </div>

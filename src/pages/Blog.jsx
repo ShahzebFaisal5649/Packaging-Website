@@ -77,6 +77,28 @@ const CATEGORY_COLORS = {
 
 export default function Blog() {
   const [activeCategory, setActiveCategory] = useState('All');
+  const [email, setEmail] = useState('');
+  const [status, setStatus] = useState('idle'); // idle, loading, success, error
+
+  const handleSubscribe = async (e) => {
+    e.preventDefault();
+    if (!email || status === 'loading') return;
+    setStatus('loading');
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/content/subscribe`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Subscription failed');
+      setStatus('success');
+      setEmail('');
+    } catch (err) {
+      console.error('Newsletter error:', err);
+      setStatus('error');
+    }
+  };
 
   const filtered = activeCategory === 'All'
     ? POSTS
@@ -89,15 +111,17 @@ export default function Blog() {
     <div style={{ backgroundColor: BG, minHeight: '100vh' }}>
 
       {/* Hero */}
-      <section style={{ backgroundColor: G, paddingTop: 120, paddingBottom: 64, paddingLeft: 24, paddingRight: 24 }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto', textAlign: 'center' }}>
+      <section style={{ position: 'relative', minHeight: 420, backgroundColor: G, padding: '96px 24px 64px', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'url(https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1600&q=80)', backgroundSize: 'cover', backgroundPosition: 'center', filter: 'brightness(0.42)' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(20,77,46,0.82), rgba(20,77,46,0.92))' }} />
+        <div style={{ position: 'relative', maxWidth: 980, margin: '0 auto', textAlign: 'left', zIndex: 1 }}>
           <p style={{ fontSize: 11, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 14 }}>
             NovaPack Journal
           </p>
-          <h1 style={{ fontSize: 'clamp(28px,4.5vw,52px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#fff', marginBottom: 14 }}>
+          <h1 style={{ fontSize: 'clamp(34px,5vw,58px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#fff', marginBottom: 18, lineHeight: 1.05 }}>
             Packaging Insights & Trends
           </h1>
-          <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.65)', maxWidth: 520, margin: '0 auto' }}>
+          <p style={{ fontSize: 17, color: 'rgba(255,255,255,0.82)', maxWidth: 640, lineHeight: 1.8, textAlign: 'left' }}>
             Expert tips, industry trends, and design inspiration to help your brand stand out.
           </p>
         </div>
@@ -216,17 +240,40 @@ export default function Blog() {
             <h3 style={{ fontSize: 22, fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#fff', marginBottom: 6 }}>Get Packaging Tips in Your Inbox</h3>
             <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.65)' }}>New articles every week. No spam, ever.</p>
           </div>
-          <form className="blog-newsletter-form" style={{ display: 'flex', gap: 0, minWidth: 320, flex: 1, maxWidth: 440 }} onSubmit={e => e.preventDefault()}>
+          <form className="blog-newsletter-form" style={{ display: 'flex', gap: 0, minWidth: 320, flex: 1, maxWidth: 440 }} onSubmit={handleSubscribe}>
             <input
               type="email"
               placeholder="your@email.com"
               required
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              disabled={status === 'loading' || status === 'success'}
               style={{ flex: 1, padding: '12px 16px', border: 'none', borderRadius: '8px 0 0 8px', fontSize: 14, outline: 'none', backgroundColor: 'rgba(255,255,255,0.12)', color: '#fff' }}
             />
-            <button type="submit" style={{ padding: '12px 20px', backgroundColor: ACCENT, color: '#fff', border: 'none', borderRadius: '0 8px 8px 0', fontWeight: 700, fontSize: 13, cursor: 'pointer', justifyContent: 'center', whiteSpace: 'nowrap' }}>
-              Subscribe
+            <button
+              type="submit"
+              disabled={status === 'loading' || status === 'success'}
+              style={{
+                padding: '12px 20px',
+                backgroundColor: status === 'success' ? '#059669' : ACCENT,
+                color: '#fff', border: 'none', borderRadius: '0 8px 8px 0',
+                fontWeight: 700, fontSize: 13, cursor: (status === 'loading' || status === 'success') ? 'not-allowed' : 'pointer',
+                justifyContent: 'center', whiteSpace: 'nowrap', minWidth: 100
+              }}
+            >
+              {status === 'loading' ? 'Subscribing...' : status === 'success' ? '✓ Subscribed' : 'Subscribe'}
             </button>
           </form>
+          {status === 'error' && (
+            <p style={{ width: '100%', fontSize: 12, color: '#FECACA', marginTop: 8, textAlign: 'right' }}>
+              Something went wrong. Please try again.
+            </p>
+          )}
+          {status === 'success' && (
+            <p style={{ width: '100%', fontSize: 12, color: '#D1FAE5', marginTop: 8, textAlign: 'right' }}>
+              Welcome! Please check your inbox to confirm.
+            </p>
+          )}
         </div>
 
       </div>

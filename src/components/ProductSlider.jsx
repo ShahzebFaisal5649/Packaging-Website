@@ -16,7 +16,7 @@ const BOX_TYPE_MAP = {
   'Luxury Mailer Boxes': { boxType: 'Mailer Box', material: 'Rigid Chipboard', finish: 'Matte Lam', suggestedDimensions: { l: 12, w: 9, h: 4 } },
 };
 
-export default function ProductSlider({ products = [], title = 'Featured Products', autoPlayDelay = 3000 }) {
+export default function ProductSlider({ products = [], title = 'Featured Products', autoPlayDelay = 2000 }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -24,6 +24,7 @@ export default function ProductSlider({ products = [], title = 'Featured Product
   const [scrollLeft, setScrollLeft] = useState(0);
   const sliderRef = useRef(null);
   const autoPlayRef = useRef(null);
+  const resumeTimerRef = useRef(null);
 
   const { openQuickView } = useModal();
   const { isFavourite, toggleFavourite } = useFavourites();
@@ -32,7 +33,7 @@ export default function ProductSlider({ products = [], title = 'Featured Product
 
   const getVisibleItems = () => {
     if (typeof window === 'undefined') return 4;
-    if (window.innerWidth < 768) return 1.2;
+    if (window.innerWidth < 768) return 1;
     if (window.innerWidth < 1200) return 2;
     return 4;
   };
@@ -40,19 +41,50 @@ export default function ProductSlider({ products = [], title = 'Featured Product
   const visibleCount = getVisibleItems();
   const maxIndex = Math.max(0, products.length - Math.floor(visibleCount));
 
+  const clearTimers = useCallback(() => {
+    if (autoPlayRef.current) {
+      clearInterval(autoPlayRef.current);
+      autoPlayRef.current = null;
+    }
+    if (resumeTimerRef.current) {
+      clearTimeout(resumeTimerRef.current);
+      resumeTimerRef.current = null;
+    }
+  }, []);
+
   const startAutoPlay = useCallback(() => {
-    if (autoPlayRef.current) clearInterval(autoPlayRef.current);
+    clearTimers();
     autoPlayRef.current = setInterval(() => {
       setCurrentIndex(prev => (prev >= maxIndex ? 0 : prev + 1));
     }, autoPlayDelay);
-  }, [maxIndex, autoPlayDelay]);
+  }, [clearTimers, maxIndex, autoPlayDelay]);
 
-  const stopAutoPlay = () => { if (autoPlayRef.current) clearInterval(autoPlayRef.current); };
+  const stopAutoPlay = useCallback(() => {
+    if (autoPlayRef.current) {
+      clearInterval(autoPlayRef.current);
+      autoPlayRef.current = null;
+    }
+    if (resumeTimerRef.current) {
+      clearTimeout(resumeTimerRef.current);
+      resumeTimerRef.current = null;
+    }
+  }, []);
+
+  const scheduleAutoPlay = useCallback((delay = autoPlayDelay) => {
+    if (resumeTimerRef.current) {
+      clearTimeout(resumeTimerRef.current);
+    }
+    resumeTimerRef.current = setTimeout(() => {
+      if (!isHovered && !isDragging) {
+        startAutoPlay();
+      }
+    }, delay);
+  }, [autoPlayDelay, isHovered, isDragging, startAutoPlay]);
 
   useEffect(() => {
-    if (!isHovered && !isDragging) { startAutoPlay(); } else { stopAutoPlay(); }
-    return () => stopAutoPlay();
-  }, [isHovered, isDragging, startAutoPlay]);
+    startAutoPlay();
+    return () => clearTimers();
+  }, [startAutoPlay, clearTimers]);
 
   const handleDragStart = (e) => {
     setIsDragging(true);
@@ -71,9 +103,31 @@ export default function ProductSlider({ products = [], title = 'Featured Product
     setCurrentIndex(Math.round(newIndex));
   };
 
-  const handleDragEnd = () => setIsDragging(false);
-  const handleNext = () => setCurrentIndex(prev => Math.min(prev + 1, maxIndex));
-  const handlePrev = () => setCurrentIndex(prev => Math.max(prev - 1, 0));
+  const handleDragEnd = (e) => {
+    if (!isDragging) return;
+    setIsDragging(false);
+    
+    // Snapping logic
+    const x = e.type.includes('mouse') ? e.pageX : (e.changedTouches?.[0]?.pageX || startX);
+    const walk = (x - startX) / 100;
+    if (Math.abs(walk) > 0.2) {
+      if (walk > 0) handlePrev();
+      else handleNext();
+    } else {
+      // stay on current index
+      startAutoPlay();
+    }
+  };
+
+  const handleNext = () => {
+    setCurrentIndex(prev => (prev >= maxIndex ? 0 : prev + 1));
+    startAutoPlay();
+  };
+  
+  const handlePrev = () => {
+    setCurrentIndex(prev => (prev <= 0 ? maxIndex : prev - 1));
+    startAutoPlay();
+  };
 
   const handleFavourite = (e, product) => {
     e.preventDefault();
@@ -86,6 +140,7 @@ export default function ProductSlider({ products = [], title = 'Featured Product
     e.preventDefault();
     e.stopPropagation();
     openQuickView(product);
+    stopAutoPlay();
   };
 
   const handleConfigure = (e, product) => {
@@ -98,17 +153,17 @@ export default function ProductSlider({ products = [], title = 'Featured Product
   return (
     <div
       className="w-full relative group py-8"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={() => stopAutoPlay()}
+      onMouseLeave={() => startAutoPlay()}
     >
       <div className="flex justify-between items-end mb-8 px-6 lg:px-0">
         <h2 className="text-3xl font-display font-bold text-brand-textPrimary">{title}</h2>
-        <div className="hidden md:flex gap-2">
-          <button onClick={handlePrev} disabled={currentIndex === 0} className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-brand-primary hover:text-white transition-colors disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-gray-600">
-            <ChevronLeft size={20} />
+        <div className="flex gap-2">
+          <button onClick={handlePrev} className="w-11 h-11 rounded-full border border-gray-200 flex items-center justify-center text-gray-600 bg-white/90 shadow-sm hover:bg-brand-primary hover:text-white transition-colors" style={{ minWidth: 44, minHeight: 44 }}>
+            <ChevronLeft size={18} />
           </button>
-          <button onClick={handleNext} disabled={currentIndex === maxIndex} className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-brand-primary hover:text-white transition-colors disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-gray-600">
-            <ChevronRight size={20} />
+          <button onClick={handleNext} className="w-11 h-11 rounded-full border border-gray-200 flex items-center justify-center text-gray-600 bg-white/90 shadow-sm hover:bg-brand-primary hover:text-white transition-colors" style={{ minWidth: 44, minHeight: 44 }}>
+            <ChevronRight size={18} />
           </button>
         </div>
       </div>
@@ -116,7 +171,7 @@ export default function ProductSlider({ products = [], title = 'Featured Product
       <div className="overflow-hidden px-6 lg:px-0 relative" ref={sliderRef}>
         <div
           className={`flex gap-6 ${isDragging ? 'cursor-grabbing' : 'cursor-grab'} transition-transform ease-out`}
-          style={{ transform: `translateX(-${currentIndex * (100 / visibleCount)}%)`, transitionDuration: isDragging ? '0ms' : '350ms' }}
+          style={{ transform: `translateX(-${currentIndex * (100 / visibleCount)}%)`, transitionDuration: isDragging ? '0ms' : '500ms' }}
           onMouseDown={handleDragStart}
           onMouseMove={handleDragMove}
           onMouseUp={handleDragEnd}
@@ -181,9 +236,9 @@ export default function ProductSlider({ products = [], title = 'Featured Product
 
       {/* Dots */}
       <div className="flex justify-center mt-8 gap-2">
-        {Array.from({ length: maxIndex + 1 }).map((_, idx) => (
-          <button key={idx} onClick={() => setCurrentIndex(idx)} className={`h-2 rounded-full transition-all duration-300 ${idx === currentIndex ? 'bg-brand-primary w-6' : 'bg-gray-300 hover:bg-gray-400 w-2'}`} />
-        ))}
+    {Array.from({ length: maxIndex + 1 }).map((_, idx) => (
+      <button key={idx} onClick={() => { setCurrentIndex(idx); startAutoPlay(); }} className={`h-2 rounded-full transition-all duration-300 ${idx === currentIndex ? 'bg-brand-primary w-6' : 'bg-gray-300 hover:bg-gray-400 w-2'}`} />
+    ))}
       </div>
     </div>
   );

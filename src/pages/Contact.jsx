@@ -163,12 +163,13 @@ export default function Contact() {
     <div style={{ backgroundColor: BG, minHeight: '100vh' }}>
 
       {/* Section 1 — Hero */}
-      <section style={{ height: 360, backgroundColor: G, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'repeating-linear-gradient(45deg,transparent,transparent 20px,rgba(255,255,255,0.02) 20px,rgba(255,255,255,0.02) 21px)' }} />
-        <div style={{ position: 'relative', zIndex: 10, textAlign: 'center', padding: '0 24px' }}>
-          <p style={{ fontSize: 11, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 14 }}>We'd Love to Hear from You</p>
-          <h1 style={{ fontSize: 'clamp(32px,5vw,52px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#fff', marginBottom: 16 }}>Get In Touch</h1>
-          <p style={{ fontSize: 18, color: ACCENT, fontWeight: 500 }}>Our team responds within 2 hours.</p>
+      <section style={{ minHeight: 320, backgroundColor: G, position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'url(https://images.unsplash.com/photo-1589939705384-5185137a7f0f?q=80&w=1600&auto=format&fit=crop)', backgroundSize: 'cover', backgroundPosition: 'center', filter: 'brightness(0.4)' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(20,77,46,0.85), rgba(20,77,46,0.95))' }} />
+        <div style={{ position: 'relative', zIndex: 10, textAlign: 'center', padding: '0 24px', width: '100%', maxWidth: 880 }}>
+          <p style={{ fontSize: 11, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 14, textAlign: 'center' }}>We'd Love to Hear from You</p>
+          <h1 style={{ fontSize: 'clamp(32px,5vw,52px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#fff', marginBottom: 16, lineHeight: 1.03, textAlign: 'center' }}>Get In Touch</h1>
+          <p style={{ fontSize: 18, color: ACCENT, fontWeight: 500, maxWidth: 640, margin: '0 auto', textAlign: 'center' }}>Our team responds within 2 hours.</p>
         </div>
       </section>
 
