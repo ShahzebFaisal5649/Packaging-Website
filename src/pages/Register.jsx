@@ -1,25 +1,13 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowRight, CheckCircle } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, User, CheckCircle, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import GoogleLoginModal from '../components/GoogleLoginModal';
+import { GoogleLogin } from '@react-oauth/google';
+import { jwtDecode } from 'jwt-decode';
 
 const G = '#1A4D2E';
 const ACCENT = '#C8860A';
-
-const strengthColors = ['#EF4444', '#F59E0B', '#EAB308', '#22C55E'];
-const strengthLabels = ['Weak', 'Fair', 'Good', 'Strong'];
-
-function getStrength(pwd) {
-  if (!pwd) return 0;
-  let s = 0;
-  if (pwd.length > 7) s++;
-  if (/[A-Z]/.test(pwd)) s++;
-  if (/[0-9]/.test(pwd)) s++;
-  if (/[^A-Za-z0-9]/.test(pwd)) s++;
-  return s;
-}
 
 const FieldInput = ({ icon, type, name, value, onChange, placeholder, onToggle, show }) => (
   <div style={{ position: 'relative' }}>
@@ -41,7 +29,6 @@ export default function Register() {
   const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', confirmPassword: '', terms: false });
   const [showPwd, setShowPwd] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showGoogleModal, setShowGoogleModal] = useState(false);
 
   const { register, googleLogin } = useAuth();
   const { showToast } = useToast();
@@ -52,39 +39,43 @@ export default function Register() {
     setForm(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
   };
 
-  const strength = getStrength(form.password);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (form.name.trim().length < 2) return showToast('Name must be at least 2 characters', 'error');
     if (!/^\S+@\S+\.\S+$/.test(form.email)) return showToast('Enter a valid email address', 'error');
-    if (form.phone.replace(/\D/g, '').length < 10) return showToast('Enter a valid 10-digit phone number', 'error');
-    if (strength < 4) return showToast('Use 8+ chars, 1 uppercase, 1 number, 1 special character', 'error');
+    if (form.password.length < 6) return showToast('Password must be at least 6 characters', 'error');
     if (form.password !== form.confirmPassword) return showToast('Passwords do not match', 'error');
-    if (!form.terms) return showToast('You must agree to the Terms & Privacy Policy', 'error');
+    if (!form.terms) return showToast('Please agree to the Terms & Privacy', 'error');
 
     setIsSubmitting(true);
     try {
-      await register({ name: form.name, email: form.email, phone: form.phone, password: form.password });
-      showToast('Account created! Welcome aboard.', 'success');
-      navigate('/profile', { replace: true });
-    } catch (err) {
-      showToast(err.message || 'Registration failed', 'error');
+      await register(form);
+      showToast('Account created! Welcome to NovaPack.', 'success');
+      navigate('/profile');
+    } catch (error) {
+      showToast(error.message || 'Registration failed', 'error');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleGoogleSelect = async (account) => {
-    setShowGoogleModal(false);
+  const handleGoogleSuccess = async (credentialResponse) => {
     setIsSubmitting(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1200));
-      await googleLogin(account);
-      showToast(`Account created for ${account.name}!`, 'success');
+      const decoded = jwtDecode(credentialResponse.credential);
+      const googleProfile = {
+        id: decoded.sub,
+        name: decoded.name,
+        email: decoded.email,
+        avatar: decoded.picture
+      };
+      
+      await googleLogin(googleProfile);
+      showToast(`Welcome, ${decoded.given_name || 'User'}! Account created.`, 'success');
       navigate('/profile');
-    } catch {
-      showToast('Google registration failed', 'error');
+    } catch (error) {
+      console.error('Google register error:', error);
+      showToast('Google authentication failed.', 'error');
     } finally {
       setIsSubmitting(false);
     }
@@ -179,6 +170,23 @@ export default function Register() {
               {isSubmitting ? 'Creating Account...' : <><span>Create Account</span><ArrowRight size={16} /></>}
             </button>
           </form>
+
+          <div style={{ margin: '24px 0', display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ flex: 1, height: 1, background: '#E0DBD3' }} />
+            <span style={{ fontSize: 12, color: '#aaa', fontWeight: 500 }}>or sign up with</span>
+            <div style={{ flex: 1, height: 1, background: '#E0DBD3' }} />
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => showToast('Google registration failed', 'error')}
+              useOneTap
+              theme="outline"
+              size="large"
+              width="100%"
+            />
+          </div>
 
           <p style={{ marginTop: 24, textAlign: 'center', fontSize: 13, color: '#888' }}>
             Already have an account?{' '}

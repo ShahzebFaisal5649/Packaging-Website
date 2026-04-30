@@ -1,5 +1,5 @@
 import { useCart } from '../context/CartContext';
-import { X, Minus, Plus, ShoppingBag } from 'lucide-react';
+import { X, Minus, Plus, ShoppingBag, ChevronRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 
 export default function CartDrawer() {
@@ -98,9 +98,14 @@ export default function CartDrawer() {
               </Link>
               <button
                 onClick={() => { toggleDrawer(false); navigate('/products'); }}
-                className="w-full py-3.5 bg-transparent border border-gray-300 text-brand-textPrimary font-bold text-[14px] rounded-button hover:bg-gray-50 transition-colors"
+                className="w-full py-3.5 px-6 bg-white border-2 border-[#1A4D2E] text-[#1A4D2E] font-bold text-[14px] rounded-button hover:shadow-[0_8px_25px_rgba(26,77,46,0.15)] transition-all duration-300 flex items-center justify-between group overflow-hidden relative"
               >
-                Continue Shopping
+                <div className="absolute inset-0 bg-[#1A4D2E] translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                <div className="flex items-center gap-2 relative z-10 group-hover:text-white transition-colors duration-300">
+                  <ShoppingBag size={18} />
+                  <span>Explore More Products</span>
+                </div>
+                <ChevronRight size={18} className="relative z-10 group-hover:text-white group-hover:translate-x-1 transition-all duration-300" />
               </button>
             </div>
           </div>

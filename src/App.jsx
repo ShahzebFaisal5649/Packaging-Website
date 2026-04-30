@@ -1,5 +1,7 @@
 import { Suspense, lazy, useEffect, Component } from 'react';
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
+import { GoogleOAuthProvider } from '@react-oauth/google';
+
 import AnnouncementBar from './components/AnnouncementBar';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -106,67 +108,61 @@ const AdminGuard = ({ children }) => {
 };
 
 export default function App() {
+  // Replace this with your real Client ID from Google Cloud Console
+  const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com";
+
   return (
     <ErrorBoundary>
-      <BrowserRouter>
-        <AuthProvider>
-          <ToastProvider>
-            <CartProvider>
-              <FavouritesProvider>
-                <ModalProvider>
-                  <ScrollToTop />
-                  <Layout>
-                    <Suspense fallback={<div className="flex items-center justify-center min-h-[60vh] text-brand-primary font-black animate-pulse text-2xl">NovaPack Loading...</div>}>
-                      <Routes>
-                        {/* Public Routes */}
-                        <Route path="/" element={<Home />} />
-                        <Route path="/products" element={<Products />} />
-                        <Route path="/products/:slug" element={<Products />} />
-                        <Route path="/industries" element={<Industries />} />
-                        <Route path="/industries/:slug" element={<Industries />} />
-                        <Route path="/about" element={<About />} />
-                        <Route path="/get-free-quote" element={<CustomBox />} />
-                        <Route path="/custom-box" element={<CustomBox />} />
-                        <Route path="/how-it-works" element={<HowItWorks />} />
-                        <Route path="/why-refine-packaging" element={<About />} />
-                        <Route path="/success-stories" element={<SuccessStories />} />
-                        <Route path="/customer-stories" element={<SuccessStories />} />
-                        <Route path="/testimonials" element={<SuccessStories />} />
-                        <Route path="/faqs" element={<FAQ />} />
-                        <Route path="/blog" element={<Blog />} />
-                        <Route path="/contact-us" element={<Contact />} />
-                        <Route path="/favourites" element={<Favourites />} />
-
-                        {/* Auth Routes */}
-                        <Route path="/login" element={<Login />} />
-                        <Route path="/register" element={<Register />} />
-
-                        {/* Checkout */}
-                        <Route path="/checkout" element={<Checkout />} />
-
-                        {/* Protected Routes */}
-                        <Route path="/profile" element={<AuthGuard><Profile /></AuthGuard>} />
-
-                        {/* Admin Route */}
-                        <Route path="/admin" element={<AdminGuard><Admin /></AdminGuard>} />
-
-                        {/* 404 */}
-                        <Route path="*" element={
-                          <div className="py-32 text-center">
-                            <h1 className="text-6xl font-display font-bold text-brand-textPrimary">404</h1>
-                            <p className="text-xl text-brand-textSecondary mt-4">Page Not Found</p>
-                            <a href="/" className="mt-8 inline-block bg-brand-primary text-white px-8 py-3 rounded-button font-bold">Back to Home</a>
-                          </div>
-                        } />
-                      </Routes>
-                    </Suspense>
-                  </Layout>
-                </ModalProvider>
-              </FavouritesProvider>
-            </CartProvider>
-          </ToastProvider>
-        </AuthProvider>
-      </BrowserRouter>
+      <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+        <BrowserRouter>
+          <AuthProvider>
+            <ToastProvider>
+              <CartProvider>
+                <FavouritesProvider>
+                  <ModalProvider>
+                    <ScrollToTop />
+                    <Layout>
+                      <Suspense fallback={<div className="flex items-center justify-center min-h-[60vh] text-brand-primary font-black animate-pulse text-2xl">NovaPack Loading...</div>}>
+                        <Routes>
+                          <Route path="/" element={<Home />} />
+                          <Route path="/products" element={<Products />} />
+                          <Route path="/products/:slug" element={<Products />} />
+                          <Route path="/industries" element={<Industries />} />
+                          <Route path="/industries/:slug" element={<Industries />} />
+                          <Route path="/about" element={<About />} />
+                          <Route path="/get-free-quote" element={<CustomBox />} />
+                          <Route path="/custom-box" element={<CustomBox />} />
+                          <Route path="/how-it-works" element={<HowItWorks />} />
+                          <Route path="/why-refine-packaging" element={<About />} />
+                          <Route path="/success-stories" element={<SuccessStories />} />
+                          <Route path="/customer-stories" element={<SuccessStories />} />
+                          <Route path="/testimonials" element={<SuccessStories />} />
+                          <Route path="/faqs" element={<FAQ />} />
+                          <Route path="/blog" element={<Blog />} />
+                          <Route path="/contact-us" element={<Contact />} />
+                          <Route path="/favourites" element={<Favourites />} />
+                          <Route path="/login" element={<Login />} />
+                          <Route path="/register" element={<Register />} />
+                          <Route path="/checkout" element={<Checkout />} />
+                          <Route path="/profile" element={<AuthGuard><Profile /></AuthGuard>} />
+                          <Route path="/admin" element={<AdminGuard><Admin /></AdminGuard>} />
+                          <Route path="*" element={
+                            <div className="py-32 text-center">
+                              <h1 className="text-6xl font-display font-bold text-brand-textPrimary">404</h1>
+                              <p className="text-xl text-brand-textSecondary mt-4">Page Not Found</p>
+                              <a href="/" className="mt-8 inline-block bg-brand-primary text-white px-8 py-3 rounded-button font-bold">Back to Home</a>
+                            </div>
+                          } />
+                        </Routes>
+                      </Suspense>
+                    </Layout>
+                  </ModalProvider>
+                </FavouritesProvider>
+              </CartProvider>
+            </ToastProvider>
+          </AuthProvider>
+        </BrowserRouter>
+      </GoogleOAuthProvider>
     </ErrorBoundary>
   );
 }

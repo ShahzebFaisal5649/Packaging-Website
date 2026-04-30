@@ -154,20 +154,25 @@ function ProductCard({ product }) {
           <button
             onClick={handleConfigure}
             style={{
-              padding: '8px 14px',
+              padding: '10px 16px',
               backgroundColor: hovered ? ACCENT : G,
               color: '#fff',
               border: 'none',
-              borderRadius: 7,
-              fontSize: 11,
-              fontWeight: 700,
+              borderRadius: 10,
+              fontSize: 12,
+              fontWeight: 800,
               cursor: 'pointer',
-              transition: 'background-color 0.2s',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
               fontFamily: 'Outfit,sans-serif',
               whiteSpace: 'nowrap',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              boxShadow: hovered ? `0 4px 12px ${ACCENT}40` : 'none',
+              transform: hovered ? 'scale(1.05)' : 'scale(1)',
             }}
           >
-            Get Custom Box
+            <span>Design</span> <ChevronRight size={14} style={{ transform: hovered ? 'translateX(2px)' : 'none', transition: 'transform 0.3s' }} />
           </button>
         </div>
 

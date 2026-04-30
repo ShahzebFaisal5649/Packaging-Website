@@ -210,7 +210,7 @@ export default function Navbar() {
         ref={navRef}
         style={{
           position: 'sticky',
-          top: isScrolled ? (width < 768 ? 6 : 12) : 0,
+          top: (isScrolled && width >= 768) ? 12 : 0,
           width: '100%',
           zIndex: 10000,
           transition: 'top 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -218,20 +218,20 @@ export default function Navbar() {
         }}
       >
         <div style={{
-          maxWidth: isScrolled ? (width < 768 ? 'calc(100% - 16px)' : 'calc(100% - 48px)') : '100%',
-          width: isScrolled ? 1360 : '100%',
+          maxWidth: (isScrolled && width >= 768) ? 'calc(100% - 48px)' : '100%',
+          width: (isScrolled && width >= 768) ? 1360 : '100%',
           margin: '0 auto',
-          padding: width < 768 ? '0 16px' : '0 24px',
+          padding: '0 24px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          height: isScrolled ? 58 : 68,
-          background: isScrolled ? 'rgba(26, 77, 46, 0.82)' : G,
-          backdropFilter: isScrolled ? 'blur(16px)' : 'none',
-          borderRadius: isScrolled ? (width < 768 ? 16 : 24) : 0,
+          height: (isScrolled && width >= 768) ? 58 : 68,
+          background: (isScrolled && width >= 768) ? 'rgba(26, 77, 46, 0.82)' : G,
+          backdropFilter: (isScrolled && width >= 768) ? 'blur(16px)' : 'none',
+          borderRadius: (isScrolled && width >= 768) ? 24 : 0,
           boxShadow: isScrolled ? '0 12px 40px rgba(0,0,0,0.3)' : 'none',
           transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-          border: isScrolled ? '1px solid rgba(255,255,255,0.1)' : 'none',
+          border: (isScrolled && width >= 768) ? '1px solid rgba(255,255,255,0.1)' : 'none',
           pointerEvents: 'auto',
         }}>
 

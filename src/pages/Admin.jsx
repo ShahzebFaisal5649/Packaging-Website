@@ -238,7 +238,7 @@ function DashboardSection() {
           <h3 style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>Recent Orders</h3>
           <ArrowUpRight size={16} color="#aaa" />
         </div>
-        <div style={{ overflowX: 'auto' }}>
+        <div className="responsive-table-container">
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ background: '#FAFAF9' }}>
@@ -432,7 +432,7 @@ function ProductsSection() {
           </div>
         </div>
 
-        <div style={{ overflowX: 'auto' }}>
+        <div className="responsive-table-container">
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ background: '#FAFAF9' }}>
@@ -707,7 +707,7 @@ function IndustriesSection() {
           </div>
         </div>
 
-        <div style={{ overflowX: 'auto' }}>
+        <div className="responsive-table-container">
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ background: '#FAFAF9' }}>
@@ -925,7 +925,7 @@ function OrdersSection() {
         {loading ? (
           <div style={{ padding: 40, textAlign: 'center' }}><RefreshCw size={22} style={{ animation: 'spin 1s linear infinite', color: '#aaa' }} /></div>
         ) : (
-          <div style={{ overflowX: 'auto' }}>
+          <div className="responsive-table-container">
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: '#FAFAF9' }}>
@@ -1126,7 +1126,7 @@ function UsersSection() {
         {loading ? (
           <div style={{ padding: 40, textAlign: 'center' }}><RefreshCw size={22} style={{ animation: 'spin 1s linear infinite', color: '#aaa' }} /></div>
         ) : (
-          <div style={{ overflowX: 'auto' }}>
+          <div className="responsive-table-container">
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: '#FAFAF9' }}>
@@ -1315,7 +1315,7 @@ function QuotesSection() {
         {loading ? (
           <div style={{ padding: 40, textAlign: 'center' }}><RefreshCw size={22} style={{ animation: 'spin 1s linear infinite', color: '#aaa' }} /></div>
         ) : (
-          <div style={{ overflowX: 'auto' }}>
+          <div className="responsive-table-container">
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: '#FAFAF9' }}>
