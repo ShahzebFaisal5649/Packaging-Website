@@ -211,20 +211,20 @@ export default function Blog() {
         )}
 
         {/* Newsletter CTA */}
-        <div style={{ marginTop: 72, backgroundColor: G, borderRadius: 16, padding: '48px 40px', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 24 }}>
+        <div className="blog-newsletter-cta" style={{ marginTop: 72, backgroundColor: G, borderRadius: 16, padding: '48px 40px', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 24 }}>
           <div>
             <h3 style={{ fontSize: 22, fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#fff', marginBottom: 6 }}>Get Packaging Tips in Your Inbox</h3>
             <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.65)' }}>New articles every week. No spam, ever.</p>
           </div>
-          <form style={{ display: 'flex', gap: 0, minWidth: 320, flex: 1, maxWidth: 440 }} onSubmit={e => e.preventDefault()}>
+          <form className="blog-newsletter-form" style={{ display: 'flex', gap: 0, minWidth: 320, flex: 1, maxWidth: 440 }} onSubmit={e => e.preventDefault()}>
             <input
               type="email"
               placeholder="your@email.com"
               required
               style={{ flex: 1, padding: '12px 16px', border: 'none', borderRadius: '8px 0 0 8px', fontSize: 14, outline: 'none', backgroundColor: 'rgba(255,255,255,0.12)', color: '#fff' }}
             />
-            <button type="submit" style={{ padding: '12px 20px', backgroundColor: ACCENT, color: '#fff', border: 'none', borderRadius: '0 8px 8px 0', fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap' }}>
-              Subscribe <ArrowRight size={14} />
+            <button type="submit" style={{ padding: '12px 20px', backgroundColor: ACCENT, color: '#fff', border: 'none', borderRadius: '0 8px 8px 0', fontWeight: 700, fontSize: 13, cursor: 'pointer', justifyContent: 'center', whiteSpace: 'nowrap' }}>
+              Subscribe
             </button>
           </form>
         </div>
@@ -237,6 +237,27 @@ export default function Blog() {
           .blog-grid { grid-template-columns: repeat(2,1fr) !important; }
         }
         @media (max-width: 600px) {
+          .blog-newsletter-form {
+            flex-direction: column !important;
+            min-width: unset !important;
+            width: 100% !important;
+          }
+          .blog-newsletter-form input {
+            border-radius: 8px !important;
+            width: 100% !important;
+          }
+          .blog-newsletter-form button {
+            border-radius: 8px !important;
+            width: 100% !important;
+            justify-content: center !important;
+          }
+          .blog-newsletter-cta {
+            flex-direction: column !important;
+            padding: 28px 20px !important;
+          }
+          .blog-newsletter-cta > div:first-child {
+            width: 100% !important;
+          }
           .blog-grid { grid-template-columns: 1fr !important; }
         }
       `}</style>

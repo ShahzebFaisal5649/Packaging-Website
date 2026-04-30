@@ -72,7 +72,7 @@ function OverviewTab({ user, setTab, updateUser, showToast }) {
         </button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, marginBottom: 28 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 16, marginBottom: 28 }}>
         {stats.map((s, i) => (
           <div key={i} style={{ backgroundColor: BG, borderRadius: 12, padding: '18px 16px', border: '1px solid #E2DDD6' }}>
             <p style={{ fontSize: 11, fontWeight: 700, color: '#6B6B6B', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>{s.label}</p>
@@ -312,7 +312,7 @@ function DesignsTab({ designs, updateUser, showToast, navigate }) {
           <button onClick={() => navigate('/custom-box')} style={{ padding: '10px 20px', backgroundColor: G, color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}>Create Your First Design</button>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 20 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 20 }}>
           {designs.map((d, i) => (
             <div key={i} style={{ border: '1px solid #E2DDD6', borderRadius: 12, overflow: 'hidden', backgroundColor: '#fff' }}>
               <div style={{ height: 140, backgroundColor: BG, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -419,7 +419,7 @@ function AddressesTab({ addresses, updateUser, showToast }) {
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 16, marginBottom: showForm ? 24 : 0 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16, marginBottom: showForm ? 24 : 0 }}>
         {addresses.map((a, i) => (
           <div key={i} style={{ border: '1px solid #E2DDD6', borderRadius: 12, padding: '16px 18px', position: 'relative', backgroundColor: '#fff' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
@@ -616,6 +616,13 @@ export default function Profile() {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
   const [activeTab, setActiveTab] = useState('overview');
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
+  }, []);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -635,10 +642,10 @@ export default function Profile() {
   return (
     <div style={{ minHeight: '100vh', backgroundColor: BG, paddingTop: 100, paddingBottom: 64 }}>
       <div style={{ maxWidth: 1300, margin: '0 auto', padding: '32px 24px' }}>
-        <div style={{ display: 'flex', gap: 28, alignItems: 'flex-start' }}>
+        <div style={{ display: 'flex', gap: 28, alignItems: 'flex-start', flexDirection: isMobile ? 'column' : 'row' }}>
 
           {/* Sidebar */}
-          <div style={{ width: 240, flexShrink: 0, backgroundColor: '#fff', borderRadius: 14, border: '1px solid #E2DDD6', padding: 16, position: 'sticky', top: 120 }}>
+          <div style={{ width: isMobile ? '100%' : 240, flexShrink: 0, backgroundColor: '#fff', borderRadius: 14, border: '1px solid #E2DDD6', padding: 16, position: isMobile ? 'static' : 'sticky', top: 120 }}>
             {/* Avatar */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 4px', borderBottom: '1px solid #F0EDE8', marginBottom: 12 }}>
               <div style={{ position: 'relative', width: 48, height: 48, cursor: 'pointer' }} onClick={() => fileInputRef.current.click()}>
@@ -661,21 +668,54 @@ export default function Profile() {
               </div>
             </div>
 
-            {/* Nav */}
-            <nav style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              {TABS.map(tab => (
-                <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-                  style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, border: 'none', cursor: 'pointer', textAlign: 'left', fontSize: 13, fontWeight: activeTab === tab.id ? 700 : 500, backgroundColor: activeTab === tab.id ? `${G}0D` : 'transparent', color: activeTab === tab.id ? G : '#4A4A4A', transition: 'all 0.15s' }}>
-                  <tab.icon size={16} style={{ color: activeTab === tab.id ? G : '#6B6B6B' }} />
-                  {tab.label}
+            {/* Mobile horizontal tab scroll */}
+            {isMobile && (
+              <div style={{ display: 'flex', overflowX: 'auto', gap: 8, padding: '8px 0', scrollbarWidth: 'none' }}>
+                {TABS.map(tab => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    style={{
+                      flexShrink: 0,
+                      padding: '8px 14px',
+                      borderRadius: 100,
+                      border: 'none',
+                      cursor: 'pointer',
+                      fontSize: 12,
+                      fontWeight: 700,
+                      whiteSpace: 'nowrap',
+                      backgroundColor: activeTab === tab.id ? G : '#F0EDE8',
+                      color: activeTab === tab.id ? '#fff' : '#4A4A4A',
+                    }}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+            )}
+            {/* Desktop vertical nav — hide on mobile */}
+            {!isMobile && (
+              <nav style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                {TABS.map(tab => (
+                  <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+                    style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, border: 'none', cursor: 'pointer', textAlign: 'left', fontSize: 13, fontWeight: activeTab === tab.id ? 700 : 500, backgroundColor: activeTab === tab.id ? `${G}0D` : 'transparent', color: activeTab === tab.id ? G : '#4A4A4A', transition: 'all 0.15s' }}>
+                    <tab.icon size={16} style={{ color: activeTab === tab.id ? G : '#6B6B6B' }} />
+                    {tab.label}
+                  </button>
+                ))}
+                <div style={{ height: 1, backgroundColor: '#F0EDE8', margin: '8px 0' }} />
+                <button onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, border: 'none', cursor: 'pointer', textAlign: 'left', fontSize: 13, fontWeight: 500, backgroundColor: 'transparent', color: '#DC2626', transition: 'background 0.15s' }}
+                  onMouseEnter={e => e.currentTarget.style.backgroundColor = '#FEE2E2'} onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}>
+                  <LogOut size={16} /> Logout
                 </button>
-              ))}
-              <div style={{ height: 1, backgroundColor: '#F0EDE8', margin: '8px 0' }} />
-              <button onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, border: 'none', cursor: 'pointer', textAlign: 'left', fontSize: 13, fontWeight: 500, backgroundColor: 'transparent', color: '#DC2626', transition: 'background 0.15s' }}
+              </nav>
+            )}
+            {isMobile && (
+              <button onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, width: '100%', marginTop: 12, padding: '10px 12px', borderRadius: 8, border: 'none', cursor: 'pointer', backgroundColor: '#fff', color: '#DC2626', transition: 'background 0.15s' }}
                 onMouseEnter={e => e.currentTarget.style.backgroundColor = '#FEE2E2'} onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}>
                 <LogOut size={16} /> Logout
               </button>
-            </nav>
+            )}
           </div>
 
           {/* Main Content */}

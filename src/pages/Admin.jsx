@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import api from '../services/api';
@@ -188,23 +188,32 @@ function DashboardSection() {
   const [stats, setStats] = useState(null);
   const [recentOrders, setRecentOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const [s, o] = await Promise.all([api.get('/admin/stats'), api.get('/admin/orders')]);
-      setStats(s);
-      setRecentOrders((o.orders || []).slice(0, 6));
-    } catch {
-      const list = JSON.parse(localStorage.getItem('packagingUsersList') || '[]');
-      const orders = list.flatMap(u => (u.orders || []).map(o => ({ ...o, userName: u.name, userEmail: u.email })));
-      setStats({ totalUsers: list.filter(u => u.role !== 'admin').length, totalOrders: orders.length, revenue: orders.reduce((s, o) => s + (parseFloat(o.total) || 0), 0), pending: orders.filter(o => o.status === 'Processing').length, newThisWeek: 0 });
-      setRecentOrders(orders.slice(0, 6));
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      setLoading(true);
+      try {
+        const [s, o] = await Promise.all([api.get('/admin/stats'), api.get('/admin/orders')]);
+        if (!cancelled) {
+          setStats(s);
+          setRecentOrders((o.orders || []).slice(0, 6));
+        }
+      } catch {
+        if (!cancelled) {
+          const list = JSON.parse(localStorage.getItem('packagingUsersList') || '[]');
+          const orders = list.flatMap(u => (u.orders || []).map(o => ({ ...o, userName: u.name, userEmail: u.email })));
+          setStats({ totalUsers: list.filter(u => u.role !== 'admin').length, totalOrders: orders.length, revenue: orders.reduce((s, o) => s + (parseFloat(o.total) || 0), 0), pending: orders.filter(o => o.status === 'Processing').length, newThisWeek: 0 });
+          setRecentOrders(orders.slice(0, 6));
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
     }
-    setLoading(false);
-  }, []);
-
-  useEffect(() => { load(); }, [load]);
+    load();
+    return () => { cancelled = true; };
+  }, [refreshKey]);
 
   if (loading) return <div style={{ padding: 40, textAlign: 'center', color: '#888' }}><RefreshCw size={24} style={{ animation: 'spin 1s linear infinite' }} /></div>;
 
@@ -212,7 +221,7 @@ function DashboardSection() {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
         <h2 style={{ fontSize: 22, fontFamily: 'Outfit,sans-serif', fontWeight: 700 }}>Dashboard Overview</h2>
-        <button onClick={load} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: G, background: 'none', border: `1px solid ${G}`, borderRadius: 8, padding: '7px 14px', cursor: 'pointer' }}>
+        <button onClick={() => setRefreshKey(k => k + 1)} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: G, background: 'none', border: `1px solid ${G}`, borderRadius: 8, padding: '7px 14px', cursor: 'pointer' }}>
           <RefreshCw size={13} /> Refresh
         </button>
       </div>
@@ -268,19 +277,35 @@ function ProductsSection() {
 
   const emptyForm = { name: '', slug: '', cat: '', description: '', price: '', img: '', featured: false, boxType: '', material: '', finish: '', dims: '', minQty: '', addons: [] };
 
-  const loadProducts = useCallback(async () => {
+  async function loadProducts() {
+    let cancelled = false;
     setLoading(true);
     try {
       const data = await api.get('/admin/products');
-      setProducts(data.products || []);
+      if (!cancelled) setProducts(data.products || []);
     } catch (err) {
-      console.error('Failed to load products:', err);
+      if (!cancelled) console.error('Failed to load products:', err);
     } finally {
-      setLoading(false);
+      if (!cancelled) setLoading(false);
     }
-  }, []);
+  }
 
-  useEffect(() => { loadProducts(); }, [loadProducts]);
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      setLoading(true);
+      try {
+        const data = await api.get('/admin/products');
+        if (!cancelled) setProducts(data.products || []);
+      } catch (err) {
+        if (!cancelled) console.error('Failed to load products:', err);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    load();
+    return () => { cancelled = true; };
+  }, []);
 
   const handleEdit = (product) => {
     setEditForm({
@@ -527,19 +552,35 @@ function IndustriesSection() {
 
   const emptyForm = { name: '', slug: '', cat: '', description: '', img: '', products: [] };
 
-  const loadIndustries = useCallback(async () => {
+  async function loadIndustries() {
+    let cancelled = false;
     setLoading(true);
     try {
       const data = await api.get('/admin/industries');
-      setIndustries(data.industries || []);
+      if (!cancelled) setIndustries(data.industries || []);
     } catch (err) {
-      console.error('Failed to load industries:', err);
+      if (!cancelled) console.error('Failed to load industries:', err);
     } finally {
-      setLoading(false);
+      if (!cancelled) setLoading(false);
     }
-  }, []);
+  }
 
-  useEffect(() => { loadIndustries(); }, [loadIndustries]);
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      setLoading(true);
+      try {
+        const data = await api.get('/admin/industries');
+        if (!cancelled) setIndustries(data.industries || []);
+      } catch (err) {
+        if (!cancelled) console.error('Failed to load industries:', err);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    load();
+    return () => { cancelled = true; };
+  }, []);
 
   const handleEdit = (industry) => {
     setEditForm({
@@ -719,19 +760,41 @@ function OrdersSection() {
   const [selected, setSelected] = useState(null);
   const [editTracking, setEditTracking] = useState('');
 
-  const load = useCallback(async () => {
+  async function load() {
+    let cancelled = false;
     setLoading(true);
     try {
       const data = await api.get('/admin/orders');
-      setOrders(data.orders || []);
+      if (!cancelled) setOrders(data.orders || []);
     } catch {
-      const list = JSON.parse(localStorage.getItem('packagingUsersList') || '[]');
-      setOrders(list.flatMap(u => (u.orders || []).map(o => ({ ...o, userName: u.name, userEmail: u.email, userId: u.id }))));
+      if (!cancelled) {
+        const list = JSON.parse(localStorage.getItem('packagingUsersList') || '[]');
+        setOrders(list.flatMap(u => (u.orders || []).map(o => ({ ...o, userName: u.name, userEmail: u.email, userId: u.id }))));
+      }
+    } finally {
+      if (!cancelled) setLoading(false);
     }
-    setLoading(false);
-  }, []);
+  }
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    let cancelled = false;
+    async function loadOrders() {
+      setLoading(true);
+      try {
+        const data = await api.get('/admin/orders');
+        if (!cancelled) setOrders(data.orders || []);
+      } catch {
+        if (!cancelled) {
+          const list = JSON.parse(localStorage.getItem('packagingUsersList') || '[]');
+          setOrders(list.flatMap(u => (u.orders || []).map(o => ({ ...o, userName: u.name, userEmail: u.email, userId: u.id }))));
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    loadOrders();
+    return () => { cancelled = true; };
+  }, []);
 
   const handleStatusChange = async (order, status) => {
     try {
@@ -902,19 +965,41 @@ function UsersSection() {
   const [selected, setSelected] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
 
-  const load = useCallback(async () => {
+  async function load() {
+    let cancelled = false;
     setLoading(true);
     try {
       const data = await api.get('/admin/users');
-      setUsers(data.users || []);
+      if (!cancelled) setUsers(data.users || []);
     } catch {
-      const list = JSON.parse(localStorage.getItem('packagingUsersList') || '[]');
-      setUsers(list.filter(u => u.role !== 'admin'));
+      if (!cancelled) {
+        const list = JSON.parse(localStorage.getItem('packagingUsersList') || '[]');
+        setUsers(list.filter(u => u.role !== 'admin'));
+      }
+    } finally {
+      if (!cancelled) setLoading(false);
     }
-    setLoading(false);
-  }, []);
+  }
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    let cancelled = false;
+    async function loadUsers() {
+      setLoading(true);
+      try {
+        const data = await api.get('/admin/users');
+        if (!cancelled) setUsers(data.users || []);
+      } catch {
+        if (!cancelled) {
+          const list = JSON.parse(localStorage.getItem('packagingUsersList') || '[]');
+          setUsers(list.filter(u => u.role !== 'admin'));
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    loadUsers();
+    return () => { cancelled = true; };
+  }, []);
 
   const handleDelete = async (user) => {
     try {
@@ -1122,20 +1207,28 @@ function QuotesSection() {
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
   const [priceInput, setPriceInput] = useState('');
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  const load = useCallback(async () => {
-    setLoading(true);
+  const loadQuotes = async (signal = { cancelled: false }) => {
+    if (!signal.cancelled) setLoading(true);
     try {
       const data = await api.get('/admin/quotes');
-      setQuotes(data.quotes || []);
+      if (!signal.cancelled) setQuotes(data.quotes || []);
     } catch {
-      const list = JSON.parse(localStorage.getItem('packagingUsersList') || '[]');
-      setQuotes(list.flatMap(u => (u.quotes || []).map(q => ({ ...q, userName: u.name, userEmail: u.email, userId: u.id }))));
+      if (!signal.cancelled) {
+        const list = JSON.parse(localStorage.getItem('packagingUsersList') || '[]');
+        setQuotes(list.flatMap(u => (u.quotes || []).map(q => ({ ...q, userName: u.name, userEmail: u.email, userId: u.id }))));
+      }
+    } finally {
+      if (!signal.cancelled) setLoading(false);
     }
-    setLoading(false);
-  }, []);
+  };
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    let signal = { cancelled: false };
+    Promise.resolve().then(() => loadQuotes(signal));
+    return () => { signal.cancelled = true; };
+  }, [refreshKey]);
 
   const handleUpdateQuote = async (q, updates) => {
     try {
@@ -1146,7 +1239,7 @@ function QuotesSection() {
         if (ui > -1) { const qi = list[ui].quotes?.findIndex(x => x.id === q.id); if (qi > -1) list[ui].quotes[qi] = { ...list[ui].quotes[qi], ...updates }; }
         localStorage.setItem('packagingUsersList', JSON.stringify(list));
       }
-      await load();
+      await loadQuotes();
       showToast('Quote updated', 'success');
       setSelected(null);
     } catch (e) { showToast(e.message, 'error'); }
@@ -1156,7 +1249,7 @@ function QuotesSection() {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <h2 style={{ fontSize: 22, fontFamily: 'Outfit,sans-serif', fontWeight: 700 }}>Quote & Sample Requests</h2>
-        <button onClick={load} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: G, background: 'none', border: `1px solid ${G}`, borderRadius: 8, padding: '7px 14px', cursor: 'pointer' }}><RefreshCw size={13} /> Refresh</button>
+        <button onClick={() => setRefreshKey(k => k + 1)} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: G, background: 'none', border: `1px solid ${G}`, borderRadius: 8, padding: '7px 14px', cursor: 'pointer' }}><RefreshCw size={13} /> Refresh</button>
       </div>
       <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #E2DDD6', overflow: 'hidden' }}>
         {loading ? (
@@ -1242,25 +1335,33 @@ function QuotesSection() {
 function AnalyticsSection() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  const load = useCallback(async () => {
-    setLoading(true);
+  const loadAnalytics = async (signal = { cancelled: false }) => {
+    if (!signal.cancelled) setLoading(true);
     try {
       const d = await api.get('/admin/analytics');
-      setData(d);
+      if (!signal.cancelled) setData(d);
     } catch {
-      const list = JSON.parse(localStorage.getItem('packagingUsersList') || '[]');
-      const orders = list.flatMap(u => u.orders || []);
-      setData({
-        statusCounts: ['Processing', 'Shipped', 'Delivered', 'Cancelled'].map(s => ({ label: s, value: orders.filter(o => o.status === s).length })),
-        monthRevenue: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'].map((m, i) => ({ label: m, value: (i + 1) * 347 % 3000 })),
-        userGrowth: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'].map((m, i) => ({ label: m, value: (i * 41 + 7) % 20 })),
-      });
+      if (!signal.cancelled) {
+        const list = JSON.parse(localStorage.getItem('packagingUsersList') || '[]');
+        const orders = list.flatMap(u => u.orders || []);
+        setData({
+          statusCounts: ['Processing', 'Shipped', 'Delivered', 'Cancelled'].map(s => ({ label: s, value: orders.filter(o => o.status === s).length })),
+          monthRevenue: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'].map((m, i) => ({ label: m, value: (i + 1) * 347 % 3000 })),
+          userGrowth: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'].map((m, i) => ({ label: m, value: (i * 41 + 7) % 20 })),
+        });
+      }
+    } finally {
+      if (!signal.cancelled) setLoading(false);
     }
-    setLoading(false);
-  }, []);
+  };
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    let signal = { cancelled: false };
+    Promise.resolve().then(() => loadAnalytics(signal));
+    return () => { signal.cancelled = true; };
+  }, [refreshKey]);
 
   if (loading) return <div style={{ padding: 40, textAlign: 'center' }}><RefreshCw size={22} style={{ animation: 'spin 1s linear infinite', color: '#aaa' }} /></div>;
 
@@ -1268,7 +1369,7 @@ function AnalyticsSection() {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
         <h2 style={{ fontSize: 22, fontFamily: 'Outfit,sans-serif', fontWeight: 700 }}>Analytics</h2>
-        <button onClick={load} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: G, background: 'none', border: `1px solid ${G}`, borderRadius: 8, padding: '7px 14px', cursor: 'pointer' }}><RefreshCw size={13} /> Refresh</button>
+        <button onClick={() => setRefreshKey(k => k + 1)} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: G, background: 'none', border: `1px solid ${G}`, borderRadius: 8, padding: '7px 14px', cursor: 'pointer' }}><RefreshCw size={13} /> Refresh</button>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(260px,1fr))', gap: 20 }}>
         <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #E2DDD6', padding: 20 }}>
@@ -1385,6 +1486,8 @@ export default function Admin() {
             position: fixed !important;
             top: 72px !important;
             left: 0;
+            width: 280px !important;
+            max-width: 100% !important;
             height: calc(100vh - 72px);
             z-index: 300;
             transform: translateX(${sidebarOpen ? '0' : '-100%'}) !important;

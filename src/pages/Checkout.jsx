@@ -148,7 +148,7 @@ function PaymentForm({ clientSecret, amount }) {
       <p style={{ fontSize: 13, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 14 }}>
         Contact Information
       </p>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14, marginBottom: 14 }}>
         <div>
           <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#555', marginBottom: 6 }}>Full Name *</label>
           <input
@@ -179,18 +179,18 @@ function PaymentForm({ clientSecret, amount }) {
           onFocus={e => e.target.style.borderColor = G}
           onBlur={e => e.target.style.borderColor = '#E0DBD3'}
         />
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10 }}>
           <input
             name="city" value={form.city} onChange={handleChange}
             placeholder="City"
-            style={{ padding: '11px 14px', border: '1.5px solid #E0DBD3', borderRadius: 9, fontSize: 14, outline: 'none', boxSizing: 'border-box' }}
+            style={{ width: '100%', boxSizing: 'border-box', padding: '11px 14px', border: '1.5px solid #E0DBD3', borderRadius: 9, fontSize: 14, outline: 'none' }}
             onFocus={e => e.target.style.borderColor = G}
             onBlur={e => e.target.style.borderColor = '#E0DBD3'}
           />
           <input
             name="zip" value={form.zip} onChange={handleChange}
             placeholder="ZIP / Postal Code (Optional)"
-            style={{ padding: '11px 14px', border: '1.5px solid #E0DBD3', borderRadius: 9, fontSize: 14, outline: 'none', boxSizing: 'border-box' }}
+            style={{ width: '100%', boxSizing: 'border-box', padding: '11px 14px', border: '1.5px solid #E0DBD3', borderRadius: 9, fontSize: 14, outline: 'none' }}
             onFocus={e => e.target.style.borderColor = G}
             onBlur={e => e.target.style.borderColor = '#E0DBD3'}
           />
@@ -276,8 +276,8 @@ export default function Checkout() {
 
       {/* Test mode banner */}
       <div style={{ background: '#FEF3C7', borderBottom: '1px solid #FDE68A', padding: '10px 24px', textAlign: 'center' }}>
-        <span style={{ fontSize: 13, fontWeight: 600, color: '#92400E', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7 }}>
-          <AlertCircle size={14} /> Stripe Test Mode: use card <strong>4242 4242 4242 4242</strong>, any future date, any CVC
+        <span style={{ fontSize: 13, fontWeight: 600, color: '#92400E', display: 'block', textAlign: 'center', lineHeight: 1.6 }}>
+          Stripe Test Mode: use card <strong>4242 4242 4242 4242</strong>, any future date, any CVC
         </span>
       </div>
 
