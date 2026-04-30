@@ -16,15 +16,12 @@ const BOX_TYPE_MAP = {
   'Luxury Mailer Boxes': { boxType: 'Mailer Box', material: 'Rigid Chipboard', finish: 'Matte Lam', suggestedDimensions: { l: 12, w: 9, h: 4 } },
 };
 
-export default function ProductSlider({ products = [], title = 'Featured Products', autoPlayDelay = 2000 }) {
+export default function ProductSlider({ products = [], title = 'Featured Products' }) {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isHovered, setIsHovered] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
   const sliderRef = useRef(null);
-  const autoPlayRef = useRef(null);
-  const resumeTimerRef = useRef(null);
 
   const { openQuickView } = useModal();
   const { isFavourite, toggleFavourite } = useFavourites();
@@ -38,53 +35,15 @@ export default function ProductSlider({ products = [], title = 'Featured Product
     return 4;
   };
 
-  const visibleCount = getVisibleItems();
-  const maxIndex = Math.max(0, products.length - Math.floor(visibleCount));
-
-  const clearTimers = useCallback(() => {
-    if (autoPlayRef.current) {
-      clearInterval(autoPlayRef.current);
-      autoPlayRef.current = null;
-    }
-    if (resumeTimerRef.current) {
-      clearTimeout(resumeTimerRef.current);
-      resumeTimerRef.current = null;
-    }
-  }, []);
-
-  const startAutoPlay = useCallback(() => {
-    clearTimers();
-    autoPlayRef.current = setInterval(() => {
-      setCurrentIndex(prev => (prev >= maxIndex ? 0 : prev + 1));
-    }, autoPlayDelay);
-  }, [clearTimers, maxIndex, autoPlayDelay]);
-
-  const stopAutoPlay = useCallback(() => {
-    if (autoPlayRef.current) {
-      clearInterval(autoPlayRef.current);
-      autoPlayRef.current = null;
-    }
-    if (resumeTimerRef.current) {
-      clearTimeout(resumeTimerRef.current);
-      resumeTimerRef.current = null;
-    }
-  }, []);
-
-  const scheduleAutoPlay = useCallback((delay = autoPlayDelay) => {
-    if (resumeTimerRef.current) {
-      clearTimeout(resumeTimerRef.current);
-    }
-    resumeTimerRef.current = setTimeout(() => {
-      if (!isHovered && !isDragging) {
-        startAutoPlay();
-      }
-    }, delay);
-  }, [autoPlayDelay, isHovered, isDragging, startAutoPlay]);
+  const [visibleCount, setVisibleCount] = useState(getVisibleItems());
 
   useEffect(() => {
-    startAutoPlay();
-    return () => clearTimers();
-  }, [startAutoPlay, clearTimers]);
+    const handleResize = () => setVisibleCount(getVisibleItems());
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const maxIndex = Math.max(0, products.length - Math.floor(visibleCount));
 
   const handleDragStart = (e) => {
     setIsDragging(true);
@@ -97,10 +56,10 @@ export default function ProductSlider({ products = [], title = 'Featured Product
     e.preventDefault();
     const x = e.type.includes('mouse') ? e.pageX : e.touches[0].pageX;
     const walk = (x - startX) / 100;
-    let newIndex = scrollLeft + walk;
+    let newIndex = scrollLeft - walk; // Changed direction to match standard swipe
     if (newIndex < 0) newIndex = 0;
     if (newIndex > maxIndex) newIndex = maxIndex;
-    setCurrentIndex(Math.round(newIndex));
+    setCurrentIndex(newIndex);
   };
 
   const handleDragEnd = (e) => {
@@ -110,23 +69,20 @@ export default function ProductSlider({ products = [], title = 'Featured Product
     // Snapping logic
     const x = e.type.includes('mouse') ? e.pageX : (e.changedTouches?.[0]?.pageX || startX);
     const walk = (x - startX) / 100;
-    if (Math.abs(walk) > 0.2) {
+    if (Math.abs(walk) > 0.1) {
       if (walk > 0) handlePrev();
       else handleNext();
     } else {
-      // stay on current index
-      startAutoPlay();
+      setCurrentIndex(Math.round(currentIndex));
     }
   };
 
   const handleNext = () => {
-    setCurrentIndex(prev => (prev >= maxIndex ? 0 : prev + 1));
-    startAutoPlay();
+    setCurrentIndex(prev => (prev >= maxIndex ? 0 : Math.floor(prev + 1)));
   };
   
   const handlePrev = () => {
-    setCurrentIndex(prev => (prev <= 0 ? maxIndex : prev - 1));
-    startAutoPlay();
+    setCurrentIndex(prev => (prev <= 0 ? maxIndex : Math.ceil(prev - 1)));
   };
 
   const handleFavourite = (e, product) => {
@@ -140,7 +96,6 @@ export default function ProductSlider({ products = [], title = 'Featured Product
     e.preventDefault();
     e.stopPropagation();
     openQuickView(product);
-    stopAutoPlay();
   };
 
   const handleConfigure = (e, product) => {
@@ -150,12 +105,10 @@ export default function ProductSlider({ products = [], title = 'Featured Product
     navigate('/custom-box', { state: { ...preConfig, productName: product.name } });
   };
 
+  const GAP = 24;
+
   return (
-    <div
-      className="w-full relative group py-8"
-      onMouseEnter={() => stopAutoPlay()}
-      onMouseLeave={() => startAutoPlay()}
-    >
+    <div className="w-full relative group py-8">
       <div className="flex justify-between items-end mb-8 px-6 lg:px-0">
         <h2 className="text-3xl font-display font-bold text-brand-textPrimary">{title}</h2>
         <div className="flex gap-2">
@@ -170,8 +123,12 @@ export default function ProductSlider({ products = [], title = 'Featured Product
 
       <div className="overflow-hidden px-6 lg:px-0 relative" ref={sliderRef}>
         <div
-          className={`flex gap-6 ${isDragging ? 'cursor-grabbing' : 'cursor-grab'} transition-transform ease-out`}
-          style={{ transform: `translateX(-${currentIndex * (100 / visibleCount)}%)`, transitionDuration: isDragging ? '0ms' : '500ms' }}
+          className={`flex ${isDragging ? 'cursor-grabbing' : 'cursor-grab'} transition-transform ease-out`}
+          style={{ 
+            gap: `${GAP}px`,
+            transform: `translateX(calc(-${currentIndex} * (100% + ${GAP}px) / ${visibleCount}))`, 
+            transitionDuration: isDragging ? '0ms' : '500ms' 
+          }}
           onMouseDown={handleDragStart}
           onMouseMove={handleDragMove}
           onMouseUp={handleDragEnd}
@@ -186,9 +143,9 @@ export default function ProductSlider({ products = [], title = 'Featured Product
               <div
                 key={idx}
                 className="flex-shrink-0 group/card"
-                style={{ width: `calc(${100 / visibleCount}% - ${24 * (visibleCount - 1) / visibleCount}px)` }}
+                style={{ width: `calc(${100 / visibleCount}% - ${GAP * (visibleCount - 1) / visibleCount}px)` }}
               >
-                <div className="bg-white rounded-card overflow-hidden border border-transparent hover:border-gray-200 hover:shadow-card-hover flex flex-col relative transition-shadow duration-300">
+                <div className="bg-white rounded-card overflow-hidden border border-transparent hover:border-gray-200 hover:shadow-card-hover flex flex-col relative transition-shadow duration-300 h-full">
 
                   {/* Action buttons */}
                   <div className="absolute top-3 right-3 z-20 flex flex-col gap-2 opacity-0 group-hover/card:opacity-100 transition-all duration-200 translate-x-3 group-hover/card:translate-x-0">
@@ -236,9 +193,13 @@ export default function ProductSlider({ products = [], title = 'Featured Product
 
       {/* Dots */}
       <div className="flex justify-center mt-8 gap-2">
-    {Array.from({ length: maxIndex + 1 }).map((_, idx) => (
-      <button key={idx} onClick={() => { setCurrentIndex(idx); startAutoPlay(); }} className={`h-2 rounded-full transition-all duration-300 ${idx === currentIndex ? 'bg-brand-primary w-6' : 'bg-gray-300 hover:bg-gray-400 w-2'}`} />
-    ))}
+        {Array.from({ length: maxIndex + 1 }).map((_, idx) => (
+          <button 
+            key={idx} 
+            onClick={() => setCurrentIndex(idx)} 
+            className={`h-2 rounded-full transition-all duration-300 ${idx === Math.round(currentIndex) ? 'bg-brand-primary w-6' : 'bg-gray-300 hover:bg-gray-400 w-2'}`} 
+          />
+        ))}
       </div>
     </div>
   );

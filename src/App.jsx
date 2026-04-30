@@ -109,7 +109,7 @@ const AdminGuard = ({ children }) => {
 
 export default function App() {
   // Replace this with your real Client ID from Google Cloud Console
-  const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com";
+  const GOOGLE_CLIENT_ID = "734487564892-6ep5ihbjertaf9ijso44a33859dsq625.apps.googleusercontent.com";
 
   return (
     <ErrorBoundary>
