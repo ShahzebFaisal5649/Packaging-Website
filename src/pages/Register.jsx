@@ -83,11 +83,6 @@ export default function Register() {
 
   return (
     <div style={{ minHeight: 'calc(100vh - (var(--nav-h) + var(--ann-h)))', display: 'grid', gridTemplateColumns: '1fr 1fr' }} className="auth-grid">
-      <GoogleLoginModal 
-        isOpen={showGoogleModal} 
-        onClose={() => setShowGoogleModal(false)} 
-        onSelect={handleGoogleSelect} 
-      />
 
       {/* Left — image */}
       <div style={{ position: 'relative', overflow: 'hidden', minHeight: 600 }} className="auth-left">

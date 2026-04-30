@@ -8,6 +8,18 @@ A modern, fully-featured e-commerce platform for custom packaging. Built with Re
 
 ## Features
 
+### Authentication & Social Login
+
+- **Google Identity Services** — Fully integrated "Continue with Google" using `@react-oauth/google`. Supports real account selection, profile data extraction (name, email, avatar), and session persistence.
+- **JWT Authentication** — Standard email/password login and registration with encrypted password storage.
+
+### Premium UI/UX (Fully Responsive)
+
+- **Floating Glassmorphism Navbar** — Sophisticated "pod" style navbar that appears on scroll with backdrop blur. Automatically switches to a standard solid bar on mobile for optimal usability.
+- **Admin Dashboard** — Mobile-optimized data tables with horizontal scrolling and touch-friendly navigation.
+- **Enhanced Micro-Animations** — Premium button hover effects, slide-up fills, and interactive scaling throughout the site.
+- **3D Configurator** — Stacked layout on mobile for easy navigation between the preview and the configuration steps.
+
 ### Storefront (Mobile-Responsive)
 
 - **Home Page** — Hero, stats bar, trending products slider, materials showcase, how-it-works steps, testimonials, inspiration gallery, CTA sections
@@ -65,14 +77,15 @@ Login: `admin@novapack.com` / `Admin@123`
 | Layer | Technology |
 |---|---|
 | Frontend | React 19 + Vite |
-| Styling | Tailwind CSS 3 + inline styles |
+| Styling | Tailwind CSS 3 + Vanilla CSS |
+| Auth (Social) | `@react-oauth/google` + `jwt-decode` |
 | Routing | React Router DOM 7 |
 | Icons | Lucide React |
 | 3D Preview | Three.js · React Three Fiber · React Three Drei |
-| State | React Context API (Auth, Cart, Favourites, Toast, Modal) |
+| State | React Context API |
 | Backend | Express.js + Node.js |
 | Database | MongoDB (Mongoose) |
-| Auth | JWT (bcryptjs) |
+| Auth (Local) | JWT (bcryptjs) |
 | Deployment | Vercel (frontend + serverless API) |
 
 ---
