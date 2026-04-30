@@ -35,7 +35,7 @@ export default function Hero() {
   }, []);
 
   return (
-    <div style={{ position: 'relative', overflow: 'hidden', paddingTop: 0 }}>
+    <div className="hero-container" style={{ position: 'relative', overflow: 'hidden', paddingTop: 0 }}>
 
       {/* ── Background ────────────────────────────────────────────────── */}
       <div style={{
@@ -57,107 +57,46 @@ export default function Hero() {
       <div className="hero-blob hero-blob-3" />
 
       {/* ── Main Content ──────────────────────────────────────────────── */}
-      <div style={{ 
-        position: 'relative', 
-        zIndex: 10, 
-        maxWidth: 1400, 
-        margin: '0 auto', 
-        padding: 'clamp(32px, 8vh, 64px) clamp(24px, 8vw, 64px) 0' 
-      }}>
+      <div className="hero-content">
         <div className="hero-grid">
 
           {/* LEFT */}
-          <div className="hero-left" style={{ textAlign: window.innerWidth < 1024 ? 'center' : 'left' }}>
+          <div className="hero-left">
 
             {/* Badge */}
-            <div style={{
-              display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 18px',
-              background: 'rgba(200,134,10,0.12)', border: '1px solid rgba(200,134,10,0.3)',
-              borderRadius: 100, marginBottom: 28,
-            }}>
-              <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#C8860A', animation: 'heroPulse 2s ease-in-out infinite' }} />
-              <span style={{ fontSize: 10, fontWeight: 700, color: '#C8860A', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+            <div className="hero-badge">
+              <span className="hero-badge-dot" />
+              <span className="hero-badge-text">
                 Industry-Leading Custom Packaging
               </span>
             </div>
 
             {/* Headline */}
-            <h1 style={{
-              fontSize: 'clamp(32px, 8vw, 68px)',
-              fontFamily: 'Outfit, sans-serif', fontWeight: 900,
-              color: '#FFFFFF', lineHeight: 1.1, marginBottom: 28,
-              letterSpacing: '-0.02em',
-              maxWidth: '100%',
-            }}>
+            <h1 className="hero-headline">
               Packaging That<br />
               Elevates<br />
-              <span style={{
-                color: '#C8860A',
-                display: 'inline-block',
+              <span className="hero-cycling-word" style={{
                 opacity: wordVisible ? 1 : 0,
                 transform: wordVisible ? 'translateY(0px)' : 'translateY(10px)',
-                transition: 'opacity 0.38s ease, transform 0.38s ease',
-                minWidth: '2ch',
               }}>
                 {CYCLING_WORDS[wordIdx]}
               </span>
             </h1>
 
             {/* Subtext */}
-            <p style={{
-              fontSize: 'clamp(14px, 1.2vw, 18px)',
-              color: 'rgba(255,255,255,0.65)', lineHeight: 1.7,
-              marginBottom: 36, maxWidth: 500,
-              marginInline: window.innerWidth < 1024 ? 'auto' : '0',
-            }}>
+            <p className="hero-subtext">
               Deliver unforgettable unboxing experiences with custom-printed,
               premium-grade packaging. Fast turnaround. No minimums. Just results.
             </p>
 
             {/* CTA Buttons */}
-            <div style={{ 
-              display: 'flex', 
-              gap: 14, 
-              flexWrap: 'wrap', 
-              marginBottom: 36,
-              justifyContent: window.innerWidth < 1024 ? 'center' : 'flex-start'
-            }}>
-              <Link
-                to="/custom-box"
-                className="hero-btn-primary"
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 10,
-                  padding: '16px 32px', borderRadius: 12, textDecoration: 'none',
-                  background: 'linear-gradient(135deg, #C8860A 0%, #E09520 100%)',
-                  color: '#fff', fontWeight: 800, fontSize: 15,
-                  boxShadow: '0 8px 28px rgba(200,134,10,0.4)',
-                  transition: 'all 0.2s',
-                  minWidth: window.innerWidth < 480 ? '100%' : 'auto',
-                  justifyContent: 'center'
-                }}
-              >
+            <div className="hero-actions">
+              <Link to="/custom-box" className="hero-btn-primary">
                 Start Designing Free <ArrowRight size={17} />
               </Link>
 
-              <button
-                onClick={() => setShowVideo(true)}
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 12,
-                  padding: '16px 28px', borderRadius: 12, cursor: 'pointer',
-                  background: 'rgba(255,255,255,0.07)',
-                  border: '1px solid rgba(255,255,255,0.16)',
-                  color: '#fff', fontWeight: 700, fontSize: 15,
-                  backdropFilter: 'blur(10px)',
-                  transition: 'all 0.2s',
-                  minWidth: window.innerWidth < 480 ? '100%' : 'auto',
-                  justifyContent: 'center'
-                }}
-              >
-                <div style={{
-                  width: 32, height: 32, borderRadius: '50%',
-                  background: 'rgba(255,255,255,0.14)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>
+              <button onClick={() => setShowVideo(true)} className="hero-btn-secondary">
+                <div className="play-icon-wrapper">
                   <Play size={14} fill="#fff" color="#fff" />
                 </div>
                 Watch Process
@@ -165,52 +104,30 @@ export default function Hero() {
             </div>
 
             {/* Social proof row */}
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: 18, 
-              flexWrap: 'wrap',
-              justifyContent: window.innerWidth < 1024 ? 'center' : 'flex-start'
-            }}>
-              <div style={{ display: 'flex' }}>
+            <div className="hero-social-proof">
+              <div className="avatar-group">
                 {['A', 'S', 'M', 'J', 'R'].map((l, i) => (
-                  <div key={i} style={{
-                    width: 34, height: 34, borderRadius: '50%',
+                  <div key={i} className="avatar-item" style={{
                     background: `hsl(${140 + i * 25}, 40%, ${28 + i * 4}%)`,
-                    border: '2px solid #0A1F14',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 11, fontWeight: 800, color: '#fff',
                     marginLeft: i > 0 ? -10 : 0, zIndex: 5 - i,
                   }}>{l}</div>
                 ))}
               </div>
-              <div>
-                <div style={{ display: 'flex', gap: 2, marginBottom: 2 }}>
+              <div className="rating-info">
+                <div className="stars-row">
                   {[1, 2, 3, 4, 5].map(i => <Star key={i} size={12} fill="#C8860A" color="#C8860A" />)}
                 </div>
-                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>
-                  <strong style={{ color: '#fff' }}>4.9/5</strong> (2,400+ brands)
+                <span className="rating-text">
+                  <strong>4.9/5</strong> (2,400+ brands)
                 </span>
               </div>
             </div>
 
             {/* Trust pills */}
-            <div style={{ 
-              display: 'flex', 
-              gap: 8, 
-              flexWrap: 'wrap', 
-              marginTop: 28,
-              justifyContent: window.innerWidth < 1024 ? 'center' : 'flex-start'
-            }}>
+            <div className="hero-trust-pills">
               {TRUST_ITEMS.map((t, i) => (
-                <div key={i} style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 6,
-                  padding: '6px 12px', borderRadius: 100,
-                  background: 'rgba(255,255,255,0.06)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  fontSize: 11, color: 'rgba(255,255,255,0.7)', fontWeight: 600,
-                }}>
-                  <span style={{ color: '#4ADE80' }}>{t.icon}</span>
+                <div key={i} className="trust-pill">
+                  <span className="trust-pill-icon">{t.icon}</span>
                   {t.text}
                 </div>
               ))}
@@ -220,24 +137,14 @@ export default function Hero() {
           {/* RIGHT — image with floating cards */}
           <div className="hero-right">
             {/* Glow ring behind image */}
-            <div style={{
-              position: 'absolute', top: '50%', left: '50%',
-              transform: 'translate(-50%, -50%)',
-              width: '85%', height: '85%', borderRadius: '50%',
-              background: 'radial-gradient(circle, rgba(26,77,46,0.6) 0%, transparent 70%)',
-              animation: 'heroGlow 5s ease-in-out infinite',
-            }} />
+            <div className="hero-glow-ring" />
 
             {/* Main image */}
-            <div style={{ animation: 'heroFloat 4.5s ease-in-out infinite', position: 'relative', zIndex: 2 }}>
+            <div className="hero-image-wrapper">
               <img
                 src="/src/assets/Premium-Custom-Box-Mockup.png"
                 alt="Premium custom packaging"
-                style={{
-                  width: '100%', maxWidth: 500, height: 'auto',
-                  borderRadius: 24,
-                  filter: 'drop-shadow(0 40px 80px rgba(0,0,0,0.55))',
-                }}
+                className="hero-main-img"
                 onError={e => {
                   e.target.src = 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=700&q=80';
                   e.target.style.borderRadius = '24px';
@@ -246,116 +153,236 @@ export default function Hero() {
             </div>
 
             {/* Floating card — Orders */}
-            <div className="hero-card" style={{
-              top: '8%', left: '-4%',
-              animation: 'heroCard1 5.5s ease-in-out infinite',
-            }}>
-              <div style={{
-                width: 40, height: 40, borderRadius: 11, background: '#1A4D2E',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-              }}>
-                <Package size={19} color="#fff" />
-              </div>
+            <div className="hero-card hero-card-1">
+              <div className="card-icon-green"><Package size={19} color="#fff" /></div>
               <div>
-                <div style={{ fontSize: 17, fontWeight: 900, color: '#111', lineHeight: 1 }}>500K+</div>
-                <div style={{ fontSize: 11, color: '#777', fontWeight: 500, marginTop: 2 }}>Orders Shipped</div>
+                <div className="card-value">500K+</div>
+                <div className="card-label">Orders Shipped</div>
               </div>
             </div>
 
             {/* Floating card — Speed */}
-            <div className="hero-card" style={{
-              bottom: '14%', right: '-6%',
-              animation: 'heroCard2 6s ease-in-out infinite',
-            }}>
-              <div style={{
-                width: 40, height: 40, borderRadius: 11, background: '#C8860A',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-              }}>
-                <Zap size={19} color="#fff" />
-              </div>
+            <div className="hero-card hero-card-2">
+              <div className="card-icon-gold"><Zap size={19} color="#fff" /></div>
               <div>
-                <div style={{ fontSize: 17, fontWeight: 900, color: '#111', lineHeight: 1 }}>7-Day</div>
-                <div style={{ fontSize: 11, color: '#777', fontWeight: 500, marginTop: 2 }}>Fast Delivery</div>
+                <div className="card-value">7-Day</div>
+                <div className="card-label">Fast Delivery</div>
               </div>
             </div>
 
             {/* Floating badge — Eco */}
-            <div style={{
-              position: 'absolute', top: '42%', right: '-9%', zIndex: 10,
-              background: 'rgba(255,255,255,0.96)',
-              borderRadius: 100, padding: '9px 16px',
-              boxShadow: '0 8px 28px rgba(0,0,0,0.18)',
-              display: 'flex', alignItems: 'center', gap: 7,
-              animation: 'heroCard3 7s ease-in-out infinite',
-            }}>
+            <div className="hero-eco-badge">
               <Shield size={14} color="#1A4D2E" />
-              <span style={{ fontSize: 12, fontWeight: 700, color: '#1A4D2E', whiteSpace: 'nowrap' }}>Eco-Certified</span>
+              <span>Eco-Certified</span>
             </div>
 
             {/* Rating badge */}
-            <div style={{
-              position: 'absolute', top: '-4%', right: '12%', zIndex: 10,
-              background: 'rgba(255,255,255,0.96)',
-              borderRadius: 14, padding: '10px 16px',
-              boxShadow: '0 8px 28px rgba(0,0,0,0.15)',
-              display: 'flex', alignItems: 'center', gap: 7,
-              animation: 'heroCard1 8s ease-in-out infinite 1s',
-            }}>
-              <div style={{ display: 'flex', gap: 1 }}>
+            <div className="hero-rating-badge">
+              <div className="stars-row-small">
                 {[1, 2, 3, 4, 5].map(i => <Star key={i} size={11} fill="#C8860A" color="#C8860A" />)}
               </div>
-              <span style={{ fontSize: 12, fontWeight: 800, color: '#111' }}>4.9/5 Rating</span>
+              <span className="rating-score">4.9/5 Rating</span>
             </div>
           </div>
         </div>
 
         {/* ── Stats Bar ─────────────────────────────────────────────────── */}
-        <div style={{
-          position: 'relative', zIndex: 10,
-          marginTop: 56,
-          background: 'rgba(255,255,255,0.04)',
-          backdropFilter: 'blur(12px)',
-          border: '1px solid rgba(255,255,255,0.08)',
-          borderRadius: '20px 20px 0 0',
-          display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)',
-          padding: '28px 24px',
-        }} className="hero-stats">
+        <div className="hero-stats">
           {STATS.map((s, i) => (
-            <div key={i} style={{
-              textAlign: 'center', padding: '0 16px',
-              borderRight: i < 3 ? '1px solid rgba(255,255,255,0.1)' : 'none',
-            }}>
-              <div style={{
-                fontSize: 'clamp(24px, 2.5vw, 34px)', fontWeight: 900,
-                fontFamily: 'Outfit, sans-serif', color: '#FFFFFF', lineHeight: 1,
-                letterSpacing: '-0.02em',
-              }}>{s.num}</div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 7, fontWeight: 500, letterSpacing: '0.03em' }}>{s.label}</div>
+            <div key={i} className="stats-item" style={{ borderRight: i < 3 ? '1px solid rgba(255,255,255,0.1)' : 'none' }}>
+              <div className="stats-num">{s.num}</div>
+              <div className="stats-label">{s.label}</div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* ── Keyframes & responsive ────────────────────────────────────── */}
       <style>{`
+        .hero-content {
+          position: relative;
+          z-index: 10;
+          maxWidth: 1400px;
+          margin: 0 auto;
+          padding: clamp(32px, 8vh, 64px) clamp(24px, 8vw, 64px) 0;
+        }
         .hero-grid {
           display: grid;
           grid-template-columns: 1.05fr 0.95fr;
           gap: 64px;
           align-items: center;
         }
-        .hero-left { }
+        .hero-left { text-align: left; }
+        .hero-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 8px 18px;
+          background: rgba(200,134,10,0.12);
+          border: 1px solid rgba(200,134,10,0.3);
+          border-radius: 100px;
+          margin-bottom: 28px;
+        }
+        .hero-badge-dot {
+          width: 7px;
+          height: 7px;
+          border-radius: 50%;
+          background: #C8860A;
+          animation: heroPulse 2s ease-in-out infinite;
+        }
+        .hero-badge-text {
+          font-size: 10px;
+          font-weight: 700;
+          color: #C8860A;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+        }
+        .hero-headline {
+          font-size: clamp(32px, 8vw, 68px);
+          font-family: 'Outfit', sans-serif;
+          font-weight: 900;
+          color: #FFFFFF;
+          line-height: 1.1;
+          margin-bottom: 28px;
+          letter-spacing: -0.02em;
+          max-width: 100%;
+        }
+        .hero-cycling-word {
+          color: #C8860A;
+          display: inline-block;
+          transition: opacity 0.38s ease, transform 0.38s ease;
+          min-width: 2ch;
+        }
+        .hero-subtext {
+          font-size: clamp(14px, 1.2vw, 18px);
+          color: rgba(255,255,255,0.65);
+          line-height: 1.7;
+          margin-bottom: 36px;
+          max-width: 500px;
+        }
+        .hero-actions {
+          display: flex;
+          gap: 14px;
+          flex-wrap: wrap;
+          margin-bottom: 36px;
+          justify-content: flex-start;
+        }
+        .hero-btn-primary {
+          display: inline-flex;
+          align-items: center;
+          gap: 10px;
+          padding: 16px 32px;
+          border-radius: 12px;
+          text-decoration: none;
+          background: linear-gradient(135deg, #C8860A 0%, #E09520 100%);
+          color: #fff;
+          font-weight: 800;
+          font-size: 15px;
+          box-shadow: 0 8px 28px rgba(200,134,10,0.4);
+          transition: all 0.2s;
+        }
+        .hero-btn-primary:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 14px 36px rgba(200,134,10,0.5);
+        }
+        .hero-btn-secondary {
+          display: inline-flex;
+          align-items: center;
+          gap: 12px;
+          padding: 16px 28px;
+          border-radius: 12px;
+          cursor: pointer;
+          background: rgba(255,255,255,0.07);
+          border: 1px solid rgba(255,255,255,0.16);
+          color: #fff;
+          font-weight: 700;
+          font-size: 15px;
+          backdrop-filter: blur(10px);
+          transition: all 0.2s;
+        }
+        .hero-btn-secondary:hover { background: rgba(255,255,255,0.13); }
+        .play-icon-wrapper {
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          background: rgba(255,255,255,0.14);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .hero-social-proof {
+          display: flex;
+          align-items: center;
+          gap: 18px;
+          flex-wrap: wrap;
+          justify-content: flex-start;
+        }
+        .avatar-group { display: flex; }
+        .avatar-item {
+          width: 34px;
+          height: 34px;
+          border-radius: 50%;
+          border: 2px solid #0A1F14;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 11px;
+          font-weight: 800;
+          color: #fff;
+        }
+        .rating-info { display: flex; flex-direction: column; }
+        .stars-row { display: flex; gap: 2px; margin-bottom: 2px; }
+        .rating-text { font-size: 12px; color: rgba(255,255,255,0.6); }
+        .hero-trust-pills {
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+          margin-top: 28px;
+          justify-content: flex-start;
+        }
+        .trust-pill {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 6px 12px;
+          border-radius: 100px;
+          background: rgba(255,255,255,0.06);
+          border: 1px solid rgba(255,255,255,0.1);
+          font-size: 11px;
+          color: rgba(255,255,255,0.7);
+          font-weight: 600;
+        }
+        .trust-pill-icon { color: #4ADE80; }
+
         .hero-right {
           position: relative;
           display: flex;
           align-items: center;
           justify-content: center;
         }
+        .hero-glow-ring {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 85%;
+          height: 85%;
+          border-radius: 50%;
+          background: radial-gradient(circle, rgba(26,77,46,0.6) 0%, transparent 70%);
+          animation: heroGlow 5s ease-in-out infinite;
+        }
+        .hero-image-wrapper { animation: heroFloat 4.5s ease-in-out infinite; position: relative; z-index: 2; }
+        .hero-main-img {
+          width: 100%;
+          max-width: 500px;
+          height: auto;
+          border-radius: 24px;
+          filter: drop-shadow(0 40px 80px rgba(0,0,0,0.55));
+        }
         .hero-card {
           position: absolute;
           z-index: 10;
           background: rgba(255,255,255,0.97);
-          borderRadius: 16px;
+          border-radius: 16px;
           padding: 13px 18px;
           box-shadow: 0 12px 40px rgba(0,0,0,0.22);
           display: flex;
@@ -363,87 +390,103 @@ export default function Hero() {
           gap: 12px;
           border: 1px solid rgba(255,255,255,0.6);
         }
-        .hero-btn-primary:hover {
-          transform: translateY(-2px) !important;
-          box-shadow: 0 14px 36px rgba(200,134,10,0.5) !important;
+        .card-icon-green {
+          width: 40px;
+          height: 40px;
+          border-radius: 11px;
+          background: #1A4D2E;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
         }
-        .hero-blob {
-          position: absolute;
-          border-radius: 50%;
-          pointer-events: none;
+        .card-icon-gold {
+          width: 40px;
+          height: 40px;
+          border-radius: 11px;
+          background: #C8860A;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
         }
-        .hero-blob-1 {
-          top: -15%;
-          right: -8%;
-          width: 560px;
-          height: 560px;
-          background: radial-gradient(circle, rgba(200,134,10,0.13) 0%, transparent 65%);
-          animation: heroBlob1 9s ease-in-out infinite;
+        .card-value { font-size: 17px; font-weight: 900; color: #111; line-height: 1; }
+        .card-label { font-size: 11px; color: #777; font-weight: 500; margin-top: 2px; }
+
+        .hero-card-1 { top: 8%; left: -4%; animation: heroCard1 5.5s ease-in-out infinite; }
+        .hero-card-2 { bottom: 14%; right: -6%; animation: heroCard2 6s ease-in-out infinite; }
+        
+        .hero-eco-badge {
+          position: absolute; top: 42%; right: -9%; z-index: 10;
+          background: rgba(255,255,255,0.96);
+          border-radius: 100px; padding: 9px 16px;
+          box-shadow: 0 8px 28px rgba(0,0,0,0.18);
+          display: flex; alignItems: center; gap: 7px;
+          animation: heroCard3 7s ease-in-out infinite;
+          font-size: 12px; font-weight: 700; color: #1A4D2E; white-space: nowrap;
         }
-        .hero-blob-2 {
-          bottom: -20%;
-          left: -10%;
-          width: 480px;
-          height: 480px;
-          background: radial-gradient(circle, rgba(26,77,46,0.45) 0%, transparent 65%);
-          animation: heroBlob2 11s ease-in-out infinite;
+        .hero-rating-badge {
+          position: absolute; top: -4%; right: 12%; z-index: 10;
+          background: rgba(255,255,255,0.96);
+          border-radius: 14px; padding: 10px 16px;
+          box-shadow: 0 8px 28px rgba(0,0,0,0.15);
+          display: flex; alignItems: center; gap: 7px;
+          animation: heroCard1 8s ease-in-out infinite 1s;
         }
-        .hero-blob-3 {
-          top: 30%;
-          left: 40%;
-          width: 300px;
-          height: 300px;
-          background: radial-gradient(circle, rgba(200,134,10,0.07) 0%, transparent 65%);
-          animation: heroBlob2 14s ease-in-out infinite reverse;
+        .stars-row-small { display: flex; gap: 1px; }
+        .rating-score { font-size: 12px; font-weight: 800; color: #111; }
+
+        .hero-stats {
+          position: relative; z-index: 10;
+          margin-top: 56px;
+          background: rgba(255,255,255,0.04);
+          backdrop-filter: blur(12px);
+          border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 20px 20px 0 0;
+          display: grid; grid-template-columns: repeat(4, 1fr);
+          padding: 28px 24px;
         }
-        @keyframes heroFloat {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-18px); }
-        }
-        @keyframes heroGlow {
-          0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
-          50% { opacity: 0.9; transform: translate(-50%, -50%) scale(1.12); }
-        }
-        @keyframes heroBlob1 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          33% { transform: translate(-25px, 18px) scale(1.08); }
-          66% { transform: translate(18px, -25px) scale(0.93); }
-        }
-        @keyframes heroBlob2 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          33% { transform: translate(22px, -18px) scale(1.05); }
-          66% { transform: translate(-18px, 22px) scale(0.95); }
-        }
-        @keyframes heroCard1 {
-          0%, 100% { transform: translateY(0) rotate(-1.5deg); }
-          50% { transform: translateY(-10px) rotate(1deg); }
-        }
-        @keyframes heroCard2 {
-          0%, 100% { transform: translateY(0) rotate(2deg); }
-          50% { transform: translateY(-8px) rotate(-1deg); }
-        }
-        @keyframes heroCard3 {
-          0%, 100% { transform: translateX(0) rotate(-0.5deg); }
-          50% { transform: translateX(-6px) rotate(0.5deg); }
-        }
-        @keyframes heroPulse {
-          0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(200,134,10,0.4); }
-          50% { opacity: 0.7; box-shadow: 0 0 0 5px rgba(200,134,10,0); }
-        }
+        .stats-item { text-align: center; padding: 0 16px; }
+        .stats-num { font-size: clamp(24px, 2.5vw, 34px); font-weight: 900; font-family: 'Outfit', sans-serif; color: #FFFFFF; line-height: 1; letter-spacing: -0.02em; }
+        .stats-label { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 7px; font-weight: 500; letter-spacing: 0.03em; }
+
+        .hero-blob { position: absolute; border-radius: 50%; pointer-events: none; }
+        .hero-blob-1 { top: -15%; right: -8%; width: 560px; height: 560px; background: radial-gradient(circle, rgba(200,134,10,0.13) 0%, transparent 65%); animation: heroBlob1 9s ease-in-out infinite; }
+        .hero-blob-2 { bottom: -20%; left: -10%; width: 480px; height: 480px; background: radial-gradient(circle, rgba(26,77,46,0.45) 0%, transparent 65%); animation: heroBlob2 11s ease-in-out infinite; }
+        .hero-blob-3 { top: 30%; left: 40%; width: 300px; height: 300px; background: radial-gradient(circle, rgba(200,134,10,0.07) 0%, transparent 65%); animation: heroBlob2 14s ease-in-out infinite reverse; }
+
+        @keyframes heroFloat { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-18px); } }
+        @keyframes heroGlow { 0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); } 50% { opacity: 0.9; transform: translate(-50%, -50%) scale(1.12); } }
+        @keyframes heroBlob1 { 0%, 100% { transform: translate(0, 0) scale(1); } 33% { transform: translate(-25px, 18px) scale(1.08); } 66% { transform: translate(18px, -25px) scale(0.93); } }
+        @keyframes heroBlob2 { 0%, 100% { transform: translate(0, 0) scale(1); } 33% { transform: translate(22px, -18px) scale(1.05); } 66% { transform: translate(-18px, 22px) scale(0.95); } }
+        @keyframes heroCard1 { 0%, 100% { transform: translateY(0) rotate(-1.5deg); } 50% { transform: translateY(-10px) rotate(1deg); } }
+        @keyframes heroCard2 { 0%, 100% { transform: translateY(0) rotate(2deg); } 50% { transform: translateY(-8px) rotate(-1deg); } }
+        @keyframes heroCard3 { 0%, 100% { transform: translateX(0) rotate(-0.5deg); } 50% { transform: translateX(-6px) rotate(0.5deg); } }
+        @keyframes heroPulse { 0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(200,134,10,0.4); } 50% { opacity: 0.7; box-shadow: 0 0 0 5px rgba(200,134,10,0); } }
+
         @media (max-width: 1024px) {
-          .hero-grid {
-            grid-template-columns: 1fr !important;
-            gap: 48px !important;
-          }
-          .hero-right { min-height: 340px; }
+          .hero-grid { grid-template-columns: 1fr !important; gap: 48px !important; }
+          .hero-left { text-align: center; }
+          .hero-actions { justify-content: center; }
+          .hero-social-proof { justify-content: center; }
+          .hero-trust-pills { justify-content: center; }
+          .hero-subtext { margin-inline: auto; }
+          .hero-right { min-height: 340px; margin-top: 40px; }
+          /* Fix for floating elements on small screens */
+          .hero-card-1 { left: 0; top: 0; }
+          .hero-card-2 { right: 0; bottom: 0; }
+          .hero-eco-badge { right: 0; top: 40%; }
+          .hero-rating-badge { right: 10%; top: -10%; }
         }
         @media (max-width: 640px) {
           .hero-stats { grid-template-columns: repeat(2, 1fr) !important; }
           .hero-stats > div:nth-child(2) { border-right: none !important; }
-          .hero-stats > div:nth-child(1),
-          .hero-stats > div:nth-child(2) { border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px; }
-          .hero-stats > div:nth-child(3),
-          .hero-stats > div:nth-child(4) { padding-top: 20px; }
+          .hero-stats > div:nth-child(1), .hero-stats > div:nth-child(2) { border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px; }
+          .hero-stats > div:nth-child(3), .hero-stats > div:nth-child(4) { padding-top: 20px; }
+          .hero-btn-primary, .hero-btn-secondary { width: 100%; justify-content: center; }
+          /* Hide decorative cards if they overlap too much */
+          .hero-eco-badge { display: none; }
+          .hero-rating-badge { display: none; }
         }
       `}</style>
 
@@ -467,7 +510,7 @@ export default function Hero() {
             <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
               <Link
                 to="/products"
-                onClick={() => setShowVideo(false)}
+                onClick={() => setShowVideo(true)}
                 style={{ padding: '11px 24px', background: '#1A4D2E', color: '#fff', borderRadius: 10, fontWeight: 700, fontSize: 14, textDecoration: 'none' }}
               >
                 Browse Products
