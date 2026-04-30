@@ -1,115 +1,104 @@
 # 📦 Design Custom Box
-### *Luxury Custom Packaging & Production Platform*
+### *The Ultimate Luxury Custom Packaging Platform*
 
-Design Custom Box is a high-performance, production-ready MERN stack application designed for the luxury packaging industry. It combines a sophisticated user experience with powerful backend management, 3D visualization, and secure authentication.
+[![MERN Stack](https://img.shields.io/badge/Stack-MERN-green.svg)](https://www.mongodb.com/mern-stack)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-orange.svg)](http://makeapullrequest.com)
+
+Design Custom Box is a production-grade, full-stack application engineered for premium packaging manufacturers. It features a high-fidelity 3D box configurator, luxury-tier UI/UX, and a robust administrative backend.
+
+![Design Custom Box Mockup](file:///C:/Users/user/.gemini/antigravity/brain/6069f063-79fa-4084-924c-75b0cb49e235/site_mockup_main_1777572691931.png)
 
 ---
 
-## 💎 Premium Features
+## ✨ Core Experience
 
-### 🎨 Design & UX
-- **3D Box Configurator**: Real-time interactive visualization of custom box styles (Mailer, Rigid, Sleeve, etc.).
-- **Mobile-First Luxury UI**: Glassmorphism effects, smooth micro-animations, and a locked responsive layout to prevent unwanted scaling.
-- **Dynamic Headers**: Context-aware navigation with luxury typography and optimized mobile centering.
-- **Vibrant Hero Sections**: High-vibrancy, luxury-tier imagery across all landing and secondary pages.
+### 🎨 Elite Visual Design
+- **Luxury Aesthetic**: Curated Forest Green (`#1A4D2E`) and Imperial Gold (`#C8860A`) palette.
+- **Glassmorphism**: Modern, translucent UI elements with smooth backdrop blurs.
+- **Micro-Animations**: Framer Motion powered transitions that respond to user intent.
 
-### 🔐 Security & Integrity
-- **Official Google OAuth2**: Secure "Login with Google" integration for friction-less onboarding.
-- **JWT Authentication**: Secure session management and protected API routes.
-- **Admin Command Center**: Role-based access control (RBAC) with full visibility into orders, users, and industry trends.
-- **Data Hardening**: Input sanitization and secure environment configuration.
+### 🛠️ Interactive Engineering
+- **3D Real-time Configurator**: Precision visualization for Mailer, Rigid, and Sleeve boxes.
+- **Dynamic Dieline Generation**: Automatic SVG export for production-ready design files.
+- **Human-Centric UX**: Optimized hit areas, centered mobile headers, and locked responsive scaling.
 
-### 💼 E-commerce Engine
-- **Full Checkout Flow**: Integrated shopping cart with persistence and secure checkout simulation.
-- **Favourites System**: User-specific collections for saving and comparing premium designs.
-- **Live Chat Integration**: Branded fallback and Tawk.to support for real-time customer assistance.
-- **Newsletter Engine**: Functional "Stay in the Loop" subscription system.
+### 🔐 Enterprise Hardening
+- **Official Google OAuth2**: Seamless, secure authentication using Google's production identity layer.
+- **Admin Command Center**: Real-time dashboard for managing orders, products, and subscribers.
+- **Newsletter Engine**: Fully functional automated subscription management.
+
+![Mobile Responsiveness](file:///C:/Users/user/.gemini/antigravity/brain/6069f063-79fa-4084-924c-75b0cb49e235/site_mockup_mobile_1777572833471.png)
 
 ---
 
 ## 🛠️ Technology Stack
 
-| Layer | Technologies |
-| :--- | :--- |
-| **Frontend** | React 18, Vite, Framer Motion, Tailwind CSS, Lucide Icons, Swiper.js |
-| **Backend** | Node.js, Express.js |
-| **Database** | MongoDB (Mongoose ODM) |
-| **Auth** | Google OAuth 2.0, JWT (JSON Web Tokens) |
-| **Payment** | Stripe (Infrastructure ready) |
-| **Deployment** | Vercel (Frontend), Node.js production server |
+### Frontend
+- **Framework**: React 18 (Vite)
+- **Styling**: Tailwind CSS & Modern Vanilla CSS
+- **Icons**: Lucide React
+- **Animations**: Framer Motion & AOS (Animate On Scroll)
+
+### Backend
+- **Engine**: Node.js & Express.js
+- **Database**: MongoDB (Mongoose)
+- **Auth**: JWT & Google OAuth 2.0
+- **Payments**: Stripe Infrastructure
 
 ---
 
-## 📂 Project Structure
+## 📂 Project Architecture
 
 ```text
-├── client/                 # Frontend React Application
+├── client/                 # React Frontend
 │   ├── src/
-│   │   ├── components/     # Reusable UI Components
-│   │   ├── pages/          # Page Level Components
-│   │   ├── context/        # Global State (Auth, Cart, Favs)
-│   │   ├── services/       # API Services (Axios/Fetch)
-│   │   └── assets/         # Branding & Imagery
-├── server/                 # Backend Node.js API
-│   ├── models/             # Mongoose Schemas (User, Product, Subscriber)
-│   ├── routes/             # API Endpoints
-│   ├── middleware/         # Auth & Security Middlewares
-│   └── index.js            # Entry Point
+│   │   ├── components/     # UI Design System
+│   │   ├── pages/          # Full-page Views
+│   │   ├── context/        # State (Auth, Cart, Favs)
+│   │   └── services/       # API Communications
+├── server/                 # Node.js Backend
+│   ├── models/             # Schema Definitions
+│   ├── routes/             # Controller Logic
+│   └── index.js            # Server Entry
 └── README.md
 ```
 
 ---
 
-## ⚡ Quick Start
+## ⚡ Setup & Deployment
 
 ### 1. Prerequisites
-- Node.js (v16 or higher)
-- MongoDB (Local or Atlas)
+- Node.js v18+
+- MongoDB Atlas Account
 
-### 2. Environment Configuration
-Create a `.env` file in both the `root` and `server` directories:
-
-**Frontend (.env):**
-```env
-VITE_GOOGLE_CLIENT_ID=your_google_id.apps.googleusercontent.com
-VITE_API_URL=http://localhost:5000/api
-VITE_TAWK_PROPERTY_ID=your_id
-```
-
-**Backend (server/.env):**
-```env
-PORT=5000
-MONGODB_URI=your_mongodb_uri
-JWT_SECRET=your_secret_key
-STRIPE_SECRET_KEY=your_stripe_key
-```
-
-### 3. Installation
+### 2. Quick Install
 ```bash
-# Install root dependencies
-npm install
+# Clone the repository
+git clone https://github.com/ShahzebFaisal5649/Custom-Box-Website-2.git
 
-# Install server dependencies
+# Install dependencies
+npm install
 cd server && npm install && cd ..
 ```
 
-### 4. Running the App
-```bash
-# Start both Frontend and Backend
-npm run dev
+### 3. Environment Config
+**Frontend (.env):**
+```env
+VITE_GOOGLE_CLIENT_ID=your_id.apps.googleusercontent.com
+VITE_API_URL=http://localhost:5000/api
 ```
 
 ---
 
-## 📞 Support & Contact
+## 📞 Premium Support
 
-For technical support or partnership inquiries:
+For enterprise licensing, technical support, or partnership inquiries:
 
-- **Phone**: (913) 228-2682
-- **Email**: support@designcustombox.com
-- **HQ**: 5532 Big River Dr, The Colony, Texas, US 75056
+- **Official Phone**: (913) 228-2682
+- **Support Email**: support@designcustombox.com
+- **Headquarters**: 5532 Big River Dr, The Colony, Texas, US 75056
 
 ---
 
-**Developed & Maintained by NextStac**  
-*Empowering brands through premium packaging solutions.*
+**Developed with ❤️ for Design Custom Box by NextStac**
