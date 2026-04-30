@@ -7,7 +7,6 @@
 
 Design Custom Box is a production-grade, full-stack application engineered for premium packaging manufacturers. It features a high-fidelity 3D box configurator, luxury-tier UI/UX, and a robust administrative backend.
 
-![Design Custom Box Mockup](file:///C:/Users/user/.gemini/antigravity/brain/6069f063-79fa-4084-924c-75b0cb49e235/site_mockup_main_1777572691931.png)
 
 ---
 
@@ -27,8 +26,6 @@ Design Custom Box is a production-grade, full-stack application engineered for p
 - **Official Google OAuth2**: Seamless, secure authentication using Google's production identity layer.
 - **Admin Command Center**: Real-time dashboard for managing orders, products, and subscribers.
 - **Newsletter Engine**: Fully functional automated subscription management.
-
-![Mobile Responsiveness](file:///C:/Users/user/.gemini/antigravity/brain/6069f063-79fa-4084-924c-75b0cb49e235/site_mockup_mobile_1777572833471.png)
 
 ---
 
