@@ -57,11 +57,17 @@ export default function Hero() {
       <div className="hero-blob hero-blob-3" />
 
       {/* ── Main Content ──────────────────────────────────────────────── */}
-      <div style={{ position: 'relative', zIndex: 10, maxWidth: 1400, margin: '0 auto', padding: '32px 24px 0' }}>
+      <div style={{ 
+        position: 'relative', 
+        zIndex: 10, 
+        maxWidth: 1400, 
+        margin: '0 auto', 
+        padding: 'clamp(32px, 8vh, 64px) clamp(24px, 8vw, 64px) 0' 
+      }}>
         <div className="hero-grid">
 
           {/* LEFT */}
-          <div className="hero-left">
+          <div className="hero-left" style={{ textAlign: window.innerWidth < 1024 ? 'center' : 'left' }}>
 
             {/* Badge */}
             <div style={{
@@ -70,17 +76,18 @@ export default function Hero() {
               borderRadius: 100, marginBottom: 28,
             }}>
               <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#C8860A', animation: 'heroPulse 2s ease-in-out infinite' }} />
-              <span style={{ fontSize: 11, fontWeight: 700, color: '#C8860A', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+              <span style={{ fontSize: 10, fontWeight: 700, color: '#C8860A', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
                 Industry-Leading Custom Packaging
               </span>
             </div>
 
             {/* Headline */}
             <h1 style={{
-              fontSize: 'clamp(38px, 4.8vw, 68px)',
+              fontSize: 'clamp(32px, 8vw, 68px)',
               fontFamily: 'Outfit, sans-serif', fontWeight: 900,
-              color: '#FFFFFF', lineHeight: 1.08, marginBottom: 28,
+              color: '#FFFFFF', lineHeight: 1.1, marginBottom: 28,
               letterSpacing: '-0.02em',
+              maxWidth: '100%',
             }}>
               Packaging That<br />
               Elevates<br />
@@ -98,26 +105,35 @@ export default function Hero() {
 
             {/* Subtext */}
             <p style={{
-              fontSize: 'clamp(15px, 1.3vw, 18px)',
-              color: 'rgba(255,255,255,0.65)', lineHeight: 1.75,
+              fontSize: 'clamp(14px, 1.2vw, 18px)',
+              color: 'rgba(255,255,255,0.65)', lineHeight: 1.7,
               marginBottom: 36, maxWidth: 500,
+              marginInline: window.innerWidth < 1024 ? 'auto' : '0',
             }}>
               Deliver unforgettable unboxing experiences with custom-printed,
               premium-grade packaging. Fast turnaround. No minimums. Just results.
             </p>
 
             {/* CTA Buttons */}
-            <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', marginBottom: 36 }}>
+            <div style={{ 
+              display: 'flex', 
+              gap: 14, 
+              flexWrap: 'wrap', 
+              marginBottom: 36,
+              justifyContent: window.innerWidth < 1024 ? 'center' : 'flex-start'
+            }}>
               <Link
                 to="/custom-box"
                 className="hero-btn-primary"
                 style={{
                   display: 'inline-flex', alignItems: 'center', gap: 10,
-                  padding: '15px 30px', borderRadius: 12, textDecoration: 'none',
+                  padding: '16px 32px', borderRadius: 12, textDecoration: 'none',
                   background: 'linear-gradient(135deg, #C8860A 0%, #E09520 100%)',
                   color: '#fff', fontWeight: 800, fontSize: 15,
                   boxShadow: '0 8px 28px rgba(200,134,10,0.4)',
-                  transition: 'transform 0.2s, box-shadow 0.2s',
+                  transition: 'all 0.2s',
+                  minWidth: window.innerWidth < 480 ? '100%' : 'auto',
+                  justifyContent: 'center'
                 }}
               >
                 Start Designing Free <ArrowRight size={17} />
@@ -127,18 +143,18 @@ export default function Hero() {
                 onClick={() => setShowVideo(true)}
                 style={{
                   display: 'inline-flex', alignItems: 'center', gap: 12,
-                  padding: '15px 26px', borderRadius: 12, cursor: 'pointer',
+                  padding: '16px 28px', borderRadius: 12, cursor: 'pointer',
                   background: 'rgba(255,255,255,0.07)',
                   border: '1px solid rgba(255,255,255,0.16)',
                   color: '#fff', fontWeight: 700, fontSize: 15,
                   backdropFilter: 'blur(10px)',
-                  transition: 'background 0.2s',
+                  transition: 'all 0.2s',
+                  minWidth: window.innerWidth < 480 ? '100%' : 'auto',
+                  justifyContent: 'center'
                 }}
-                onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.13)'}
-                onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.07)'}
               >
                 <div style={{
-                  width: 34, height: 34, borderRadius: '50%',
+                  width: 32, height: 32, borderRadius: '50%',
                   background: 'rgba(255,255,255,0.14)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                 }}>
@@ -149,42 +165,50 @@ export default function Hero() {
             </div>
 
             {/* Social proof row */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 18, flexWrap: 'wrap' }}>
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: 18, 
+              flexWrap: 'wrap',
+              justifyContent: window.innerWidth < 1024 ? 'center' : 'flex-start'
+            }}>
               <div style={{ display: 'flex' }}>
                 {['A', 'S', 'M', 'J', 'R'].map((l, i) => (
                   <div key={i} style={{
-                    width: 36, height: 36, borderRadius: '50%',
+                    width: 34, height: 34, borderRadius: '50%',
                     background: `hsl(${140 + i * 25}, 40%, ${28 + i * 4}%)`,
-                    border: '2.5px solid rgba(10,31,20,0.9)',
+                    border: '2px solid #0A1F14',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 12, fontWeight: 800, color: '#fff',
+                    fontSize: 11, fontWeight: 800, color: '#fff',
                     marginLeft: i > 0 ? -10 : 0, zIndex: 5 - i,
                   }}>{l}</div>
                 ))}
               </div>
               <div>
-                <div style={{ display: 'flex', gap: 2, marginBottom: 3 }}>
-                  {[1, 2, 3, 4, 5].map(i => <Star key={i} size={13} fill="#C8860A" color="#C8860A" />)}
+                <div style={{ display: 'flex', gap: 2, marginBottom: 2 }}>
+                  {[1, 2, 3, 4, 5].map(i => <Star key={i} size={12} fill="#C8860A" color="#C8860A" />)}
                 </div>
-                <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)' }}>
-                  <strong style={{ color: '#fff' }}>4.9/5</strong> from 2,400+ brands
+                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>
+                  <strong style={{ color: '#fff' }}>4.9/5</strong> (2,400+ brands)
                 </span>
-              </div>
-              <div style={{ width: 1, height: 32, background: 'rgba(255,255,255,0.15)' }} />
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)' }}>
-                <span style={{ color: '#4ADE80', fontWeight: 700 }}>✓</span> No credit card required
               </div>
             </div>
 
             {/* Trust pills */}
-            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 28 }}>
+            <div style={{ 
+              display: 'flex', 
+              gap: 8, 
+              flexWrap: 'wrap', 
+              marginTop: 28,
+              justifyContent: window.innerWidth < 1024 ? 'center' : 'flex-start'
+            }}>
               {TRUST_ITEMS.map((t, i) => (
                 <div key={i} style={{
                   display: 'inline-flex', alignItems: 'center', gap: 6,
                   padding: '6px 12px', borderRadius: 100,
                   background: 'rgba(255,255,255,0.06)',
                   border: '1px solid rgba(255,255,255,0.1)',
-                  fontSize: 12, color: 'rgba(255,255,255,0.7)', fontWeight: 600,
+                  fontSize: 11, color: 'rgba(255,255,255,0.7)', fontWeight: 600,
                 }}>
                   <span style={{ color: '#4ADE80' }}>{t.icon}</span>
                   {t.text}
