@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Heart, Search } from 'lucide-react';
 import { useModal } from '../context/ModalContext';
 import { useFavourites } from '../context/FavouritesContext';

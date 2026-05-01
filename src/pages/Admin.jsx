@@ -39,8 +39,8 @@ function Badge({ status }) {
 function Modal({ onClose, title, children, wide }) {
   return (
     <>
-      <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 9000 }} onClick={onClose} />
-      <div style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', backgroundColor: '#fff', borderRadius: 16, padding: 24, width: `min(95vw,${wide ? '760px' : '540px'})`, zIndex: 9001, maxHeight: 'calc(100vh - 24px)', overflowY: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.18)', boxSizing: 'border-box' }}>
+      <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 100000 }} onClick={onClose} />
+      <div style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', backgroundColor: '#fff', borderRadius: 16, padding: 24, width: `min(95vw,${wide ? '760px' : '540px'})`, zIndex: 100001, maxHeight: 'calc(100vh - 24px)', overflowY: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.18)', boxSizing: 'border-box' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, paddingBottom: 16, borderBottom: '1px solid #F0EDE8' }}>
           <h3 style={{ fontSize: 18, fontFamily: 'Outfit,sans-serif', fontWeight: 700, color: '#1A1A1A' }}>{title}</h3>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B6B6B', padding: 4, borderRadius: 6 }}><X size={18} /></button>
@@ -310,16 +310,16 @@ function ProductsSection() {
 
   const emptyForm = { name: '', slug: '', cat: '', description: '', price: '', img: '', featured: false, boxType: '', material: '', finish: '', dims: '', minQty: '', addons: [], customIndustry: '' };
 
-  async function loadProducts() {
+  async function loadProducts(showLoader = true) {
     let cancelled = false;
-    setLoading(true);
+    if (showLoader) setLoading(true);
     try {
       const data = await api.get('/admin/products');
       if (!cancelled) setProducts(data.products || []);
     } catch (err) {
       if (!cancelled) console.error('Failed to load products:', err);
     } finally {
-      if (!cancelled) setLoading(false);
+      if (!cancelled && showLoader) setLoading(false);
     }
   }
 
@@ -442,7 +442,7 @@ function ProductsSection() {
       
       setEditForm(null); // Close immediately
       // Background refetch
-      loadProducts();
+      loadProducts(false);
       loadIndustryOptions();
     } catch (err) {
       console.error('Failed to save product:', err);
@@ -456,7 +456,7 @@ function ProductsSection() {
     try {
       await api.delete(`/admin/products/${id}`);
       setDeleteConfirm(null);
-      loadProducts();
+      loadProducts(false);
     } catch (err) {
       console.error('Failed to delete product:', err);
     }
@@ -667,16 +667,16 @@ function IndustriesSection() {
 
   const emptyForm = { name: '', slug: '', cat: '', description: '', img: '', products: [] };
 
-  async function loadIndustries() {
+  async function loadIndustries(showLoader = true) {
     let cancelled = false;
-    setLoading(true);
+    if (showLoader) setLoading(true);
     try {
       const data = await api.get('/admin/industries');
       if (!cancelled) setIndustries(data.industries || []);
     } catch (err) {
       if (!cancelled) console.error('Failed to load industries:', err);
     } finally {
-      if (!cancelled) setLoading(false);
+      if (!cancelled && showLoader) setLoading(false);
     }
   }
 
@@ -736,7 +736,7 @@ function IndustriesSection() {
         setIndustries(prev => [created.industry, ...prev]);
       }
       setEditForm(null);
-      loadIndustries();
+      loadIndustries(false);
     } catch (err) {
       console.error('Failed to save industry:', err);
       showToast(err.message || 'Save failed', 'error');
@@ -749,7 +749,7 @@ function IndustriesSection() {
     try {
       await api.delete(`/admin/industries/${id}`);
       setDeleteConfirm(null);
-      loadIndustries();
+      loadIndustries(false);
     } catch (err) {
       console.error('Failed to delete industry:', err);
     }
