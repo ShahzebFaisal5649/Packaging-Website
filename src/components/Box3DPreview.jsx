@@ -1,6 +1,6 @@
 import { useRef, useMemo, Suspense } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, Environment, ContactShadows } from '@react-three/drei';
+import { OrbitControls, ContactShadows } from '@react-three/drei';
 import * as THREE from 'three';
 
 function BoxMesh({ width, height, depth, color, finish }) {
@@ -94,7 +94,6 @@ export default function Box3DPreview({ dims, color, finish, viewMode }) {
       <directionalLight position={[-3, 2, -3]} intensity={0.3} />
 
       <Suspense fallback={null}>
-        <Environment files="/potsdamer_platz_1k.hdr?v=2" />
         {viewMode === '3d' ? (
           <BoxMesh width={w} height={h} depth={d} color={color} finish={finish} />
         ) : (

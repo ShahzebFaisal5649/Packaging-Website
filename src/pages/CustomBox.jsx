@@ -10,7 +10,7 @@ import {
   ShoppingCart, ArrowRight, Leaf, Award, MapPin,
 } from 'lucide-react';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Stage, useTexture } from '@react-three/drei';
+import { OrbitControls, useTexture } from '@react-three/drei';
 
 const G = '#1A4D2E';
 const ACCENT = '#C8860A';
@@ -586,12 +586,14 @@ export default function CustomBox() {
                 </div>
               }>
                 <Canvas shadows dpr={[1, 2]} camera={{ position: [0, 0, 4], fov: 50 }}>
-                  <Stage environment="city" intensity={0.5}>
+                  <ambientLight intensity={0.7} />
+                  <directionalLight position={[5, 8, 5]} intensity={1.2} castShadow />
+                  <directionalLight position={[-3, 2, -3]} intensity={0.4} />
+                  <pointLight position={[0, 4, 0]} intensity={0.5} />
                     {artworkApplied && artworkPreview
                       ? <BoxModelTextured l={parseFloat(config.l) || 8} w={parseFloat(config.w) || 6} h={parseFloat(config.h) || 3} artworkUrl={artworkPreview} />
                       : <BoxModel l={parseFloat(config.l) || 8} w={parseFloat(config.w) || 6} h={parseFloat(config.h) || 3} material={config.material} finish={config.finish} />
                     }
-                  </Stage>
                   <OrbitControls autoRotate autoRotateSpeed={1.8} enableZoom={true} />
                 </Canvas>
               </Suspense>
