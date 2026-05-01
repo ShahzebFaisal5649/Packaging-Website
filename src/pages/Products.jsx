@@ -93,7 +93,20 @@ function ProductCard({ product }) {
 
   const handleConfigure = (e) => {
     e.stopPropagation();
-    navigate('/custom-box', { state: { product } });
+    // Spread product fields at the top level so CustomBox.jsx can read them directly
+    navigate('/custom-box', {
+      state: {
+        boxType: product.boxType || 'Mailer Box',
+        material: product.material || 'Corrugated E-Flute',
+        finish: product.finish || 'Matte Lam',
+        productName: product.name,
+        price: product.price,
+        suggestedDimensions: product.dims
+          ? (() => { const parts = product.dims.match(/[\d.]+/g); return parts ? { l: parts[0], w: parts[1], h: parts[2] } : { l: 8, w: 6, h: 3 }; })()
+          : { l: 8, w: 6, h: 3 },
+        addons: product.addons || [],
+      },
+    });
   };
 
   return (
