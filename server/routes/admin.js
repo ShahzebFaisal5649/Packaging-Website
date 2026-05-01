@@ -88,6 +88,9 @@ router.post('/products', async (req, res) => {
     const product = await Product.create(req.body);
     res.json({ product });
   } catch (err) {
+    if (err.code === 11000 && err.keyPattern && err.keyPattern.slug) {
+      return res.status(400).json({ message: 'A product with this slug already exists. Please choose a different name or modify the slug.' });
+    }
     res.status(500).json({ message: err.message });
   }
 });
@@ -100,6 +103,9 @@ router.put('/products/:id', async (req, res) => {
     await product.save();
     res.json({ product });
   } catch (err) {
+    if (err.code === 11000 && err.keyPattern && err.keyPattern.slug) {
+      return res.status(400).json({ message: 'A product with this slug already exists. Please choose a different name or modify the slug.' });
+    }
     res.status(500).json({ message: err.message });
   }
 });
@@ -127,6 +133,9 @@ router.post('/industries', async (req, res) => {
     const industry = await Industry.create(req.body);
     res.json({ industry });
   } catch (err) {
+    if (err.code === 11000 && err.keyPattern && err.keyPattern.slug) {
+      return res.status(400).json({ message: 'An industry with this slug already exists. Please choose a different name or modify the slug.' });
+    }
     res.status(500).json({ message: err.message });
   }
 });
@@ -139,6 +148,9 @@ router.put('/industries/:id', async (req, res) => {
     await industry.save();
     res.json({ industry });
   } catch (err) {
+    if (err.code === 11000 && err.keyPattern && err.keyPattern.slug) {
+      return res.status(400).json({ message: 'An industry with this slug already exists. Please choose a different name or modify the slug.' });
+    }
     res.status(500).json({ message: err.message });
   }
 });

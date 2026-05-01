@@ -80,7 +80,6 @@ function PaymentForm({ clientSecret, amount }) {
         showToast(error.message, 'error');
       } else if (paymentIntent?.status === 'succeeded') {
         try {
-          // Save order to database
           const orderData = {
             items: cartItems,
             total: amount,
@@ -94,20 +93,53 @@ function PaymentForm({ clientSecret, amount }) {
             paymentIntentId: paymentIntent.id,
           };
 
-          const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/users/orders`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${localStorage.getItem('designcustombox_token')}`,
-            },
-            body: JSON.stringify(orderData),
-          });
+          let savedSuccessfully = false;
+          if (localStorage.getItem('designcustombox_token')) {
+            const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/users/orders`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('designcustombox_token')}`,
+              },
+              body: JSON.stringify(orderData),
+            });
+            if (response.ok) savedSuccessfully = true;
+          }
 
-          if (!response.ok) throw new Error('Failed to save order');
-          await response.json();
+          if (!savedSuccessfully) {
+            // Save to localStorage as guest / fallback
+            const guestList = JSON.parse(localStorage.getItem('packagingUsersList') || '[]');
+            const guestIdx = guestList.findIndex(u => u.email === form.email);
+            const fallbackOrder = {
+              orderId: `ORD-${Date.now()}`,
+              items: cartItems,
+              total: amount,
+              status: 'Processing',
+              date: new Date().toISOString().split('T')[0],
+              product: cartItems.length > 0 ? cartItems[0].name : 'Custom Box',
+              qty: cartItems.reduce((acc, item) => acc + item.quantity, 0),
+              paymentIntentId: paymentIntent.id,
+              userName: form.name,
+              userEmail: form.email
+            };
+            
+            if (guestIdx > -1) {
+              guestList[guestIdx].orders = [...(guestList[guestIdx].orders || []), fallbackOrder];
+            } else {
+              guestList.push({ 
+                id: `guest_${Date.now()}`, 
+                name: form.name, 
+                email: form.email, 
+                role: 'user', 
+                orders: [fallbackOrder], 
+                quotes: [] 
+              });
+            }
+            localStorage.setItem('packagingUsersList', JSON.stringify(guestList));
+          }
         } catch (err) {
           console.error('Order save error:', err);
-          // Continue anyway as payment already succeeded
+          // Continue anyway as payment already succeeded and local save is attempted
         }
 
         setSuccess(true);

@@ -75,7 +75,37 @@ function ImageUploader({ value, onChange, label = 'Product Image' }) {
   const handleFile = (file) => {
     if (!file) return;
     const reader = new FileReader();
-    reader.onloadend = () => onChange(reader.result);
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 800;
+        const MAX_HEIGHT = 800;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height;
+            height = MAX_HEIGHT;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        
+        const dataUrl = canvas.toDataURL('image/webp', 0.8);
+        onChange(dataUrl);
+      };
+      img.src = e.target.result;
+    };
     reader.readAsDataURL(file);
   };
   return (
@@ -276,6 +306,7 @@ function ProductsSection() {
   const [search, setSearch] = useState('');
   const [editForm, setEditForm] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   const emptyForm = { name: '', slug: '', cat: '', description: '', price: '', img: '', featured: false, boxType: '', material: '', finish: '', dims: '', minQty: '', addons: [], customIndustry: '' };
 
@@ -358,43 +389,66 @@ function ProductsSection() {
       showToast('Please select or add an industry for this product.', 'warning');
       return;
     }
+
+    if (!productData.slug) productData.slug = autoSlug(productData.name);
+    
+    // Prevent duplicate slugs on the frontend
+    if (editForm.id) {
+      if (products.some(p => p._id !== editForm.id && p.slug === productData.slug)) {
+        return showToast('A product with this slug already exists. Please use a unique slug.', 'error');
+      }
+    } else {
+      if (products.some(p => p.slug === productData.slug)) {
+        return showToast('A product with this slug already exists. Please use a unique slug.', 'error');
+      }
+    }
+
+    setIsSaving(true);
     let finalIndustry = industryName;
 
     try {
       const existingIndustry = industryOptions.find(i => i.name.toLowerCase() === industryName.toLowerCase());
       if (!existingIndustry) {
+        const autoIndSlug = autoSlug(industryName);
+        if (industryOptions.some(i => i.slug === autoIndSlug)) {
+           setIsSaving(false);
+           return showToast(`An industry with a similar name already exists. Please pick a different name.`, 'error');
+        }
         const newIndustry = await api.post('/admin/industries', {
           name: industryName,
-          slug: autoSlug(industryName),
+          slug: autoIndSlug,
           cat: '',
           description: '',
           img: '',
           products: [],
         });
         finalIndustry = newIndustry.industry?.name || newIndustry.name || industryName;
-        setIndustryOptions(prev => [...prev, { name: finalIndustry, slug: autoSlug(finalIndustry) }]);
+        setIndustryOptions(prev => [...prev, { name: finalIndustry, slug: autoIndSlug }]);
         showToast(`Created new industry “${finalIndustry}”.`, 'success');
       } else {
         finalIndustry = existingIndustry.name;
       }
 
-      const payload = {
-        ...productData,
-        cat: finalIndustry,
-      };
+      const payload = { ...productData, cat: finalIndustry };
       delete payload.customIndustry;
 
       if (editForm.id) {
-        await api.put(`/admin/products/${editForm.id}`, payload);
+        const updated = await api.put(`/admin/products/${editForm.id}`, payload);
+        setProducts(prev => prev.map(p => p._id === editForm.id ? updated.product : p));
       } else {
-        if (!payload.slug) payload.slug = autoSlug(payload.name);
-        await api.post('/admin/products', payload);
+        const created = await api.post('/admin/products', payload);
+        setProducts(prev => [created.product, ...prev]);
       }
-      setEditForm(null);
-      await Promise.all([loadProducts(), loadIndustryOptions()]);
+      
+      setEditForm(null); // Close immediately
+      // Background refetch
+      loadProducts();
+      loadIndustryOptions();
     } catch (err) {
       console.error('Failed to save product:', err);
       showToast(err.message || 'Save failed', 'error');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -575,10 +629,10 @@ function ProductsSection() {
           </div>
 
           <div style={{ display: 'flex', gap: 10, marginTop: 20, paddingTop: 16, borderTop: '1px solid #F0EDE8' }}>
-            <button onClick={handleSave} style={{ flex: 1, padding: '11px', background: G, color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
-              {editForm.id ? 'Save Changes' : 'Add Product'}
+            <button onClick={handleSave} disabled={isSaving} style={{ flex: 1, padding: '11px', background: isSaving ? '#9CA3AF' : G, color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: isSaving ? 'not-allowed' : 'pointer' }}>
+              {isSaving ? 'Saving...' : editForm.id ? 'Save Changes' : 'Add Product'}
             </button>
-            <button onClick={() => setEditForm(null)} style={{ flex: 1, padding: '11px', background: '#fff', color: '#666', border: '1px solid #E2DDD6', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+            <button onClick={() => setEditForm(null)} disabled={isSaving} style={{ flex: 1, padding: '11px', background: '#fff', color: '#666', border: '1px solid #E2DDD6', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: isSaving ? 'not-allowed' : 'pointer' }}>
               Cancel
             </button>
           </div>
@@ -608,6 +662,8 @@ function IndustriesSection() {
   const [search, setSearch] = useState('');
   const [editForm, setEditForm] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const { showToast } = useToast();
 
   const emptyForm = { name: '', slug: '', cat: '', description: '', img: '', products: [] };
 
@@ -658,18 +714,34 @@ function IndustriesSection() {
   const handleSave = async () => {
     const payload = { ...editForm };
     delete payload.id;
+    if (!payload.slug) payload.slug = autoSlug(payload.name);
+
+    if (editForm.id) {
+      if (industries.some(i => i._id !== editForm.id && i.slug === payload.slug)) {
+        return showToast('An industry with this slug already exists.', 'error');
+      }
+    } else {
+      if (industries.some(i => i.slug === payload.slug)) {
+        return showToast('An industry with this slug already exists.', 'error');
+      }
+    }
+
+    setIsSaving(true);
     try {
       if (editForm.id) {
-        await api.put(`/admin/industries/${editForm.id}`, payload);
+        const updated = await api.put(`/admin/industries/${editForm.id}`, payload);
+        setIndustries(prev => prev.map(i => i._id === editForm.id ? updated.industry : i));
       } else {
-        if (!payload.slug) payload.slug = autoSlug(payload.name);
-        await api.post('/admin/industries', payload);
+        const created = await api.post('/admin/industries', payload);
+        setIndustries(prev => [created.industry, ...prev]);
       }
       setEditForm(null);
       loadIndustries();
     } catch (err) {
       console.error('Failed to save industry:', err);
-      alert(err.message || 'Save failed');
+      showToast(err.message || 'Save failed', 'error');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -786,10 +858,10 @@ function IndustriesSection() {
           </div>
 
           <div style={{ display: 'flex', gap: 10, marginTop: 20, paddingTop: 16, borderTop: '1px solid #F0EDE8' }}>
-            <button onClick={handleSave} style={{ flex: 1, padding: '11px', background: G, color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
-              {editForm.id ? 'Save Changes' : 'Add Industry'}
+            <button onClick={handleSave} disabled={isSaving} style={{ flex: 1, padding: '11px', background: isSaving ? '#9CA3AF' : G, color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: isSaving ? 'not-allowed' : 'pointer' }}>
+              {isSaving ? 'Saving...' : editForm.id ? 'Save Changes' : 'Add Industry'}
             </button>
-            <button onClick={() => setEditForm(null)} style={{ flex: 1, padding: '11px', background: '#fff', color: '#666', border: '1px solid #E2DDD6', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+            <button onClick={() => setEditForm(null)} disabled={isSaving} style={{ flex: 1, padding: '11px', background: '#fff', color: '#666', border: '1px solid #E2DDD6', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: isSaving ? 'not-allowed' : 'pointer' }}>
               Cancel
             </button>
           </div>
@@ -865,9 +937,9 @@ function OrdersSection() {
         if (ui > -1) { const oi = list[ui].orders.findIndex(o => o.id === (order.id || order.orderId)); if (oi > -1) list[ui].orders[oi].status = status; }
         localStorage.setItem('packagingUsersList', JSON.stringify(list));
       }
-      await load();
+      if (selected?.id === order.id || selected?._id === order._id) setSelected(prev => ({ ...prev, status }));
       showToast('Order status updated', 'success');
-      if (selected?.id === order.id) setSelected(prev => ({ ...prev, status }));
+      load();
     } catch (e) { showToast(e.message, 'error'); }
   };
 
@@ -878,8 +950,8 @@ function OrdersSection() {
         await api.put(`/admin/orders/${selected.userId}/${selected._id}`, { tracking: editTracking });
       }
       setSelected(prev => ({ ...prev, tracking: editTracking }));
-      await load();
       showToast('Tracking updated', 'success');
+      load();
     } catch (e) { showToast(e.message, 'error'); }
   };
 
@@ -1068,9 +1140,9 @@ function UsersSection() {
         const list = JSON.parse(localStorage.getItem('packagingUsersList') || '[]');
         localStorage.setItem('packagingUsersList', JSON.stringify(list.filter(u => u.id !== user.id)));
       }
-      await load();
       setDeleteConfirm(null);
       showToast('User deleted', 'success');
+      load();
     } catch (e) { showToast(e.message, 'error'); }
   };
 
@@ -1083,17 +1155,17 @@ function UsersSection() {
         if (idx > -1) list[idx].role = role;
         localStorage.setItem('packagingUsersList', JSON.stringify(list));
       }
-      await load();
       showToast('Role updated', 'success');
+      load();
     } catch (e) { showToast(e.message, 'error'); }
   };
 
   const handleLoyalty = async (user, points) => {
     try {
       if (user._id) await api.put(`/admin/users/${user._id}`, { loyaltyPoints: points });
-      await load();
       setSelected(prev => prev ? { ...prev, loyaltyPoints: points } : null);
       showToast('Loyalty points updated', 'success');
+      load();
     } catch (e) { showToast(e.message, 'error'); }
   };
 
@@ -1299,9 +1371,9 @@ function QuotesSection() {
         if (ui > -1) { const qi = list[ui].quotes?.findIndex(x => x.id === q.id); if (qi > -1) list[ui].quotes[qi] = { ...list[ui].quotes[qi], ...updates }; }
         localStorage.setItem('packagingUsersList', JSON.stringify(list));
       }
-      await loadQuotes();
-      showToast('Quote updated', 'success');
       setSelected(null);
+      showToast('Quote updated', 'success');
+      loadQuotes();
     } catch (e) { showToast(e.message, 'error'); }
   };
 
