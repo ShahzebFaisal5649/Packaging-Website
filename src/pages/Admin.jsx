@@ -308,7 +308,10 @@ function ProductsSection() {
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
 
-  const emptyForm = { name: '', slug: '', cat: '', description: '', price: '', img: '', featured: false, boxType: '', material: '', finish: '', dims: '', minQty: '', addons: [], customIndustry: '' };
+  const emptyForm = { name: '', slug: '', cat: '', description: '', price: '', img: '', featured: false, boxType: '', material: '', finish: '', dimL: '', dimW: '', dimH: '', minQty: '', addons: [], customIndustry: '' };
+  // Helper: parse stored dims string like "10×8×4 in" into parts
+  const parseDims = (dims = '') => { const m = dims.match(/([\d.]+)[×x]([\d.]+)[×x]([\d.]+)/); return m ? { dimL: m[1], dimW: m[2], dimH: m[3] } : { dimL: '', dimW: '', dimH: '' }; };
+  const joinDims = (f) => f.dimL && f.dimW && f.dimH ? `${f.dimL}×${f.dimW}×${f.dimH} in` : '';
 
   async function loadProducts(showLoader = true) {
     let cancelled = false;
@@ -360,6 +363,7 @@ function ProductsSection() {
   const handleEdit = (product) => {
     const industryName = product.cat || '';
     const matchedIndustry = industryOptions.find(i => i.name.toLowerCase() === industryName.toLowerCase());
+    const dimParts = parseDims(product.dims || '');
     setEditForm({
       id: product._id,
       name: product.name || '',
@@ -372,7 +376,9 @@ function ProductsSection() {
       boxType: product.boxType || '',
       material: product.material || '',
       finish: product.finish || '',
-      dims: product.dims || '',
+      dimL: dimParts.dimL,
+      dimW: dimParts.dimW,
+      dimH: dimParts.dimH,
       minQty: product.minQty || '',
       addons: product.addons || [],
       customIndustry: matchedIndustry ? '' : industryName,
@@ -384,6 +390,9 @@ function ProductsSection() {
   const handleSave = async () => {
     const productData = { ...editForm };
     delete productData.id;
+    // Build dims string from individual fields
+    productData.dims = joinDims(editForm);
+    delete productData.dimL; delete productData.dimW; delete productData.dimH;
     const industryName = editForm.cat === '__other' ? editForm.customIndustry?.trim() : editForm.cat;
     if (!industryName) {
       showToast('Please select or add an industry for this product.', 'warning');
@@ -606,10 +615,24 @@ function ProductsSection() {
                 {FINISHES.map(f => <option key={f} value={f}>{f}</option>)}
               </select>
             </div>
-            <div>
-              <label style={{ fontSize: 11, fontWeight: 700, color: '#555', display: 'block', marginBottom: 4 }}>Dimensions Range</label>
-              <input value={editForm.dims} onChange={e => setEditForm(f => ({ ...f, dims: e.target.value }))}
-                placeholder="e.g. 4×4×2 – 16×12×8 in" style={inputStyle} />
+            <div style={{ gridColumn: '1 / -1' }}>
+              <label style={{ fontSize: 11, fontWeight: 700, color: '#555', display: 'block', marginBottom: 8 }}>Dimensions (inches)</label>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
+                {[['dimL','Length (L)'],['dimW','Width (W)'],['dimH','Height (H)']].map(([key,lbl]) => (
+                  <div key={key}>
+                    <label style={{ fontSize: 10, fontWeight: 600, color: '#888', display: 'block', marginBottom: 4 }}>{lbl}</label>
+                    <div style={{ position: 'relative' }}>
+                      <input type="number" min="0.5" step="0.5" value={editForm[key]}
+                        onChange={e => setEditForm(f => ({ ...f, [key]: e.target.value }))}
+                        placeholder="e.g. 10" style={{ ...inputStyle, paddingRight: 32, textAlign: 'center' }} />
+                      <span style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', fontSize: 10, color: '#aaa', pointerEvents: 'none' }}>in</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {editForm.dimL && editForm.dimW && editForm.dimH && (
+                <div style={{ marginTop: 8, fontSize: 11, color: '#888', fontStyle: 'italic' }}>Preview: {editForm.dimL}×{editForm.dimW}×{editForm.dimH} in</div>
+              )}
             </div>
             <div>
               <label style={{ fontSize: 11, fontWeight: 700, color: '#555', display: 'block', marginBottom: 4 }}>Min. Order Qty</label>
