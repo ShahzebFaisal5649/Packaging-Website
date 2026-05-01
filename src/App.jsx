@@ -48,13 +48,27 @@ class ErrorBoundary extends Component {
   }
   componentDidCatch(error, errorInfo) {
     console.error('ErrorBoundary caught an error', error, errorInfo);
+    // Check if it's a chunk loading error (dynamic import failure)
+    const isChunkError = error?.message?.includes('Failed to fetch dynamically imported module') || 
+                         error?.message?.includes('Importing a module script failed');
+    if (isChunkError) {
+      if (!sessionStorage.getItem('chunk_failed_reload')) {
+        sessionStorage.setItem('chunk_failed_reload', 'true');
+        window.location.reload();
+        return;
+      } else {
+        // If it already reloaded once and failed again, clear the flag so it can retry later,
+        // but let the error UI show up to avoid infinite reload loop
+        sessionStorage.removeItem('chunk_failed_reload');
+      }
+    }
   }
   render() {
     if (this.state.hasError) {
       return (
         <div style={{ padding: '50px', backgroundColor: '#fff1f0', border: '5px solid #ff4d4f', margin: '20px', borderRadius: '20px' }}>
           <h1 style={{ color: '#ff4d4f' }}>Something went wrong.</h1>
-          <pre style={{ whiteSpace: 'pre-wrap', color: '#850505' }}>{this.state.error?.toString()}</pre>
+          <pre style={{ whiteSpace: 'pre-wrap', color: '#850505', wordBreak: 'break-all' }}>{this.state.error?.toString()}</pre>
           <button onClick={() => window.location.reload()} style={{ padding: '10px 20px', backgroundColor: '#ff4d4f', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', marginTop: '20px' }}>
             Reload Page
           </button>

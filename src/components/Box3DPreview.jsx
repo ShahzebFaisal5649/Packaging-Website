@@ -94,7 +94,7 @@ export default function Box3DPreview({ dims, color, finish, viewMode }) {
       <directionalLight position={[-3, 2, -3]} intensity={0.3} />
 
       <Suspense fallback={null}>
-        <Environment preset="city" />
+        <Environment files="/potsdamer_platz_1k.hdr" />
         {viewMode === '3d' ? (
           <BoxMesh width={w} height={h} depth={d} color={color} finish={finish} />
         ) : (
