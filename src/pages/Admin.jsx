@@ -227,17 +227,34 @@ function DashboardSection() {
     async function load() {
       setLoading(true);
       try {
-        const [s, o] = await Promise.all([api.get('/admin/stats'), api.get('/admin/orders')]);
+        const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('Request timeout')), 10000));
+        const [s, o] = await Promise.race([
+          Promise.all([api.get('/admin/stats'), api.get('/admin/orders')]),
+          timeout
+        ]);
         if (!cancelled) {
           setStats(s);
           setRecentOrders((o.orders || []).slice(0, 6));
+          // Cache successful response
+          localStorage.setItem('admin_stats_cache', JSON.stringify({ stats: s, orders: (o.orders || []).slice(0, 6), timestamp: Date.now() }));
         }
-      } catch {
+      } catch { /* fallback to cache/localStorage */
         if (!cancelled) {
-          const list = JSON.parse(localStorage.getItem('packagingUsersList') || '[]');
-          const orders = list.flatMap(u => (u.orders || []).map(o => ({ ...o, userName: u.name, userEmail: u.email })));
-          setStats({ totalUsers: list.filter(u => u.role !== 'admin').length, totalOrders: orders.length, revenue: orders.reduce((s, o) => s + (parseFloat(o.total) || 0), 0), pending: orders.filter(o => o.status === 'Processing').length, newThisWeek: 0 });
-          setRecentOrders(orders.slice(0, 6));
+          // Try cache first
+          const cached = localStorage.getItem('admin_stats_cache');
+          if (cached) {
+            try {
+              const { stats: cachedStats, orders: cachedOrders } = JSON.parse(cached);
+              setStats(cachedStats);
+              setRecentOrders(cachedOrders);
+            } catch { /* ignore parse errors */ }
+          } else {
+            // Fallback to localStorage users
+            const list = JSON.parse(localStorage.getItem('packagingUsersList') || '[]');
+            const orders = list.flatMap(u => (u.orders || []).map(o => ({ ...o, userName: u.name, userEmail: u.email })));
+            setStats({ totalUsers: list.filter(u => u.role !== 'admin').length, totalOrders: orders.length, revenue: orders.reduce((s, o) => s + (parseFloat(o.total) || 0), 0), pending: orders.filter(o => o.status === 'Processing').length, newThisWeek: 0 });
+            setRecentOrders(orders.slice(0, 6));
+          }
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -1578,15 +1595,12 @@ function AnalyticsSection() {
 // ── Messages ─────────────────────────────────────────────────────────────────
 function MessagesSection() {
   const { showToast } = useToast();
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState(() => {
+    const stored = JSON.parse(localStorage.getItem('designcustombox_contact_messages') || '[]');
+    return stored.sort((a, b) => new Date(b.date) - new Date(a.date));
+  });
   const [selected, setSelected] = useState(null);
   const [search, setSearch] = useState('');
-
-  useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem('designcustombox_contact_messages') || '[]');
-    // Sort newest first
-    setMessages(stored.sort((a, b) => new Date(b.date) - new Date(a.date)));
-  }, []);
 
   const handleMarkReplied = (id) => {
     const updated = messages.map(m => m.id === id ? { ...m, status: 'Replied' } : m);

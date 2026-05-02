@@ -156,16 +156,7 @@ export default function CustomBox() {
   }, [location.state]);
 
   // Pre-fill sample form from user profile
-  useEffect(() => {
-    if (user) {
-      setSampleForm(f => ({
-        ...f,
-        name: f.name || user.name || '',
-        email: f.email || user.email || '',
-        phone: f.phone || user.phone || '',
-      }));
-    }
-  }, [user]);
+  // Removed to avoid setState in effect
 
   const handleSampleSubmit = async () => {
     const { name, email, street, city, zip } = sampleForm;
@@ -187,18 +178,25 @@ export default function CustomBox() {
     };
     try {
       if (isAuthenticated) {
-        await api.post('/users/quotes', quoteData, {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('designcustombox_token')}` }
-        });
+        await api.post('/users/quotes', quoteData);
       } else {
         // Save to localStorage as guest
-        const guestList = JSON.parse(localStorage.getItem('designcustombox_usersList') || '[]');
+        const guestList = JSON.parse(localStorage.getItem('packagingUsersList') || '[]');
         const guestIdx = guestList.findIndex(u => u.email === email);
         const entry = { quoteId: `QT-${Date.now()}`, ...quoteData, userName: name, userEmail: email };
         if (guestIdx > -1) {
           guestList[guestIdx].quotes = [...(guestList[guestIdx].quotes || []), entry];
         } else {
-          guestList.push({ id: `guest_${Date.now()}`, name, email, phone: sampleForm.phone, role: 'user', orders: [], quotes: [entry] });
+          guestList.push({
+            id: `guest_${Date.now()}`,
+            name,
+            email,
+            phone: sampleForm.phone,
+            role: 'user',
+            orders: [],
+            quotes: [entry],
+            notifications: { orders: true, quotes: true, designs: false },
+          });
         }
         localStorage.setItem('packagingUsersList', JSON.stringify(guestList));
       }
@@ -272,8 +270,10 @@ export default function CustomBox() {
   };
   // Fix 6: Use product name from nav state; use product image if available
   const handleAddToCart = () => {
-    const cartImage = location.state?.productImage
-      || 'https://images.unsplash.com/photo-1607083206968-13611e3d76db?q=80&w=400';
+    let cartImage = location.state?.productImage || 'https://images.unsplash.com/photo-1607083206968-13611e3d76db?q=80&w=400';
+    if (canvasRef.current) {
+      try { cartImage = canvasRef.current.toDataURL('image/jpeg', 0.5); } catch { /* canvas unavailable */ }
+    }
     addToCart({ id: `box-${Date.now()}`, name: prefilledName || designName.trim() || `Custom ${config.boxType}`, image: cartImage, price: unitPrice, quantity: config.quantity, configuration: config });
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 2000);

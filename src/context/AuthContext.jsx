@@ -12,7 +12,8 @@ const seedLocalAdmin = () => {
     list.push({
       id: 'admin_1', name: 'Admin', email: 'admin@designcustombox.com',
       password: 'Admin@123', role: 'admin', createdAt: new Date().toISOString(),
-      orders: [], addresses: [], savedDesigns: [], loyaltyPoints: 0, favorites: [],
+      orders: [], quotes: [], addresses: [], savedDesigns: [], loyaltyPoints: 0, favorites: [],
+      notifications: { orders: true, quotes: true, designs: false },
     });
     localStorage.setItem('packagingUsersList', JSON.stringify(list));
   }
@@ -39,6 +40,7 @@ const localRegister = (userData) => {
       { id: 'Q-001', boxType: 'Mailer Box', qty: 500, dims: '12×8×4 in', material: 'Corrugated', date: '2025-01-20', status: 'Quoted', quotedPrice: '$1.24/unit' },
     ],
     addresses: [], savedDesigns: [], loyaltyPoints: 150, favorites: [],
+    notifications: { orders: true, quotes: true, designs: false },
   };
   list.push(newUser);
   localStorage.setItem('packagingUsersList', JSON.stringify(list));
@@ -115,7 +117,8 @@ export const AuthProvider = ({ children }) => {
       avatar: profile?.avatar || null,
       role: 'user',
       createdAt: new Date().toISOString(),
-      orders: [], addresses: [], savedDesigns: [], loyaltyPoints: 100, favorites: [],
+      orders: [], quotes: [], addresses: [], savedDesigns: [], loyaltyPoints: 100, favorites: [],
+      notifications: { orders: true, quotes: true, designs: false },
     };
     setUser(mockUser);
     persistLocal(mockUser);

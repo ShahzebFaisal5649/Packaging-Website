@@ -143,6 +143,8 @@ export default function Navbar() {
   const { showToast } = useToast();
   const { count: favCount } = useFavourites();
 
+  const isAdmin = location.pathname.startsWith('/admin');
+
   const handleLogout = () => {
     logout();
     showToast('Logged out successfully', 'success');
@@ -283,22 +285,26 @@ export default function Navbar() {
           {/* ── Desktop Right Actions — only on md+ ── */}
           {isDesktop && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 18, flexShrink: 0 }}>
-              <Link to="/favourites" style={{ position: 'relative', color: 'rgba(255,255,255,0.8)', transition: 'color 0.15s' }}
-                onMouseEnter={e => e.currentTarget.style.color = '#fff'} onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.8)'}>
-                <Heart size={20} strokeWidth={1.5} />
-                {favCount > 0 && (
-                  <span style={{ position: 'absolute', top: -6, right: -6, width: 16, height: 16, background: '#EF4444', color: '#fff', fontSize: 9, fontWeight: 700, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{favCount}</span>
-                )}
-              </Link>
+              {!isAdmin && (
+                <Link to="/favourites" style={{ position: 'relative', color: 'rgba(255,255,255,0.8)', transition: 'color 0.15s' }}
+                  onMouseEnter={e => e.currentTarget.style.color = '#fff'} onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.8)'}>
+                  <Heart size={20} strokeWidth={1.5} />
+                  {favCount > 0 && (
+                    <span style={{ position: 'absolute', top: -6, right: -6, width: 16, height: 16, background: '#EF4444', color: '#fff', fontSize: 9, fontWeight: 700, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{favCount}</span>
+                  )}
+                </Link>
+              )}
 
-              <button onClick={() => toggleDrawer()}
-                style={{ position: 'relative', color: 'rgba(255,255,255,0.8)', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.15s', padding: 0 }}
-                onMouseEnter={e => e.currentTarget.style.color = '#fff'} onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.8)'}>
-                <ShoppingCart size={20} strokeWidth={1.5} />
-                {cartCount > 0 && (
-                  <span style={{ position: 'absolute', top: -6, right: -6, width: 16, height: 16, background: ACCENT, color: '#fff', fontSize: 9, fontWeight: 700, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{cartCount}</span>
-                )}
-              </button>
+              {!isAdmin && (
+                <button onClick={() => toggleDrawer()}
+                  style={{ position: 'relative', color: 'rgba(255,255,255,0.8)', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.15s', padding: 0 }}
+                  onMouseEnter={e => e.currentTarget.style.color = '#fff'} onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.8)'}>
+                  <ShoppingCart size={20} strokeWidth={1.5} />
+                  {cartCount > 0 && (
+                    <span style={{ position: 'absolute', top: -6, right: -6, width: 16, height: 16, background: ACCENT, color: '#fff', fontSize: 9, fontWeight: 700, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{cartCount}</span>
+                  )}
+                </button>
+              )}
 
               <div style={{ position: 'relative' }} onMouseEnter={() => setUserDropdownOpen(true)} onMouseLeave={() => setUserDropdownOpen(false)}>
                 {isAuthenticated ? (
@@ -387,14 +393,15 @@ export default function Navbar() {
           {/* ── Mobile: Cart + Hamburger — only on mobile ── */}
           {!isDesktop && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-              {/* Cart icon on mobile */}
-              <button onClick={() => toggleDrawer()}
-                style={{ position: 'relative', color: 'rgba(255,255,255,0.8)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-                <ShoppingCart size={22} strokeWidth={1.5} />
-                {cartCount > 0 && (
-                  <span style={{ position: 'absolute', top: -6, right: -6, width: 16, height: 16, background: ACCENT, color: '#fff', fontSize: 9, fontWeight: 700, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{cartCount}</span>
-                )}
-              </button>
+              {!isAdmin && (
+                <button onClick={() => toggleDrawer()}
+                  style={{ position: 'relative', color: 'rgba(255,255,255,0.8)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                  <ShoppingCart size={22} strokeWidth={1.5} />
+                  {cartCount > 0 && (
+                    <span style={{ position: 'absolute', top: -6, right: -6, width: 16, height: 16, background: ACCENT, color: '#fff', fontSize: 9, fontWeight: 700, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{cartCount}</span>
+                  )}
+                </button>
+              )}
 
               {/* Hamburger */}
               <button
@@ -507,7 +514,7 @@ export default function Navbar() {
               { to: '/success-stories', label: 'Inspiration' },
               { to: '/blog',            label: 'Blog' },
               { to: '/contact-us',      label: 'Contact' },
-              { to: '/favourites',      label: favCount > 0 ? `Favourites (${favCount})` : 'Favourites' },
+              ...(isAdmin ? [] : [{ to: '/favourites', label: favCount > 0 ? `Favourites (${favCount})` : 'Favourites' }]),
             ].map(item => (
               <Link key={item.to} to={item.to}
                 style={{ display: 'block', padding: '16px 0', fontSize: 17, fontWeight: 700, color: '#fff', textDecoration: 'none', borderBottom: '1px solid rgba(255,255,255,0.1)' }}

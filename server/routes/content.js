@@ -60,7 +60,7 @@ router.post('/subscribe', async (req, res) => {
     
     await Subscriber.create({ email });
     res.status(201).json({ message: 'Successfully subscribed to the newsletter!' });
-  } catch (err) {
+  } catch {
     res.status(500).json({ message: 'Subscription failed. Please try again later.' });
   }
 });
@@ -83,7 +83,7 @@ router.post('/contact', async (req, res) => {
     });
 
     res.status(201).json({ message: 'Message received', contact });
-  } catch (err) {
+  } catch {
     res.status(500).json({ message: 'Could not submit contact message. Please try again later.' });
   }
 });

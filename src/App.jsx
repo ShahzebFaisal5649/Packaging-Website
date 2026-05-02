@@ -67,8 +67,8 @@ class ErrorBoundary extends Component {
     if (this.state.hasError) {
       return (
         <div style={{ padding: '50px', backgroundColor: '#fff1f0', border: '5px solid #ff4d4f', margin: '20px', borderRadius: '20px' }}>
-          <h1 style={{ color: '#ff4d4f' }}>Something went wrong.</h1>
-          <pre style={{ whiteSpace: 'pre-wrap', color: '#850505', wordBreak: 'break-all' }}>{this.state.error?.toString()}</pre>
+          <h1 style={{ color: '#ff4d4f' }}>Oops! Something went wrong.</h1>
+          <p style={{ color: '#850505' }}>We're sorry for the inconvenience. Please try reloading the page.</p>
           <button onClick={() => window.location.reload()} style={{ padding: '10px 20px', backgroundColor: '#ff4d4f', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', marginTop: '20px' }}>
             Reload Page
           </button>

@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import { User, Package, FileText, Layout, MapPin, Settings, LogOut, Camera, Plus, Trash2, Edit, X, ExternalLink, Copy } from 'lucide-react';
+import { User, Package, FileText, Layout, MapPin, Settings, LogOut, Camera, Plus, Trash2, Edit, X, ExternalLink, Copy, Menu, ChevronLeft } from 'lucide-react';
 
 const G = '#1A4D2E';
 const ACCENT = '#C8860A';
@@ -211,7 +211,14 @@ function OrdersTab({ orders }) {
 // --- QUOTES TAB ---
 function QuotesTab({ quotes }) {
   const [selectedQuote, setSelectedQuote] = useState(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const displayQuotes = quotes?.length ? quotes : [];
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
     <div>
@@ -220,6 +227,25 @@ function QuotesTab({ quotes }) {
         <div style={{ textAlign: 'center', padding: '48px', backgroundColor: BG, borderRadius: 12, border: '1px dashed #D0CAC0' }}>
           <FileText size={48} style={{ color: '#D0CAC0', margin: '0 auto 12px' }} />
           <p style={{ color: '#6B6B6B' }}>No quotes yet. Request a custom quote from the contact page.</p>
+        </div>
+      ) : isMobile ? (
+        <div style={{ display: 'grid', gap: 16 }}>
+          {displayQuotes.map((q, i) => (
+            <div key={i} style={{ backgroundColor: '#fff', borderRadius: 12, padding: 16, border: '1px solid #E2DDD6' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                <p style={{ fontSize: 14, fontWeight: 700, color: G }}>{q.id}</p>
+                <Badge status={q.status} />
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 13 }}>
+                <p><strong>Box Type:</strong> {q.boxType}</p>
+                <p><strong>Qty:</strong> {q.qty}</p>
+                <p><strong>Material:</strong> {q.material}</p>
+                <p><strong>Date:</strong> {q.date}</p>
+                <p style={{ gridColumn: 'span 2' }}><strong>Price:</strong> {q.quotedPrice || 'Pending'}</p>
+              </div>
+              <button onClick={() => setSelectedQuote(q)} style={{ marginTop: 12, fontSize: 12, fontWeight: 700, color: G, background: 'none', border: `1px solid ${G}`, cursor: 'pointer', padding: '6px 12px', borderRadius: 6 }}>View Details</button>
+            </div>
+          ))}
         </div>
       ) : (
         <div style={{ overflowX: 'auto' }}>
@@ -315,8 +341,12 @@ function DesignsTab({ designs, updateUser, showToast, navigate }) {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 20 }}>
           {designs.map((d, i) => (
             <div key={i} style={{ border: '1px solid #E2DDD6', borderRadius: 12, overflow: 'hidden', backgroundColor: '#fff' }}>
-              <div style={{ height: 140, backgroundColor: BG, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Package size={48} style={{ color: '#D0CAC0' }} />
+              <div style={{ height: 140, backgroundColor: BG, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                {d.thumbnail ? (
+                  <img src={d.thumbnail} alt={d.name || 'Design'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  <Package size={48} style={{ color: '#D0CAC0' }} />
+                )}
               </div>
               <div style={{ padding: '14px 14px' }}>
                 <h4 style={{ fontWeight: 700, fontSize: 14, marginBottom: 4, color: '#1A1A1A' }}>{d.name || 'Untitled Design'}</h4>
@@ -496,9 +526,9 @@ function SettingsTab({ user, updateUser, showToast, logout }) {
   const [pwdErr, setPwdErr] = useState('');
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [notifs, setNotifs] = useState(() => ({
-    orderUpdates: user?.notifications?.orderUpdates ?? true,
-    promotions: user?.notifications?.promotions ?? user?.notifications?.promos ?? false,
-    newsletter: user?.notifications?.newsletter ?? user?.notifications?.newsLetter ?? true,
+    orders: user?.notifications?.orders ?? true,
+    quotes: user?.notifications?.quotes ?? true,
+    designs: user?.notifications?.designs ?? false,
   }));
 
   const handleSaveInfo = async () => {
@@ -521,6 +551,7 @@ function SettingsTab({ user, updateUser, showToast, logout }) {
     const updated = { ...notifs, [key]: !notifs[key] };
     setNotifs(updated);
     await updateUser({ notifications: updated });
+    showToast('Notification preferences saved.', 'success');
   };
 
   const handleDeleteAccount = () => {
@@ -581,9 +612,9 @@ function SettingsTab({ user, updateUser, showToast, logout }) {
       <div style={section}>
         <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1A1A1A', marginBottom: 16, paddingBottom: 10, borderBottom: '1px solid #F0EDE8' }}>Notifications</h3>
         {[
-          { key: 'orderUpdates', label: 'Order Updates', desc: 'Get notified when your order status changes' },
-          { key: 'promotions', label: 'Promotions & Deals', desc: 'Receive exclusive discounts and offers' },
-          { key: 'newsletter', label: 'Newsletter', desc: 'Monthly packaging trends and insights' },
+          { key: 'orders', label: 'Order Updates', desc: 'Get notified when your order status changes' },
+          { key: 'quotes', label: 'Quote Updates', desc: 'Receive updates on your custom quotes' },
+          { key: 'designs', label: 'Design Reminders', desc: 'Reminders for saved designs and customizations' },
         ].map(({ key, label, desc }) => (
           <div key={key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid #F0EDE8' }}>
             <div>
@@ -634,19 +665,15 @@ export default function Profile() {
   const location = useLocation();
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState(() => location.state?.tab || 'overview');
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   useEffect(() => {
     const handler = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener('resize', handler);
     return () => window.removeEventListener('resize', handler);
   }, []);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (location.state?.tab) setActiveTab(location.state.tab);
-  }, [location.state]);
 
   const handleLogout = () => { logout(); showToast('Logged out', 'success'); navigate('/'); };
 
@@ -687,32 +714,14 @@ export default function Profile() {
               </div>
             </div>
 
-            {/* Mobile horizontal tab scroll */}
             {isMobile && (
-              <div style={{ display: 'flex', overflowX: 'auto', gap: 8, padding: '8px 0', scrollbarWidth: 'none' }}>
-                {TABS.map(tab => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    style={{
-                      flexShrink: 0,
-                      padding: '8px 14px',
-                      borderRadius: 100,
-                      border: 'none',
-                      cursor: 'pointer',
-                      fontSize: 12,
-                      fontWeight: 700,
-                      whiteSpace: 'nowrap',
-                      backgroundColor: activeTab === tab.id ? G : '#F0EDE8',
-                      color: activeTab === tab.id ? '#fff' : '#4A4A4A',
-                    }}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                <button type="button" onClick={() => setMobileNavOpen(true)} style={{ width: 36, height: 36, borderRadius: 12, border: '1px solid #E2DDD6', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                  <Menu size={18} />
+                </button>
+                <span style={{ fontSize: 14, fontWeight: 700, color: '#1A1A1A' }}>Profile Menu</span>
               </div>
             )}
-            {/* Desktop vertical nav — hide on mobile */}
             {!isMobile && (
               <nav style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 {TABS.map(tab => (
@@ -736,6 +745,32 @@ export default function Profile() {
               </button>
             )}
           </div>
+
+          {isMobile && mobileNavOpen && (
+            <>
+              <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.45)', zIndex: 10000 }} onClick={() => setMobileNavOpen(false)} />
+              <div style={{ position: 'fixed', top: 0, left: 0, width: '85vw', maxWidth: 320, height: '100%', backgroundColor: '#fff', zIndex: 10001, padding: 24, boxShadow: '2px 0 24px rgba(0,0,0,0.18)', overflowY: 'auto' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <ChevronLeft size={18} />
+                    <span style={{ fontSize: 15, fontWeight: 700, color: '#1A1A1A' }}>Navigate</span>
+                  </div>
+                  <button type="button" onClick={() => setMobileNavOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B6B6B' }}><X size={20} /></button>
+                </div>
+                <nav style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {TABS.map(tab => (
+                    <button key={tab.id} onClick={() => { setActiveTab(tab.id); setMobileNavOpen(false); }} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', borderRadius: 12, border: '1px solid #E2DDD6', backgroundColor: activeTab === tab.id ? G : '#fff', color: activeTab === tab.id ? '#fff' : '#4A4A4A', fontWeight: 700, cursor: 'pointer', textAlign: 'left' }}>
+                      <tab.icon size={16} />
+                      {tab.label}
+                    </button>
+                  ))}
+                </nav>
+                <button onClick={() => { setMobileNavOpen(false); handleLogout(); }} style={{ marginTop: 24, width: '100%', padding: '12px 16px', backgroundColor: '#fff', border: '1px solid #FECACA', color: '#DC2626', borderRadius: 12, fontWeight: 700, cursor: 'pointer' }}>
+                  Logout
+                </button>
+              </div>
+            </>
+          )}
 
           {/* Main Content */}
           <div style={{ flex: 1, backgroundColor: '#fff', borderRadius: 14, border: '1px solid #E2DDD6', padding: '32px', minHeight: 600 }}>

@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
+import jsPDF from 'jspdf';
 
 const G = '#1A4D2E';
 const ACCENT = '#C8860A';
@@ -44,7 +45,28 @@ const TEAM = [
   { name: 'Aisha Johnson', title: 'Head of Operations', img: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&q=80', bio: 'Supply chain specialist ensuring every order ships on time.' },
 ];
 
-const CERTS = ['FSC Certified', 'ISO 9001', 'SGP Member', 'Eco Friendly Alliance', 'ISTA Certified'];
+const CERTS = [
+  { name: 'FSC Certified', num: 'FSC-C123456', validYear: 2026 },
+  { name: 'ISO 9001', num: 'ISO-9001-789012', validYear: 2025 },
+  { name: 'SGP Member', num: 'SGP-MEM-345678', validYear: 2026 },
+  { name: 'Eco Friendly Alliance', num: 'EFA-CERT-901234', validYear: 2025 },
+  { name: 'ISTA Certified', num: 'ISTA-567890', validYear: 2026 },
+];
+
+function downloadCert(certName, certNum, validYear) {
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+  doc.setFillColor(26, 77, 46); doc.rect(0, 0, 297, 30, 'F');
+  doc.setFontSize(26); doc.setTextColor(255, 255, 255);
+  doc.text('CERTIFICATE OF COMPLIANCE', 148, 18, { align: 'center' });
+  doc.setTextColor(0, 0, 0);
+  doc.setFontSize(18); doc.text(certName, 148, 50, { align: 'center' });
+  doc.setFontSize(12); doc.text('This certifies that: Design Custom Box', 148, 70, { align: 'center' });
+  doc.text(`Certificate No: ${certNum}`, 148, 85, { align: 'center' });
+  doc.text(`Valid through: December 31, ${validYear}`, 148, 95, { align: 'center' });
+  doc.setDrawColor(200, 134, 10); doc.line(60, 155, 130, 155);
+  doc.text('Authorized Signature', 95, 162, { align: 'center' });
+  doc.save(`${certName.replace(/ /g, '-')}-Certificate.pdf`);
+}
 
 const PROCESS = [
   { num: '01', title: 'Configure', desc: 'Use our online 3D configurator to set your box type, material, dimensions, and print specs.', img: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=500&q=80' },
@@ -302,12 +324,13 @@ export default function About() {
           </div>
           <div style={{ display: 'flex', justifyContent: 'center', gap: 16, flexWrap: 'wrap', marginBottom: 56 }}>
             {CERTS.map(cert => (
-              <div key={cert} data-aos="zoom-in"
-                style={{ padding: '14px 24px', border: `2px solid ${G}`, borderRadius: 10, fontSize: 13, fontWeight: 700, color: G, display: 'flex', alignItems: 'center', gap: 8, background: '#fff', transition: 'background 0.15s, color 0.15s' }}
+              <button key={cert.name} data-aos="zoom-in"
+                onClick={() => downloadCert(cert.name, cert.num, cert.validYear)}
+                style={{ padding: '14px 24px', border: `2px solid ${G}`, borderRadius: 10, fontSize: 13, fontWeight: 700, color: G, display: 'flex', alignItems: 'center', gap: 8, background: '#fff', transition: 'background 0.15s, color 0.15s', cursor: 'pointer' }}
                 onMouseEnter={e => { e.currentTarget.style.background = G; e.currentTarget.querySelector('span').style.color = '#fff'; e.currentTarget.style.color = '#fff'; }}
                 onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.querySelector('span').style.color = ACCENT; e.currentTarget.style.color = G; }}>
-                <span style={{ color: ACCENT, fontWeight: 900, transition: 'color 0.15s' }}>✓</span> {cert}
-              </div>
+                <span style={{ color: ACCENT, fontWeight: 900, transition: 'color 0.15s' }}>✓</span> {cert.name}
+              </button>
             ))}
           </div>
 

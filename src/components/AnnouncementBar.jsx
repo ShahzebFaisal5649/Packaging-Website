@@ -10,8 +10,6 @@ const messages = [
   "Free Ebook: Download Our Custom Packaging Buying Guide"
 ];
 
-const G = '#1A4D2E';
-
 export default function AnnouncementBar() {
   return (
     <div style={{ backgroundColor: '#071810', color: '#fff' }} className="text-[11px] md:text-[13px] py-2 relative group overflow-hidden">

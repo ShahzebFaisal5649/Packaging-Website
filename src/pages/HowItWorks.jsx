@@ -5,7 +5,6 @@ import SectionLabel from '../components/SectionLabel';
 import CTABanner from '../components/CTABanner';
 
 const G = '#1A4D2E';
-const ACCENT = '#C8860A';
 const BG = '#F5F2ED';
 
 const steps = [

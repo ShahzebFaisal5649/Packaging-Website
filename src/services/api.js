@@ -13,7 +13,7 @@ const request = async (method, endpoint, body) => {
   if (body) options.body = JSON.stringify(body);
   const res = await fetch(`${BASE_URL}${endpoint}`, options);
 
-  let data = null;
+  let data;
   const text = await res.text();
   try {
     data = text ? JSON.parse(text) : {};

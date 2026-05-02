@@ -82,7 +82,7 @@ function ProductCard({ product }) {
   const { showToast } = useToast();
   const navigate = useNavigate();
 
-  const isFav = isFavourite(product.id);
+  const isFav = isFavourite(product._id || product.id);
   const imgSrc = product.img || CATEGORY_IMGS[product.cat] || CATEGORY_IMGS.default;
 
   const handleFavourite = (e) => {
@@ -204,6 +204,7 @@ export default function Products() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [hasFetched, setHasFetched] = useState(false);
 
   useEffect(() => {
     const loadProducts = async () => {
@@ -226,6 +227,7 @@ export default function Products() {
         }
       } finally {
         setLoading(false);
+        setHasFetched(true);
       }
     };
     loadProducts();
@@ -291,9 +293,11 @@ export default function Products() {
           {/* Grid */}
           <div className="flex-1 min-w-0">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-6">
-              <p className="text-sm text-[#6B6B6B]">
-                Showing <strong className="text-[#1A1A1A]">{filtered.length}</strong> {filtered.length === 1 ? 'product' : 'products'}
-              </p>
+              {hasFetched && (
+                <p className="text-sm text-[#6B6B6B]">
+                  Showing <strong className="text-[#1A1A1A]">{filtered.length}</strong> {filtered.length === 1 ? 'product' : 'products'}
+                </p>
+              )}
               <p className="text-xs italic text-[#9A9080]">Click any card to see full specifications</p>
             </div>
 
