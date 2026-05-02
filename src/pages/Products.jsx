@@ -209,12 +209,21 @@ export default function Products() {
     const loadProducts = async () => {
       setLoading(true);
       setError('');
+      const cached = localStorage.getItem('designcustombox_products');
       try {
         const data = await api.get('/content/products');
-        setFetchedProducts(Array.isArray(data.products) ? data.products : []);
+        const products = Array.isArray(data.products) ? data.products : [];
+        setFetchedProducts(products);
+        localStorage.setItem('designcustombox_products', JSON.stringify(products));
       } catch (err) {
         console.error('Products load failed', err);
-        setError('Unable to load products. Please refresh the page.');
+        if (cached) {
+          setFetchedProducts(JSON.parse(cached));
+          setError('Unable to load latest products. Showing cached catalog.');
+        } else {
+          setError('Unable to load products. Please refresh the page.');
+          setFetchedProducts([]);
+        }
       } finally {
         setLoading(false);
       }
@@ -287,6 +296,12 @@ export default function Products() {
               </p>
               <p className="text-xs italic text-[#9A9080]">Click any card to see full specifications</p>
             </div>
+
+            {error && filtered.length > 0 && (
+              <div style={{ backgroundColor: '#FEF3C7', border: '1px solid #FDE68A', padding: '14px 18px', borderRadius: 14, color: '#92400E', marginBottom: 20 }}>
+                {error}
+              </div>
+            )}
 
             {loading ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">

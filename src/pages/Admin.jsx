@@ -183,13 +183,15 @@ function AddonsInput({ value = [], onChange }) {
 
 // ── Sidebar nav ───────────────────────────────────────────────────────────────
 const NAV_ITEMS = [
-  { key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { key: 'orders',    label: 'Orders',    icon: ShoppingBag },
-  { key: 'users',     label: 'Users',     icon: Users },
-  { key: 'products',  label: 'Products',  icon: Package },
-  { key: 'industries', label: 'Industries', icon: Building },
-  { key: 'quotes',    label: 'Quotes',    icon: FileText },
-  { key: 'analytics', label: 'Analytics', icon: BarChart2 },
+  { key: 'dashboard',   label: 'Dashboard',   icon: LayoutDashboard },
+  { key: 'orders',      label: 'Orders',      icon: ShoppingBag },
+  { key: 'users',       label: 'Users',       icon: Users },
+  { key: 'products',    label: 'Products',    icon: Package },
+  { key: 'industries',  label: 'Industries',  icon: Building },
+  { key: 'quotes',      label: 'Quotes',      icon: FileText },
+  { key: 'messages',    label: 'Messages',    icon: Mail },
+  { key: 'subscribers', label: 'Subscribers', icon: Star },
+  { key: 'analytics',   label: 'Analytics',   icon: BarChart2 },
 ];
 
 // ── KPI card ──────────────────────────────────────────────────────────────────
@@ -339,6 +341,8 @@ function ProductsSection() {
 
   useEffect(() => {
     let cancelled = false;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
     async function load() {
       setLoading(true);
       try {
@@ -349,15 +353,24 @@ function ProductsSection() {
         if (!cancelled) {
           setProducts(productsData.products || []);
           setIndustryOptions(industriesData.industries || []);
+          // Cache products for offline fallback
+          localStorage.setItem('packagingProductsList', JSON.stringify(productsData.products || []));
         }
       } catch (err) {
-        if (!cancelled) console.error('Failed to load products or industries:', err);
+        if (!cancelled) {
+          console.warn('Admin products load failed, using localStorage fallback:', err.message);
+          const cached = JSON.parse(localStorage.getItem('packagingProductsList') || '[]');
+          setProducts(cached);
+          setIndustryOptions([]);
+        }
       } finally {
-        if (!cancelled) setLoading(false);
+        // Always clear spinner — do NOT gate on cancelled
+        clearTimeout(timeout);
+        setLoading(false);
       }
     }
     load();
-    return () => { cancelled = true; };
+    return () => { cancelled = true; controller.abort(); };
   }, []);
 
   const handleEdit = (product) => {
@@ -1094,6 +1107,24 @@ function OrdersSection() {
               <button onClick={handleSaveTracking} style={{ padding: '10px 18px', background: G, color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Save</button>
             </div>
           </div>
+
+          {/* Customer Location Map */}
+          {selected.address && selected.address !== '—' && selected.address !== 'Sample Address' && (
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ fontSize: 11, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 8 }}>Customer Location</label>
+              <div style={{ borderRadius: 10, overflow: 'hidden', height: 200, border: '1px solid #E2DDD6' }}>
+                <iframe
+                  title="Customer Location Map"
+                  src={`https://maps.google.com/maps?q=${encodeURIComponent(selected.address)}&output=embed&z=13`}
+                  width="100%" height="100%"
+                  style={{ border: 0, display: 'block' }}
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              </div>
+            </div>
+          )}
+
           <div>
             <label style={{ fontSize: 11, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 8 }}>Update Status</label>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
@@ -1544,6 +1575,231 @@ function AnalyticsSection() {
   );
 }
 
+// ── Messages ─────────────────────────────────────────────────────────────────
+function MessagesSection() {
+  const { showToast } = useToast();
+  const [messages, setMessages] = useState([]);
+  const [selected, setSelected] = useState(null);
+  const [search, setSearch] = useState('');
+
+  useEffect(() => {
+    const stored = JSON.parse(localStorage.getItem('designcustombox_contact_messages') || '[]');
+    // Sort newest first
+    setMessages(stored.sort((a, b) => new Date(b.date) - new Date(a.date)));
+  }, []);
+
+  const handleMarkReplied = (id) => {
+    const updated = messages.map(m => m.id === id ? { ...m, status: 'Replied' } : m);
+    setMessages(updated);
+    localStorage.setItem('designcustombox_contact_messages', JSON.stringify(updated));
+    if (selected?.id === id) setSelected(prev => ({ ...prev, status: 'Replied' }));
+    showToast('Marked as replied', 'success');
+  };
+
+  const handleDelete = (id) => {
+    const updated = messages.filter(m => m.id !== id);
+    setMessages(updated);
+    localStorage.setItem('designcustombox_contact_messages', JSON.stringify(updated));
+    setSelected(null);
+    showToast('Message deleted', 'success');
+  };
+
+  const exportCSV = () => {
+    const rows = [['Name', 'Email', 'Subject', 'Message', 'Status', 'Date']];
+    messages.forEach(m => rows.push([m.name, m.email, m.subject, m.message, m.status, m.date ? new Date(m.date).toLocaleDateString() : '']));
+    const csv = rows.map(r => r.map(v => `"${(v || '').replace(/"/g, '""')}"`).join(',')).join('\n');
+    const a = document.createElement('a'); a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv); a.download = 'messages.csv'; a.click();
+  };
+
+  const filtered = messages.filter(m => !search || [m.name, m.email, m.subject].some(v => v && v.toLowerCase().includes(search.toLowerCase())));
+  const newCount = messages.filter(m => m.status === 'New').length;
+
+  return (
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <h2 style={{ fontSize: 22, fontFamily: 'Outfit,sans-serif', fontWeight: 700 }}>Contact Messages</h2>
+          {newCount > 0 && <span style={{ padding: '3px 10px', borderRadius: 100, background: '#DBEAFE', color: '#1E40AF', fontSize: 12, fontWeight: 700 }}>{newCount} New</span>}
+        </div>
+        <button onClick={exportCSV} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: '#fff', background: G, border: 'none', borderRadius: 8, padding: '7px 16px', cursor: 'pointer' }}><Download size={13} /> Export CSV</button>
+      </div>
+
+      <div style={{ position: 'relative', marginBottom: 16 }}>
+        <Search size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#aaa' }} />
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search messages…" style={{ width: '100%', paddingLeft: 36, paddingRight: 12, paddingTop: 9, paddingBottom: 9, border: '1px solid #E2DDD6', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+      </div>
+
+      <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #E2DDD6', overflow: 'hidden' }}>
+        <div className="responsive-table-container">
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ background: '#FAFAF9' }}>
+                {['Name', 'Email', 'Subject', 'Date', 'Status', 'Actions'].map(h => (
+                  <th key={h} style={{ padding: '11px 14px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.length === 0 ? (
+                <tr><td colSpan={6} style={{ padding: 32, textAlign: 'center', color: '#aaa' }}>No messages yet. They will appear here when users submit the contact form.</td></tr>
+              ) : filtered.map((m, i) => (
+                <tr key={i} style={{ borderTop: '1px solid #F0EDE8' }}
+                  onMouseEnter={e => e.currentTarget.style.background = '#FAFAF9'}
+                  onMouseLeave={e => e.currentTarget.style.background = '#fff'}>
+                  <td style={{ padding: '12px 14px', fontSize: 13, fontWeight: 600, color: '#1A1A1A' }}>{m.name}</td>
+                  <td style={{ padding: '12px 14px', fontSize: 12, color: '#555', wordBreak: 'break-all' }}>{m.email}</td>
+                  <td style={{ padding: '12px 14px', fontSize: 12, color: '#555' }}>{m.subject}</td>
+                  <td style={{ padding: '12px 14px', fontSize: 11, color: '#888', whiteSpace: 'nowrap' }}>{m.date ? new Date(m.date).toLocaleDateString() : '—'}</td>
+                  <td style={{ padding: '12px 14px' }}><Badge status={m.status || 'New'} /></td>
+                  <td style={{ padding: '12px 14px' }}>
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      <button onClick={() => setSelected(m)}
+                        style={{ padding: '5px 10px', borderRadius: 6, border: `1px solid ${G}`, color: G, background: 'none', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
+                        <Eye size={11} />
+                      </button>
+                      {m.status !== 'Replied' && (
+                        <button onClick={() => handleMarkReplied(m.id)}
+                          style={{ padding: '5px 10px', borderRadius: 6, border: '1px solid #D1FAE5', color: '#065F46', background: 'none', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
+                          ✓
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {selected && (
+        <Modal onClose={() => setSelected(null)} title={`Message from ${selected.name}`} wide>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12, marginBottom: 20 }}>
+            {[
+              { label: 'From', value: selected.name },
+              { label: 'Email', value: selected.email },
+              { label: 'Phone', value: selected.phone || '—' },
+              { label: 'Company', value: selected.company || '—' },
+              { label: 'Subject', value: selected.subject },
+              { label: 'Date', value: selected.date ? new Date(selected.date).toLocaleString() : '—' },
+            ].map(({ label, value }) => (
+              <div key={label} style={{ background: BG, borderRadius: 10, padding: '10px 14px' }}>
+                <p style={{ fontSize: 10, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 4px' }}>{label}</p>
+                <p style={{ fontSize: 13, color: '#1A1A1A', fontWeight: 600, margin: 0, wordBreak: 'break-all' }}>{value}</p>
+              </div>
+            ))}
+          </div>
+          <div style={{ background: BG, borderRadius: 10, padding: '16px', marginBottom: 20 }}>
+            <p style={{ fontSize: 10, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 8px' }}>Message</p>
+            <p style={{ fontSize: 14, color: '#333', lineHeight: 1.7, margin: 0, whiteSpace: 'pre-wrap' }}>{selected.message}</p>
+          </div>
+          {selected.interests?.length > 0 && (
+            <div style={{ marginBottom: 20 }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Interested In</p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                {selected.interests.map(i => <span key={i} style={{ padding: '4px 10px', borderRadius: 100, background: `${ACCENT}15`, color: ACCENT, fontSize: 12, fontWeight: 700 }}>{i}</span>)}
+              </div>
+            </div>
+          )}
+          <div style={{ display: 'flex', gap: 10, paddingTop: 16, borderTop: '1px solid #F0EDE8' }}>
+            {selected.status !== 'Replied' && (
+              <button onClick={() => handleMarkReplied(selected.id)} style={{ flex: 1, padding: '10px', background: G, color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}>Mark as Replied</button>
+            )}
+            <a href={`mailto:${selected.email}?subject=Re: ${encodeURIComponent(selected.subject || '')}`}
+              style={{ flex: 1, padding: '10px', background: ACCENT, color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+              <Mail size={14} /> Reply via Email
+            </a>
+            <button onClick={() => handleDelete(selected.id)} style={{ padding: '10px 16px', background: '#FEE2E2', color: '#DC2626', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}><Trash2 size={14} /></button>
+          </div>
+        </Modal>
+      )}
+    </div>
+  );
+}
+
+// ── Subscribers ───────────────────────────────────────────────────────────────
+function SubscribersSection() {
+  const { showToast } = useToast();
+  const [subscribers, setSubscribers] = useState([]);
+  const [search, setSearch] = useState('');
+
+  useEffect(() => {
+    // Try API first, fall back to localStorage
+    api.get('/admin/subscribers')
+      .then(data => setSubscribers(data.subscribers || []))
+      .catch(() => {
+        const stored = JSON.parse(localStorage.getItem('designcustombox_subscribers') || '[]');
+        setSubscribers(stored.sort((a, b) => new Date(b.date) - new Date(a.date)));
+      });
+  }, []);
+
+  const handleDelete = (email) => {
+    const updated = subscribers.filter(s => s.email !== email);
+    setSubscribers(updated);
+    localStorage.setItem('designcustombox_subscribers', JSON.stringify(updated));
+    showToast('Subscriber removed', 'success');
+  };
+
+  const exportCSV = () => {
+    const rows = [['Email', 'Date Subscribed']];
+    subscribers.forEach(s => rows.push([s.email, s.date ? new Date(s.date).toLocaleDateString() : '']));
+    const csv = rows.map(r => r.map(v => `"${(v || '').replace(/"/g, '""')}"`).join(',')).join('\n');
+    const a = document.createElement('a'); a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv); a.download = 'subscribers.csv'; a.click();
+  };
+
+  const filtered = subscribers.filter(s => !search || s.email?.toLowerCase().includes(search.toLowerCase()));
+
+  return (
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <h2 style={{ fontSize: 22, fontFamily: 'Outfit,sans-serif', fontWeight: 700 }}>Newsletter Subscribers</h2>
+          <span style={{ padding: '3px 10px', borderRadius: 100, background: `${G}15`, color: G, fontSize: 12, fontWeight: 700 }}>{subscribers.length} total</span>
+        </div>
+        <button onClick={exportCSV} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: '#fff', background: G, border: 'none', borderRadius: 8, padding: '7px 16px', cursor: 'pointer' }}><Download size={13} /> Export CSV</button>
+      </div>
+
+      <div style={{ position: 'relative', marginBottom: 16 }}>
+        <Search size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#aaa' }} />
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search subscribers…" style={{ width: '100%', paddingLeft: 36, paddingRight: 12, paddingTop: 9, paddingBottom: 9, border: '1px solid #E2DDD6', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+      </div>
+
+      <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #E2DDD6', overflow: 'hidden' }}>
+        <div className="responsive-table-container">
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ background: '#FAFAF9' }}>
+                {['#', 'Email Address', 'Date Subscribed', 'Actions'].map(h => (
+                  <th key={h} style={{ padding: '11px 14px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.length === 0 ? (
+                <tr><td colSpan={4} style={{ padding: 32, textAlign: 'center', color: '#aaa' }}>No subscribers yet. They will appear here when users subscribe via the footer form.</td></tr>
+              ) : filtered.map((s, i) => (
+                <tr key={i} style={{ borderTop: '1px solid #F0EDE8' }}
+                  onMouseEnter={e => e.currentTarget.style.background = '#FAFAF9'}
+                  onMouseLeave={e => e.currentTarget.style.background = '#fff'}>
+                  <td style={{ padding: '12px 14px', fontSize: 12, color: '#888' }}>{i + 1}</td>
+                  <td style={{ padding: '12px 14px', fontSize: 13, fontWeight: 600, color: '#1A1A1A' }}>{s.email}</td>
+                  <td style={{ padding: '12px 14px', fontSize: 12, color: '#888' }}>{s.date ? new Date(s.date).toLocaleDateString() : '—'}</td>
+                  <td style={{ padding: '12px 14px' }}>
+                    <button onClick={() => handleDelete(s.email)}
+                      style={{ padding: '5px 10px', borderRadius: 6, border: '1px solid #FEE2E2', color: '#DC2626', background: 'none', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
+                      <Trash2 size={11} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Main Admin Page ───────────────────────────────────────────────────────────
 export default function Admin() {
   const { user, logout } = useAuth();
@@ -1569,7 +1825,7 @@ export default function Admin() {
     );
   }
 
-  const SECTION_MAP = { dashboard: DashboardSection, orders: OrdersSection, users: UsersSection, products: ProductsSection, industries: IndustriesSection, quotes: QuotesSection, analytics: AnalyticsSection };
+  const SECTION_MAP = { dashboard: DashboardSection, orders: OrdersSection, users: UsersSection, products: ProductsSection, industries: IndustriesSection, quotes: QuotesSection, messages: MessagesSection, subscribers: SubscribersSection, analytics: AnalyticsSection };
   const SectionComp = SECTION_MAP[activeSection] || DashboardSection;
 
   const handleNavClick = (key) => {

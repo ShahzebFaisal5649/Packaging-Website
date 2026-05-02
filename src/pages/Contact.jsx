@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Phone, Mail, MapPin, MessageCircle, ChevronDown, Check } from 'lucide-react';
 
 const FacebookIcon = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>;
@@ -21,9 +21,16 @@ const FAQS = [
 ];
 
 function ContactForm() {
-  const [form, setForm] = useState({ name: '', email: '', phone: '', company: '', subject: '', message: '', interests: [] });
+  const [form, setForm] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('designcustombox_contact_draft')) || { name: '', email: '', phone: '', company: '', subject: '', message: '', interests: [] };
+    } catch {
+      return { name: '', email: '', phone: '', company: '', subject: '', message: '', interests: [] };
+    }
+  });
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
   const interests = ['Custom Boxes', 'Bulk Orders', 'Design Services', 'Sample Kit', 'Other'];
@@ -37,12 +44,62 @@ function ContactForm() {
     return e;
   };
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    if (!submitted) {
+      localStorage.setItem('designcustombox_contact_draft', JSON.stringify(form));
+    }
+  }, [form, submitted]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
     setLoading(true);
-    setTimeout(() => { setLoading(false); setSubmitted(true); }, 1200);
+    const payload = {
+      name: form.name.trim(),
+      email: form.email.trim(),
+      phone: form.phone.trim(),
+      company: form.company.trim(),
+      subject: form.subject,
+      message: form.message.trim(),
+      interests: form.interests,
+    };
+
+    const savedMessage = {
+      id: `msg_${Date.now()}`,
+      ...payload,
+      status: 'New',
+      date: new Date().toISOString(),
+    };
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/content/contact`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Server responded with ${response.status}`);
+      }
+
+      const data = await response.json();
+      setSubmitMessage(data.message || 'Message received.');
+      localStorage.removeItem('designcustombox_contact_draft');
+    } catch (err) {
+      console.warn('Contact submit failed. Falling back to local storage.', err);
+      setSubmitMessage('Your message was saved locally and will sync once the site reconnects to the server.');
+      try {
+        const existing = JSON.parse(localStorage.getItem('designcustombox_contact_messages') || '[]');
+        localStorage.setItem('designcustombox_contact_messages', JSON.stringify([savedMessage, ...existing]));
+        localStorage.removeItem('designcustombox_contact_draft');
+      } catch (storageErr) {
+        console.error('Could not persist contact message locally', storageErr);
+      }
+    } finally {
+      setLoading(false);
+      setSubmitted(true);
+    }
   };
 
   const toggleInterest = (val) => {
@@ -58,7 +115,8 @@ function ContactForm() {
         <Check size={36} color="#059669" strokeWidth={2.5} />
       </div>
       <h3 style={{ fontSize: 22, fontFamily: 'Outfit,sans-serif', fontWeight: 700, color: G, marginBottom: 10 }}>Message Sent!</h3>
-      <p style={{ fontSize: 15, color: '#4A4A4A' }}>We'll reply within 2 hours during business hours.</p>
+      <p style={{ fontSize: 15, color: '#4A4A4A', marginBottom: 14 }}>{submitMessage || 'We will reply within 2 hours during business hours.'}</p>
+      <button onClick={() => window.location.reload()} style={{ padding: '12px 24px', backgroundColor: G, border: 'none', borderRadius: 8, color: '#fff', fontWeight: 700, cursor: 'pointer' }}>Send Another Message</button>
     </div>
   );
 
@@ -214,7 +272,7 @@ export default function Contact() {
           <div style={{ borderRadius: 16, overflow: 'hidden', border: '1px solid #D0CAC0', boxShadow: '0 4px 24px rgba(0,0,0,0.08)', position: 'relative' }}>
             <iframe
               title="Design Custom Box HQ Location"
-              src="https://www.openstreetmap.org/export/embed.html?bbox=-96.9000%2C33.0500%2C-96.8500%2C33.1000&layer=mapnik&marker=33.0888%2C-96.8778"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3327.0127111669494!2d-96.87956228479018!3d33.08883548079662!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x864c2b5d2b50f643%3A0xcb5a75ec7f90508e!2s5532%20Big%20River%20Dr%2C%20The%20Colony%2C%20TX%2075056!5e0!3m2!1sen!2sus!4v1700000000000!5m2!1sen!2sus"
               width="100%"
               height="360"
               style={{ display: 'block', border: 0 }}

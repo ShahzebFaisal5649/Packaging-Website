@@ -7,8 +7,6 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { Lock, Shield, ArrowLeft, CheckCircle, CreditCard, Package, Truck, AlertCircle } from 'lucide-react';
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '');
-
 const G = '#1A4D2E';
 const ACCENT = '#C8860A';
 
@@ -276,8 +274,10 @@ function PaymentForm({ clientSecret, amount }) {
 export default function Checkout() {
   const { cartItems, cartTotal } = useCart();
   const navigate = useNavigate();
+  const publishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '';
   const [clientSecret, setClientSecret] = useState('');
-  const [loadError, setLoadError] = useState('');
+  const [stripePromise] = useState(() => publishableKey ? loadStripe(publishableKey) : null);
+  const [loadError, setLoadError] = useState(publishableKey ? '' : 'Stripe publishable key is not configured. Please contact support.');
 
   const tax = cartTotal * 0.08;
   const orderTotal = cartTotal + tax;
@@ -287,6 +287,8 @@ export default function Checkout() {
       navigate('/products');
       return;
     }
+    if (!publishableKey) return;
+
     fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/payment/create-intent`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -301,7 +303,7 @@ export default function Checkout() {
         else setLoadError(d.message || 'Could not initialise payment');
       })
       .catch(err => setLoadError(err.message || 'Server unreachable. Please try again.'));
-  }, [cartItems.length, orderTotal, navigate]);
+  }, [cartItems.length, orderTotal, navigate, publishableKey]);
 
   return (
     <div style={{ minHeight: 'calc(100vh - (var(--nav-h) + var(--ann-h)))', background: '#F5F2ED', paddingTop: 32, paddingBottom: 64 }}>
@@ -347,7 +349,12 @@ export default function Checkout() {
                 <AlertCircle size={16} style={{ verticalAlign: 'middle', marginRight: 8 }} />
                 {loadError}
               </div>
-            ) : !clientSecret ? (
+            ) : !publishableKey ? (
+              <div style={{ background: '#FEF9C3', border: '1px solid #FDE047', borderRadius: 10, padding: '16px 20px', color: '#7C3AED', fontSize: 14 }}>
+                <AlertCircle size={16} style={{ verticalAlign: 'middle', marginRight: 8 }} />
+                Stripe is not configured for this environment.
+              </div>
+            ) : !stripePromise || !clientSecret ? (
               <div style={{ padding: '48px 24px', textAlign: 'center', color: '#aaa' }}>
                 <div style={{ width: 32, height: 32, border: `3px solid ${G}`, borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 16px' }} />
                 Initialising secure payment…

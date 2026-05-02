@@ -2,6 +2,8 @@ const express = require('express');
 const User = require('../models/User');
 const Product = require('../models/Product');
 const Industry = require('../models/Industry');
+const Subscriber = require('../models/Subscriber');
+const ContactMessage = require('../models/ContactMessage');
 const { protect, adminOnly } = require('../middleware/auth');
 
 const router = express.Router();
@@ -217,6 +219,48 @@ router.put('/quotes/:userId/:quoteId', async (req, res) => {
     Object.assign(quote, req.body);
     await user.save();
     res.json({ message: 'Quote updated', quote });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// ── Contact Messages ─────────────────────────────────────────────────────────────
+router.get('/contact-messages', async (req, res) => {
+  try {
+    const messages = await ContactMessage.find().sort({ createdAt: -1 });
+    res.json({ messages });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+router.put('/contact-messages/:id', async (req, res) => {
+  try {
+    const { status } = req.body;
+    const message = await ContactMessage.findById(req.params.id);
+    if (!message) return res.status(404).json({ message: 'Message not found' });
+    if (status) message.status = status;
+    await message.save();
+    res.json({ message });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+router.delete('/contact-messages/:id', async (req, res) => {
+  try {
+    await ContactMessage.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Message deleted' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// ── Subscribers ─────────────────────────────────────────────────────────────────
+router.get('/subscribers', async (req, res) => {
+  try {
+    const subscribers = await Subscriber.find().sort({ createdAt: -1 });
+    res.json({ subscribers });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

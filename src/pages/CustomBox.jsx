@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, Suspense } from 'react';
+import { useState, useEffect, useRef, Suspense, Component } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -31,7 +31,7 @@ function BoxModel({ l, w, h, material, finish }) {
   );
 }
 
-function BoxModelTextured({ l, w, h, artworkUrl }) {
+function BoxModelTexturedInner({ l, w, h, artworkUrl }) {
   const maxDim = Math.max(l, w, h, 1);
   const sx = (l / maxDim) * 2.5;
   const sy = (h / maxDim) * 2.5;
@@ -42,6 +42,28 @@ function BoxModelTextured({ l, w, h, artworkUrl }) {
       <boxGeometry args={[sx, sy, sz]} />
       <meshStandardMaterial map={texture} roughness={0.4} />
     </mesh>
+  );
+}
+
+// Class-based error boundary so texture failures fall back gracefully
+class BoxTextureErrorBoundary extends Component {
+  constructor(props) { super(props); this.state = { hasError: false }; }
+  static getDerivedStateFromError() { return { hasError: true }; }
+  componentDidCatch(err) { console.warn('BoxModelTextured failed, falling back to plain model:', err.message); }
+  render() {
+    if (this.state.hasError) {
+      const { l, w, h } = this.props;
+      return <BoxModel l={l} w={w} h={h} material="" finish="" />;
+    }
+    return this.props.children;
+  }
+}
+
+function BoxModelTextured({ l, w, h, artworkUrl }) {
+  return (
+    <BoxTextureErrorBoundary l={l} w={w} h={h}>
+      <BoxModelTexturedInner l={l} w={w} h={h} artworkUrl={artworkUrl} />
+    </BoxTextureErrorBoundary>
   );
 }
 
@@ -100,6 +122,8 @@ export default function CustomBox() {
   const [sampleModal, setSampleModal] = useState(false);
   const [sampleForm, setSampleForm] = useState({ name: '', email: '', phone: '', street: '', city: '', state: '', zip: '', country: 'US' });
   const [sampleSubmitting, setSampleSubmitting] = useState(false);
+  // Canvas ref for thumbnail capture
+  const canvasRef = useRef(null);
 
   // Restore saved design or pre-fill from navigation
   useEffect(() => {
@@ -187,11 +211,19 @@ export default function CustomBox() {
     setSampleSubmitting(false);
   };
 
+  // Fix 1: Use FileReader.readAsDataURL instead of URL.createObjectURL
+  // Three.js useTexture cannot load blob: URLs but handles data: URLs fine
   const handleArtworkUpload = (file) => {
     if (!file) return;
     setArtworkFile(file);
-    if (file.type.startsWith('image/')) setArtworkPreview(URL.createObjectURL(file));
-    else setArtworkPreview(null);
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = (e) => setArtworkPreview(e.target.result);
+      reader.onerror = () => showToast('Failed to read image file.', 'error');
+      reader.readAsDataURL(file);
+    } else {
+      setArtworkPreview(null);
+    }
     showToast('Artwork uploaded!', 'success');
   };
   const clearArtwork = () => { setArtworkFile(null); setArtworkPreview(null); setArtworkApplied(false); };
@@ -238,21 +270,33 @@ export default function CustomBox() {
     const newAddons = config.addons.includes(addon) ? config.addons.filter(a => a !== addon) : [...config.addons, addon];
     handleConfigChange('addons', newAddons);
   };
+  // Fix 6: Use product name from nav state; use product image if available
   const handleAddToCart = () => {
-    addToCart({ id: `box-${Date.now()}`, name: designName.trim() || `Custom ${config.boxType}`, image: 'https://images.unsplash.com/photo-1607083206968-13611e3d76db?q=80&w=400', price: unitPrice, quantity: config.quantity, configuration: config });
+    const cartImage = location.state?.productImage
+      || 'https://images.unsplash.com/photo-1607083206968-13611e3d76db?q=80&w=400';
+    addToCart({ id: `box-${Date.now()}`, name: prefilledName || designName.trim() || `Custom ${config.boxType}`, image: cartImage, price: unitPrice, quantity: config.quantity, configuration: config });
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 2000);
     showToast('Added to cart!', 'success');
     toggleDrawer(true);
   };
+  // Fix 6: Same for Get Quote
   const handleGetQuote = () => {
-    addToCart({ id: `box-${Date.now()}`, name: designName.trim() || `Custom ${config.boxType}`, image: 'https://images.unsplash.com/photo-1607083206968-13611e3d76db?q=80&w=400', price: unitPrice, quantity: config.quantity, configuration: config });
+    const cartImage = location.state?.productImage
+      || 'https://images.unsplash.com/photo-1607083206968-13611e3d76db?q=80&w=400';
+    addToCart({ id: `box-${Date.now()}`, name: prefilledName || designName.trim() || `Custom ${config.boxType}`, image: cartImage, price: unitPrice, quantity: config.quantity, configuration: config });
     navigate('/checkout');
   };
+  // Fix 7: Save Design with canvas thumbnail
   const handleSaveDesign = () => {
     if (!isAuthenticated) { showToast('Please login to save designs.', 'warning'); return; }
     const finalName = designName.trim() || `My ${config.boxType}`;
-    const newDesign = { id: `des_${Date.now()}`, name: finalName, style: config.material, date: new Date().toISOString(), _savedDesign: true, ...config };
+    // Capture 3D canvas thumbnail
+    let thumbnail = null;
+    try {
+      if (canvasRef.current) thumbnail = canvasRef.current.toDataURL('image/jpeg', 0.5);
+    } catch { /* canvas tainted or unavailable */ }
+    const newDesign = { id: `des_${Date.now()}`, name: finalName, style: config.material, date: new Date().toISOString(), _savedDesign: true, thumbnail, ...config };
     const savedDesigns = user.savedDesigns || [];
     updateUser({ savedDesigns: [...savedDesigns, newDesign] });
     showToast(`Design "${finalName}" saved!`, 'success');
@@ -585,17 +629,25 @@ export default function CustomBox() {
                   <span style={{ fontSize: 13, fontWeight: 600, color: '#888' }}>Loading 3D Engine…</span>
                 </div>
               }>
-                <Canvas shadows dpr={[1, 2]} camera={{ position: [0, 0, 4], fov: 50 }}>
-                  <ambientLight intensity={0.7} />
-                  <directionalLight position={[5, 8, 5]} intensity={1.2} castShadow />
-                  <directionalLight position={[-3, 2, -3]} intensity={0.4} />
-                  <pointLight position={[0, 4, 0]} intensity={0.5} />
-                    {artworkApplied && artworkPreview
-                      ? <BoxModelTextured l={parseFloat(config.l) || 8} w={parseFloat(config.w) || 6} h={parseFloat(config.h) || 3} artworkUrl={artworkPreview} />
-                      : <BoxModel l={parseFloat(config.l) || 8} w={parseFloat(config.w) || 6} h={parseFloat(config.h) || 3} material={config.material} finish={config.finish} />
-                    }
-                  <OrbitControls autoRotate autoRotateSpeed={1.8} enableZoom={true} />
-                </Canvas>
+              <Canvas
+                shadows dpr={[1, 2]} camera={{ position: [0, 0, 4], fov: 50 }}
+                onCreated={({ gl }) => {
+                  // Store canvas ref for toDataURL thumbnail capture
+                  canvasRef.current = gl.domElement;
+                  // Prevent webgl context loss from crashing React
+                  gl.domElement.addEventListener('webglcontextlost', e => e.preventDefault());
+                }}
+              >
+                <ambientLight intensity={0.7} />
+                <directionalLight position={[5, 8, 5]} intensity={1.2} castShadow />
+                <directionalLight position={[-3, 2, -3]} intensity={0.4} />
+                <pointLight position={[0, 4, 0]} intensity={0.5} />
+                  {artworkApplied && artworkPreview
+                    ? <BoxModelTextured l={parseFloat(config.l) || 8} w={parseFloat(config.w) || 6} h={parseFloat(config.h) || 3} artworkUrl={artworkPreview} />
+                    : <BoxModel l={parseFloat(config.l) || 8} w={parseFloat(config.w) || 6} h={parseFloat(config.h) || 3} material={config.material} finish={config.finish} />
+                  }
+                <OrbitControls autoRotate autoRotateSpeed={1.8} enableZoom={true} />
+              </Canvas>
               </Suspense>
 
               {/* Badges */}

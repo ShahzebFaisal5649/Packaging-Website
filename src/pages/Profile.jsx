@@ -494,7 +494,12 @@ function SettingsTab({ user, updateUser, showToast, logout }) {
   const [info, setInfo] = useState({ name: user?.name || '', phone: user?.phone || '' });
   const [pwd, setPwd] = useState({ current: '', newPwd: '', confirm: '' });
   const [pwdErr, setPwdErr] = useState('');
-  const [notifs, setNotifs] = useState(user?.notifications || { orderUpdates: true, promos: false, newsLetter: true });
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [notifs, setNotifs] = useState(() => ({
+    orderUpdates: user?.notifications?.orderUpdates ?? true,
+    promotions: user?.notifications?.promotions ?? user?.notifications?.promos ?? false,
+    newsletter: user?.notifications?.newsletter ?? user?.notifications?.newsLetter ?? true,
+  }));
 
   const handleSaveInfo = async () => {
     await updateUser(info);
@@ -519,12 +524,14 @@ function SettingsTab({ user, updateUser, showToast, logout }) {
   };
 
   const handleDeleteAccount = () => {
-    const answer = window.prompt('Type DELETE to permanently delete your account:');
-    if (answer === 'DELETE') {
-      logout();
-      localStorage.clear();
-      navigate('/');
-    }
+    setDeleteConfirmOpen(true);
+  };
+
+  const confirmDeleteAccount = () => {
+    setDeleteConfirmOpen(false);
+    logout();
+    localStorage.clear();
+    navigate('/');
   };
 
   const inp = { width: '100%', padding: '10px 12px', border: '1.5px solid #D0CAC0', borderRadius: 8, fontSize: 14, outline: 'none', boxSizing: 'border-box', fontFamily: 'Inter,sans-serif', backgroundColor: BG };
@@ -575,8 +582,8 @@ function SettingsTab({ user, updateUser, showToast, logout }) {
         <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1A1A1A', marginBottom: 16, paddingBottom: 10, borderBottom: '1px solid #F0EDE8' }}>Notifications</h3>
         {[
           { key: 'orderUpdates', label: 'Order Updates', desc: 'Get notified when your order status changes' },
-          { key: 'promos', label: 'Promotions & Deals', desc: 'Receive exclusive discounts and offers' },
-          { key: 'newsLetter', label: 'Newsletter', desc: 'Monthly packaging trends and insights' },
+          { key: 'promotions', label: 'Promotions & Deals', desc: 'Receive exclusive discounts and offers' },
+          { key: 'newsletter', label: 'Newsletter', desc: 'Monthly packaging trends and insights' },
         ].map(({ key, label, desc }) => (
           <div key={key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid #F0EDE8' }}>
             <div>
@@ -595,6 +602,18 @@ function SettingsTab({ user, updateUser, showToast, logout }) {
         <p style={{ fontSize: 13, color: '#6B6B6B', marginBottom: 16 }}>Once you delete your account, there is no going back. All your data will be permanently removed.</p>
         <button onClick={handleDeleteAccount} style={{ padding: '10px 20px', border: '1.5px solid #DC2626', color: '#DC2626', backgroundColor: 'transparent', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}>Delete My Account</button>
       </div>
+
+      {deleteConfirmOpen && (
+        <Modal title="Delete Account" onClose={() => setDeleteConfirmOpen(false)}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <p style={{ color: '#1A1A1A' }}>Please confirm that you want to permanently delete your account. This action cannot be undone.</p>
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
+              <button onClick={() => setDeleteConfirmOpen(false)} style={{ padding: '10px 18px', backgroundColor: '#F3F4F6', border: '1px solid #D0CAC0', borderRadius: 8, color: '#374151', cursor: 'pointer' }}>Cancel</button>
+              <button onClick={confirmDeleteAccount} style={{ padding: '10px 18px', backgroundColor: '#DC2626', border: 'none', borderRadius: 8, color: '#fff', cursor: 'pointer' }}>Delete Account</button>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }

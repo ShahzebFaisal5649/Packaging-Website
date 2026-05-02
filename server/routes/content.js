@@ -2,6 +2,7 @@ const express = require('express');
 const Product = require('../models/Product');
 const Industry = require('../models/Industry');
 const Subscriber = require('../models/Subscriber');
+const ContactMessage = require('../models/ContactMessage');
 
 const router = express.Router();
 
@@ -61,6 +62,29 @@ router.post('/subscribe', async (req, res) => {
     res.status(201).json({ message: 'Successfully subscribed to the newsletter!' });
   } catch (err) {
     res.status(500).json({ message: 'Subscription failed. Please try again later.' });
+  }
+});
+
+router.post('/contact', async (req, res) => {
+  try {
+    const { name, email, phone, company, subject, message, interests } = req.body;
+    if (!name || !email || !subject || !message) {
+      return res.status(400).json({ message: 'Name, email, subject, and message are required.' });
+    }
+
+    const contact = await ContactMessage.create({
+      name,
+      email,
+      phone,
+      company,
+      subject,
+      message,
+      interests: Array.isArray(interests) ? interests : [],
+    });
+
+    res.status(201).json({ message: 'Message received', contact });
+  } catch (err) {
+    res.status(500).json({ message: 'Could not submit contact message. Please try again later.' });
   }
 });
 

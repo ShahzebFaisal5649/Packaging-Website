@@ -156,9 +156,12 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
-    setMobileMenuOpen(false);
-    setActiveMenu(null);
-    setMobileExpanded({});
+    const timer = window.setTimeout(() => {
+      setMobileMenuOpen(false);
+      setActiveMenu(null);
+      setMobileExpanded({});
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, [location.pathname]);
 
   useEffect(() => {
@@ -190,8 +193,6 @@ export default function Navbar() {
     document.body.style.overflow = mobileMenuOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
   }, [mobileMenuOpen]);
-
-  const navBg = isScrolled ? 'rgba(20,60,36,0.97)' : G;
 
   const linkStyle = {
     fontSize: 14,
