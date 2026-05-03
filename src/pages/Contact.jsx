@@ -63,13 +63,6 @@ function ContactForm() {
       interests: form.interests,
     };
 
-    const savedMessage = {
-      id: `msg_${Date.now()}`,
-      ...payload,
-      status: 'New',
-      date: new Date().toISOString(),
-    };
-
     try {
       const data = await api.post('/content/contact', payload);
       setSubmitMessage(data.message || 'Message received. We\'ll be in touch soon!');
