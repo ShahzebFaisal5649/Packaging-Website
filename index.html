@@ -6,52 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Design Custom Box — Premium Custom Packaging</title>
     <meta name="description" content="Premium custom packaging and boxes by Design Custom Box. Fast turnaround, industry grade quality, and modern design tools." />
-    
-    <!-- Security Integrity & CSP -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com https://images.unsplash.com https://accounts.google.com https://js.stripe.com https://embed.tawk.to; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://accounts.google.com https://js.stripe.com https://embed.tawk.to https://cdn.tawk.to; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; connect-src 'self' https://accounts.google.com https://api.stripe.com https://*.tawk.to http://localhost:5000 https://*.vercel.app; frame-src https://js.stripe.com https://hooks.stripe.com;" />
+
+    <!-- CSP: allow Stripe, Tawk.to, Google Fonts, Unsplash -->
+    <meta http-equiv="Content-Security-Policy" content="
+      default-src 'self' https:;
+      script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://embed.tawk.to https://cdn.tawk.to https://va.tawk.to https://accounts.google.com;
+      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+      font-src 'self' https://fonts.gstatic.com;
+      img-src 'self' data: blob: https:;
+      connect-src 'self' https: wss:;
+      frame-src https://js.stripe.com https://hooks.stripe.com;
+      worker-src blob:;
+    " />
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
-    <meta http-equiv="X-Frame-Options" content="DENY" />
-    <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
-    <meta name="referrer" content="strict-origin-when-cross-origin" />
-    <script>
-      window.onerror = function(msg, url, lineNo, columnNo, error) {
-        const errorDiv = document.createElement('div');
-        errorDiv.style.position = 'fixed';
-        errorDiv.style.top = '0';
-        errorDiv.style.left = '0';
-        errorDiv.style.width = '100%';
-        errorDiv.style.height = '100%';
-        errorDiv.style.backgroundColor = '#fff1f0';
-        errorDiv.style.color = '#ff4d4f';
-        errorDiv.style.padding = '20px';
-        errorDiv.style.zIndex = '999999';
-        errorDiv.style.fontSize = '14px';
-        errorDiv.style.overflow = 'auto';
-        errorDiv.innerHTML = '<h1>JS Error Caught!</h1>' + 
-          '<p><b>Message:</b> ' + msg + '</p>' +
-          '<p><b>URL:</b> ' + url + '</p>' +
-          '<p><b>Line:</b> ' + lineNo + '</p>' +
-          '<pre>' + (error ? error.stack : '') + '</pre>';
-        document.body.appendChild(errorDiv);
-        return false;
-      };
-      window.onunhandledrejection = function(event) {
-        const errorDiv = document.createElement('div');
-        errorDiv.style.position = 'fixed';
-        errorDiv.style.top = '0';
-        errorDiv.style.left = '0';
-        errorDiv.style.width = '100%';
-        errorDiv.style.height = '100%';
-        errorDiv.style.backgroundColor = '#fff1f0';
-        errorDiv.style.color = '#ff4d4f';
-        errorDiv.style.padding = '20px';
-        errorDiv.style.zIndex = '999999';
-        errorDiv.style.fontSize = '14px';
-        errorDiv.innerHTML = '<h1>Unhandled Promise Rejection!</h1>' + 
-          '<p><b>Reason:</b> ' + event.reason + '</p>';
-        document.body.appendChild(errorDiv);
-      };
-    </script>
   </head>
   <body>
     <div id="root"></div>

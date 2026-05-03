@@ -1,6 +1,6 @@
-// When deployed on Vercel, VITE_API_URL = "/api" so requests go to the same domain.
-// In local dev with separate servers, set VITE_API_URL = "http://localhost:5000/api"
-const BASE_URL = import.meta.env.VITE_API_URL || '/api';
+// Central API service — all requests go through here
+// VITE_API_URL = "/api" on Vercel (same domain), "http://localhost:5000/api" locally
+const BASE_URL = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '');
 
 const getHeaders = () => {
   const token = localStorage.getItem('designcustombox_token');
@@ -11,9 +11,16 @@ const getHeaders = () => {
 };
 
 const request = async (method, endpoint, body) => {
+  const url = `${BASE_URL}${endpoint.startsWith('/') ? endpoint : '/' + endpoint}`;
   const options = { method, headers: getHeaders() };
   if (body !== undefined) options.body = JSON.stringify(body);
-  const res = await fetch(`${BASE_URL}${endpoint}`, options);
+
+  let res;
+  try {
+    res = await fetch(url, options);
+  } catch (networkErr) {
+    throw new Error('Network error — please check your connection');
+  }
 
   let data;
   const text = await res.text();
@@ -26,18 +33,16 @@ const request = async (method, endpoint, body) => {
   if (!res.ok) {
     const err = new Error(data.message || `HTTP ${res.status}`);
     err.status = res.status;
-    err.offline = data.offline || false;
     throw err;
   }
   return data;
 };
 
 const api = {
-  get: (endpoint) => request('GET', endpoint),
-  post: (endpoint, body) => request('POST', endpoint, body),
-  put: (endpoint, body) => request('PUT', endpoint, body),
-  delete: (endpoint) => request('DELETE', endpoint),
-
+  get:    (endpoint)        => request('GET',    endpoint),
+  post:   (endpoint, body)  => request('POST',   endpoint, body),
+  put:    (endpoint, body)  => request('PUT',    endpoint, body),
+  delete: (endpoint)        => request('DELETE', endpoint),
   setToken: (token) => {
     if (token) localStorage.setItem('designcustombox_token', token);
     else localStorage.removeItem('designcustombox_token');

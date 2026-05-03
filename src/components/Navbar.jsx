@@ -460,7 +460,7 @@ export default function Navbar() {
             width: '100%',
             maxWidth: 340,
             background: G,
-            zIndex: 10005,
+            zIndex: 10003,
             transform: mobileMenuOpen ? 'translateX(0)' : 'translateX(100%)',
             transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
             overflowY: 'auto',
