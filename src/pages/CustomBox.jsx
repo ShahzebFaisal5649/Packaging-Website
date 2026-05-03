@@ -97,7 +97,7 @@ const TRUST_ITEMS = [
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function CustomBox() {
   const { addToCart, toggleDrawer } = useCart();
-  const { user, isAuthenticated, updateUser } = useAuth();
+  const { user, isAuthenticated, updateUser, saveDesign: saveDesignApi } = useAuth();
   const { showToast } = useToast();
   const location = useLocation();
   const navigate = useNavigate();
@@ -178,33 +178,31 @@ export default function CustomBox() {
     };
     try {
       if (isAuthenticated) {
+        // Logged-in user: save to their account
         await api.post('/users/quotes', quoteData);
       } else {
-        // Save to localStorage as guest
-        const guestList = JSON.parse(localStorage.getItem('packagingUsersList') || '[]');
-        const guestIdx = guestList.findIndex(u => u.email === email);
-        const entry = { quoteId: `QT-${Date.now()}`, ...quoteData, userName: name, userEmail: email };
-        if (guestIdx > -1) {
-          guestList[guestIdx].quotes = [...(guestList[guestIdx].quotes || []), entry];
-        } else {
-          guestList.push({
-            id: `guest_${Date.now()}`,
+        // Guest: use public endpoint that creates/finds user in DB
+        const API_URL = import.meta.env.VITE_API_URL || '/api';
+        const res = await fetch(`${API_URL}/content/guest-quote`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
             name,
             email,
             phone: sampleForm.phone,
-            role: 'user',
-            orders: [],
-            quotes: [entry],
-            notifications: { orders: true, quotes: true, designs: false },
-          });
+            ...quoteData,
+          }),
+        });
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.message || 'Failed to submit request');
         }
-        localStorage.setItem('packagingUsersList', JSON.stringify(guestList));
       }
       setSampleModal(false);
       setSampleForm({ name: user?.name || '', email: user?.email || '', phone: user?.phone || '', street: '', city: '', state: '', zip: '', country: 'US' });
-      showToast('Sample request sent! We\'ll contact you within 24 hours.', 'success');
+      showToast('Sample request submitted! We\'ll contact you within 24 hours.', 'success');
     } catch (err) {
-      showToast(err.message || 'Failed to submit request.', 'error');
+      showToast(err.message || 'Failed to submit request. Please try again.', 'error');
     }
     setSampleSubmitting(false);
   };
@@ -288,7 +286,7 @@ export default function CustomBox() {
     navigate('/checkout');
   };
   // Fix 7: Save Design with canvas thumbnail
-  const handleSaveDesign = () => {
+  const handleSaveDesign = async () => {
     if (!isAuthenticated) { showToast('Please login to save designs.', 'warning'); return; }
     const finalName = designName.trim() || `My ${config.boxType}`;
     // Capture 3D canvas thumbnail
@@ -297,8 +295,12 @@ export default function CustomBox() {
       if (canvasRef.current) thumbnail = canvasRef.current.toDataURL('image/jpeg', 0.5);
     } catch { /* canvas tainted or unavailable */ }
     const newDesign = { id: `des_${Date.now()}`, name: finalName, style: config.material, date: new Date().toISOString(), _savedDesign: true, thumbnail, ...config };
-    const savedDesigns = user.savedDesigns || [];
-    updateUser({ savedDesigns: [...savedDesigns, newDesign] });
+    if (saveDesignApi) {
+      await saveDesignApi(newDesign);
+    } else {
+      const savedDesigns = user.savedDesigns || [];
+      updateUser({ savedDesigns: [...savedDesigns, newDesign] });
+    }
     showToast(`Design "${finalName}" saved!`, 'success');
   };
 
@@ -629,25 +631,25 @@ export default function CustomBox() {
                   <span style={{ fontSize: 13, fontWeight: 600, color: '#888' }}>Loading 3D Engine…</span>
                 </div>
               }>
-              <Canvas
-                shadows dpr={[1, 2]} camera={{ position: [0, 0, 4], fov: 50 }}
-                onCreated={({ gl }) => {
-                  // Store canvas ref for toDataURL thumbnail capture
-                  canvasRef.current = gl.domElement;
-                  // Prevent webgl context loss from crashing React
-                  gl.domElement.addEventListener('webglcontextlost', e => e.preventDefault());
-                }}
-              >
-                <ambientLight intensity={0.7} />
-                <directionalLight position={[5, 8, 5]} intensity={1.2} castShadow />
-                <directionalLight position={[-3, 2, -3]} intensity={0.4} />
-                <pointLight position={[0, 4, 0]} intensity={0.5} />
+                <Canvas
+                  shadows dpr={[1, 2]} camera={{ position: [0, 0, 4], fov: 50 }}
+                  onCreated={({ gl }) => {
+                    // Store canvas ref for toDataURL thumbnail capture
+                    canvasRef.current = gl.domElement;
+                    // Prevent webgl context loss from crashing React
+                    gl.domElement.addEventListener('webglcontextlost', e => e.preventDefault());
+                  }}
+                >
+                  <ambientLight intensity={0.7} />
+                  <directionalLight position={[5, 8, 5]} intensity={1.2} castShadow />
+                  <directionalLight position={[-3, 2, -3]} intensity={0.4} />
+                  <pointLight position={[0, 4, 0]} intensity={0.5} />
                   {artworkApplied && artworkPreview
                     ? <BoxModelTextured l={parseFloat(config.l) || 8} w={parseFloat(config.w) || 6} h={parseFloat(config.h) || 3} artworkUrl={artworkPreview} />
                     : <BoxModel l={parseFloat(config.l) || 8} w={parseFloat(config.w) || 6} h={parseFloat(config.h) || 3} material={config.material} finish={config.finish} />
                   }
-                <OrbitControls autoRotate autoRotateSpeed={1.8} enableZoom={true} />
-              </Canvas>
+                  <OrbitControls autoRotate autoRotateSpeed={1.8} enableZoom={true} />
+                </Canvas>
               </Suspense>
 
               {/* Badges */}

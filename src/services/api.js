@@ -1,4 +1,6 @@
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// When deployed on Vercel, VITE_API_URL = "/api" so requests go to the same domain.
+// In local dev with separate servers, set VITE_API_URL = "http://localhost:5000/api"
+const BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 const getHeaders = () => {
   const token = localStorage.getItem('designcustombox_token');
@@ -10,7 +12,7 @@ const getHeaders = () => {
 
 const request = async (method, endpoint, body) => {
   const options = { method, headers: getHeaders() };
-  if (body) options.body = JSON.stringify(body);
+  if (body !== undefined) options.body = JSON.stringify(body);
   const res = await fetch(`${BASE_URL}${endpoint}`, options);
 
   let data;
@@ -18,7 +20,7 @@ const request = async (method, endpoint, body) => {
   try {
     data = text ? JSON.parse(text) : {};
   } catch {
-    data = { message: text || res.statusText || 'Unexpected response format' };
+    data = { message: text || res.statusText || 'Unexpected response' };
   }
 
   if (!res.ok) {
@@ -40,7 +42,6 @@ const api = {
     if (token) localStorage.setItem('designcustombox_token', token);
     else localStorage.removeItem('designcustombox_token');
   },
-
   getToken: () => localStorage.getItem('designcustombox_token'),
 };
 

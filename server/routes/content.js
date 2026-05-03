@@ -51,13 +51,13 @@ router.post('/subscribe', async (req, res) => {
   try {
     const { email } = req.body;
     if (!email) return res.status(400).json({ message: 'Email is required' });
-    
+
     // Check if already subscribed
     const existing = await Subscriber.findOne({ email });
     if (existing) {
       return res.status(200).json({ message: 'You are already subscribed!' });
     }
-    
+
     await Subscriber.create({ email });
     res.status(201).json({ message: 'Successfully subscribed to the newsletter!' });
   } catch {
@@ -85,6 +85,43 @@ router.post('/contact', async (req, res) => {
     res.status(201).json({ message: 'Message received', contact });
   } catch {
     res.status(500).json({ message: 'Could not submit contact message. Please try again later.' });
+  }
+});
+
+
+
+// Public guest sample/quote request (no auth needed)
+router.post('/guest-quote', async (req, res) => {
+  try {
+    const { name, email, phone, ...quoteData } = req.body;
+    if (!name || !email) {
+      return res.status(400).json({ message: 'Name and email are required' });
+    }
+    // Find or create a user record for this guest
+    const User = require('../models/User');
+    let guestUser = await User.findOne({ email: email.toLowerCase().trim() });
+    if (!guestUser) {
+      // Create a minimal guest account with a random password they won't use
+      const crypto = require('crypto');
+      guestUser = await User.create({
+        name,
+        email: email.toLowerCase().trim(),
+        password: crypto.randomBytes(16).toString('hex'),
+        phone: phone || '',
+        role: 'user',
+        loyaltyPoints: 0,
+      });
+    }
+    const quote = {
+      quoteId: `QT-${Date.now()}`,
+      ...quoteData,
+      createdAt: new Date(),
+    };
+    guestUser.quotes.push(quote);
+    await guestUser.save();
+    res.status(201).json({ message: 'Sample request submitted successfully', quote });
+  } catch (err) {
+    res.status(500).json({ message: err.message || 'Could not submit sample request' });
   }
 });
 
