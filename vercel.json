@@ -1,11 +1,13 @@
 {
   "version": 2,
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
   "builds": [
     {
       "src": "server/index.js",
       "use": "@vercel/node",
       "config": {
-        "includeFiles": ["server/**"]
+        "includeFiles": ["server/**", "server/models/**", "server/routes/**", "server/middleware/**"]
       }
     },
     {
@@ -18,5 +20,8 @@
     { "src": "/api/(.*)", "dest": "/server/index.js" },
     { "handle": "filesystem" },
     { "src": "/(.*)", "dest": "/index.html" }
-  ]
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
 }

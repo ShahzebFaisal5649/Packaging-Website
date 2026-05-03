@@ -52,16 +52,16 @@ router.post('/subscribe', async (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ message: 'Email is required' });
 
-    // Check if already subscribed
-    const existing = await Subscriber.findOne({ email });
+    const existing = await Subscriber.findOne({ email: email.toLowerCase().trim() });
     if (existing) {
       return res.status(200).json({ message: 'You are already subscribed!' });
     }
 
-    await Subscriber.create({ email });
+    await Subscriber.create({ email: email.toLowerCase().trim() });
     res.status(201).json({ message: 'Successfully subscribed to the newsletter!' });
-  } catch {
-    res.status(500).json({ message: 'Subscription failed. Please try again later.' });
+  } catch (err) {
+    console.error('Subscribe error:', err);
+    res.status(500).json({ message: 'Subscription failed: ' + err.message });
   }
 });
 
@@ -82,9 +82,10 @@ router.post('/contact', async (req, res) => {
       interests: Array.isArray(interests) ? interests : [],
     });
 
-    res.status(201).json({ message: 'Message received', contact });
-  } catch {
-    res.status(500).json({ message: 'Could not submit contact message. Please try again later.' });
+    res.status(201).json({ message: 'Message received! We\'ll be in touch soon.', contact });
+  } catch (err) {
+    console.error('Contact error:', err);
+    res.status(500).json({ message: 'Could not submit: ' + err.message });
   }
 });
 
