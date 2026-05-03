@@ -148,7 +148,7 @@ export default function ProductQuickView() {
           <div style={{ padding: '28px 24px 0' }}>
             <h2 style={{ fontSize: 22, fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#1A1A1A', marginBottom: 6 }}>{modalData.name}</h2>
             <p style={{ fontSize: 13, color: '#7A7060', lineHeight: 1.6, marginBottom: 0, textAlign: 'justify' }}>
-              {modalData.desc || 'Premium custom packaging tailored to your brand requirements.'}
+              {modalData.description || modalData.desc || 'Premium custom packaging tailored to your brand requirements.'}
             </p>
           </div>
 

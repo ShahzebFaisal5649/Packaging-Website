@@ -86,7 +86,7 @@ app.get('/api/health', async (req, res) => {
 app.use((req, res) => res.status(404).json({ message: 'Route not found' }));
 
 // Error handler
-app.use((err, req, res) => {
+app.use((err, req, res, next) => {
   if (err.type === 'entity.too.large') {
     return res.status(413).json({ message: 'Payload too large. Please use a smaller image (max 50MB).' });
   }

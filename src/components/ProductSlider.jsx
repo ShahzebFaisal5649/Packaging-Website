@@ -46,30 +46,31 @@ export default function ProductSlider({ products = [], title = 'Featured Product
   const maxIndex = Math.max(0, products.length - Math.floor(visibleCount));
 
   const handleDragStart = (e) => {
-    setIsDragging(true);
+    setIsDragging(false); // reset; only set true on actual move
     setStartX(e.type.includes('mouse') ? e.pageX : e.touches[0].pageX);
     setScrollLeft(currentIndex);
   };
 
   const handleDragMove = (e) => {
-    if (!isDragging) return;
-    e.preventDefault();
     const x = e.type.includes('mouse') ? e.pageX : e.touches[0].pageX;
-    const walk = (x - startX) / 100;
-    let newIndex = scrollLeft - walk; // Changed direction to match standard swipe
+    const delta = Math.abs(x - startX);
+    if (delta < 5) return; // ignore tiny movements
+    setIsDragging(true);
+    e.preventDefault();
+    let newIndex = scrollLeft - (x - startX) / 100;
     if (newIndex < 0) newIndex = 0;
     if (newIndex > maxIndex) newIndex = maxIndex;
     setCurrentIndex(newIndex);
   };
 
   const handleDragEnd = (e) => {
-    if (!isDragging) return;
+    const wasDragging = isDragging;
     setIsDragging(false);
+    if (!wasDragging) return;
     
-    // Snapping logic
     const x = e.type.includes('mouse') ? e.pageX : (e.changedTouches?.[0]?.pageX || startX);
     const walk = (x - startX) / 100;
-    if (Math.abs(walk) > 0.1) {
+    if (Math.abs(walk) > 0.3) {
       if (walk > 0) handlePrev();
       else handleNext();
     } else {

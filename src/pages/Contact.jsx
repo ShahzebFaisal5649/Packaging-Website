@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Phone, Mail, MapPin, MessageCircle, ChevronDown, Check } from 'lucide-react';
+import api from '../services/api';
 
 const FacebookIcon = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>;
 const InstagramIcon = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>;
@@ -70,29 +71,12 @@ function ContactForm() {
     };
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/content/contact`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Server responded with ${response.status}`);
-      }
-
-      const data = await response.json();
-      setSubmitMessage(data.message || 'Message received.');
+      const data = await api.post('/content/contact', payload);
+      setSubmitMessage(data.message || 'Message received. We\'ll be in touch soon!');
       localStorage.removeItem('designcustombox_contact_draft');
     } catch (err) {
-      console.warn('Contact submit failed. Falling back to local storage.', err);
-      setSubmitMessage('Your message was saved locally and will sync once the site reconnects to the server.');
-      try {
-        const existing = JSON.parse(localStorage.getItem('designcustombox_contact_messages') || '[]');
-        localStorage.setItem('designcustombox_contact_messages', JSON.stringify([savedMessage, ...existing]));
-        localStorage.removeItem('designcustombox_contact_draft');
-      } catch (storageErr) {
-        console.error('Could not persist contact message locally', storageErr);
-      }
+      setSubmitMessage('Failed to send message. Please try again or email us directly.');
+      console.error('Contact submit failed:', err);
     } finally {
       setLoading(false);
       setSubmitted(true);

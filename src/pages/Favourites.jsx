@@ -58,7 +58,7 @@ export default function Favourites() {
 
   const handleAddToCart = (product) => {
     addToCart({
-      id: product.id || `fav_${Date.now()}`,
+      id: product._id || product.id || `fav_${Date.now()}`,
       name: product.name,
       image: getImage(product),
       price: parseFloat((product.price || '$1.20').replace(/[^0-9.]/g, '')) || 1.20,
@@ -150,8 +150,9 @@ export default function Favourites() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {favourites.map((product, idx) => {
               const imgSrc = getImage(product);
+              const stableId = product._id || product.id;
               return (
-                <div key={product.id || idx} className="bg-white rounded-card border border-gray-100 shadow-card overflow-hidden group flex flex-col relative">
+                <div key={stableId || idx} className="bg-white rounded-card border border-gray-100 shadow-card overflow-hidden group flex flex-col relative">
 
                   {/* Action buttons top-right */}
                   <div className="absolute top-3 right-3 z-20 flex flex-col gap-2">
@@ -165,7 +166,7 @@ export default function Favourites() {
                     </button>
                     {/* Remove from favourites */}
                     <button
-                      onClick={() => handleRemove(product.id || product.name, product.name)}
+                      onClick={() => handleRemove(product._id || product.id || product.name, product.name)}
                       className="w-9 h-9 bg-white rounded-full flex items-center justify-center shadow-sm hover:bg-red-50 transition-colors"
                       aria-label="Remove from favourites"
                     >
@@ -187,7 +188,7 @@ export default function Favourites() {
                   {/* Body */}
                   <div className="flex-1 p-4 flex flex-col">
                     <h3 className="text-[15px] font-bold text-brand-textPrimary mb-1 truncate">{product.name}</h3>
-                    {product.desc && <p className="text-[12px] text-brand-textSecondary mb-3 line-clamp-2">{product.desc}</p>}
+                    {(product.description || product.desc) && <p className="text-[12px] text-brand-textSecondary mb-3 line-clamp-2">{product.description || product.desc}</p>}
                     {product.price && <p className="text-[15px] font-bold text-brand-accent mb-4">{product.price}</p>}
 
                     <div className="mt-auto space-y-2">

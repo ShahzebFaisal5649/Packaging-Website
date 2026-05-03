@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Phone, MapPin, Mail } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 import logo from '../assets/logo.png';
+import api from '../services/api';
 
 // Inline SVG social icons — no lucide-react dependency issues
 const FacebookIcon = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>;
@@ -20,21 +21,12 @@ export default function Footer() {
     e.preventDefault();
     if (!email.trim()) return;
     setLoading(true);
-    const subscriber = { email: email.trim(), date: new Date().toISOString() };
     try {
-      await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/subscribe`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(subscriber),
-      });
-      showToast('Success! You have been subscribed to our newsletter.', 'success');
+      const data = await api.post('/content/subscribe', { email: email.trim() });
+      showToast(data.message || 'Successfully subscribed to the newsletter!', 'success');
       setEmail('');
     } catch (err) {
-      console.warn('Subscribe failed, saving locally.', err);
-      const existing = JSON.parse(localStorage.getItem('designcustombox_subscribers') || '[]');
-      localStorage.setItem('designcustombox_subscribers', JSON.stringify([...existing, subscriber]));
-      showToast('Subscribed! (Saved locally)', 'success');
-      setEmail('');
+      showToast(err.message || 'Subscription failed. Please try again.', 'error');
     } finally {
       setLoading(false);
     }

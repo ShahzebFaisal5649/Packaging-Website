@@ -471,7 +471,16 @@ export default function Navbar() {
           }}
         >
           {/* Spacer for fixed header */}
-          <div style={{ height: 68, flexShrink: 0 }} />
+          <div style={{ height: 68, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px' }}>
+            <span style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>Menu</span>
+            <button
+              onClick={() => setMobileMenuOpen(false)}
+              aria-label="Close menu"
+              style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: '#fff', cursor: 'pointer', borderRadius: 8, padding: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            >
+              <X size={22} />
+            </button>
+          </div>
 
           <nav style={{ padding: '8px 24px 0' }}>
             {/* Expandable: Products & Industries */}

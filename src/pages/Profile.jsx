@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { User, Package, FileText, Layout, MapPin, Settings, LogOut, Camera, Plus, Trash2, Edit, X, ExternalLink, Copy, Menu, ChevronLeft } from 'lucide-react';
+import api from '../services/api';
 
 const G = '#1A4D2E';
 const ACCENT = '#C8860A';
@@ -538,13 +539,16 @@ function SettingsTab({ user, updateUser, showToast, logout }) {
 
   const handleUpdatePassword = async () => {
     if (!pwd.current) { setPwdErr('Enter your current password'); return; }
-    if (pwd.current !== user?.password) { setPwdErr('Current password is incorrect'); return; }
     if (pwd.newPwd.length < 6) { setPwdErr('New password must be at least 6 characters'); return; }
     if (pwd.newPwd !== pwd.confirm) { setPwdErr('Passwords do not match'); return; }
-    await updateUser({ password: pwd.newPwd });
-    showToast('Password updated!', 'success');
-    setPwd({ current: '', newPwd: '', confirm: '' });
     setPwdErr('');
+    try {
+      await api.put('/users/password', { currentPassword: pwd.current, newPassword: pwd.newPwd });
+      showToast('Password updated!', 'success');
+      setPwd({ current: '', newPwd: '', confirm: '' });
+    } catch (err) {
+      setPwdErr(err.message || 'Current password is incorrect');
+    }
   };
 
   const handleToggleNotif = async (key) => {

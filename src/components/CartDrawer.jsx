@@ -1,19 +1,27 @@
+import { useEffect } from 'react';
 import { useCart } from '../context/CartContext';
 import { X, Minus, Plus, ShoppingBag, ChevronRight } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 export default function CartDrawer() {
   const { cartItems, isDrawerOpen, toggleDrawer, updateQuantity, removeFromCart, cartTotal } = useCart();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Close cart when user navigates to a different page
+  useEffect(() => {
+    toggleDrawer(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname]);
 
   return (
     <>
       <div 
-        className={`fixed inset-0 bg-black/40 z-[9990] backdrop-blur-sm transition-opacity duration-300 ${isDrawerOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
+        className={`fixed inset-0 bg-black/40 z-[10001] backdrop-blur-sm transition-opacity duration-300 ${isDrawerOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
         onClick={() => toggleDrawer(false)}
       ></div>
       
-      <div className={`fixed top-0 right-0 h-full w-[100vw] max-w-[400px] bg-white shadow-2xl z-[9999] transform transition-transform duration-300 ease-out flex flex-col ${isDrawerOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+      <div className={`fixed top-0 right-0 h-full w-[100vw] max-w-[400px] bg-white shadow-2xl z-[10002] transform transition-transform duration-300 ease-out flex flex-col ${isDrawerOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-100">

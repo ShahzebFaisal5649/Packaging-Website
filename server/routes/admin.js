@@ -266,6 +266,15 @@ router.get('/subscribers', async (req, res) => {
   }
 });
 
+router.delete('/subscribers/:id', async (req, res) => {
+  try {
+    await Subscriber.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Subscriber removed' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 // ── Revenue Analytics ────────────────────────────────────────────────────────
 router.get('/analytics', async (req, res) => {
   try {

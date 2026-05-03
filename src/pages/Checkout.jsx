@@ -13,7 +13,13 @@ const ACCENT = '#C8860A';
 
 // Initialise Stripe once outside component to avoid re-creating on re-render
 const STRIPE_KEY = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '';
-const stripePromise = STRIPE_KEY ? loadStripe(STRIPE_KEY) : null;
+// Create stripe promise — errors here (like blocked CSP) are caught in the UI
+const stripePromise = STRIPE_KEY
+  ? loadStripe(STRIPE_KEY).catch(err => {
+      console.error('Stripe load error:', err);
+      return null;
+    })
+  : null;
 
 const CARD_STYLE = {
   style: {

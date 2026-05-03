@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Clock, User } from 'lucide-react';
+import api from '../services/api';
 
 const G = '#1A4D2E';
 const ACCENT = '#C8860A';
@@ -85,13 +86,7 @@ export default function Blog() {
     if (!email || status === 'loading') return;
     setStatus('loading');
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/content/subscribe`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message || 'Subscription failed');
+      await api.post('/content/subscribe', { email });
       setStatus('success');
       setEmail('');
     } catch (err) {

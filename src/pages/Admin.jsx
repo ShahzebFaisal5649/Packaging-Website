@@ -249,11 +249,9 @@ function DashboardSection() {
               setRecentOrders(cachedOrders);
             } catch { /* ignore parse errors */ }
           } else {
-            // Fallback to localStorage users
-            const list = JSON.parse(localStorage.getItem('packagingUsersList') || '[]');
-            const orders = list.flatMap(u => (u.orders || []).map(o => ({ ...o, userName: u.name, userEmail: u.email })));
-            setStats({ totalUsers: list.filter(u => u.role !== 'admin').length, totalOrders: orders.length, revenue: orders.reduce((s, o) => s + (parseFloat(o.total) || 0), 0), pending: orders.filter(o => o.status === 'Processing').length, newThisWeek: 0 });
-            setRecentOrders(orders.slice(0, 6));
+            // Show zeroed stats if API fails with no cache
+            setStats({ totalUsers: 0, totalOrders: 0, revenue: 0, pending: 0, newThisWeek: 0 });
+            setRecentOrders([]);
           }
         }
       } finally {
@@ -945,18 +943,14 @@ function OrdersSection() {
   const [editTracking, setEditTracking] = useState('');
 
   async function load() {
-    let cancelled = false;
     setLoading(true);
     try {
       const data = await api.get('/admin/orders');
-      if (!cancelled) setOrders(data.orders || []);
-    } catch {
-      if (!cancelled) {
-        const list = JSON.parse(localStorage.getItem('packagingUsersList') || '[]');
-        setOrders(list.flatMap(u => (u.orders || []).map(o => ({ ...o, userName: u.name, userEmail: u.email, userId: u.id }))));
-      }
+      setOrders(data.orders || []);
+    } catch (e) {
+      showToast('Failed to load orders: ' + e.message, 'error');
     } finally {
-      if (!cancelled) setLoading(false);
+      setLoading(false);
     }
   }
 
@@ -967,11 +961,8 @@ function OrdersSection() {
       try {
         const data = await api.get('/admin/orders');
         if (!cancelled) setOrders(data.orders || []);
-      } catch {
-        if (!cancelled) {
-          const list = JSON.parse(localStorage.getItem('packagingUsersList') || '[]');
-          setOrders(list.flatMap(u => (u.orders || []).map(o => ({ ...o, userName: u.name, userEmail: u.email, userId: u.id }))));
-        }
+      } catch (e) {
+        if (!cancelled) showToast('Failed to load orders', 'error');
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -984,13 +975,8 @@ function OrdersSection() {
     try {
       if (order.userId && order._id) {
         await api.put(`/admin/orders/${order.userId}/${order._id}`, { status });
-      } else {
-        const list = JSON.parse(localStorage.getItem('packagingUsersList') || '[]');
-        const ui = list.findIndex(u => u.id === order.userId);
-        if (ui > -1) { const oi = list[ui].orders.findIndex(o => o.id === (order.id || order.orderId)); if (oi > -1) list[ui].orders[oi].status = status; }
-        localStorage.setItem('packagingUsersList', JSON.stringify(list));
       }
-      if (selected?.id === order.id || selected?._id === order._id) setSelected(prev => ({ ...prev, status }));
+      if (selected?._id === order._id) setSelected(prev => ({ ...prev, status }));
       showToast('Order status updated', 'success');
       load();
     } catch (e) { showToast(e.message, 'error'); }
@@ -1169,18 +1155,14 @@ function UsersSection() {
   const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   async function load() {
-    let cancelled = false;
     setLoading(true);
     try {
       const data = await api.get('/admin/users');
-      if (!cancelled) setUsers(data.users || []);
-    } catch {
-      if (!cancelled) {
-        const list = JSON.parse(localStorage.getItem('packagingUsersList') || '[]');
-        setUsers(list.filter(u => u.role !== 'admin'));
-      }
+      setUsers(data.users || []);
+    } catch (e) {
+      showToast('Failed to load users: ' + e.message, 'error');
     } finally {
-      if (!cancelled) setLoading(false);
+      setLoading(false);
     }
   }
 
@@ -1192,10 +1174,7 @@ function UsersSection() {
         const data = await api.get('/admin/users');
         if (!cancelled) setUsers(data.users || []);
       } catch {
-        if (!cancelled) {
-          const list = JSON.parse(localStorage.getItem('packagingUsersList') || '[]');
-          setUsers(list.filter(u => u.role !== 'admin'));
-        }
+        if (!cancelled) showToast('Failed to load users', 'error');
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -1207,10 +1186,6 @@ function UsersSection() {
   const handleDelete = async (user) => {
     try {
       if (user._id) await api.delete(`/admin/users/${user._id}`);
-      else {
-        const list = JSON.parse(localStorage.getItem('packagingUsersList') || '[]');
-        localStorage.setItem('packagingUsersList', JSON.stringify(list.filter(u => u.id !== user.id)));
-      }
       setDeleteConfirm(null);
       showToast('User deleted', 'success');
       load();
@@ -1220,12 +1195,6 @@ function UsersSection() {
   const handleRoleChange = async (user, role) => {
     try {
       if (user._id) await api.put(`/admin/users/${user._id}`, { role });
-      else {
-        const list = JSON.parse(localStorage.getItem('packagingUsersList') || '[]');
-        const idx = list.findIndex(u => u.id === user.id);
-        if (idx > -1) list[idx].role = role;
-        localStorage.setItem('packagingUsersList', JSON.stringify(list));
-      }
       showToast('Role updated', 'success');
       load();
     } catch (e) { showToast(e.message, 'error'); }
@@ -1417,11 +1386,8 @@ function QuotesSection() {
     try {
       const data = await api.get('/admin/quotes');
       if (!signal.cancelled) setQuotes(data.quotes || []);
-    } catch {
-      if (!signal.cancelled) {
-        const list = JSON.parse(localStorage.getItem('packagingUsersList') || '[]');
-        setQuotes(list.flatMap(u => (u.quotes || []).map(q => ({ ...q, userName: u.name, userEmail: u.email, userId: u.id }))));
-      }
+    } catch (e) {
+      if (!signal.cancelled) showToast('Failed to load quotes: ' + e.message, 'error');
     } finally {
       if (!signal.cancelled) setLoading(false);
     }
@@ -1436,12 +1402,6 @@ function QuotesSection() {
   const handleUpdateQuote = async (q, updates) => {
     try {
       if (q.userId && q._id) await api.put(`/admin/quotes/${q.userId}/${q._id}`, updates);
-      else {
-        const list = JSON.parse(localStorage.getItem('packagingUsersList') || '[]');
-        const ui = list.findIndex(u => u.id === q.userId);
-        if (ui > -1) { const qi = list[ui].quotes?.findIndex(x => x.id === q.id); if (qi > -1) list[ui].quotes[qi] = { ...list[ui].quotes[qi], ...updates }; }
-        localStorage.setItem('packagingUsersList', JSON.stringify(list));
-      }
       setSelected(null);
       showToast('Quote updated', 'success');
       loadQuotes();
@@ -1547,12 +1507,11 @@ function AnalyticsSection() {
       if (!signal.cancelled) setData(d);
     } catch {
       if (!signal.cancelled) {
-        const list = JSON.parse(localStorage.getItem('packagingUsersList') || '[]');
-        const orders = list.flatMap(u => u.orders || []);
+        // Show empty analytics if API fails
         setData({
-          statusCounts: ['Processing', 'Shipped', 'Delivered', 'Cancelled'].map(s => ({ label: s, value: orders.filter(o => o.status === s).length })),
-          monthRevenue: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'].map((m, i) => ({ label: m, value: (i + 1) * 347 % 3000 })),
-          userGrowth: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'].map((m, i) => ({ label: m, value: (i * 41 + 7) % 20 })),
+          statusCounts: ['Processing', 'Shipped', 'Delivered', 'Cancelled'].map(s => ({ label: s, value: 0 })),
+          monthRevenue: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'].map(m => ({ label: m, value: 0 })),
+          userGrowth: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'].map(m => ({ label: m, value: 0 })),
         });
       }
     } finally {
@@ -1595,32 +1554,44 @@ function AnalyticsSection() {
 // ── Messages ─────────────────────────────────────────────────────────────────
 function MessagesSection() {
   const { showToast } = useToast();
-  const [messages, setMessages] = useState(() => {
-    const stored = JSON.parse(localStorage.getItem('designcustombox_contact_messages') || '[]');
-    return stored.sort((a, b) => new Date(b.date) - new Date(a.date));
-  });
+  const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
   const [search, setSearch] = useState('');
 
-  const handleMarkReplied = (id) => {
-    const updated = messages.map(m => m.id === id ? { ...m, status: 'Replied' } : m);
-    setMessages(updated);
-    localStorage.setItem('designcustombox_contact_messages', JSON.stringify(updated));
-    if (selected?.id === id) setSelected(prev => ({ ...prev, status: 'Replied' }));
-    showToast('Marked as replied', 'success');
+  useEffect(() => {
+    setLoading(true);
+    api.get('/admin/contact-messages')
+      .then(data => setMessages(data.messages || []))
+      .catch(() => showToast('Failed to load messages', 'error'))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleMarkReplied = async (id) => {
+    try {
+      await api.put(`/admin/contact-messages/${id}`, { status: 'Replied' });
+      setMessages(prev => prev.map(m => m._id === id ? { ...m, status: 'Replied' } : m));
+      if (selected?._id === id) setSelected(prev => ({ ...prev, status: 'Replied' }));
+      showToast('Marked as replied', 'success');
+    } catch {
+      showToast('Failed to update message', 'error');
+    }
   };
 
-  const handleDelete = (id) => {
-    const updated = messages.filter(m => m.id !== id);
-    setMessages(updated);
-    localStorage.setItem('designcustombox_contact_messages', JSON.stringify(updated));
-    setSelected(null);
-    showToast('Message deleted', 'success');
+  const handleDelete = async (id) => {
+    try {
+      await api.delete(`/admin/contact-messages/${id}`);
+      setMessages(prev => prev.filter(m => m._id !== id));
+      setSelected(null);
+      showToast('Message deleted', 'success');
+    } catch {
+      showToast('Failed to delete message', 'error');
+    }
   };
 
   const exportCSV = () => {
     const rows = [['Name', 'Email', 'Subject', 'Message', 'Status', 'Date']];
-    messages.forEach(m => rows.push([m.name, m.email, m.subject, m.message, m.status, m.date ? new Date(m.date).toLocaleDateString() : '']));
+    messages.forEach(m => rows.push([m.name, m.email, m.subject, m.message, m.status, m.createdAt ? new Date(m.createdAt).toLocaleDateString() : '']));
     const csv = rows.map(r => r.map(v => `"${(v || '').replace(/"/g, '""')}"`).join(',')).join('\n');
     const a = document.createElement('a'); a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv); a.download = 'messages.csv'; a.click();
   };
@@ -1655,15 +1626,15 @@ function MessagesSection() {
             </thead>
             <tbody>
               {filtered.length === 0 ? (
-                <tr><td colSpan={6} style={{ padding: 32, textAlign: 'center', color: '#aaa' }}>No messages yet. They will appear here when users submit the contact form.</td></tr>
+                <tr><td colSpan={6} style={{ padding: 32, textAlign: 'center', color: '#aaa' }}>{loading ? 'Loading messages…' : 'No messages yet. They will appear here when users submit the contact form.'}</td></tr>
               ) : filtered.map((m, i) => (
-                <tr key={i} style={{ borderTop: '1px solid #F0EDE8' }}
+                <tr key={m._id || i} style={{ borderTop: '1px solid #F0EDE8' }}
                   onMouseEnter={e => e.currentTarget.style.background = '#FAFAF9'}
                   onMouseLeave={e => e.currentTarget.style.background = '#fff'}>
                   <td style={{ padding: '12px 14px', fontSize: 13, fontWeight: 600, color: '#1A1A1A' }}>{m.name}</td>
                   <td style={{ padding: '12px 14px', fontSize: 12, color: '#555', wordBreak: 'break-all' }}>{m.email}</td>
                   <td style={{ padding: '12px 14px', fontSize: 12, color: '#555' }}>{m.subject}</td>
-                  <td style={{ padding: '12px 14px', fontSize: 11, color: '#888', whiteSpace: 'nowrap' }}>{m.date ? new Date(m.date).toLocaleDateString() : '—'}</td>
+                  <td style={{ padding: '12px 14px', fontSize: 11, color: '#888', whiteSpace: 'nowrap' }}>{m.createdAt ? new Date(m.createdAt).toLocaleDateString() : '—'}</td>
                   <td style={{ padding: '12px 14px' }}><Badge status={m.status || 'New'} /></td>
                   <td style={{ padding: '12px 14px' }}>
                     <div style={{ display: 'flex', gap: 6 }}>
@@ -1672,7 +1643,7 @@ function MessagesSection() {
                         <Eye size={11} />
                       </button>
                       {m.status !== 'Replied' && (
-                        <button onClick={() => handleMarkReplied(m.id)}
+                        <button onClick={() => handleMarkReplied(m._id)}
                           style={{ padding: '5px 10px', borderRadius: 6, border: '1px solid #D1FAE5', color: '#065F46', background: 'none', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
                           ✓
                         </button>
@@ -1695,7 +1666,7 @@ function MessagesSection() {
               { label: 'Phone', value: selected.phone || '—' },
               { label: 'Company', value: selected.company || '—' },
               { label: 'Subject', value: selected.subject },
-              { label: 'Date', value: selected.date ? new Date(selected.date).toLocaleString() : '—' },
+              { label: 'Date', value: selected.createdAt ? new Date(selected.createdAt).toLocaleString() : '—' },
             ].map(({ label, value }) => (
               <div key={label} style={{ background: BG, borderRadius: 10, padding: '10px 14px' }}>
                 <p style={{ fontSize: 10, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 4px' }}>{label}</p>
@@ -1717,13 +1688,13 @@ function MessagesSection() {
           )}
           <div style={{ display: 'flex', gap: 10, paddingTop: 16, borderTop: '1px solid #F0EDE8' }}>
             {selected.status !== 'Replied' && (
-              <button onClick={() => handleMarkReplied(selected.id)} style={{ flex: 1, padding: '10px', background: G, color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}>Mark as Replied</button>
+              <button onClick={() => handleMarkReplied(selected._id)} style={{ flex: 1, padding: '10px', background: G, color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}>Mark as Replied</button>
             )}
             <a href={`mailto:${selected.email}?subject=Re: ${encodeURIComponent(selected.subject || '')}`}
               style={{ flex: 1, padding: '10px', background: ACCENT, color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
               <Mail size={14} /> Reply via Email
             </a>
-            <button onClick={() => handleDelete(selected.id)} style={{ padding: '10px 16px', background: '#FEE2E2', color: '#DC2626', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}><Trash2 size={14} /></button>
+            <button onClick={() => handleDelete(selected._id)} style={{ padding: '10px 16px', background: '#FEE2E2', color: '#DC2626', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}><Trash2 size={14} /></button>
           </div>
         </Modal>
       )}
@@ -1735,28 +1706,30 @@ function MessagesSection() {
 function SubscribersSection() {
   const { showToast } = useToast();
   const [subscribers, setSubscribers] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
 
   useEffect(() => {
-    // Try API first, fall back to localStorage
+    setLoading(true);
     api.get('/admin/subscribers')
       .then(data => setSubscribers(data.subscribers || []))
-      .catch(() => {
-        const stored = JSON.parse(localStorage.getItem('designcustombox_subscribers') || '[]');
-        setSubscribers(stored.sort((a, b) => new Date(b.date) - new Date(a.date)));
-      });
+      .catch(() => showToast('Failed to load subscribers', 'error'))
+      .finally(() => setLoading(false));
   }, []);
 
-  const handleDelete = (email) => {
-    const updated = subscribers.filter(s => s.email !== email);
-    setSubscribers(updated);
-    localStorage.setItem('designcustombox_subscribers', JSON.stringify(updated));
-    showToast('Subscriber removed', 'success');
+  const handleDelete = async (id) => {
+    try {
+      await api.delete(`/admin/subscribers/${id}`);
+      setSubscribers(prev => prev.filter(s => s._id !== id));
+      showToast('Subscriber removed', 'success');
+    } catch {
+      showToast('Failed to remove subscriber', 'error');
+    }
   };
 
   const exportCSV = () => {
     const rows = [['Email', 'Date Subscribed']];
-    subscribers.forEach(s => rows.push([s.email, s.date ? new Date(s.date).toLocaleDateString() : '']));
+    subscribers.forEach(s => rows.push([s.email, s.createdAt ? new Date(s.createdAt).toLocaleDateString() : '']));
     const csv = rows.map(r => r.map(v => `"${(v || '').replace(/"/g, '""')}"`).join(',')).join('\n');
     const a = document.createElement('a'); a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv); a.download = 'subscribers.csv'; a.click();
   };
@@ -1790,16 +1763,16 @@ function SubscribersSection() {
             </thead>
             <tbody>
               {filtered.length === 0 ? (
-                <tr><td colSpan={4} style={{ padding: 32, textAlign: 'center', color: '#aaa' }}>No subscribers yet. They will appear here when users subscribe via the footer form.</td></tr>
+                <tr><td colSpan={4} style={{ padding: 32, textAlign: 'center', color: '#aaa' }}>{loading ? 'Loading subscribers…' : 'No subscribers yet. They will appear here when users subscribe via the footer form.'}</td></tr>
               ) : filtered.map((s, i) => (
-                <tr key={i} style={{ borderTop: '1px solid #F0EDE8' }}
+                <tr key={s._id || i} style={{ borderTop: '1px solid #F0EDE8' }}
                   onMouseEnter={e => e.currentTarget.style.background = '#FAFAF9'}
                   onMouseLeave={e => e.currentTarget.style.background = '#fff'}>
                   <td style={{ padding: '12px 14px', fontSize: 12, color: '#888' }}>{i + 1}</td>
                   <td style={{ padding: '12px 14px', fontSize: 13, fontWeight: 600, color: '#1A1A1A' }}>{s.email}</td>
-                  <td style={{ padding: '12px 14px', fontSize: 12, color: '#888' }}>{s.date ? new Date(s.date).toLocaleDateString() : '—'}</td>
+                  <td style={{ padding: '12px 14px', fontSize: 12, color: '#888' }}>{s.createdAt ? new Date(s.createdAt).toLocaleDateString() : '—'}</td>
                   <td style={{ padding: '12px 14px' }}>
-                    <button onClick={() => handleDelete(s.email)}
+                    <button onClick={() => handleDelete(s._id)}
                       style={{ padding: '5px 10px', borderRadius: 6, border: '1px solid #FEE2E2', color: '#DC2626', background: 'none', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
                       <Trash2 size={11} />
                     </button>

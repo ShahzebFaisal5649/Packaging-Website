@@ -10,23 +10,13 @@ const G = '#1A4D2E';
 const ACCENT = '#C8860A';
 const BG = '#F5F2ED';
 
-const categories = [
-  'All Industries',
-  'Food & Beverage',
-  'Cosmetics',
-  'E-commerce',
-  'Apparel & Retail',
-  'Electronics',
-  'Cannabis & CBD',
-];
-
 function IndustryCard({ product }) {
   const [hovered, setHovered] = useState(false);
   const { isFavourite, toggleFavourite } = useFavourites();
   const { openQuickView } = useModal();
   const { showToast } = useToast();
   const navigate = useNavigate();
-  const isFav = isFavourite(product.id);
+  const isFav = isFavourite(product._id || product.id);
 
   const handleFavourite = (e) => {
     e.preventDefault(); e.stopPropagation();
@@ -155,10 +145,13 @@ export default function Industries() {
 
   const industriesList = fetchedIndustries;
 
+  // Build categories dynamically from actual data + always include "All Industries"
+  const dynamicCategories = ['All Industries', ...Array.from(new Set(industriesList.map(p => p.cat).filter(Boolean))).sort()];
+
   const filtered = industriesList.filter(p => {
     const matchCat = activeCategory === 'All Industries' || p.cat === activeCategory;
     const normalizedSearch = search.trim().toLowerCase();
-    const matchSearch = !normalizedSearch || p.name.toLowerCase().includes(normalizedSearch) || p.desc.toLowerCase().includes(normalizedSearch) || p.cat.toLowerCase().includes(normalizedSearch);
+    const matchSearch = !normalizedSearch || p.name.toLowerCase().includes(normalizedSearch) || (p.description || '').toLowerCase().includes(normalizedSearch) || p.cat.toLowerCase().includes(normalizedSearch);
     return matchCat && matchSearch;
   });
 
@@ -196,7 +189,7 @@ export default function Industries() {
 
             <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#9A9080] mb-4">Industries</p>
             <ul className="space-y-2">
-              {categories.map(cat => (
+              {dynamicCategories.map(cat => (
                 <li key={cat}>
                   <button
                     onClick={() => setActiveCategory(cat)}
@@ -222,7 +215,7 @@ export default function Industries() {
                 />
               </div>
               <div className="flex flex-wrap gap-2 overflow-x-auto pb-2 no-scrollbar">
-                {categories.map(cat => (
+                {dynamicCategories.map(cat => (
                   <button
                     key={cat}
                     onClick={() => setActiveCategory(cat)}

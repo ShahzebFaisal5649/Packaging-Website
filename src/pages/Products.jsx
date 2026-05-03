@@ -235,12 +235,13 @@ export default function Products() {
 
   const productsList = fetchedProducts;
 
+  // Only show categories that actually have products in DB (plus "All Products")
   const dynamicCategories = ['All Products', ...Array.from(new Set(productsList.map(p => p.cat).filter(Boolean))).sort()];
-  const allCategories = Array.from(new Set([...STATIC_CATEGORIES, ...dynamicCategories]));
+  const allCategories = dynamicCategories;
 
   const filtered = productsList.filter(p => {
     const matchCat = activeCategory === 'All Products' || p.cat === activeCategory;
-    const matchSearch = !search || p.name.toLowerCase().includes(search.toLowerCase()) || (p.desc || '').toLowerCase().includes(search.toLowerCase());
+    const matchSearch = !search || p.name.toLowerCase().includes(search.toLowerCase()) || (p.description || p.desc || '').toLowerCase().includes(search.toLowerCase());
     return matchCat && matchSearch;
   });
 
