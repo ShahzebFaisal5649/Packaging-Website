@@ -163,13 +163,22 @@ router.post('/forgot-password', async (req, res) => {
     const resetUrl = `${process.env.CLIENT_URL || 'http://localhost:3000'}/reset-password?token=${resetToken}`;
     
     const message = `
-      <h1>Password Reset Request</h1>
-      <p>You requested a password reset for your Design Custom Box account.</p>
-      <p>Please click the link below to reset your password. This link is valid for 1 hour.</p>
-      <a href="${resetUrl}" style="display: inline-block; padding: 12px 24px; background-color: #1A4D2E; color: white; text-decoration: none; border-radius: 8px; font-weight: bold;">Reset Password</a>
-      <p>If you did not request this, please ignore this email.</p>
-      <hr />
-      <p style="font-size: 12px; color: #888;">Design Custom Box Team</p>
+      <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2ddd6; border-radius: 16px; overflow: hidden; background-color: #ffffff;">
+        <div style="background-color: #1A4D2E; padding: 30px; text-align: center;">
+          <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.5px;">Design Custom <span style="color: #C8860A;">Box</span></h1>
+        </div>
+        <div style="padding: 40px; color: #1a1a1a;">
+          <h2 style="font-size: 22px; font-weight: 800; margin: 0 0 16px 0;">Password Reset Request</h2>
+          <p style="font-size: 16px; line-height: 1.6; color: #6b6b6b; margin-bottom: 24px;">You requested a password reset for your Design Custom Box account. Click the button below to set a new password. This link is valid for <strong>1 hour</strong>.</p>
+          <div style="text-align: center; margin: 32px 0;">
+            <a href="${resetUrl}" style="display: inline-block; padding: 14px 32px; background-color: #1A4D2E; color: #ffffff; text-decoration: none; border-radius: 10px; font-weight: 700; font-size: 15px; box-shadow: 0 4px 12px rgba(26, 77, 46, 0.2);">Reset Your Password</a>
+          </div>
+          <p style="font-size: 14px; color: #9a9080; line-height: 1.6;">If you did not request a password reset, you can safely ignore this email. Your password will remain unchanged.</p>
+          <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #f0ede8; text-align: center; font-size: 12px; color: #9a9080;">
+            <p style="margin: 0;">&copy; 2025 Design Custom Box. All rights reserved.</p>
+          </div>
+        </div>
+      </div>
     `;
 
     try {
@@ -208,6 +217,42 @@ router.post('/reset-password', async (req, res) => {
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
     await user.save();
+
+    // Send confirmation email
+    const successMessage = `
+      <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2ddd6; border-radius: 16px; overflow: hidden; background-color: #ffffff;">
+        <div style="background-color: #1A4D2E; padding: 30px; text-align: center;">
+          <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.5px;">Design Custom <span style="color: #C8860A;">Box</span></h1>
+        </div>
+        <div style="padding: 40px; color: #1a1a1a;">
+          <div style="text-align: center; marginBottom: 30px;">
+            <div style="width: 60px; height: 60px; background-color: #d1fae5; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+              <span style="color: #059669; font-size: 30px;">✔</span>
+            </div>
+            <h2 style="font-size: 24px; font-weight: 800; margin: 0 0 10px 0;">Password Changed Successfully</h2>
+            <p style="font-size: 16px; line-height: 1.6; color: #6b6b6b; margin-bottom: 30px;">Your Design Custom Box account password has been updated. You can now log in using your new credentials.</p>
+          </div>
+          <div style="text-align: center;">
+            <a href="${process.env.CLIENT_URL || 'http://localhost:3000'}/login" style="display: inline-block; padding: 14px 32px; background-color: #1A4D2E; color: #ffffff; text-decoration: none; border-radius: 10px; font-weight: 700; font-size: 15px; box-shadow: 0 4px 12px rgba(26, 77, 46, 0.2);">Sign In to Your Account</a>
+          </div>
+          <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #f0ede8; text-align: center; font-size: 13px; color: #9a9080;">
+            <p style="margin: 0;">If you did not authorize this change, please contact our support team immediately.</p>
+            <p style="margin: 10px 0 0 0;">&copy; 2025 Design Custom Box. All rights reserved.</p>
+          </div>
+        </div>
+      </div>
+    `;
+
+    try {
+      await sendEmail({
+        email: user.email,
+        subject: 'Security Alert: Your password has been changed',
+        html: successMessage,
+      });
+    } catch (err) {
+      console.error('Success email failed:', err);
+    }
+
     res.json({ message: 'Password has been reset successfully.' });
   } catch (err) {
     if (isDbError(err)) return res.status(503).json({ message: 'Database unavailable', offline: true });
