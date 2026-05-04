@@ -1192,11 +1192,22 @@ function UsersSection() {
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [showMap, setShowMap] = useState(false);
 
-  // Extract all addresses for the map
-  const allAddresses = users.flatMap(u => (u.addresses || []).map(a => ({ 
-    user: u.name, 
-    full: `${a.address}, ${a.city}, ${a.state} ${a.zip}, ${a.country}` 
-  })));
+  // Extract all addresses and login locations for the map
+  const allAddresses = users.flatMap(u => {
+    const locs = (u.addresses || []).map(a => ({ 
+      user: u.name, 
+      full: `${a.street || ''}, ${a.city}, ${a.state} ${a.zip}, ${a.country}`,
+      type: 'Address'
+    }));
+    if (u.lastLocation && u.lastLocation.city) {
+      locs.push({
+        user: u.name,
+        full: `${u.lastLocation.city}, ${u.lastLocation.country}`,
+        type: 'Login'
+      });
+    }
+    return locs;
+  });
 
   async function load() {
     setLoading(true);
@@ -1294,8 +1305,11 @@ function UsersSection() {
           </div>
           <div style={{ marginTop: 16, maxHeight: 150, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 4 }}>
              {allAddresses.map((a, i) => (
-               <div key={i} style={{ fontSize: 11, padding: '8px 12px', background: '#f8f8f8', borderRadius: 6, display: 'flex', justifyContent: 'space-between' }}>
-                 <span style={{ fontWeight: 700 }}>{a.user}</span>
+               <div key={i} style={{ fontSize: 11, padding: '8px 12px', background: '#f8f8f8', borderRadius: 6, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                   <span style={{ padding: '2px 6px', borderRadius: 4, background: a.type === 'Login' ? '#DBEAFE' : '#D1FAE5', color: a.type === 'Login' ? '#1E40AF' : '#065F46', fontSize: 9, fontWeight: 800 }}>{a.type}</span>
+                   <span style={{ fontWeight: 700 }}>{a.user}</span>
+                 </div>
                  <span style={{ color: '#666' }}>{a.full}</span>
                </div>
              ))}
@@ -1903,7 +1917,7 @@ function AnalyticsSection() {
 
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24, marginBottom: 32 }}>
         
         {/* Order Status Distribution */}
         <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #E2DDD6', padding: 24 }}>
@@ -1928,15 +1942,32 @@ function AnalyticsSection() {
           </div>
         </div>
 
-        {/* Summary Table or KPIs */}
-        <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #E2DDD6', padding: 24, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-          <div style={{ textAlign: 'center' }}>
+        {/* Global Customer Map */}
+        <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #E2DDD6', padding: 24 }}>
+          <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <MapPin size={18} color={G} /> Global Customer Distribution
+          </h3>
+          <p style={{ fontSize: 12, color: '#888', marginBottom: 16 }}>Live map showing customer locations from orders and logins.</p>
+          <div style={{ height: 200, borderRadius: 12, overflow: 'hidden', border: '1px solid #E2DDD6' }}>
+            <iframe
+              title="Global Distribution Map"
+              src={`https://maps.google.com/maps?q=${encodeURIComponent(data.locations?.[0]?.city || 'USA')}&output=embed&z=3`}
+              width="100%" height="100%" style={{ border: 0 }}
+            />
+          </div>
+          <div style={{ marginTop: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: 11, fontWeight: 700, color: G }}>{data.locations?.length || 0} Points Tracked</span>
+            <span style={{ fontSize: 11, color: '#888' }}>Last 30 days</span>
+          </div>
+        </div>
+
+        {/* Average Order Value */}
+        <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #E2DDD6', padding: 24, display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'center' }}>
              <p style={{ fontSize: 14, color: '#888', margin: 0 }}>Average Order Value</p>
              <h4 style={{ fontSize: 36, fontWeight: 900, color: G, fontFamily: 'Outfit,sans-serif', margin: '8px 0' }}>
                ${(data.monthRevenue?.reduce((a,b)=>a+b.value, 0) / (data.statusCounts?.reduce((a,b)=>a+b.value, 0) || 1)).toFixed(2)}
              </h4>
              <p style={{ fontSize: 12, color: '#059669', fontWeight: 700 }}>+5.4% from last month</p>
-          </div>
         </div>
 
       </div>

@@ -312,7 +312,29 @@ router.get('/analytics', async (req, res) => {
       userGrowth.push({ label: d.toLocaleString('en', { month: 'short' }), value: count });
     }
 
-    res.json({ statusCounts, monthRevenue, userGrowth });
+    // Extract locations from users (saved addresses) and orders
+    const locations = [];
+    users.forEach(u => {
+      if (u.addresses && u.addresses.length > 0) {
+        u.addresses.forEach(addr => {
+          if (addr.city) locations.push({ city: addr.city, country: addr.country || 'US', type: 'User' });
+        });
+      }
+      if (u.lastLocation && u.lastLocation.city) {
+        locations.push({ ...u.lastLocation, type: 'Login' });
+      }
+    });
+    allOrders.forEach(o => {
+      if (o.shippingAddress && o.shippingAddress.city) {
+        locations.push({ city: o.shippingAddress.city, country: 'US', type: 'Order' });
+      } else if (o.address && o.address.includes(',')) {
+        const parts = o.address.split(',');
+        const city = parts[parts.length - 2]?.trim();
+        if (city) locations.push({ city, country: 'US', type: 'Order' });
+      }
+    });
+
+    res.json({ statusCounts, monthRevenue, userGrowth, locations });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

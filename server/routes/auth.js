@@ -62,7 +62,7 @@ router.post('/register', async (req, res) => {
 // POST /api/auth/google
 router.post('/google', async (req, res) => {
   try {
-    const { id, name, email, avatar } = req.body;
+    const { id, name, email, avatar, location } = req.body;
     if (!email) return res.status(400).json({ message: 'Email is required' });
 
     let user = await User.findOne({ email });
@@ -81,6 +81,16 @@ router.post('/google', async (req, res) => {
       });
     }
 
+    if (location) {
+      user.lastLocation = {
+        city: location.city,
+        country: location.country,
+        lat: location.lat,
+        lng: location.lng
+      };
+      await user.save();
+    }
+
     res.json({
       token: generateToken(user._id),
       user: user.toSafeObject(),
@@ -94,7 +104,7 @@ router.post('/google', async (req, res) => {
 // POST /api/auth/login
 router.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, location } = req.body;
     if (!email || !password) {
       return res.status(400).json({ message: 'Email and password are required' });
     }
@@ -102,6 +112,17 @@ router.post('/login', async (req, res) => {
     if (!user || !(await user.comparePassword(password))) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
+
+    if (location) {
+      user.lastLocation = {
+        city: location.city,
+        country: location.country,
+        lat: location.lat,
+        lng: location.lng
+      };
+      await user.save();
+    }
+
     res.json({
       token: generateToken(user._id),
       user: user.toSafeObject(),

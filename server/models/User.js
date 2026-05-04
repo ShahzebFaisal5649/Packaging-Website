@@ -92,6 +92,12 @@ const userSchema = new mongoose.Schema({
   },
   resetPasswordToken: String,
   resetPasswordExpires: Date,
+  lastLocation: {
+    city: String,
+    country: String,
+    lat: Number,
+    lng: Number,
+  },
   createdAt: { type: Date, default: Date.now },
 });
 
