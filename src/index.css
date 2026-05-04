@@ -118,6 +118,38 @@
     .section-padding {
       padding: 40px 20px !important;
     }
+    
+    /* Global grid adjustments */
+    .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    .stats-grid > div { border-right: none !important; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .stats-grid > div:nth-last-child(-n+2) { border-bottom: none; }
+
+    .finishes-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    .why-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
+    .features-grid { grid-template-columns: 1fr !important; }
+    .steps-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
+    .step-line { display: none !important; }
+    .material-showcase { grid-template-columns: 1fr !important; }
+    .material-showcase > div:first-child { min-height: 250px !important; }
+    
+    .admin-sidebar {
+      position: fixed !important;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      z-index: 1000;
+      transform: translateX(-100%);
+    }
+    .admin-sidebar.open {
+      transform: translateX(0);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .stats-grid { grid-template-columns: 1fr !important; }
+    .stats-grid > div { border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .stats-grid > div:last-child { border-bottom: none; }
+    .finishes-grid { grid-template-columns: 1fr !important; }
   }
 }
 

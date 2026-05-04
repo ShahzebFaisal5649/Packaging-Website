@@ -1972,12 +1972,13 @@ export default function Admin() {
       )}
 
       {/* Sidebar */}
-      <aside className="admin-sidebar" style={{
+      <aside className={`admin-sidebar ${sidebarOpen ? 'open' : ''}`} style={{
         width: 220, flexShrink: 0, background: G,
         minHeight: 'calc(100vh - var(--nav-h))', position: 'sticky', top: 'var(--nav-h)',
         display: 'flex', flexDirection: 'column',
         transition: 'transform 0.25s',
         borderRight: '1px solid rgba(255,255,255,0.05)',
+        zIndex: 1001,
       }}>
         <div style={{ padding: '24px 20px 16px' }}>
           <p style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 4 }}>Admin Panel</p>
