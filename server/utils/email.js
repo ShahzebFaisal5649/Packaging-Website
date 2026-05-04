@@ -7,8 +7,6 @@ const sendEmail = async (options) => {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
     },
-    debug: true,
-    logger: true
   });
 
   const mailOptions = {
