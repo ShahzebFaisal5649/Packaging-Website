@@ -15,7 +15,7 @@ router.post('/', async (req, res) => {
     const industries = await Industry.find().select('name description');
 
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-1.5-flash",
+      model: "gemini-2.0-flash",
       systemInstruction: `
         You are the "Design Custom Box" (DCB) AI Expert. You are helpful, professional, and extremely knowledgeable about our custom packaging business.
         
