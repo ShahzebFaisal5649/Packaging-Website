@@ -165,11 +165,11 @@ export default function Footer() {
                   <div style={{ fontSize: 11, marginTop: 2 }}>Mon–Fri 9am–6pm EST</div>
                 </div>
               </a>
-              <a href="mailto:support@designcustombox.com" style={{ display: 'flex', gap: 12, alignItems: 'flex-start', textDecoration: 'none', color: 'rgba(255,255,255,0.65)', fontSize: 13 }}>
+              <a href="mailto:Designcustombox@gmail.com" style={{ display: 'flex', gap: 12, alignItems: 'flex-start', textDecoration: 'none', color: 'rgba(255,255,255,0.65)', fontSize: 13 }}>
                 <Mail size={16} style={{ color: ACCENT, flexShrink: 0, marginTop: 2 }} />
                 <div>
                   <div style={{ color: '#fff', fontWeight: 600, marginBottom: 2, fontSize: 13 }}>Email Support</div>
-                  <div>support@designcustombox.com</div>
+                  <div>Designcustombox@gmail.com</div>
                   <div style={{ fontSize: 11, marginTop: 2 }}>Reply within 2 hours</div>
                 </div>
               </a>

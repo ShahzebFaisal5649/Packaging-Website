@@ -1992,7 +1992,7 @@ export default function Admin() {
         <div style={{ textAlign: 'center' }}>
           <Ban size={48} color="#DC2626" style={{ marginBottom: 16 }} />
           <p style={{ fontSize: 18, fontWeight: 700, color: '#1A1A1A' }}>Admin access required</p>
-          <p style={{ fontSize: 14, color: '#888', marginTop: 8 }}>Login with admin@designcustombox.com / Admin@123</p>
+          <p style={{ fontSize: 14, color: '#888', marginTop: 8 }}>Login with Designcustombox@gmail.com / Admin@123</p>
         </div>
       </div>
     );

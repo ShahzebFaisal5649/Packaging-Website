@@ -44,10 +44,10 @@ const connectDB = () => {
     connectTimeoutMS: 8000,
   }).then(async () => {
     console.log('✅ MongoDB connected');
-    const adminExists = await User.findOne({ email: 'admin@designcustombox.com' });
+    const adminExists = await User.findOne({ email: 'Designcustombox@gmail.com' });
     if (!adminExists) {
       await User.create({
-        name: 'Admin', email: 'admin@designcustombox.com', password: 'Admin@123',
+        name: 'Admin', email: 'Designcustombox@gmail.com', password: 'Admin@123',
         role: 'admin', loyaltyPoints: 0,
       });
       console.log('✅ Admin seeded');

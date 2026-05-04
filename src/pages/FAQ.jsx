@@ -107,10 +107,10 @@ export default function FAQ() {
                 <h4 className="text-lg font-black text-brand-navy mb-4">Still have questions?</h4>
                 <p className="text-sm text-gray-500 mb-6 leading-relaxed">Our team of packaging experts is here to help you.</p>
                 <div className="space-y-4">
-                  <a href="tel:18007259660" className="flex items-center gap-3 text-sm font-bold text-brand-navy hover:text-brand-teal transition-colors">
-                    <Phone size={18} className="text-brand-teal" /> 1-800-725-9660
+                  <a href="tel:9132282682" className="flex items-center gap-3 text-sm font-bold text-brand-navy hover:text-brand-teal transition-colors">
+                    <Phone size={18} className="text-brand-teal" /> (913) 228-2682
                   </a>
-                  <a href="mailto:support@refinepackaging.com" className="flex items-center gap-3 text-sm font-bold text-brand-navy hover:text-brand-teal transition-colors">
+                  <a href="mailto:Designcustombox@gmail.com" className="flex items-center gap-3 text-sm font-bold text-brand-navy hover:text-brand-teal transition-colors">
                     <Mail size={18} className="text-brand-teal" /> Email Support
                   </a>
                   <button className="flex items-center gap-3 text-sm font-bold text-brand-navy hover:text-brand-teal transition-colors">

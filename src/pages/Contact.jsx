@@ -178,7 +178,7 @@ export default function Contact() {
 
   const infoCards = [
     { icon: Phone, label: 'Call Us', value: '(913) 228-2682', sub: 'Mon–Fri 9am–6pm EST', href: 'tel:9132282682' },
-    { icon: Mail, label: 'Email', value: 'support@designcustombox.com', sub: 'Response within 2 hours', href: 'mailto:support@designcustombox.com' },
+    { icon: Mail, label: 'Email', value: 'Designcustombox@gmail.com', sub: 'Response within 2 hours', href: 'mailto:Designcustombox@gmail.com' },
     { icon: MapPin, label: 'Headquarters', value: '5532 Big River Dr', sub: 'The Colony Texas US 75056', href: null },
     { icon: MessageCircle, label: 'Live Support', value: 'Chat with Us', sub: 'Instant responses', href: '#' },
   ];
