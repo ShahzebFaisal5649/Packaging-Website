@@ -139,6 +139,11 @@ export default function Register() {
               <FieldInput icon={<Lock size={17} />} type={showPwd ? 'text' : 'password'} name="password" value={form.password} onChange={handleChange} placeholder="••••••••" onToggle={() => setShowPwd(!showPwd)} show={showPwd} />
             </div>
 
+            <div>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#333', marginBottom: 7 }}>Confirm Password</label>
+              <FieldInput icon={<Lock size={17} />} type={showPwd ? 'text' : 'password'} name="confirmPassword" value={form.confirmPassword} onChange={handleChange} placeholder="••••••••" />
+            </div>
+
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, paddingTop: 4 }}>
               <input type="checkbox" id="terms" name="terms" checked={form.terms} onChange={handleChange}
                 style={{ marginTop: 2, width: 16, height: 16, cursor: 'pointer', accentColor: G }} />

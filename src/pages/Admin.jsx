@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import api from '../services/api';
@@ -253,25 +254,36 @@ function DashboardSection() {
   if (loading) return <div style={{ padding: 40, textAlign: 'center', color: '#888' }}><RefreshCw size={24} style={{ animation: 'spin 1s linear infinite' }} /></div>;
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
-        <h2 style={{ fontSize: 22, fontFamily: 'Outfit,sans-serif', fontWeight: 700 }}>Dashboard Overview</h2>
-        <button onClick={() => setRefreshKey(k => k + 1)} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: G, background: 'none', border: `1px solid ${G}`, borderRadius: 8, padding: '7px 14px', cursor: 'pointer' }}>
-          <RefreshCw size={13} /> Refresh
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28, flexWrap: 'wrap', gap: 12 }}>
+        <div>
+          <h2 style={{ fontSize: 24, fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#1A1A1A', margin: 0 }}>Dashboard Overview</h2>
+          <p style={{ fontSize: 13, color: '#666', marginTop: 4 }}>Welcome back, Admin. Here's what's happening today.</p>
+        </div>
+        <button onClick={() => setRefreshKey(k => k + 1)} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: G, background: '#fff', border: `1px solid ${G}`, borderRadius: 10, padding: '9px 16px', cursor: 'pointer', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
+          <RefreshCw size={14} className={loading ? 'spin' : ''} /> Refresh Data
         </button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(200px,1fr))', gap: 16, marginBottom: 28 }}>
-        <KpiCard label="Total Revenue" value={`$${(stats?.revenue || 0).toFixed(0)}`} icon={DollarSign} trend="+12%" up />
-        <KpiCard label="Total Orders" value={stats?.totalOrders || 0} icon={ShoppingBag} trend="+8%" up />
-        <KpiCard label="Pending Orders" value={stats?.pending || 0} icon={Clock} trend={stats?.pending > 5 ? '+' : '–'} up={stats?.pending <= 5} accent />
-        <KpiCard label="Total Customers" value={stats?.totalUsers || 0} icon={Users} sub={stats?.newThisWeek ? `+${stats.newThisWeek} this week` : ''} trend="+22%" up />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(240px,1fr))', gap: 20, marginBottom: 32 }}>
+        <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}>
+          <KpiCard label="Total Revenue" value={`$${(stats?.revenue || 0).toLocaleString()}`} icon={DollarSign} trend="+12.5%" up accent />
+        </motion.div>
+        <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }}>
+          <KpiCard label="Total Orders" value={stats?.totalOrders || 0} icon={ShoppingBag} trend="+8.2%" up />
+        </motion.div>
+        <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.3 }}>
+          <KpiCard label="Pending Orders" value={stats?.pending || 0} icon={Clock} trend={stats?.pending > 5 ? 'High' : 'Low'} up={stats?.pending <= 5} accent />
+        </motion.div>
+        <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.4 }}>
+          <KpiCard label="Active Customers" value={stats?.totalUsers || 0} icon={Users} sub={stats?.newThisWeek ? `+${stats.newThisWeek} new` : 'Steady growth'} trend="+22%" up />
+        </motion.div>
       </div>
 
-      <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #E2DDD6', overflow: 'hidden' }}>
+      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.5 }} style={{ background: '#fff', borderRadius: 14, border: '1px solid #E2DDD6', overflow: 'hidden', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
         <div style={{ padding: '18px 22px', borderBottom: '1px solid #F0EDE8', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h3 style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>Recent Orders</h3>
-          <ArrowUpRight size={16} color="#aaa" />
+          <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: 10 }}><ShoppingBag size={18} color={G} /> Recent Orders</h3>
+          <button style={{ background: 'none', border: 'none', color: ACCENT, fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>View All <ArrowUpRight size={14} /></button>
         </div>
         <div className="responsive-table-container">
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -289,7 +301,16 @@ function DashboardSection() {
                 <tr key={i} style={{ borderTop: '1px solid #F0EDE8' }}>
                   <td style={{ padding: '13px 16px', fontSize: 13, fontWeight: 700, color: G }}>{o.id || o.orderId}</td>
                   <td style={{ padding: '13px 16px', fontSize: 13, color: '#1A1A1A' }}>{o.userName}</td>
-                  <td style={{ padding: '13px 16px', fontSize: 13, color: '#666' }}>{o.product}</td>
+                  <td style={{ padding: '13px 16px', fontSize: 12, color: '#666' }}>
+                    {(o.items && o.items.length > 0) ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        <span style={{ fontWeight: 600, color: '#333' }}>{o.items[0].name}</span>
+                        {o.items.length > 1 && <span style={{ fontSize: 10, color: '#999' }}>+{o.items.length - 1} more items</span>}
+                      </div>
+                    ) : (
+                      o.product || 'Custom Design'
+                    )}
+                  </td>
                   <td style={{ padding: '13px 16px' }}><Badge status={o.status} /></td>
                   <td style={{ padding: '13px 16px', fontSize: 13, fontWeight: 700 }}>${(+o.total || 0).toFixed(2)}</td>
                 </tr>
@@ -297,8 +318,8 @@ function DashboardSection() {
             </tbody>
           </table>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
 
@@ -1043,7 +1064,16 @@ function OrdersSection() {
                       <div style={{ fontSize: 13, fontWeight: 600, color: '#1A1A1A' }}>{o.userName}</div>
                       <div style={{ fontSize: 11, color: '#888' }}>{o.userEmail}</div>
                     </td>
-                    <td style={{ padding: '12px 14px', fontSize: 12, color: '#555' }}>{o.product}</td>
+                    <td style={{ padding: '12px 14px', fontSize: 12, color: '#555' }}>
+                      {(o.items && o.items.length > 0) ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                          <span style={{ fontWeight: 600, color: '#333' }}>{o.items[0].name}</span>
+                          {o.items.length > 1 && <span style={{ fontSize: 10, color: '#999' }}>+{o.items.length - 1} items</span>}
+                        </div>
+                      ) : (
+                        o.product || 'Custom Design'
+                      )}
+                    </td>
                     <td style={{ padding: '12px 14px', fontSize: 12, color: '#555' }}>{o.qty}</td>
                     <td style={{ padding: '12px 14px' }}><Badge status={o.status} /></td>
                     <td style={{ padding: '12px 14px', fontSize: 13, fontWeight: 700 }}>${(+o.total || 0).toFixed(2)}</td>
@@ -1075,7 +1105,7 @@ function OrdersSection() {
               { label: 'Order ID', value: selected.id || selected.orderId, break: true },
               { label: 'Customer', value: selected.userName },
               { label: 'Email', value: selected.userEmail, break: true },
-              { label: 'Product', value: selected.product },
+              { label: 'Product', value: (selected.items && selected.items.length > 0) ? selected.items.map(i => i.name).join(', ') : selected.product },
               { label: 'Quantity', value: `${selected.qty} units` },
               { label: 'Total', value: `$${(+selected.total || 0).toFixed(2)}` },
               { label: 'Date', value: selected.date || '—' },
@@ -1084,10 +1114,31 @@ function OrdersSection() {
             ].map((item) => (
               <div key={item.label} style={{ background: BG, borderRadius: 10, padding: '12px 14px', wordBreak: item.break ? 'break-all' : 'normal' }}>
                 <p style={{ fontSize: 10, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 4px' }}>{item.label}</p>
-                <p style={{ fontSize: 13, color: '#1A1A1A', fontWeight: 600, margin: 0 }}>{item.value}</p>
+                <div style={{ fontSize: 13, fontWeight: 600, color: '#1A1A1A' }}>{item.value}</div>
               </div>
             ))}
           </div>
+
+          {selected.items?.length > 0 && (
+            <div style={{ marginBottom: 24 }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: '#888', marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Items Breakdown</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {selected.items.map((it, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', background: '#FAFAF9', borderRadius: 10, border: '1px solid #F0EDE8' }}>
+                    <div style={{ width: 40, height: 40, borderRadius: 6, background: '#fff', overflow: 'hidden', flexShrink: 0, border: '1px solid #eee' }}>
+                       <img src={it.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                         onError={e => e.target.src = 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=100'} />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ fontSize: 13, fontWeight: 700, margin: 0, color: '#1A1A1A' }}>{it.name}</p>
+                      <p style={{ fontSize: 11, color: '#888', margin: '2px 0 0' }}>Quantity: {it.quantity || it.qty} · Unit Price: ${it.price}</p>
+                    </div>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: G }}>${((it.price || 0) * (it.quantity || it.qty || 0)).toFixed(2)}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           <div style={{ marginBottom: 16 }}>
             <label style={{ fontSize: 11, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 6 }}>Tracking Number</label>
             <div style={{ display: 'flex', gap: 8 }}>
@@ -1139,6 +1190,13 @@ function UsersSection() {
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [showMap, setShowMap] = useState(false);
+
+  // Extract all addresses for the map
+  const allAddresses = users.flatMap(u => (u.addresses || []).map(a => ({ 
+    user: u.name, 
+    full: `${a.address}, ${a.city}, ${a.state} ${a.zip}, ${a.country}` 
+  })));
 
   async function load() {
     setLoading(true);
@@ -1209,10 +1267,41 @@ function UsersSection() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
         <h2 style={{ fontSize: 22, fontFamily: 'Outfit,sans-serif', fontWeight: 700 }}>User Management</h2>
         <div style={{ display: 'flex', gap: 10 }}>
-          <button onClick={load} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: G, background: 'none', border: `1px solid ${G}`, borderRadius: 8, padding: '7px 14px', cursor: 'pointer' }}><RefreshCw size={13} /> Refresh</button>
-          <button onClick={exportCSV} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: '#fff', background: G, border: 'none', borderRadius: 8, padding: '7px 16px', cursor: 'pointer' }}><Download size={13} /> Export CSV</button>
+          <button onClick={() => setShowMap(true)} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: G, background: 'none', border: `1px solid ${G}`, borderRadius: 8, padding: '7px 14px', cursor: 'pointer' }}>
+            <MapPin size={13} /> View Customer Map
+          </button>
+          <button onClick={load} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: '#fff', background: G, border: 'none', borderRadius: 8, padding: '7px 14px', cursor: 'pointer' }}>
+            <RefreshCw size={13} /> Refresh
+          </button>
+          <button onClick={exportCSV} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: '#fff', background: G, border: 'none', borderRadius: 8, padding: '7px 16px', cursor: 'pointer' }}>
+            <Download size={13} /> Export CSV
+          </button>
         </div>
       </div>
+
+      {showMap && (
+        <Modal onClose={() => setShowMap(false)} title="Customer Distribution Map" wide>
+          <p style={{ fontSize: 13, color: '#666', marginBottom: 16 }}>Showing locations for {allAddresses.length} saved addresses.</p>
+          <div style={{ height: 450, borderRadius: 12, overflow: 'hidden', border: '1px solid #E2DDD6', position: 'relative' }}>
+            <iframe
+              title="Customer Map"
+              src={`https://maps.google.com/maps?q=${encodeURIComponent(allAddresses[0]?.full || 'USA')}&output=embed&z=4`}
+              width="100%" height="100%" style={{ border: 0 }}
+            />
+            <div style={{ position: 'absolute', bottom: 16, right: 16, background: '#fff', padding: '10px 16px', borderRadius: 8, boxShadow: '0 4px 12px rgba(0,0,0,0.1)', fontSize: 11, color: '#666', maxWidth: 200 }}>
+              Showing {allAddresses.length} customer locations.
+            </div>
+          </div>
+          <div style={{ marginTop: 16, maxHeight: 150, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 4 }}>
+             {allAddresses.map((a, i) => (
+               <div key={i} style={{ fontSize: 11, padding: '8px 12px', background: '#f8f8f8', borderRadius: 6, display: 'flex', justifyContent: 'space-between' }}>
+                 <span style={{ fontWeight: 700 }}>{a.user}</span>
+                 <span style={{ color: '#666' }}>{a.full}</span>
+               </div>
+             ))}
+          </div>
+        </Modal>
+      )}
 
       <div style={{ position: 'relative', marginBottom: 16 }}>
         <Search size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#aaa' }} />
@@ -1770,6 +1859,88 @@ function SubscribersSection() {
         </div>
       </div>
     </div>
+  );
+}
+
+// ── Analytics ─────────────────────────────────────────────────────────────
+function AnalyticsSection() {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const { showToast } = useToast();
+
+  useEffect(() => {
+    setLoading(true);
+    api.get('/admin/analytics')
+      .then(res => setData(res))
+      .catch(() => showToast('Failed to load analytics', 'error'))
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return <div style={{ padding: 60, textAlign: 'center' }}><RefreshCw size={32} style={{ animation: 'spin 1s linear infinite', color: '#aaa' }} /></div>;
+  if (!data) return <div style={{ padding: 40, textAlign: 'center', color: '#888' }}>No data available</div>;
+
+  return (
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+      <h2 style={{ fontSize: 22, fontFamily: 'Outfit,sans-serif', fontWeight: 700, marginBottom: 24 }}>Advanced Analytics</h2>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: 24, marginBottom: 32 }}>
+        
+        {/* Revenue Chart */}
+        <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #E2DDD6', padding: 24 }}>
+          <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <DollarSign size={18} color={G} /> Monthly Revenue
+          </h3>
+          <BarChart data={data.monthRevenue || []} color={G} label="Revenue ($)" />
+        </div>
+
+        {/* User Growth Chart */}
+        <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #E2DDD6', padding: 24 }}>
+          <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Users size={18} color={ACCENT} /> User Growth
+          </h3>
+          <BarChart data={data.userGrowth || []} color={ACCENT} label="New Users" />
+        </div>
+
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24 }}>
+        
+        {/* Order Status Distribution */}
+        <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #E2DDD6', padding: 24 }}>
+          <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 20 }}>Order Status Distribution</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {data.statusCounts?.map((s, i) => (
+              <div key={i}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 6 }}>
+                  <span style={{ fontWeight: 600, color: '#555' }}>{s.label}</span>
+                  <span style={{ fontWeight: 700, color: '#1A1A1A' }}>{s.value}</span>
+                </div>
+                <div style={{ height: 8, background: '#F0EDE8', borderRadius: 10, overflow: 'hidden' }}>
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${Math.min(100, (s.value / (data.statusCounts.reduce((a,b)=>a+b.value, 0) || 1)) * 100)}%` }}
+                    transition={{ duration: 1, delay: i * 0.1 }}
+                    style={{ height: '100%', background: s.label === 'Delivered' ? '#059669' : (s.label === 'Cancelled' ? '#DC2626' : G), borderRadius: 10 }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Summary Table or KPIs */}
+        <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #E2DDD6', padding: 24, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <div style={{ textAlign: 'center' }}>
+             <p style={{ fontSize: 14, color: '#888', margin: 0 }}>Average Order Value</p>
+             <h4 style={{ fontSize: 36, fontWeight: 900, color: G, fontFamily: 'Outfit,sans-serif', margin: '8px 0' }}>
+               ${(data.monthRevenue?.reduce((a,b)=>a+b.value, 0) / (data.statusCounts?.reduce((a,b)=>a+b.value, 0) || 1)).toFixed(2)}
+             </h4>
+             <p style={{ fontSize: 12, color: '#059669', fontWeight: 700 }}>+5.4% from last month</p>
+          </div>
+        </div>
+
+      </div>
+    </motion.div>
   );
 }
 

@@ -5,7 +5,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import AnnouncementBar from './components/AnnouncementBar';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import LiveChat from './components/LiveChat';
+import CustomChat from './components/CustomChat';
 import BackToTop from './components/BackToTop';
 import ProductQuickView from './components/ProductQuickView';
 
@@ -34,6 +34,7 @@ const Favourites = lazy(() => import('./pages/Favourites'));
 // Auth Pages
 const Login = lazy(() => import('./pages/Login'));
 const Register = lazy(() => import('./pages/Register'));
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
 const Profile = lazy(() => import('./pages/Profile'));
 const Admin = lazy(() => import('./pages/Admin'));
 const Checkout = lazy(() => import('./pages/Checkout'));
@@ -95,7 +96,7 @@ function Layout({ children }) {
       <CartDrawer />
       <ToastContainer />
       <ProductQuickView />
-      <LiveChat />
+      <CustomChat />
       <BackToTop />
     </div>
   );
@@ -123,7 +124,7 @@ const AdminGuard = ({ children }) => {
 
 export default function App() {
   // Replace this with your real Client ID from Google Cloud Console
-  const GOOGLE_CLIENT_ID = "734487564892-6ep5ihbjertaf9ijso44a33859dsq625.apps.googleusercontent.com";
+  const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "734487564892-6ep5ihbjertaf9ijso44a33859dsq625.apps.googleusercontent.com";
 
   return (
     <ErrorBoundary>
@@ -157,6 +158,7 @@ export default function App() {
                           <Route path="/favourites" element={<Favourites />} />
                           <Route path="/login" element={<Login />} />
                           <Route path="/register" element={<Register />} />
+                          <Route path="/forgot-password" element={<ForgotPassword />} />
                           <Route path="/checkout" element={<Checkout />} />
                           <Route path="/profile" element={<AuthGuard><Profile /></AuthGuard>} />
                           <Route path="/admin" element={<AdminGuard><Admin /></AdminGuard>} />

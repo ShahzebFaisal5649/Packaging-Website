@@ -59,12 +59,20 @@ export default function CartDrawer() {
           ) : (
             cartItems.map((item, idx) => (
               <div key={idx} className="flex gap-4 border-b border-gray-50 pb-6 last:border-0 last:pb-0">
-                <div className="w-20 h-20 bg-gray-50 rounded-lg overflow-hidden flex-shrink-0 border border-gray-100">
+                <div 
+                  className="w-20 h-20 bg-gray-50 rounded-lg overflow-hidden flex-shrink-0 border border-gray-100 cursor-pointer"
+                  onClick={() => { toggleDrawer(false); navigate('/custom-box', { state: { ...item.configuration } }); }}
+                >
                   <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                 </div>
                 <div className="flex-1 flex flex-col">
                   <div className="flex justify-between items-start mb-1">
-                    <h4 className="text-[14px] font-bold text-brand-textPrimary truncate pr-2">{item.name}</h4>
+                    <h4 
+                      className="text-[14px] font-bold text-brand-textPrimary truncate pr-2 cursor-pointer hover:text-brand-primary transition-colors"
+                      onClick={() => { toggleDrawer(false); navigate('/custom-box', { state: { ...item.configuration } }); }}
+                    >
+                      {item.name}
+                    </h4>
                     <button onClick={() => removeFromCart(idx)} className="text-gray-300 hover:text-red-500 transition-colors">
                       <X size={16} />
                     </button>

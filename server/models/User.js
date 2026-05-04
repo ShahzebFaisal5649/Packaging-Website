@@ -14,12 +14,29 @@ const addressSchema = new mongoose.Schema({
 
 const orderSchema = new mongoose.Schema({
   orderId: String,
-  product: String,
-  qty: Number,
+  product: String, // fallback for legacy
+  qty: Number,     // fallback for legacy
+  items: [{
+    name: String,
+    price: Number,
+    quantity: Number,
+    image: String,
+    config: mongoose.Schema.Types.Mixed,
+  }],
   total: Number,
+  subtotal: Number,
+  tax: Number,
   status: { type: String, enum: ['Processing', 'Shipped', 'Delivered', 'Cancelled'], default: 'Processing' },
   tracking: String,
   address: String,
+  shippingAddress: {
+    name: String,
+    email: String,
+    line1: String,
+    city: String,
+    postal_code: String,
+  },
+  paymentIntentId: String,
   createdAt: { type: Date, default: Date.now },
 });
 
@@ -48,7 +65,8 @@ const savedDesignSchema = new mongoose.Schema({
   unit: String,
   qty: Number,
   addons: [String],
-  artwork: String,
+  artworkUrl: String,
+  thumbnail: String,
   _savedDesign: { type: Boolean, default: true },
   date: { type: Date, default: Date.now },
 });
@@ -72,6 +90,8 @@ const userSchema = new mongoose.Schema({
     promotions: { type: Boolean, default: false },
     newsletter: { type: Boolean, default: true },
   },
+  resetPasswordToken: String,
+  resetPasswordExpires: Date,
   createdAt: { type: Date, default: Date.now },
 });
 

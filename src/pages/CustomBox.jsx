@@ -151,6 +151,11 @@ export default function CustomBox() {
     if (s.print) updates.print = s.print;
     if (s.colorMode) updates.colorMode = s.colorMode;
     if (s.addons) updates.addons = s.addons;
+    if (s._id) updates._id = s._id;
+    if (s.artworkUrl) {
+      setArtworkPreview(s.artworkUrl);
+      setArtworkApplied(true);
+    }
     if (Object.keys(updates).length) setConfig(prev => ({ ...prev, ...updates }));
     if (s.productName) setPrefilledName(s.productName);
   }, [location.state]);
@@ -272,7 +277,8 @@ export default function CustomBox() {
     if (canvasRef.current) {
       try { cartImage = canvasRef.current.toDataURL('image/jpeg', 0.5); } catch { /* canvas unavailable */ }
     }
-    addToCart({ id: `box-${Date.now()}`, name: prefilledName || designName.trim() || `Custom ${config.boxType}`, image: cartImage, price: unitPrice, quantity: config.quantity, configuration: config });
+    const finalConfig = { ...config, artworkUrl: artworkApplied ? artworkPreview : null };
+    addToCart({ id: `box-${Date.now()}`, name: prefilledName || designName.trim() || `Custom ${config.boxType}`, image: cartImage, price: unitPrice, quantity: config.quantity, configuration: finalConfig });
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 2000);
     showToast('Added to cart!', 'success');
@@ -282,10 +288,11 @@ export default function CustomBox() {
   const handleGetQuote = () => {
     const cartImage = location.state?.productImage
       || 'https://images.unsplash.com/photo-1607083206968-13611e3d76db?q=80&w=400';
-    addToCart({ id: `box-${Date.now()}`, name: prefilledName || designName.trim() || `Custom ${config.boxType}`, image: cartImage, price: unitPrice, quantity: config.quantity, configuration: config });
+    const finalConfig = { ...config, artworkUrl: artworkApplied ? artworkPreview : null };
+    addToCart({ id: `box-${Date.now()}`, name: prefilledName || designName.trim() || `Custom ${config.boxType}`, image: cartImage, price: unitPrice, quantity: config.quantity, configuration: finalConfig });
     navigate('/checkout');
   };
-  // Fix 7: Save Design with canvas thumbnail
+  // Fix 7: Save Design with canvas thumbnail and artwork
   const handleSaveDesign = async () => {
     if (!isAuthenticated) { showToast('Please login to save designs.', 'warning'); return; }
     const finalName = designName.trim() || `My ${config.boxType}`;
@@ -294,14 +301,25 @@ export default function CustomBox() {
     try {
       if (canvasRef.current) thumbnail = canvasRef.current.toDataURL('image/jpeg', 0.5);
     } catch { /* canvas tainted or unavailable */ }
-    const newDesign = { id: `des_${Date.now()}`, name: finalName, style: config.material, date: new Date().toISOString(), _savedDesign: true, thumbnail, ...config };
-    if (saveDesignApi) {
-      await saveDesignApi(newDesign);
+    const finalArtworkUrl = artworkApplied ? artworkPreview : null;
+    const newDesign = { id: `des_${Date.now()}`, name: finalName, style: config.material, date: new Date().toISOString(), _savedDesign: true, thumbnail, artworkUrl: finalArtworkUrl, ...config };
+    
+    if (config._id) {
+      try {
+        await api.put(`/users/designs/${config._id}`, newDesign);
+        showToast(`Design "${finalName}" updated!`, 'success');
+      } catch (err) {
+        showToast('Failed to update design.', 'error');
+      }
     } else {
-      const savedDesigns = user.savedDesigns || [];
-      updateUser({ savedDesigns: [...savedDesigns, newDesign] });
+      if (saveDesignApi) {
+        await saveDesignApi(newDesign);
+      } else {
+        const savedDesigns = user.savedDesigns || [];
+        updateUser({ savedDesigns: [...savedDesigns, newDesign] });
+      }
+      showToast(`Design "${finalName}" saved!`, 'success');
     }
-    showToast(`Design "${finalName}" saved!`, 'success');
   };
 
   const stepDone = (n) => {
@@ -633,6 +651,7 @@ export default function CustomBox() {
               }>
                 <Canvas
                   shadows dpr={[1, 2]} camera={{ position: [0, 0, 4], fov: 50 }}
+                  gl={{ preserveDrawingBuffer: true }}
                   onCreated={({ gl }) => {
                     // Store canvas ref for toDataURL thumbnail capture
                     canvasRef.current = gl.domElement;

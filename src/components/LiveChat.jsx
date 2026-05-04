@@ -26,6 +26,15 @@ export default function LiveChat() {
           email: '',
         }, function () {});
       }
+      // If mobile, shift widget up slightly to avoid overlapping bottom bars
+      if (window.innerWidth < 768) {
+        window.Tawk_API.customStyle = {
+          visibility: {
+            desktop: { xOffset: 20, yOffset: 20 },
+            mobile: { xOffset: 15, yOffset: 70 }
+          }
+        };
+      }
     };
 
     const s1 = document.createElement('script');
@@ -34,6 +43,7 @@ export default function LiveChat() {
     s1.src       = `https://embed.tawk.to/${TAWK_PROPERTY_ID}/${TAWK_WIDGET_ID}`;
     s1.charset   = 'UTF-8';
     s1.setAttribute('crossorigin', '*');
+    s1.onerror = () => console.error('Tawk.to failed to load. Check CSP or Property ID.');
 
     document.body.appendChild(s1);
 

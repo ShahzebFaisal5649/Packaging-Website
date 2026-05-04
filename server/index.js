@@ -7,6 +7,7 @@ const User = require('./models/User');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const adminRoutes = require('./routes/admin');
+const chatRoutes = require('./routes/chat');
 const paymentRoutes = require('./routes/payment');
 const contentRoutes = require('./routes/content');
 
@@ -69,6 +70,7 @@ const requireDb = async (req, res, next) => {
 app.use('/api/auth', requireDb, authRoutes);
 app.use('/api/users', requireDb, userRoutes);
 app.use('/api/admin', requireDb, adminRoutes);
+app.use('/api/chat', requireDb, chatRoutes);
 app.use('/api/content', requireDb, contentRoutes);
 app.use('/api/payment', paymentRoutes); // Stripe — no DB dependency
 

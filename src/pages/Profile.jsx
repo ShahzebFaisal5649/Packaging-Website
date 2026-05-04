@@ -130,7 +130,13 @@ function OverviewTab({ user, setTab, updateUser, showToast }) {
 // --- ORDERS TAB ---
 function OrdersTab({ orders }) {
   const [selectedOrder, setSelectedOrder] = useState(null);
-  const displayOrders = orders?.length ? orders : [];
+  const displayOrders = orders?.length ? orders.map(o => ({
+    ...o,
+    id: o.orderId || o.id,
+    date: o.createdAt ? new Date(o.createdAt).toLocaleDateString() : o.date,
+    product: o.items && o.items.length > 0 ? `${o.items[0].name}${o.items.length > 1 ? ` + ${o.items.length - 1} more` : ''}` : (o.product || 'Custom Order'),
+    qty: o.items ? o.items.reduce((acc, item) => acc + (item.quantity || item.qty || 1), 0) : o.qty,
+  })) : [];
 
   return (
     <div>
@@ -213,7 +219,11 @@ function OrdersTab({ orders }) {
 function QuotesTab({ quotes }) {
   const [selectedQuote, setSelectedQuote] = useState(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const displayQuotes = quotes?.length ? quotes : [];
+  const displayQuotes = quotes?.length ? quotes.map(q => ({
+    ...q,
+    id: q.quoteId || q.id,
+    date: q.createdAt ? new Date(q.createdAt).toLocaleDateString() : q.date,
+  })) : [];
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
