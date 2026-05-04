@@ -11,7 +11,7 @@ export default function CustomChat() {
   const [isMinimized, setIsMinimized] = useState(false);
   const [message, setMessage] = useState('');
   const [chatHistory, setChatHistory] = useState([
-    { role: 'model', parts: [{ text: "👋 Hi! I'm your Design Custom Box assistant. How can I help you today?" }] }
+    { role: 'model', parts: [{ text: "👋 Welcome to Design Custom Box! I'm your premium packaging assistant. I can help you with product details, pricing inquiries, or design support. How can I assist your brand today?" }] }
   ]);
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef(null);
@@ -32,17 +32,21 @@ export default function CustomChat() {
     setLoading(true);
 
     try {
-      // Prepare history for backend (Gemini format)
-      const history = chatHistory.slice(1); // Skip the initial welcome message if needed or keep it
+      // Pass history (excluding welcome message)
+      const history = chatHistory.slice(1);
       
       const res = await api.post('/chat', { message, history });
       const botMessage = { role: 'model', parts: [{ text: res.text }] };
       setChatHistory(prev => [...prev, botMessage]);
     } catch (err) {
-      setChatHistory(prev => [...prev, { role: 'model', parts: [{ text: "Sorry, I'm having trouble connecting right now. Please try again later." }] }]);
+      setChatHistory(prev => [...prev, { role: 'model', parts: [{ text: "I'm experiencing a brief connectivity issue. Please reach out to us at **Designcustombox@gmail.com** or try again in a moment." }] }]);
     } finally {
       setLoading(false);
     }
+  };
+
+  const resetChat = () => {
+    setChatHistory([{ role: 'model', parts: [{ text: "👋 Welcome back! How can I help you with your custom packaging today?" }] }]);
   };
 
   return (
@@ -105,6 +109,9 @@ export default function CustomChat() {
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 12 }}>
+                <button onClick={resetChat} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', opacity: 0.8, padding: 4 }} title="Reset Conversation">
+                  <RefreshCw size={16} />
+                </button>
                 <button onClick={() => setIsMinimized(!isMinimized)} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', opacity: 0.8, padding: 4 }}>
                   {isMinimized ? <Maximize2 size={16} /> : <Minus size={16} />}
                 </button>
