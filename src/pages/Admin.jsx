@@ -10,6 +10,7 @@ import {
   Eye, Mail, Phone, Calendar,
   Shield, Ban, Star, ArrowUpRight,
   Package, Building, Upload, Menu, Plus, MapPin,
+  CheckCircle, Truck,
 } from 'lucide-react';
 
 const G = '#1A4D2E';
@@ -2026,10 +2027,10 @@ export default function Admin() {
         <div style={{ padding: '32px 24px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)', marginBottom: 12 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
             <div style={{ width: 40, height: 40, borderRadius: 12, background: 'linear-gradient(135deg, #3B82F6, #1E40AF)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: 18 }}>
-              {user.name[0]}
+              {(user?.name || 'A')[0]}
             </div>
             <div>
-              <p style={{ fontSize: 14, fontWeight: 700, color: '#fff', margin: 0 }}>{user.name}</p>
+              <p style={{ fontSize: 14, fontWeight: 700, color: '#fff', margin: 0 }}>{user?.name || 'Administrator'}</p>
               <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', margin: '2px 0 0', fontWeight: 500 }}>System Administrator</p>
             </div>
           </div>
