@@ -26,12 +26,9 @@ export default function ForgotPassword() {
     
     setLoading(true);
     try {
-      const res = await api.post('/auth/forgot-password', { email });
+      await api.post('/auth/forgot-password', { email });
       setSuccess(true);
-      // In a real app, mockToken wouldn't be returned. We use it here for easy local testing.
-      if (res.mockToken) {
-        showToast('Dev Mode: Check server console for reset link', 'info');
-      }
+      showToast('Reset link sent to your email', 'success');
     } catch (err) {
       showToast(err.message || 'Failed to send reset link', 'error');
     } finally {

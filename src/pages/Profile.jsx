@@ -642,20 +642,56 @@ function SettingsTab({ user, updateUser, showToast, logout }) {
       </div>
 
       <div style={section}>
-        <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1A1A1A', marginBottom: 16, paddingBottom: 10, borderBottom: '1px solid #F0EDE8' }}>Change Password</h3>
-        {pwdErr && <p style={{ fontSize: 12, color: '#DC2626', marginBottom: 12, padding: '8px 12px', backgroundColor: '#FEE2E2', borderRadius: 6 }}>{pwdErr}</p>}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16, paddingBottom: 10, borderBottom: '1px solid #F0EDE8' }}>
+          <Lock size={18} color={G} />
+          <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1A1A1A', margin: 0 }}>Security & Password</h3>
+        </div>
+        
+        <p style={{ fontSize: 13, color: '#6B6B6B', marginBottom: 20 }}>
+          Manage your account security and update your password. We recommend using a unique password to protect your account.
+        </p>
+
+        {pwdErr && <p style={{ fontSize: 12, color: '#DC2626', marginBottom: 16, padding: '10px 14px', backgroundColor: '#FEE2E2', borderRadius: 8, border: '1px solid #FECACA' }}>{pwdErr}</p>}
+        
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           {[
-            { key: 'current', label: 'Current Password', field: 'current' },
-            { key: 'newPwd', label: 'New Password', field: 'newPwd' },
-            { key: 'confirm', label: 'Confirm New Password', field: 'confirm' },
-          ].map(({ key, label, field }) => (
+            { key: 'current', label: 'Current Password', field: 'current', placeholder: '••••••••' },
+            { key: 'newPwd', label: 'New Password', field: 'newPwd', placeholder: 'Min. 6 characters' },
+            { key: 'confirm', label: 'Confirm New Password', field: 'confirm', placeholder: 'Repeat new password' },
+          ].map(({ key, label, field, placeholder }) => (
             <div key={key}>
               <label style={{ fontSize: 12, fontWeight: 700, color: '#6B6B6B', display: 'block', marginBottom: 6 }}>{label}</label>
-              <input type="password" style={inp} value={pwd[field]} onChange={e => setPwd(f => ({ ...f, [field]: e.target.value }))} />
+              <input 
+                type="password" 
+                style={inp} 
+                placeholder={placeholder}
+                value={pwd[field]} 
+                onChange={e => setPwd(f => ({ ...f, [field]: e.target.value }))} 
+                onFocus={e => e.target.style.borderColor = G}
+                onBlur={e => e.target.style.borderColor = '#D0CAC0'}
+              />
             </div>
           ))}
-          <button onClick={handleUpdatePassword} style={{ padding: '10px 24px', border: `1.5px solid ${G}`, color: G, backgroundColor: 'transparent', borderRadius: 8, fontWeight: 700, cursor: 'pointer', alignSelf: 'flex-start' }}>Update Password</button>
+          <button 
+            onClick={handleUpdatePassword} 
+            style={{ 
+              padding: '12px 24px', 
+              backgroundColor: G, 
+              color: '#fff', 
+              border: 'none', 
+              borderRadius: 10, 
+              fontWeight: 700, 
+              fontSize: 14,
+              cursor: 'pointer', 
+              alignSelf: 'flex-start',
+              transition: 'all 0.2s',
+              boxShadow: '0 4px 12px rgba(26, 77, 46, 0.15)'
+            }}
+            onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-1px)'}
+            onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+          >
+            Update Password
+          </button>
         </div>
       </div>
 

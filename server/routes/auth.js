@@ -144,6 +144,8 @@ router.get('/me', protect, async (req, res) => {
   }
 });
 
+const sendEmail = require('../utils/email');
+
 // POST /api/auth/forgot-password
 router.post('/forgot-password', async (req, res) => {
   try {
@@ -157,8 +159,33 @@ router.post('/forgot-password', async (req, res) => {
     user.resetPasswordToken = resetToken;
     user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
     await user.save();
-    console.log(`\n\n=== PASSWORD RESET LINK ===\nhttp://localhost:3000/forgot-password?token=${resetToken}\n===========================\n\n`);
-    res.json({ message: 'If an account with that email exists, we have sent a password reset link.', mockToken: resetToken });
+
+    const resetUrl = `${process.env.CLIENT_URL || 'http://localhost:3000'}/reset-password?token=${resetToken}`;
+    
+    const message = `
+      <h1>Password Reset Request</h1>
+      <p>You requested a password reset for your Design Custom Box account.</p>
+      <p>Please click the link below to reset your password. This link is valid for 1 hour.</p>
+      <a href="${resetUrl}" style="display: inline-block; padding: 12px 24px; background-color: #1A4D2E; color: white; text-decoration: none; border-radius: 8px; font-weight: bold;">Reset Password</a>
+      <p>If you did not request this, please ignore this email.</p>
+      <hr />
+      <p style="font-size: 12px; color: #888;">Design Custom Box Team</p>
+    `;
+
+    try {
+      await sendEmail({
+        email: user.email,
+        subject: 'Password Reset Request — Design Custom Box',
+        html: message,
+      });
+      res.json({ message: 'Password reset link sent to your email.' });
+    } catch (err) {
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpires = undefined;
+      await user.save();
+      console.error('Email send failed:', err);
+      return res.status(500).json({ message: 'Email could not be sent' });
+    }
   } catch (err) {
     if (isDbError(err)) return res.status(503).json({ message: 'Database unavailable', offline: true });
     res.status(500).json({ message: err.message });
