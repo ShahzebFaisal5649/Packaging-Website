@@ -2016,14 +2016,27 @@ export default function Admin() {
       {/* Sidebar */}
       <aside className={`admin-sidebar ${sidebarOpen ? 'open' : ''}`} style={{
         width: 260, flexShrink: 0, background: '#0F172A',
-        minHeight: 'calc(100vh - var(--nav-h))', position: 'sticky', top: 'var(--nav-h)',
+        minHeight: '100vh', position: 'sticky', top: 0,
         display: 'flex', flexDirection: 'column',
         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         borderRight: '1px solid rgba(255,255,255,0.05)',
         zIndex: 1001,
         boxShadow: '10px 0 40px rgba(0,0,0,0.1)',
       }}>
-        <div style={{ padding: '32px 24px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)', marginBottom: 12 }}>
+        <div style={{ padding: '32px 24px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)', marginBottom: 12, position: 'relative' }}>
+          {/* Mobile Close Button */}
+          <button 
+            onClick={() => setSidebarOpen(false)}
+            className="admin-close-btn"
+            style={{ 
+              display: 'none', position: 'absolute', top: 20, right: 20, 
+              background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: 8, 
+              color: '#fff', padding: 6, cursor: 'pointer' 
+            }}
+          >
+            <X size={20} />
+          </button>
+
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
             <div style={{ width: 40, height: 40, borderRadius: 12, background: 'linear-gradient(135deg, #3B82F6, #1E40AF)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: 18 }}>
               {(user?.name || 'A')[0]}
@@ -2066,10 +2079,12 @@ export default function Admin() {
       {/* Content */}
       <main style={{ flex: 1, padding: '40px 48px', overflowX: 'hidden', minWidth: 0 }}>
         {/* Mobile hamburger */}
-        <button className="admin-hamburger" onClick={() => setSidebarOpen(s => !s)}
-          style={{ display: 'none', alignItems: 'center', gap: 8, marginBottom: 20, padding: '8px 14px', background: G, color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
-          <Menu size={16} /> Menu
-        </button>
+        <div style={{ position: 'sticky', top: 0, zIndex: 100, background: '#F8FAFC', padding: '10px 0', display: 'none' }} className="admin-mobile-header">
+          <button className="admin-hamburger" onClick={() => setSidebarOpen(true)}
+            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 14px', background: G, color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+            <Menu size={16} /> Admin Menu
+          </button>
+        </div>
         <SectionComp />
       </main>
 
@@ -2084,10 +2099,18 @@ export default function Admin() {
             max-width: 85% !important;
             height: 100vh !important;
             z-index: 10001;
-            transform: translateX(${sidebarOpen ? '0' : '-100%'}) !important;
-            box-shadow: ${sidebarOpen ? '20px 0 60px rgba(0,0,0,0.5)' : 'none'};
+            transform: translateX(-100%) !important;
+            box-shadow: none;
+            visibility: hidden;
+            transition: all 0.3s ease;
           }
-          .admin-hamburger { display: flex !important; }
+          .admin-sidebar.open {
+            transform: translateX(0) !important;
+            box-shadow: 20px 0 60px rgba(0,0,0,0.5);
+            visibility: visible;
+          }
+          .admin-close-btn { display: block !important; }
+          .admin-mobile-header { display: block !important; }
           main { padding: 20px 16px !important; }
         }
         @media (max-width: 480px) {

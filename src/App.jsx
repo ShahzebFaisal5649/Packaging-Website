@@ -87,6 +87,19 @@ function ScrollToTop() {
 }
 
 function Layout({ children }) {
+  const { pathname } = useLocation();
+  const isAdmin = pathname.startsWith('/admin');
+
+  if (isAdmin) {
+    return (
+      <div className="flex flex-col min-h-screen relative bg-[#F8FAFC]">
+        <main className="flex-1">{children}</main>
+        <ToastContainer />
+        <ModalProvider>{/* Re-provide if needed inside admin */}</ModalProvider>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col min-h-screen relative">
       <AnnouncementBar />

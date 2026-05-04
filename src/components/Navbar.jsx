@@ -481,11 +481,24 @@ export default function Navbar() {
             <button
               onClick={() => setMobileMenuOpen(false)}
               aria-label="Close menu"
-              style={{ background: 'rgba(255,255,255,0.12)', border: 'none', color: '#fff', cursor: 'pointer', borderRadius: 10, width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s' }}
-              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
-              onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.12)'}
+              style={{ 
+                background: 'rgba(255,255,255,0.15)', 
+                border: 'none', 
+                color: '#fff', 
+                cursor: 'pointer', 
+                borderRadius: '50%', 
+                width: 44, 
+                height: 44, 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                transition: 'all 0.2s',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.25)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
             >
-              <X size={24} strokeWidth={2.5} />
+              <X size={28} strokeWidth={2.5} />
             </button>
           </div>
 

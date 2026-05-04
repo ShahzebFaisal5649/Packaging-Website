@@ -38,8 +38,12 @@ export default function CartDrawer() {
           <h2 className="text-xl font-display font-bold text-brand-textPrimary flex items-center gap-2">
             <ShoppingBag size={20} /> Your Cart ({cartItems.length})
           </h2>
-          <button onClick={() => toggleDrawer(false)} className="text-gray-400 hover:text-brand-textPrimary transition-colors">
-            <X size={24} />
+          <button 
+            onClick={() => toggleDrawer(false)} 
+            className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-500 hover:bg-gray-100 hover:text-brand-textPrimary transition-all"
+            aria-label="Close cart"
+          >
+            <X size={20} strokeWidth={2.5} />
           </button>
         </div>
 
