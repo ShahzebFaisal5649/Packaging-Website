@@ -23,46 +23,67 @@ const ADDON_OPTIONS = ['Spot UV', 'Embossing', 'Debossing', 'Foil Stamping', 'Wi
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 const STATUS_COLORS = {
-  Delivered:  { bg: '#D1FAE5', text: '#065F46' },
-  Processing: { bg: '#DBEAFE', text: '#1E40AF' },
-  Shipped:    { bg: '#FEF3C7', text: '#92400E' },
-  Cancelled:  { bg: '#FEE2E2', text: '#991B1B' },
-  Quoted:     { bg: '#D1FAE5', text: '#065F46' },
-  Reviewing:  { bg: '#FEF3C7', text: '#92400E' },
-  New:        { bg: '#DBEAFE', text: '#1E40AF' },
-  Pending:    { bg: '#F3E8FF', text: '#6B21A8' },
+  Delivered:  { bg: '#DCFCE7', text: '#15803D', icon: <CheckCircle size={12} /> },
+  Processing: { bg: '#DBEAFE', text: '#1D4ED8', icon: <RefreshCw size={12} className="spin" /> },
+  Shipped:    { bg: '#FEF3C7', text: '#B45309', icon: <Truck size={12} /> },
+  Cancelled:  { bg: '#FEE2E2', text: '#B91C1C', icon: <X size={12} /> },
+  Quoted:     { bg: '#F0FDF4', text: '#16A34A', icon: <FileText size={12} /> },
+  Reviewing:  { bg: '#F5F3FF', text: '#6D28D9', icon: <Eye size={12} /> },
+  New:        { bg: '#EFF6FF', text: '#2563EB', icon: <Star size={12} /> },
+  Pending:    { bg: '#FAF5FF', text: '#7E22CE', icon: <Clock size={12} /> },
 };
 function Badge({ status }) {
-  const s = STATUS_COLORS[status] || { bg: '#F3F4F6', text: '#374151' };
-  return <span style={{ backgroundColor: s.bg, color: s.text, padding: '3px 10px', borderRadius: 100, fontSize: 11, fontWeight: 700, whiteSpace: 'nowrap' }}>{status}</span>;
+  const s = STATUS_COLORS[status] || { bg: '#F1F5F9', text: '#475569', icon: null };
+  return (
+    <span style={{ 
+      backgroundColor: s.bg, color: s.text, 
+      padding: '5px 12px', borderRadius: 100, 
+      fontSize: 11, fontWeight: 700, 
+      display: 'inline-flex', alignItems: 'center', gap: 6,
+      letterSpacing: '0.02em',
+      boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.02)'
+    }}>
+      {s.icon} {status}
+    </span>
+  );
 }
 
 function Modal({ onClose, title, children, wide }) {
   return (
-    <>
-      <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 100000 }} onClick={onClose} />
-      <div style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', backgroundColor: '#fff', borderRadius: 16, padding: 24, width: `min(95vw,${wide ? '760px' : '540px'})`, zIndex: 100001, maxHeight: 'calc(100vh - 24px)', overflowY: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.18)', boxSizing: 'border-box' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, paddingBottom: 16, borderBottom: '1px solid #F0EDE8' }}>
-          <h3 style={{ fontSize: 18, fontFamily: 'Outfit,sans-serif', fontWeight: 700, color: '#1A1A1A' }}>{title}</h3>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B6B6B', padding: 4, borderRadius: 6 }}><X size={18} /></button>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ position: 'fixed', inset: 0, zIndex: 100000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+      <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(15, 23, 42, 0.75)', backdropFilter: 'blur(8px)' }} onClick={onClose} />
+      <motion.div 
+        initial={{ scale: 0.95, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        style={{ 
+          position: 'relative', backgroundColor: '#fff', borderRadius: 24, padding: 32, 
+          width: `min(100%,${wide ? '840px' : '580px'})`, zIndex: 100001, 
+          maxHeight: 'min(90vh, 900px)', overflowY: 'auto', 
+          boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
+          border: '1px solid #E2E8F0'
+        }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 }}>
+          <h3 style={{ fontSize: 22, fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#0F172A', margin: 0 }}>{title}</h3>
+          <button onClick={onClose} style={{ background: '#F1F5F9', border: 'none', cursor: 'pointer', color: '#64748B', padding: 8, borderRadius: 12, transition: 'all 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = '#E2E8F0'} onMouseLeave={e => e.currentTarget.style.background = '#F1F5F9'}><X size={20} /></button>
         </div>
         {children}
-      </div>
-    </>
+      </motion.div>
+    </motion.div>
   );
 }
 
-function BarChart({ data, color = G, label }) {
+function BarChart({ data, color = '#3B82F6', label }) {
   const max = Math.max(...data.map(d => d.value), 1);
   return (
-    <div>
-      {label && <p style={{ fontSize: 12, fontWeight: 700, color: '#6B6B6B', marginBottom: 12 }}>{label}</p>}
-      <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6, height: 110 }}>
+    <div style={{ padding: '0 10px' }}>
+      {label && <p style={{ fontSize: 13, fontWeight: 700, color: '#64748B', marginBottom: 20, letterSpacing: '0.02em' }}>{label}</p>}
+      <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, height: 160 }}>
         {data.map((d, i) => (
-          <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, height: '100%', justifyContent: 'flex-end' }}>
-            <span style={{ fontSize: 9, color: '#6B6B6B', fontWeight: 600 }}>{d.value}</span>
-            <div style={{ width: '100%', height: `${Math.max((d.value / max) * 85, 2)}%`, backgroundColor: color, borderRadius: '4px 4px 0 0', transition: 'height 0.5s ease' }} />
-            <span style={{ fontSize: 9, color: '#6B6B6B', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%', textAlign: 'center' }}>{d.label}</span>
+          <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, height: '100%', justifyContent: 'flex-end' }}>
+            <div style={{ width: '100%', height: `${Math.max((d.value / max) * 90, 4)}%`, background: `linear-gradient(to top, ${color}, ${color}CC)`, borderRadius: '8px 8px 4px 4px', position: 'relative', transition: 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)' }}>
+               <div style={{ position: 'absolute', top: -24, left: '50%', transform: 'translateX(-50%)', fontSize: 11, fontWeight: 800, color: '#0F172A' }}>{d.value}</div>
+            </div>
+            <span style={{ fontSize: 11, color: '#94A3B8', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%', textAlign: 'center' }}>{d.label}</span>
           </div>
         ))}
       </div>
@@ -196,22 +217,26 @@ const NAV_ITEMS = [
 ];
 
 // ── KPI card ──────────────────────────────────────────────────────────────────
+// ── KPI card ──────────────────────────────────────────────────────────────────
 function KpiCard({ label, value, sub, icon: Icon, trend, up, accent }) {
+  const color = accent ? '#3B82F6' : '#10B981';
   return (
-    <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #E2DDD6', padding: '20px 22px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
-        <div style={{ width: 40, height: 40, borderRadius: 10, background: accent ? `${ACCENT}15` : `${G}12`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Icon size={20} color={accent ? ACCENT : G} />
+    <div style={{ background: '#fff', borderRadius: 20, border: '1px solid #E2E8F0', padding: '24px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02), 0 2px 4px -1px rgba(0,0,0,0.01)', transition: 'all 0.2s ease' }}
+      onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0,0,0,0.05), 0 10px 10px -5px rgba(0,0,0,0.02)'; }}
+      onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0,0,0,0.02), 0 2px 4px -1px rgba(0,0,0,0.01)'; }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+        <div style={{ width: 48, height: 48, borderRadius: 14, background: `${color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: color }}>
+          <Icon size={24} />
         </div>
         {trend && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 700, color: up ? '#059669' : '#DC2626' }}>
-            {up ? <TrendingUp size={13} /> : <TrendingDown size={13} />} {trend}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 700, color: up ? '#10B981' : '#EF4444', background: up ? '#D1FAE5' : '#FEE2E2', padding: '4px 10px', borderRadius: 100 }}>
+            {up ? <TrendingUp size={14} /> : <TrendingDown size={14} />} {trend}
           </div>
         )}
       </div>
-      <div style={{ fontSize: 28, fontWeight: 800, color: '#1A1A1A', fontFamily: 'Outfit,sans-serif', lineHeight: 1 }}>{value}</div>
-      <div style={{ fontSize: 12, color: '#888', marginTop: 6 }}>{label}</div>
-      {sub && <div style={{ fontSize: 11, color: accent ? ACCENT : G, fontWeight: 600, marginTop: 4 }}>{sub}</div>}
+      <div style={{ fontSize: 32, fontWeight: 800, color: '#1E293B', fontFamily: 'Outfit,sans-serif', lineHeight: 1, letterSpacing: '-0.02em' }}>{value}</div>
+      <div style={{ fontSize: 14, color: '#64748B', marginTop: 8, fontWeight: 500 }}>{label}</div>
+      {sub && <div style={{ fontSize: 12, color: color, fontWeight: 600, marginTop: 6, display: 'flex', alignItems: 'center', gap: 4 }}>{sub}</div>}
     </div>
   );
 }
@@ -255,14 +280,16 @@ function DashboardSection() {
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28, flexWrap: 'wrap', gap: 12 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 36, flexWrap: 'wrap', gap: 16 }}>
         <div>
-          <h2 style={{ fontSize: 24, fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#1A1A1A', margin: 0 }}>Dashboard Overview</h2>
-          <p style={{ fontSize: 13, color: '#666', marginTop: 4 }}>Welcome back, Admin. Here's what's happening today.</p>
+          <h2 style={{ fontSize: 28, fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#0F172A', margin: 0, letterSpacing: '-0.02em' }}>Command Center</h2>
+          <p style={{ fontSize: 14, color: '#64748B', marginTop: 4, fontWeight: 500 }}>Overview of your business performance and logistics.</p>
         </div>
-        <button onClick={() => setRefreshKey(k => k + 1)} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: G, background: '#fff', border: `1px solid ${G}`, borderRadius: 10, padding: '9px 16px', cursor: 'pointer', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
-          <RefreshCw size={14} className={loading ? 'spin' : ''} /> Refresh Data
-        </button>
+        <div style={{ display: 'flex', gap: 12 }}>
+          <button onClick={() => setRefreshKey(k => k + 1)} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 700, color: '#0F172A', background: '#fff', border: '1px solid #E2E8F0', borderRadius: 12, padding: '10px 18px', cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }} onMouseEnter={e => e.currentTarget.style.borderColor = '#3B82F6'} onMouseLeave={e => e.currentTarget.style.borderColor = '#E2E8F0'}>
+            <RefreshCw size={16} className={loading ? 'spin' : ''} /> Synchronize
+          </button>
+        </div>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(240px,1fr))', gap: 20, marginBottom: 32 }}>
@@ -280,17 +307,24 @@ function DashboardSection() {
         </motion.div>
       </div>
 
-      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.5 }} style={{ background: '#fff', borderRadius: 14, border: '1px solid #E2DDD6', overflow: 'hidden', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
-        <div style={{ padding: '18px 22px', borderBottom: '1px solid #F0EDE8', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: 10 }}><ShoppingBag size={18} color={G} /> Recent Orders</h3>
-          <button style={{ background: 'none', border: 'none', color: ACCENT, fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>View All <ArrowUpRight size={14} /></button>
+      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.5 }} style={{ background: '#fff', borderRadius: 20, border: '1px solid #E2E8F0', overflow: 'hidden', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)' }}>
+        <div style={{ padding: '24px', borderBottom: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h3 style={{ fontSize: 18, fontWeight: 800, margin: 0, display: 'flex', alignItems: 'center', gap: 10, color: '#0F172A' }}>
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(59, 130, 246, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#3B82F6' }}>
+              <ShoppingBag size={18} />
+            </div>
+            Recent Transactions
+          </h3>
+          <button style={{ background: 'rgba(59, 130, 246, 0.05)', border: 'none', color: '#3B82F6', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 100 }}>
+            Inspect All <ArrowUpRight size={14} />
+          </button>
         </div>
         <div className="responsive-table-container">
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
-              <tr style={{ background: '#FAFAF9' }}>
-                {['Order ID', 'Customer', 'Product', 'Status', 'Total'].map(h => (
-                  <th key={h} style={{ padding: '10px 16px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{h}</th>
+              <tr style={{ background: '#F8FAFC' }}>
+                {['Reference', 'Customer', 'Product', 'Status', 'Amount'].map(h => (
+                  <th key={h} style={{ padding: '14px 20px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{h}</th>
                 ))}
               </tr>
             </thead>
@@ -1850,19 +1884,25 @@ function AnalyticsSection() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: 24, marginBottom: 32 }}>
         
         {/* Revenue Chart */}
-        <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #E2DDD6', padding: 24 }}>
-          <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <DollarSign size={18} color={G} /> Monthly Revenue
+        <div style={{ background: '#fff', borderRadius: 20, border: '1px solid #E2E8F0', padding: 28, boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)' }}>
+          <h3 style={{ fontSize: 18, fontWeight: 800, marginBottom: 24, display: 'flex', alignItems: 'center', gap: 10, color: '#1E293B' }}>
+            <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(16, 185, 129, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10B981' }}>
+              <DollarSign size={18} />
+            </div>
+            Monthly Revenue
           </h3>
-          <BarChart data={data.monthRevenue || []} color={G} label="Revenue ($)" />
+          <BarChart data={data.monthRevenue || []} color="#10B981" label="Revenue (USD)" />
         </div>
 
         {/* User Growth Chart */}
-        <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #E2DDD6', padding: 24 }}>
-          <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Users size={18} color={ACCENT} /> User Growth
+        <div style={{ background: '#fff', borderRadius: 20, border: '1px solid #E2E8F0', padding: 28, boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)' }}>
+          <h3 style={{ fontSize: 18, fontWeight: 800, marginBottom: 24, display: 'flex', alignItems: 'center', gap: 10, color: '#1E293B' }}>
+            <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(59, 130, 246, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#3B82F6' }}>
+              <Users size={18} />
+            </div>
+            Customer Acquisition
           </h3>
-          <BarChart data={data.userGrowth || []} color={ACCENT} label="New Users" />
+          <BarChart data={data.userGrowth || []} color="#3B82F6" label="New Signups" />
         </div>
 
       </div>
@@ -1870,21 +1910,21 @@ function AnalyticsSection() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24, marginBottom: 32 }}>
         
         {/* Order Status Distribution */}
-        <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #E2DDD6', padding: 24 }}>
-          <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 20 }}>Order Status Distribution</h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ background: '#fff', borderRadius: 20, border: '1px solid #E2E8F0', padding: 28, boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)' }}>
+          <h3 style={{ fontSize: 18, fontWeight: 800, marginBottom: 24, color: '#1E293B' }}>Fulfillment Pulse</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {data.statusCounts?.map((s, i) => (
               <div key={i}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 6 }}>
-                  <span style={{ fontWeight: 600, color: '#555' }}>{s.label}</span>
-                  <span style={{ fontWeight: 700, color: '#1A1A1A' }}>{s.value}</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 8 }}>
+                  <span style={{ fontWeight: 600, color: '#64748B' }}>{s.label}</span>
+                  <span style={{ fontWeight: 800, color: '#1E293B' }}>{s.value}</span>
                 </div>
-                <div style={{ height: 8, background: '#F0EDE8', borderRadius: 10, overflow: 'hidden' }}>
+                <div style={{ height: 10, background: '#F1F5F9', borderRadius: 100, overflow: 'hidden' }}>
                   <motion.div 
                     initial={{ width: 0 }}
                     animate={{ width: `${Math.min(100, (s.value / (data.statusCounts.reduce((a,b)=>a+b.value, 0) || 1)) * 100)}%` }}
                     transition={{ duration: 1, delay: i * 0.1 }}
-                    style={{ height: '100%', background: s.label === 'Delivered' ? '#059669' : (s.label === 'Cancelled' ? '#DC2626' : G), borderRadius: 10 }}
+                    style={{ height: '100%', background: s.label === 'Delivered' ? '#10B981' : (s.label === 'Cancelled' ? '#EF4444' : '#3B82F6'), borderRadius: 100 }}
                   />
                 </div>
               </div>
@@ -1893,12 +1933,12 @@ function AnalyticsSection() {
         </div>
 
         {/* Global Customer Map */}
-        <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #E2DDD6', padding: 24 }}>
-          <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <MapPin size={18} color={G} /> Global Customer Distribution
+        <div style={{ background: '#fff', borderRadius: 20, border: '1px solid #E2E8F0', padding: 28, boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)' }}>
+          <h3 style={{ fontSize: 18, fontWeight: 800, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 10, color: '#1E293B' }}>
+            <MapPin size={20} color="#3B82F6" /> Market Presence
           </h3>
-          <p style={{ fontSize: 12, color: '#888', marginBottom: 16 }}>Live map showing customer locations from orders and logins.</p>
-          <div style={{ height: 200, borderRadius: 12, overflow: 'hidden', border: '1px solid #E2DDD6' }}>
+          <p style={{ fontSize: 13, color: '#64748B', marginBottom: 20 }}>Geospatial density of your customer base.</p>
+          <div style={{ height: 220, borderRadius: 16, overflow: 'hidden', border: '1px solid #E2E8F0' }}>
             {data.locations && data.locations.length > 0 ? (
               <iframe
                 title="Global Distribution Map"
@@ -1906,24 +1946,26 @@ function AnalyticsSection() {
                 width="100%" height="100%" style={{ border: 0 }}
               />
             ) : (
-              <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8f8f8', color: '#aaa', fontSize: 12 }}>
-                No location data yet
+              <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F8FAFC', color: '#94A3B8', fontSize: 13 }}>
+                Waiting for data...
               </div>
             )}
           </div>
-          <div style={{ marginTop: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: G }}>{data.locations?.length || 0} Points Tracked</span>
-            <span style={{ fontSize: 11, color: '#888' }}>Last 30 days</span>
+          <div style={{ marginTop: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: 12, fontWeight: 800, color: '#3B82F6', background: 'rgba(59, 130, 246, 0.1)', padding: '4px 10px', borderRadius: 100 }}>{data.locations?.length || 0} Markets</span>
+            <span style={{ fontSize: 12, color: '#64748B', fontWeight: 500 }}>Live Feed</span>
           </div>
         </div>
 
         {/* Average Order Value */}
-        <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #E2DDD6', padding: 24, display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'center' }}>
-             <p style={{ fontSize: 14, color: '#888', margin: 0 }}>Average Order Value</p>
-             <h4 style={{ fontSize: 36, fontWeight: 900, color: G, fontFamily: 'Outfit,sans-serif', margin: '8px 0' }}>
+        <div style={{ background: 'linear-gradient(135deg, #0F172A, #1E293B)', borderRadius: 20, padding: 28, display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'center', color: '#fff', boxShadow: '0 10px 25px -5px rgba(15, 23, 42, 0.2)' }}>
+             <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', margin: 0, fontWeight: 600 }}>Avg. Transaction Value</p>
+             <h4 style={{ fontSize: 44, fontWeight: 900, color: '#fff', fontFamily: 'Outfit,sans-serif', margin: '12px 0', letterSpacing: '-0.03em' }}>
                ${((data.monthRevenue?.reduce((a,b)=>a+b.value, 0) || 0) / (data.statusCounts?.reduce((a,b)=>a+b.value, 0) || 1)).toFixed(2)}
              </h4>
-             <p style={{ fontSize: 12, color: '#059669', fontWeight: 700 }}>+5.4% from last month</p>
+             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', background: 'rgba(16, 185, 129, 0.2)', color: '#34D399', borderRadius: 100, fontSize: 12, fontWeight: 700, alignSelf: 'center' }}>
+               <TrendingUp size={14} /> +8.4%
+             </div>
         </div>
 
       </div>
@@ -1965,7 +2007,7 @@ export default function Admin() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: BG, display: 'flex' }}>
+    <div style={{ minHeight: '100vh', background: '#F8FAFC', display: 'flex' }}>
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200 }} onClick={() => setSidebarOpen(false)} />
@@ -1973,48 +2015,56 @@ export default function Admin() {
 
       {/* Sidebar */}
       <aside className={`admin-sidebar ${sidebarOpen ? 'open' : ''}`} style={{
-        width: 220, flexShrink: 0, background: G,
+        width: 260, flexShrink: 0, background: '#0F172A',
         minHeight: 'calc(100vh - var(--nav-h))', position: 'sticky', top: 'var(--nav-h)',
         display: 'flex', flexDirection: 'column',
-        transition: 'transform 0.25s',
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         borderRight: '1px solid rgba(255,255,255,0.05)',
         zIndex: 1001,
+        boxShadow: '10px 0 40px rgba(0,0,0,0.1)',
       }}>
-        <div style={{ padding: '24px 20px 16px' }}>
-          <p style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 4 }}>Admin Panel</p>
-          <p style={{ fontSize: 14, fontWeight: 700, color: '#fff', margin: 0 }}>{user.name}</p>
-          <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', margin: '2px 0 0' }}>{user.email}</p>
+        <div style={{ padding: '32px 24px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)', marginBottom: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+            <div style={{ width: 40, height: 40, borderRadius: 12, background: 'linear-gradient(135deg, #3B82F6, #1E40AF)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: 18 }}>
+              {user.name[0]}
+            </div>
+            <div>
+              <p style={{ fontSize: 14, fontWeight: 700, color: '#fff', margin: 0 }}>{user.name}</p>
+              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', margin: '2px 0 0', fontWeight: 500 }}>System Administrator</p>
+            </div>
+          </div>
         </div>
-        <nav style={{ flex: 1, padding: '8px 12px' }}>
+        <nav style={{ flex: 1, padding: '8px 16px' }}>
           {NAV_ITEMS.map(({ key, label, icon: Icon }) => (
             <button key={key} onClick={() => handleNavClick(key)}
               style={{
-                width: '100%', padding: '11px 14px', borderRadius: 10, border: 'none',
-                background: activeSection === key ? 'rgba(255,255,255,0.12)' : 'transparent',
-                color: activeSection === key ? '#fff' : 'rgba(255,255,255,0.55)',
-                fontWeight: activeSection === key ? 700 : 500,
-                fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10,
-                marginBottom: 2, transition: 'all 0.15s', textAlign: 'left',
+                width: '100%', padding: '12px 16px', borderRadius: 12, border: 'none',
+                background: activeSection === key ? 'rgba(59, 130, 246, 0.15)' : 'transparent',
+                color: activeSection === key ? '#60A5FA' : 'rgba(255,255,255,0.65)',
+                fontSize: 14, fontWeight: 600, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: 12,
+                transition: 'all 0.2s ease',
+                marginBottom: 4,
               }}
-              onMouseEnter={e => { if (activeSection !== key) e.currentTarget.style.background = 'rgba(255,255,255,0.07)'; }}
-              onMouseLeave={e => { if (activeSection !== key) e.currentTarget.style.background = 'transparent'; }}>
-              <Icon size={17} />
+              onMouseEnter={e => { if (activeSection !== key) e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.color = '#fff'; }}
+              onMouseLeave={e => { if (activeSection !== key) e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(255,255,255,0.65)'; }}>
+              <Icon size={18} style={{ opacity: activeSection === key ? 1 : 0.7 }} />
               {label}
             </button>
           ))}
         </nav>
-        <div style={{ padding: '16px 12px 20px' }}>
+        <div style={{ padding: '16px 16px 24px' }}>
           <button onClick={() => { logout(); window.location.href = '/'; }}
-            style={{ width: '100%', padding: '11px 14px', borderRadius: 10, border: 'none', background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.6)', fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10, transition: 'all 0.15s' }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,0,0,0.15)'; e.currentTarget.style.color = '#ff9999'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = 'rgba(255,255,255,0.6)'; }}>
-            <LogOut size={17} /> Sign Out
+            style={{ width: '100%', padding: '12px 16px', borderRadius: 12, border: 'none', background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.5)', fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, transition: 'all 0.2s' }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)'; e.currentTarget.style.color = '#F87171'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = 'rgba(255,255,255,0.5)'; }}>
+            <LogOut size={18} /> Sign Out
           </button>
         </div>
       </aside>
 
       {/* Content */}
-      <main style={{ flex: 1, padding: '32px 28px', overflowX: 'hidden', minWidth: 0 }}>
+      <main style={{ flex: 1, padding: '40px 48px', overflowX: 'hidden', minWidth: 0 }}>
         {/* Mobile hamburger */}
         <button className="admin-hamburger" onClick={() => setSidebarOpen(s => !s)}
           style={{ display: 'none', alignItems: 'center', gap: 8, marginBottom: 20, padding: '8px 14px', background: G, color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
