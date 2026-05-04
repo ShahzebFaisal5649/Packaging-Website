@@ -33,7 +33,13 @@ let connectionPromise = null;
 
 const connectDB = () => {
   if (connectionPromise) return connectionPromise;
-  connectionPromise = mongoose.connect(process.env.MONGODB_URI, {
+  const uri = process.env.MONGODB_URI;
+  if (!uri) {
+    console.error('❌ MONGODB_URI is missing from .env');
+    return;
+  }
+  console.log('⏳ Connecting to MongoDB...');
+  connectionPromise = mongoose.connect(uri, {
     serverSelectionTimeoutMS: 8000,
     connectTimeoutMS: 8000,
   }).then(async () => {

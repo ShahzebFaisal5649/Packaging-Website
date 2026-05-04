@@ -9,7 +9,7 @@ import {
   RefreshCw, Search, DollarSign, Clock,
   Eye, Mail, Phone, Calendar,
   Shield, Ban, Star, ArrowUpRight,
-  Package, Building, Upload, Menu, Plus,
+  Package, Building, Upload, Menu, Plus, MapPin,
 } from 'lucide-react';
 
 const G = '#1A4D2E';
@@ -1294,11 +1294,17 @@ function UsersSection() {
         <Modal onClose={() => setShowMap(false)} title="Customer Distribution Map" wide>
           <p style={{ fontSize: 13, color: '#666', marginBottom: 16 }}>Showing locations for {allAddresses.length} saved addresses.</p>
           <div style={{ height: 450, borderRadius: 12, overflow: 'hidden', border: '1px solid #E2DDD6', position: 'relative' }}>
-            <iframe
-              title="Customer Map"
-              src={`https://maps.google.com/maps?q=${encodeURIComponent(allAddresses[0]?.full || 'USA')}&output=embed&z=4`}
-              width="100%" height="100%" style={{ border: 0 }}
-            />
+            {allAddresses.length > 0 ? (
+              <iframe
+                title="Customer Map"
+                src={`https://maps.google.com/maps?q=${encodeURIComponent(allAddresses[0]?.full || 'USA')}&output=embed&z=4`}
+                width="100%" height="100%" style={{ border: 0 }}
+              />
+            ) : (
+              <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8f8f8', color: '#aaa' }}>
+                No customer locations found
+              </div>
+            )}
             <div style={{ position: 'absolute', bottom: 16, right: 16, background: '#fff', padding: '10px 16px', borderRadius: 8, boxShadow: '0 4px 12px rgba(0,0,0,0.1)', fontSize: 11, color: '#666', maxWidth: 200 }}>
               Showing {allAddresses.length} customer locations.
             </div>
@@ -1893,11 +1899,17 @@ function AnalyticsSection() {
           </h3>
           <p style={{ fontSize: 12, color: '#888', marginBottom: 16 }}>Live map showing customer locations from orders and logins.</p>
           <div style={{ height: 200, borderRadius: 12, overflow: 'hidden', border: '1px solid #E2DDD6' }}>
-            <iframe
-              title="Global Distribution Map"
-              src={`https://maps.google.com/maps?q=${encodeURIComponent(data.locations?.[0]?.city || 'USA')}&output=embed&z=3`}
-              width="100%" height="100%" style={{ border: 0 }}
-            />
+            {data.locations && data.locations.length > 0 ? (
+              <iframe
+                title="Global Distribution Map"
+                src={`https://maps.google.com/maps?q=${encodeURIComponent(data.locations[0].city || 'USA')}&output=embed&z=3`}
+                width="100%" height="100%" style={{ border: 0 }}
+              />
+            ) : (
+              <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8f8f8', color: '#aaa', fontSize: 12 }}>
+                No location data yet
+              </div>
+            )}
           </div>
           <div style={{ marginTop: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: 11, fontWeight: 700, color: G }}>{data.locations?.length || 0} Points Tracked</span>
@@ -1909,7 +1921,7 @@ function AnalyticsSection() {
         <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #E2DDD6', padding: 24, display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'center' }}>
              <p style={{ fontSize: 14, color: '#888', margin: 0 }}>Average Order Value</p>
              <h4 style={{ fontSize: 36, fontWeight: 900, color: G, fontFamily: 'Outfit,sans-serif', margin: '8px 0' }}>
-               ${(data.monthRevenue?.reduce((a,b)=>a+b.value, 0) / (data.statusCounts?.reduce((a,b)=>a+b.value, 0) || 1)).toFixed(2)}
+               ${((data.monthRevenue?.reduce((a,b)=>a+b.value, 0) || 0) / (data.statusCounts?.reduce((a,b)=>a+b.value, 0) || 1)).toFixed(2)}
              </h4>
              <p style={{ fontSize: 12, color: '#059669', fontWeight: 700 }}>+5.4% from last month</p>
         </div>
