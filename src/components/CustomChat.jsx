@@ -1,224 +1,296 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, X, Send, User, Bot, Minus, Maximize2, RefreshCw } from 'lucide-react';
+import { MessageSquare, X, Send, User, Bot, Minus, Maximize2, RefreshCw, Sparkles } from 'lucide-react';
 import api from '../services/api';
 
 const G = '#1A4D2E';
 const ACCENT = '#C8860A';
+
+const QUICK_PROMPTS = [
+  'What boxes do you offer?',
+  'How much do custom boxes cost?',
+  'What is your minimum order?',
+  'Do you offer free design?',
+];
+
+// Simple markdown renderer: bold (**text**) and bullets (- item)
+function MarkdownText({ text }) {
+  const lines = text.split('\n');
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+      {lines.map((line, i) => {
+        if (!line.trim()) return null;
+        // Bullet point
+        const isBullet = line.trimStart().startsWith('- ') || line.trimStart().startsWith('• ');
+        const content = isBullet ? line.replace(/^[\s\-•]+/, '') : line;
+        // Parse bold **text**
+        const parts = content.split(/\*\*(.*?)\*\*/g);
+        const rendered = parts.map((part, j) =>
+          j % 2 === 1 ? <strong key={j}>{part}</strong> : part
+        );
+        if (isBullet) {
+          return (
+            <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+              <span style={{ color: ACCENT, fontWeight: 900, marginTop: 1, flexShrink: 0 }}>•</span>
+              <span>{rendered}</span>
+            </div>
+          );
+        }
+        return <div key={i}>{rendered}</div>;
+      })}
+    </div>
+  );
+}
+
+const WELCOME = "👋 Welcome to **Design Custom Box**! I'm your AI packaging expert — ask me anything about our products, pricing, or custom design services.";
 
 export default function CustomChat() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [message, setMessage] = useState('');
   const [chatHistory, setChatHistory] = useState([
-    { role: 'model', parts: [{ text: "👋 Welcome to Design Custom Box! I'm your premium packaging assistant. I can help you with product details, pricing inquiries, or design support. How can I assist your brand today?" }] }
+    { role: 'model', parts: [{ text: WELCOME }] },
   ]);
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef(null);
+  const inputRef = useRef(null);
 
+  // Auto scroll to bottom
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [chatHistory, isOpen]);
+  }, [chatHistory, loading, isOpen]);
 
-  const handleSend = async (e) => {
-    e.preventDefault();
-    if (!message.trim() || loading) return;
+  // Focus input when opened
+  useEffect(() => {
+    if (isOpen && !isMinimized) {
+      setTimeout(() => inputRef.current?.focus(), 300);
+    }
+  }, [isOpen, isMinimized]);
 
-    const userMessage = { role: 'user', parts: [{ text: message }] };
-    setChatHistory(prev => [...prev, userMessage]);
+  const sendMessage = async (text) => {
+    const msgText = (text || message).trim();
+    if (!msgText || loading) return;
+
+    const userMsg = { role: 'user', parts: [{ text: msgText }] };
+    setChatHistory(prev => [...prev, userMsg]);
     setMessage('');
     setLoading(true);
 
     try {
-      // Pass history (excluding welcome message)
-      const history = chatHistory.slice(1);
-      
-      const res = await api.post('/chat', { message, history });
-      const botMessage = { role: 'model', parts: [{ text: res.text }] };
-      setChatHistory(prev => [...prev, botMessage]);
-    } catch (err) {
-      setChatHistory(prev => [...prev, { role: 'model', parts: [{ text: "I'm experiencing a brief connectivity issue. Please reach out to us at **Designcustombox@gmail.com** or try again in a moment." }] }]);
+      const history = chatHistory.slice(1); // exclude welcome message
+      const res = await api.post('/chat', { message: msgText, history });
+      setChatHistory(prev => [...prev, { role: 'model', parts: [{ text: res.text }] }]);
+    } catch {
+      setChatHistory(prev => [...prev, {
+        role: 'model',
+        parts: [{ text: "I'm having a momentary issue. Please email **Designcustombox@gmail.com** or call **(913) 228-2682** for immediate help." }],
+      }]);
     } finally {
       setLoading(false);
     }
   };
 
   const resetChat = () => {
-    setChatHistory([{ role: 'model', parts: [{ text: "👋 Welcome back! How can I help you with your custom packaging today?" }] }]);
+    setChatHistory([{ role: 'model', parts: [{ text: WELCOME }] }]);
+    setMessage('');
   };
 
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 480;
+
   return (
-    <div style={{ position: 'fixed', bottom: 24, right: 24, zIndex: 9999 }}>
+    <div style={{ position: 'fixed', bottom: 24, right: 24, zIndex: 9999, fontFamily: "'Inter', sans-serif" }}>
+
+      {/* Floating Trigger Button */}
       <AnimatePresence>
         {!isOpen && (
           <motion.button
+            key="trigger"
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.95 }}
             onClick={() => setIsOpen(true)}
             style={{
-              width: 60, height: 60, borderRadius: '50%',
-              background: `linear-gradient(135deg, ${G}, #2E6B47)`,
+              width: 64, height: 64, borderRadius: '50%',
+              background: `linear-gradient(135deg, ${G} 0%, #2E6B47 100%)`,
               color: '#fff', border: 'none', cursor: 'pointer',
-              boxShadow: '0 8px 32px rgba(26,77,46,0.3)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center'
+              boxShadow: '0 8px 32px rgba(26,77,46,0.4), 0 0 0 4px rgba(26,77,46,0.1)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              position: 'relative',
             }}
           >
             <MessageSquare size={28} />
+            {/* Pulse ring */}
+            <span style={{
+              position: 'absolute', inset: -4, borderRadius: '50%',
+              border: `2px solid ${G}`, opacity: 0.3,
+              animation: 'ping 2s cubic-bezier(0, 0, 0.2, 1) infinite',
+            }} />
           </motion.button>
         )}
       </AnimatePresence>
 
+      {/* Chat Window */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
+            key="chat-window"
             initial={{ y: 20, opacity: 0, scale: 0.95 }}
-            animate={{ y: 0, opacity: 1, scale: 1, height: isMinimized ? 64 : 520 }}
+            animate={{ y: 0, opacity: 1, scale: 1, height: isMinimized ? 68 : (isMobile ? 'calc(100vh - 16px)' : 560) }}
             exit={{ y: 20, opacity: 0, scale: 0.95 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 28 }}
             style={{
-              width: '100%', maxWidth: 380, background: '#fff', borderRadius: window.innerWidth < 480 ? 0 : 24,
-              boxShadow: '0 20px 50px rgba(0,0,0,0.15)',
+              width: isMobile ? 'calc(100vw - 32px)' : 400,
+              background: '#fff',
+              borderRadius: isMobile ? 20 : 24,
+              boxShadow: '0 24px 64px rgba(0,0,0,0.18), 0 4px 16px rgba(0,0,0,0.08)',
               display: 'flex', flexDirection: 'column', overflow: 'hidden',
-              border: '1px solid rgba(26,77,46,0.1)',
-              height: isMinimized ? 64 : (window.innerWidth < 480 ? 'calc(100vh - 40px)' : 520),
-              position: window.innerWidth < 480 ? 'fixed' : 'relative',
-              bottom: window.innerWidth < 480 ? 0 : 'auto',
-              right: window.innerWidth < 480 ? 0 : 'auto',
+              border: '1px solid rgba(26,77,46,0.12)',
+              position: isMobile ? 'fixed' : 'relative',
+              bottom: isMobile ? 8 : 'auto',
+              right: isMobile ? 16 : 'auto',
             }}
           >
-            {/* Header */}
+            {/* ── Header ── */}
             <div style={{
-              padding: window.innerWidth < 480 ? '12px 20px' : '18px 24px', 
-              background: `linear-gradient(135deg, ${G}, #2E6B47)`, 
-              color: '#fff',
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              flexShrink: 0
+              padding: '16px 20px',
+              background: `linear-gradient(135deg, ${G} 0%, #2E6B47 100%)`,
+              color: '#fff', display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0,
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <div style={{ position: 'relative' }}>
-                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Bot size={20} />
-                  </div>
-                  <div style={{ position: 'absolute', bottom: 0, right: 0, width: 10, height: 10, background: '#4ADE80', borderRadius: '50%', border: '2px solid #1A4D2E' }} />
+              <div style={{ position: 'relative' }}>
+                <div style={{
+                  width: 40, height: 40, borderRadius: '50%',
+                  background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(8px)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  border: '2px solid rgba(255,255,255,0.3)',
+                }}>
+                  <Sparkles size={20} color="#FFD700" />
                 </div>
-                <div>
-                  <h3 style={{ fontSize: 16, fontWeight: 800, margin: 0, letterSpacing: '-0.01em' }}>Premium Support</h3>
-                  {!isMinimized && <p style={{ fontSize: 11, margin: 0, opacity: 0.85, fontWeight: 500 }}>Online · Intelligent Assistant</p>}
-                </div>
+                <span style={{
+                  position: 'absolute', bottom: 1, right: 1,
+                  width: 10, height: 10, background: '#4ADE80',
+                  borderRadius: '50%', border: '2px solid #1A4D2E',
+                }} />
               </div>
-              <div style={{ display: 'flex', gap: 12 }}>
-                <button onClick={resetChat} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', opacity: 0.8, padding: 4 }} title="Reset Conversation">
-                  <RefreshCw size={16} />
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 15, fontWeight: 800, letterSpacing: '-0.01em' }}>DCB Assistant</div>
+                {!isMinimized && <div style={{ fontSize: 11, opacity: 0.8, fontWeight: 500 }}>Powered by Gemini AI · Online</div>}
+              </div>
+              <div style={{ display: 'flex', gap: 6 }}>
+                <button onClick={resetChat} title="New chat" style={{ background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: 8, color: '#fff', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                  <RefreshCw size={14} />
                 </button>
-                <button onClick={() => setIsMinimized(!isMinimized)} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', opacity: 0.8, padding: 4 }}>
-                  {isMinimized ? <Maximize2 size={16} /> : <Minus size={16} />}
+                <button onClick={() => setIsMinimized(m => !m)} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: 8, color: '#fff', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                  {isMinimized ? <Maximize2 size={14} /> : <Minus size={14} />}
                 </button>
-                <button onClick={() => setIsOpen(false)} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', opacity: 0.8, padding: 4 }}>
-                  <X size={20} />
+                <button onClick={() => setIsOpen(false)} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: 8, color: '#fff', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                  <X size={16} />
                 </button>
               </div>
             </div>
 
             {!isMinimized && (
               <>
-                {/* Chat Area */}
-                <div ref={scrollRef} style={{
-                  flex: 1, padding: window.innerWidth < 480 ? '16px' : '24px', overflowY: 'auto',
-                  display: 'flex', flexDirection: 'column', gap: 20,
-                  background: '#F9FAF9'
-                }}>
+                {/* ── Messages ── */}
+                <div ref={scrollRef} style={{ flex: 1, overflowY: 'auto', padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: 16, background: '#F7F8F9' }}>
                   {chatHistory.map((msg, i) => (
-                    <div key={i} style={{
-                      display: 'flex', gap: 12,
-                      alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
-                      flexDirection: msg.role === 'user' ? 'row-reverse' : 'row',
-                      maxWidth: '85%'
-                    }}>
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.25 }}
+                      style={{ display: 'flex', gap: 10, flexDirection: msg.role === 'user' ? 'row-reverse' : 'row', alignItems: 'flex-end', maxWidth: '100%' }}
+                    >
+                      {/* Avatar */}
                       <div style={{
-                        width: 32, height: 32, borderRadius: '10px',
+                        width: 30, height: 30, borderRadius: '50%', flexShrink: 0,
                         background: msg.role === 'user' ? ACCENT : G,
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        flexShrink: 0, marginTop: 4,
-                        boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
                       }}>
-                        {msg.role === 'user' ? <User size={16} color="#fff" /> : <Bot size={16} color="#fff" />}
+                        {msg.role === 'user' ? <User size={14} color="#fff" /> : <Bot size={14} color="#fff" />}
                       </div>
+                      {/* Bubble */}
                       <div style={{
-                        padding: '14px 18px', borderRadius: 18,
-                        fontSize: 14, lineHeight: 1.6,
+                        maxWidth: '80%', padding: '12px 16px', borderRadius: 16,
+                        fontSize: 13.5, lineHeight: 1.65,
                         background: msg.role === 'user' ? G : '#fff',
                         color: msg.role === 'user' ? '#fff' : '#1A1A1A',
-                        boxShadow: msg.role === 'user' ? '0 4px 15px rgba(26,77,46,0.2)' : '0 4px 20px rgba(0,0,0,0.04)',
-                        border: msg.role === 'user' ? 'none' : '1px solid #E2DDD6',
-                        borderTopRightRadius: msg.role === 'user' ? 4 : 18,
-                        borderTopLeftRadius: msg.role === 'user' ? 18 : 4,
-                        wordBreak: 'break-word'
+                        boxShadow: msg.role === 'user' ? 'none' : '0 2px 12px rgba(0,0,0,0.06)',
+                        border: msg.role === 'user' ? 'none' : '1px solid #E8EBF0',
+                        borderBottomRightRadius: msg.role === 'user' ? 4 : 16,
+                        borderBottomLeftRadius: msg.role === 'user' ? 16 : 4,
                       }}>
-                        {msg.parts[0].text}
+                        <MarkdownText text={msg.parts[0].text} />
                       </div>
-                    </div>
+                    </motion.div>
                   ))}
+
+                  {/* Typing indicator */}
                   {loading && (
-                    <div style={{ display: 'flex', gap: 12, alignSelf: 'flex-start' }}>
-                      <div style={{ width: 32, height: 32, borderRadius: '10px', background: G, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <Bot size={16} color="#fff" />
+                    <div style={{ display: 'flex', gap: 10, alignItems: 'flex-end' }}>
+                      <div style={{ width: 30, height: 30, borderRadius: '50%', background: G, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <Bot size={14} color="#fff" />
                       </div>
-                      <div style={{ padding: '14px 24px', borderRadius: 18, background: '#fff', border: '1px solid #E2DDD6', display: 'flex', gap: 4 }}>
-                         <span className="dot-bounce">.</span><span className="dot-bounce" style={{animationDelay: '0.2s'}}>.</span><span className="dot-bounce" style={{animationDelay: '0.4s'}}>.</span>
+                      <div style={{ padding: '14px 18px', borderRadius: 16, borderBottomLeftRadius: 4, background: '#fff', border: '1px solid #E8EBF0', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', display: 'flex', gap: 5, alignItems: 'center' }}>
+                        {[0, 0.2, 0.4].map((d, i) => (
+                          <span key={i} style={{ width: 7, height: 7, borderRadius: '50%', background: G, opacity: 0.6, animation: `bounce 1.2s ${d}s ease-in-out infinite` }} />
+                        ))}
                       </div>
                     </div>
                   )}
                 </div>
 
-                {/* Quick Actions */}
-                {chatHistory.length <= 2 && !loading && (
-                  <div style={{ padding: '0 24px 16px', display: 'flex', gap: 8, flexWrap: 'wrap', background: '#F9FAF9' }}>
-                    {['Pricing', 'Shipping', 'Custom Design', 'Free Sample'].map(tag => (
-                      <button key={tag} onClick={() => { setMessage(tag); }} 
-                        style={{ padding: '6px 14px', borderRadius: 100, border: `1px solid ${G}30`, background: '#fff', color: G, fontSize: 11, fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}
-                        onMouseEnter={e => { e.target.style.background = G; e.target.style.color = '#fff'; }}
-                        onMouseLeave={e => { e.target.style.background = '#fff'; e.target.style.color = G; }}
+                {/* ── Quick Prompts ── */}
+                {chatHistory.length <= 1 && !loading && (
+                  <div style={{ padding: '0 16px 12px', display: 'flex', gap: 6, flexWrap: 'wrap', background: '#F7F8F9' }}>
+                    {QUICK_PROMPTS.map(q => (
+                      <button key={q} onClick={() => sendMessage(q)}
+                        style={{
+                          padding: '6px 12px', borderRadius: 100, fontSize: 11.5, fontWeight: 700,
+                          border: `1.5px solid ${G}30`, background: '#fff', color: G, cursor: 'pointer',
+                          transition: 'all 0.2s', whiteSpace: 'nowrap',
+                        }}
+                        onMouseEnter={e => { e.target.style.background = G; e.target.style.color = '#fff'; e.target.style.borderColor = G; }}
+                        onMouseLeave={e => { e.target.style.background = '#fff'; e.target.style.color = G; e.target.style.borderColor = `${G}30`; }}
                       >
-                        {tag}
+                        {q}
                       </button>
                     ))}
                   </div>
                 )}
 
-                {/* Input Area */}
-                <form onSubmit={handleSend} style={{ 
-                  padding: window.innerWidth < 480 ? '16px' : '20px 24px', background: '#fff',
-                  borderTop: '1px solid #E2DDD6', display: 'flex', gap: 12,
-                  alignItems: 'center', flexShrink: 0
-                }}>
-                  <input
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    placeholder="Ask about boxes, pricing..."
-                    style={{
-                      flex: 1, border: 'none', outline: 'none',
-                      fontSize: 14, background: 'none', color: '#1A1A1A',
-                      fontWeight: 500
-                    }}
-                  />
-                  <button
-                    type="submit"
-                    disabled={!message.trim() || loading}
-                    style={{
-                      width: 36, height: 36, borderRadius: '10px',
-                      background: message.trim() && !loading ? G : '#F0F0F0',
-                      color: message.trim() && !loading ? '#fff' : '#aaa',
-                      border: 'none',
-                      cursor: message.trim() && !loading ? 'pointer' : 'default',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      transition: 'all 0.3s'
-                    }}
-                  >
-                    <Send size={18} />
-                  </button>
-                </form>
+                {/* ── Input ── */}
+                <div style={{ padding: '14px 16px', background: '#fff', borderTop: '1px solid #EAECF0', flexShrink: 0 }}>
+                  <form onSubmit={e => { e.preventDefault(); sendMessage(); }} style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#F7F8F9', borderRadius: 14, padding: '8px 8px 8px 16px', border: '1.5px solid #E2E8F0' }}>
+                    <input
+                      ref={inputRef}
+                      value={message}
+                      onChange={e => setMessage(e.target.value)}
+                      placeholder="Ask about boxes, pricing, shipping..."
+                      disabled={loading}
+                      style={{ flex: 1, border: 'none', outline: 'none', fontSize: 13.5, background: 'none', color: '#1A1A1A', fontWeight: 500 }}
+                    />
+                    <button type="submit" disabled={!message.trim() || loading}
+                      style={{
+                        width: 36, height: 36, borderRadius: 10, border: 'none',
+                        background: message.trim() && !loading ? G : '#E2E8F0',
+                        color: message.trim() && !loading ? '#fff' : '#94A3B8',
+                        cursor: message.trim() && !loading ? 'pointer' : 'default',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        transition: 'all 0.2s', flexShrink: 0,
+                      }}
+                    >
+                      <Send size={16} />
+                    </button>
+                  </form>
+                  <p style={{ fontSize: 10, color: '#94A3B8', textAlign: 'center', margin: '8px 0 0', fontWeight: 500 }}>
+                    AI responses may not be 100% accurate · Contact us for confirmed details
+                  </p>
+                </div>
               </>
             )}
           </motion.div>
@@ -226,13 +298,8 @@ export default function CustomChat() {
       </AnimatePresence>
 
       <style>{`
-        .spin { animation: spin 1s linear infinite; }
-        .dot-bounce { animation: dot-bounce 1.4s infinite ease-in-out both; font-size: 20px; color: ${G}; }
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes dot-bounce {
-          0%, 80%, 100% { transform: scale(0); }
-          40% { transform: scale(1.0); }
-        }
+        @keyframes ping { 75%, 100% { transform: scale(1.8); opacity: 0; } }
+        @keyframes bounce { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-6px); } }
       `}</style>
     </div>
   );
