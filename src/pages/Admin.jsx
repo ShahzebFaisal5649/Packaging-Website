@@ -235,24 +235,12 @@ function DashboardSection() {
         if (!cancelled) {
           setStats(s);
           setRecentOrders((o.orders || []).slice(0, 6));
-          // Cache successful response
-          localStorage.setItem('admin_stats_cache', JSON.stringify({ stats: s, orders: (o.orders || []).slice(0, 6), timestamp: Date.now() }));
         }
-      } catch { /* fallback to cache/localStorage */
+      } catch (err) {
         if (!cancelled) {
-          // Try cache first
-          const cached = localStorage.getItem('admin_stats_cache');
-          if (cached) {
-            try {
-              const { stats: cachedStats, orders: cachedOrders } = JSON.parse(cached);
-              setStats(cachedStats);
-              setRecentOrders(cachedOrders);
-            } catch { /* ignore parse errors */ }
-          } else {
-            // Show zeroed stats if API fails with no cache
-            setStats({ totalUsers: 0, totalOrders: 0, revenue: 0, pending: 0, newThisWeek: 0 });
-            setRecentOrders([]);
-          }
+          console.warn('Admin stats load failed:', err.message);
+          setStats({ totalUsers: 0, totalOrders: 0, revenue: 0, pending: 0, newThisWeek: 0 });
+          setRecentOrders([]);
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -368,15 +356,13 @@ function ProductsSection() {
         if (!cancelled) {
           setProducts(productsData.products || []);
           setIndustryOptions(industriesData.industries || []);
-          // Cache products for offline fallback
-          localStorage.setItem('packagingProductsList', JSON.stringify(productsData.products || []));
         }
       } catch (err) {
         if (!cancelled) {
-          console.warn('Admin products load failed, using localStorage fallback:', err.message);
-          const cached = JSON.parse(localStorage.getItem('packagingProductsList') || '[]');
-          setProducts(cached);
+          console.warn('Admin products load failed:', err.message);
+          setProducts([]);
           setIndustryOptions([]);
+          showToast('Failed to load products from database', 'error');
         }
       } finally {
         // Always clear spinner — do NOT gate on cancelled

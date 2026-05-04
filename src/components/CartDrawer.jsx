@@ -14,6 +14,16 @@ export default function CartDrawer() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname]);
 
+  // Close cart when tab becomes hidden (user switches tabs)
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.hidden) toggleDrawer(false);
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <>
       <div 

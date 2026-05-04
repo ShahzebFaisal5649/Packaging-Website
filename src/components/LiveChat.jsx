@@ -11,7 +11,8 @@ const TAWK_WIDGET_ID   = import.meta.env.VITE_TAWK_WIDGET_ID   || '1jnmv9gk6';
 
 export default function LiveChat() {
   useEffect(() => {
-    // Prevent double-loading
+    // Only inject once per page load — check if script already exists
+    if (window.Tawk_API && window.Tawk_API.isChatVisible !== undefined) return;
     if (document.getElementById('tawk-script')) return;
 
     window.Tawk_API  = window.Tawk_API  || {};
@@ -21,8 +22,8 @@ export default function LiveChat() {
     window.Tawk_API.onLoad = function () {
       if (window.Tawk_API.setAttributes) {
         window.Tawk_API.setAttributes({
-          'name'  : 'Design Custom Box Visitor',
-          'email' : '',
+          name: 'Design Custom Box Visitor',
+          email: '',
         }, function () {});
       }
     };
@@ -34,17 +35,11 @@ export default function LiveChat() {
     s1.charset   = 'UTF-8';
     s1.setAttribute('crossorigin', '*');
 
-    // Append right before </body>
     document.body.appendChild(s1);
 
-    return () => {
-      // Clean up on hot-reload (dev only)
-      const el = document.getElementById('tawk-script');
-      if (el) el.remove();
-      // Reset Tawk state so it re-inits properly on next mount
-      delete window.Tawk_API;
-      delete window.Tawk_LoadTime;
-    };
+    // Note: We intentionally do NOT clean up the tawk script on unmount,
+    // because tawk.to attaches a global widget that should persist across
+    // React route changes. Cleaning it up would break the widget.
   }, []);
 
   // Tawk renders its own widget — nothing to render here

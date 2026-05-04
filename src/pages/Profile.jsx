@@ -303,14 +303,20 @@ function QuotesTab({ quotes }) {
 }
 
 // --- DESIGNS TAB ---
-function DesignsTab({ designs, updateUser, showToast, navigate }) {
+function DesignsTab({ designs, saveDesign, deleteDesign, showToast, navigate }) {
   const [confirmDelete, setConfirmDelete] = useState(null);
+  const [saving, setSaving] = useState(false);
 
-  const handleDelete = (idx) => {
+  const handleDelete = async (d, idx) => {
     if (confirmDelete === idx) {
-      const updated = designs.filter((_, i) => i !== idx);
-      updateUser({ savedDesigns: updated });
-      showToast('Design deleted', 'info');
+      try {
+        if (d._id) {
+          await deleteDesign(d._id);
+        }
+        showToast('Design deleted', 'info');
+      } catch {
+        showToast('Failed to delete design', 'error');
+      }
       setConfirmDelete(null);
     } else {
       setConfirmDelete(idx);
@@ -318,10 +324,18 @@ function DesignsTab({ designs, updateUser, showToast, navigate }) {
     }
   };
 
-  const handleDuplicate = (d) => {
-    const copy = { ...d, name: `Copy of ${d.name || 'Design'}`, id: `design_${Date.now()}` };
-    updateUser({ savedDesigns: [...designs, copy] });
-    showToast('Design duplicated!', 'success');
+  const handleDuplicate = async (d) => {
+    setSaving(true);
+    try {
+      // eslint-disable-next-line no-unused-vars
+      const { _id, ...designData } = d;
+      await saveDesign({ ...designData, name: `Copy of ${d.name || 'Design'}` });
+      showToast('Design duplicated!', 'success');
+    } catch {
+      showToast('Failed to duplicate design', 'error');
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -366,10 +380,10 @@ function DesignsTab({ designs, updateUser, showToast, navigate }) {
                     onClick={() => navigate('/custom-box', { state: { ...d, _savedDesign: true } })}
                     style={{ padding: '7px 0', backgroundColor: G, color: '#fff', border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
                   >Edit</button>
-                  <button onClick={() => handleDuplicate(d)} style={{ padding: '7px 0', backgroundColor: 'transparent', border: '1px solid #D0CAC0', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3 }}>
+                  <button onClick={() => handleDuplicate(d)} style={{ padding: '7px 0', backgroundColor: 'transparent', border: '1px solid #D0CAC0', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3 }} disabled={saving}>
                     <Copy size={11} /> Copy
                   </button>
-                  <button onClick={() => handleDelete(i)} style={{ padding: '7px 0', backgroundColor: confirmDelete === i ? '#DC2626' : 'transparent', color: confirmDelete === i ? '#fff' : '#DC2626', border: '1px solid #DC2626', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
+                  <button onClick={() => handleDelete(d, i)} style={{ padding: '7px 0', backgroundColor: confirmDelete === i ? '#DC2626' : 'transparent', color: confirmDelete === i ? '#fff' : '#DC2626', border: '1px solid #DC2626', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
                     {confirmDelete === i ? 'Confirm' : 'Delete'}
                   </button>
                 </div>
@@ -385,12 +399,13 @@ function DesignsTab({ designs, updateUser, showToast, navigate }) {
 // --- ADDRESSES TAB ---
 const EMPTY_ADDR = { label: 'Home', name: '', street: '', city: '', state: '', zip: '', country: 'United States' };
 
-function AddressesTab({ addresses, updateUser, showToast }) {
+function AddressesTab({ addresses, addAddress, updateAddress, deleteAddress, showToast }) {
   const [showForm, setShowForm] = useState(false);
-  const [editIdx, setEditIdx] = useState(null);
+  const [editId, setEditId] = useState(null); // MongoDB _id of address being edited
   const [form, setForm] = useState(EMPTY_ADDR);
   const [errors, setErrors] = useState({});
   const [confirmDelete, setConfirmDelete] = useState(null);
+  const [saving, setSaving] = useState(false);
 
   const validate = () => {
     const e = {};
@@ -402,24 +417,34 @@ function AddressesTab({ addresses, updateUser, showToast }) {
     return e;
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
-    let updated;
-    if (editIdx !== null) {
-      updated = addresses.map((a, i) => i === editIdx ? form : a);
-    } else {
-      updated = [...addresses, { ...form, isDefault: addresses.length === 0 }];
+    setSaving(true);
+    try {
+      if (editId) {
+        await updateAddress(editId, form);
+        showToast('Address updated!', 'success');
+      } else {
+        await addAddress({ ...form, isDefault: addresses.length === 0 });
+        showToast('Address added!', 'success');
+      }
+      setShowForm(false); setEditId(null); setForm(EMPTY_ADDR); setErrors({});
+    } catch {
+      showToast('Failed to save address. Please try again.', 'error');
+    } finally {
+      setSaving(false);
     }
-    updateUser({ addresses: updated });
-    showToast(editIdx !== null ? 'Address updated!' : 'Address added!', 'success');
-    setShowForm(false); setEditIdx(null); setForm(EMPTY_ADDR); setErrors({});
   };
 
-  const handleDelete = (idx) => {
+  const handleDelete = async (address, idx) => {
     if (confirmDelete === idx) {
-      updateUser({ addresses: addresses.filter((_, i) => i !== idx) });
-      showToast('Address removed', 'info');
+      try {
+        if (address._id) await deleteAddress(address._id);
+        showToast('Address removed', 'info');
+      } catch {
+        showToast('Failed to remove address', 'error');
+      }
       setConfirmDelete(null);
     } else {
       setConfirmDelete(idx);
@@ -427,9 +452,20 @@ function AddressesTab({ addresses, updateUser, showToast }) {
     }
   };
 
-  const handleSetDefault = (idx) => {
-    updateUser({ addresses: addresses.map((a, i) => ({ ...a, isDefault: i === idx })) });
-    showToast('Default address updated', 'success');
+  const handleSetDefault = async (address) => {
+    try {
+      if (address._id) await updateAddress(address._id, { ...address.toObject?.() ?? address, isDefault: true });
+      showToast('Default address updated', 'success');
+    } catch {
+      showToast('Failed to update default', 'error');
+    }
+  };
+
+  const handleEdit = (address, idx) => {
+    setEditId(address._id || null);
+    setForm({ label: address.label || 'Home', name: address.name || '', street: address.street || '', city: address.city || '', state: address.state || '', zip: address.zip || '', country: address.country || 'United States' });
+    setErrors({});
+    setShowForm(true);
   };
 
   const inp = { width: '100%', padding: '10px 12px', border: '1.5px solid #D0CAC0', borderRadius: 8, fontSize: 14, outline: 'none', boxSizing: 'border-box', fontFamily: 'Inter,sans-serif' };
@@ -438,7 +474,7 @@ function AddressesTab({ addresses, updateUser, showToast }) {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
         <h2 style={{ fontSize: 22, fontFamily: 'Outfit,sans-serif', fontWeight: 700, color: '#1A1A1A' }}>Saved Addresses</h2>
-        <button onClick={() => { setShowForm(true); setEditIdx(null); setForm(EMPTY_ADDR); setErrors({}); }} style={{ padding: '9px 18px', backgroundColor: G, color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+        <button onClick={() => { setShowForm(true); setEditId(null); setForm(EMPTY_ADDR); setErrors({}); }} style={{ padding: '9px 18px', backgroundColor: G, color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
           <Plus size={15} /> Add Address
         </button>
       </div>
@@ -459,8 +495,8 @@ function AddressesTab({ addresses, updateUser, showToast }) {
                 {a.isDefault && <span style={{ fontSize: 10, fontWeight: 700, backgroundColor: `${ACCENT}20`, color: ACCENT, padding: '3px 10px', borderRadius: 100 }}>Default</span>}
               </div>
               <div style={{ display: 'flex', gap: 8 }}>
-                <button onClick={() => { setEditIdx(i); setForm(a); setShowForm(true); setErrors({}); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B6B6B', padding: 4 }}><Edit size={14} /></button>
-                <button onClick={() => handleDelete(i)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: confirmDelete === i ? '#DC2626' : '#6B6B6B', padding: 4, fontWeight: confirmDelete === i ? 700 : 400, fontSize: confirmDelete === i ? 11 : undefined }}>
+                <button onClick={() => handleEdit(a, i)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B6B6B', padding: 4 }}><Edit size={14} /></button>
+                <button onClick={() => handleDelete(a, i)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: confirmDelete === i ? '#DC2626' : '#6B6B6B', padding: 4, fontWeight: confirmDelete === i ? 700 : 400, fontSize: confirmDelete === i ? 11 : undefined }}>
                   {confirmDelete === i ? 'Confirm?' : <Trash2 size={14} />}
                 </button>
               </div>
@@ -468,7 +504,7 @@ function AddressesTab({ addresses, updateUser, showToast }) {
             <p style={{ fontWeight: 700, fontSize: 14, color: '#1A1A1A', marginBottom: 4 }}>{a.name}</p>
             <p style={{ fontSize: 13, color: '#6B6B6B', lineHeight: 1.6 }}>{a.street}<br />{a.city}, {a.state} {a.zip}<br />{a.country}</p>
             {!a.isDefault && (
-              <button onClick={() => handleSetDefault(i)} style={{ marginTop: 10, fontSize: 11, fontWeight: 700, color: G, background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>
+              <button onClick={() => handleSetDefault(a)} style={{ marginTop: 10, fontSize: 11, fontWeight: 700, color: G, background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>
                 Set as Default
               </button>
             )}
@@ -478,7 +514,7 @@ function AddressesTab({ addresses, updateUser, showToast }) {
 
       {showForm && (
         <div style={{ backgroundColor: BG, borderRadius: 12, padding: '24px', border: '1px solid #E2DDD6' }}>
-          <h3 style={{ fontFamily: 'Outfit,sans-serif', fontWeight: 700, fontSize: 16, color: '#1A1A1A', marginBottom: 16 }}>{editIdx !== null ? 'Edit Address' : 'New Address'}</h3>
+          <h3 style={{ fontFamily: 'Outfit,sans-serif', fontWeight: 700, fontSize: 16, color: '#1A1A1A', marginBottom: 16 }}>{editId ? 'Edit Address' : 'New Address'}</h3>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
             {[
               { key: 'label', label: 'Label', placeholder: 'Home, Work, etc.' },
@@ -510,8 +546,8 @@ function AddressesTab({ addresses, updateUser, showToast }) {
             ))}
           </div>
           <div style={{ display: 'flex', gap: 10 }}>
-            <button onClick={handleSave} style={{ padding: '10px 24px', backgroundColor: G, color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}>Save Address</button>
-            <button onClick={() => { setShowForm(false); setEditIdx(null); setErrors({}); }} style={{ padding: '10px 24px', border: '1.5px solid #D0CAC0', borderRadius: 8, fontWeight: 700, cursor: 'pointer', background: 'none' }}>Cancel</button>
+            <button onClick={handleSave} disabled={saving} style={{ padding: '10px 24px', backgroundColor: G, color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}>{saving ? 'Saving...' : 'Save Address'}</button>
+            <button onClick={() => { setShowForm(false); setEditId(null); setErrors({}); }} style={{ padding: '10px 24px', border: '1.5px solid #D0CAC0', borderRadius: 8, fontWeight: 700, cursor: 'pointer', background: 'none' }}>Cancel</button>
           </div>
         </div>
       )}
@@ -664,7 +700,7 @@ const TABS = [
 ];
 
 export default function Profile() {
-  const { user, logout, updateUser } = useAuth();
+  const { user, logout, updateUser, addAddress, updateAddress, deleteAddress, saveDesign, deleteDesign } = useAuth();
   const { showToast } = useToast();
   const location = useLocation();
   const navigate = useNavigate();
@@ -781,8 +817,8 @@ export default function Profile() {
             {activeTab === 'overview' && <OverviewTab user={user} setTab={setActiveTab} updateUser={updateUser} showToast={showToast} />}
             {activeTab === 'orders' && <OrdersTab orders={user?.orders} />}
             {activeTab === 'quotes' && <QuotesTab quotes={user?.quotes || []} />}
-            {activeTab === 'designs' && <DesignsTab designs={user?.savedDesigns || []} updateUser={updateUser} showToast={showToast} navigate={navigate} />}
-            {activeTab === 'addresses' && <AddressesTab addresses={user?.addresses || []} updateUser={updateUser} showToast={showToast} />}
+            {activeTab === 'designs' && <DesignsTab designs={user?.savedDesigns || []} saveDesign={saveDesign} deleteDesign={deleteDesign} showToast={showToast} navigate={navigate} />}
+            {activeTab === 'addresses' && <AddressesTab addresses={user?.addresses || []} addAddress={addAddress} updateAddress={updateAddress} deleteAddress={deleteAddress} showToast={showToast} />}
             {activeTab === 'settings' && <SettingsTab user={user} updateUser={updateUser} showToast={showToast} logout={logout} />}
           </div>
 

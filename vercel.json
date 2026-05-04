@@ -22,6 +22,10 @@
     { "src": "/(.*)", "dest": "/index.html" }
   ],
   "env": {
-    "NODE_ENV": "production"
+    "NODE_ENV": "production",
+    "VITE_TAWK_PROPERTY_ID": "69f748e548ca411c3004e297",
+    "VITE_TAWK_WIDGET_ID": "1jnmv9gk6",
+    "VITE_API_URL": "/api",
+    "VITE_STRIPE_PUBLISHABLE_KEY": "pk_test_51TNAL0D4DgHVyIx8AOcWm8ZJahwZGmCKa7djP9EPBThWuZ7U2ATe9zZi6cfDpIRJEFkjgQAEeZ69qqtWDcrYzq2N00dA3g1A4p"
   }
 }
