@@ -1190,11 +1190,10 @@ function OrdersSection() {
               <div style={{ borderRadius: 10, overflow: 'hidden', height: 200, border: '1px solid #E2DDD6' }}>
                 <iframe
                   title="Customer Location Map"
-                  src={`https://maps.google.com/maps?q=${encodeURIComponent(selected.address)}&output=embed&z=13`}
+                  src={`https://www.google.com/maps?q=${encodeURIComponent(selected.address?.replace(/,\s*United States$/i, ''))}&t=&z=13&ie=UTF8&iwloc=&output=embed`}
                   width="100%" height="100%"
                   style={{ border: 0, display: 'block' }}
                   loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
                 />
               </div>
             </div>
@@ -1332,7 +1331,7 @@ function UsersSection() {
             {allAddresses.length > 0 ? (
               <iframe
                 title="Customer Map"
-                src={`https://maps.google.com/maps?q=${encodeURIComponent(allAddresses[0]?.full || 'USA')}&output=embed&z=4`}
+                src={`https://www.google.com/maps?q=${encodeURIComponent(allAddresses[0]?.full?.replace(/,\s*United States$/i, '') || 'USA')}&t=&z=4&ie=UTF8&iwloc=&output=embed`}
                 width="100%" height="100%" style={{ border: 0 }}
               />
             ) : (
@@ -1943,7 +1942,7 @@ function AnalyticsSection() {
             {data.locations && data.locations.length > 0 ? (
               <iframe
                 title="Global Distribution Map"
-                src={`https://maps.google.com/maps?q=${encodeURIComponent(data.locations[0].city || 'USA')}&output=embed&z=3`}
+                src={`https://www.google.com/maps?q=${encodeURIComponent(data.locations[0]?.city || 'USA')}&t=&z=3&ie=UTF8&iwloc=&output=embed`}
                 width="100%" height="100%" style={{ border: 0 }}
               />
             ) : (

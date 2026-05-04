@@ -46,6 +46,13 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  const googleLogin = async (googleData) => {
+    const data = await api.post('/auth/google', googleData);
+    api.setToken(data.token);
+    setUser(data.user);
+    return data.user;
+  };
+
   // ── Refresh user from DB ───────────────────────────────────────────────────
   const refreshUser = async () => {
     try {
@@ -127,7 +134,7 @@ export const AuthProvider = ({ children }) => {
 
   const value = {
     user, isAuthenticated: !!user, loading,
-    login, register, logout, refreshUser, updateUser,
+    login, register, logout, googleLogin, refreshUser, updateUser,
     addAddress, updateAddress, deleteAddress,
     saveDesign, deleteDesign,
     toggleFavorite,
