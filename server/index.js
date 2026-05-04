@@ -1,4 +1,5 @@
-require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') });
+require('dotenv').config(); // Try current directory first
+require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') }); // Fallback to root for local dev
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
