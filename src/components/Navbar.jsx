@@ -470,15 +470,22 @@ export default function Navbar() {
             boxShadow: mobileMenuOpen ? '-10px 0 30px rgba(0,0,0,0.3)' : 'none',
           }}
         >
-          {/* Spacer for fixed header */}
-          <div style={{ height: 68, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px' }}>
-            <span style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>Menu</span>
+          {/* Drawer Header */}
+          <div style={{ height: 72, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ width: 32, height: 32, borderRadius: 8, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <img src={logo} alt="" style={{ width: '80%', height: '80%', objectFit: 'contain' }} />
+              </div>
+              <span style={{ fontSize: 16, fontWeight: 800, color: '#fff', letterSpacing: '-0.02em' }}>Menu</span>
+            </div>
             <button
               onClick={() => setMobileMenuOpen(false)}
               aria-label="Close menu"
-              style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: '#fff', cursor: 'pointer', borderRadius: 8, padding: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              style={{ background: 'rgba(255,255,255,0.12)', border: 'none', color: '#fff', cursor: 'pointer', borderRadius: 10, width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s' }}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.12)'}
             >
-              <X size={22} />
+              <X size={24} strokeWidth={2.5} />
             </button>
           </div>
 
