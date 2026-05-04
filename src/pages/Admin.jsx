@@ -1583,62 +1583,6 @@ function QuotesSection() {
   );
 }
 
-// ── Analytics ─────────────────────────────────────────────────────────────────
-function AnalyticsSection() {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [refreshKey, setRefreshKey] = useState(0);
-
-  const loadAnalytics = async (signal = { cancelled: false }) => {
-    if (!signal.cancelled) setLoading(true);
-    try {
-      const d = await api.get('/admin/analytics');
-      if (!signal.cancelled) setData(d);
-    } catch {
-      if (!signal.cancelled) {
-        // Show empty analytics if API fails
-        setData({
-          statusCounts: ['Processing', 'Shipped', 'Delivered', 'Cancelled'].map(s => ({ label: s, value: 0 })),
-          monthRevenue: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'].map(m => ({ label: m, value: 0 })),
-          userGrowth: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'].map(m => ({ label: m, value: 0 })),
-        });
-      }
-    } finally {
-      if (!signal.cancelled) setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    let signal = { cancelled: false };
-    Promise.resolve().then(() => loadAnalytics(signal));
-    return () => { signal.cancelled = true; };
-  }, [refreshKey]);
-
-  if (loading) return <div style={{ padding: 40, textAlign: 'center' }}><RefreshCw size={22} style={{ animation: 'spin 1s linear infinite', color: '#aaa' }} /></div>;
-
-  return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
-        <h2 style={{ fontSize: 22, fontFamily: 'Outfit,sans-serif', fontWeight: 700 }}>Analytics</h2>
-        <button onClick={() => setRefreshKey(k => k + 1)} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: G, background: 'none', border: `1px solid ${G}`, borderRadius: 8, padding: '7px 14px', cursor: 'pointer' }}><RefreshCw size={13} /> Refresh</button>
-      </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(260px,1fr))', gap: 20 }}>
-        <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #E2DDD6', padding: 20 }}>
-          <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 16, color: '#1A1A1A' }}>Orders by Status</h3>
-          <BarChart data={data?.statusCounts || []} color={ACCENT} />
-        </div>
-        <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #E2DDD6', padding: 20 }}>
-          <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 16, color: '#1A1A1A' }}>Revenue Last 6 Months</h3>
-          <BarChart data={data?.monthRevenue || []} color={G} />
-        </div>
-        <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #E2DDD6', padding: 20 }}>
-          <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 16, color: '#1A1A1A' }}>New Users per Month</h3>
-          <BarChart data={data?.userGrowth || []} color="#3B82F6" />
-        </div>
-      </div>
-    </div>
-  );
-}
 
 // ── Messages ─────────────────────────────────────────────────────────────────
 function MessagesSection() {
