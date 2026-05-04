@@ -22,10 +22,19 @@ Design Custom Box is a production-grade, full-stack application engineered for p
 - **Dynamic Dieline Generation**: Automatic SVG export for production-ready design files.
 - **Human-Centric UX**: Optimized hit areas, centered mobile headers, and locked responsive scaling.
 
+### 🤖 Intelligent AI Assistant
+- **Gemini-Powered Support**: Advanced LLM integration (Gemini 1.5 Flash) with full catalog awareness.
+- **Contextual Inquiries**: Automatically answers pricing, shipping, and product-specific questions.
+- **Premium Interface**: Animated, responsive chat widget with quick-action shortcuts.
+
+### 📊 Advanced Administrative Insights
+- **Interactive Analytics**: Visual data tracking for revenue, orders, and user growth using Recharts.
+- **Geospatial Mapping**: Integrated Google Maps for tracking order distribution and customer locations.
+- **Order Management 2.0**: Granular item breakdowns with configuration metadata and product thumbnails.
+
 ### 🔐 Enterprise Hardening
 - **Official Google OAuth2**: Seamless, secure authentication using Google's production identity layer.
-- **Admin Command Center**: Real-time dashboard for managing orders, products, and subscribers.
-- **Newsletter Engine**: Fully functional automated subscription management.
+- **Automated Password Recovery**: Logic-driven forgot password workflow with secure token generation.
 
 ---
 
@@ -56,7 +65,7 @@ Design Custom Box is a production-grade, full-stack application engineered for p
 │   │   └── services/       # API Communications
 ├── server/                 # Node.js Backend
 │   ├── models/             # Schema Definitions
-│   ├── routes/             # Controller Logic
+│   ├── routes/             # Controller Logic (Auth, Admin, Chat, etc.)
 │   └── index.js            # Server Entry
 └── README.md
 ```

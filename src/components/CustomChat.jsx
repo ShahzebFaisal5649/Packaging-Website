@@ -74,18 +74,23 @@ export default function CustomChat() {
             animate={{ y: 0, opacity: 1, scale: 1, height: isMinimized ? 64 : 520 }}
             exit={{ y: 20, opacity: 0, scale: 0.95 }}
             style={{
-              width: 380, background: '#fff', borderRadius: 24,
+              width: '100%', maxWidth: 380, background: '#fff', borderRadius: window.innerWidth < 480 ? 0 : 24,
               boxShadow: '0 20px 50px rgba(0,0,0,0.15)',
               display: 'flex', flexDirection: 'column', overflow: 'hidden',
-              border: '1px solid rgba(26,77,46,0.1)'
+              border: '1px solid rgba(26,77,46,0.1)',
+              height: isMinimized ? 64 : (window.innerWidth < 480 ? 'calc(100vh - 40px)' : 520),
+              position: window.innerWidth < 480 ? 'fixed' : 'relative',
+              bottom: window.innerWidth < 480 ? 0 : 'auto',
+              right: window.innerWidth < 480 ? 0 : 'auto',
             }}
           >
             {/* Header */}
             <div style={{
-              padding: '18px 24px', 
+              padding: window.innerWidth < 480 ? '12px 20px' : '18px 24px', 
               background: `linear-gradient(135deg, ${G}, #2E6B47)`, 
               color: '#fff',
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+              flexShrink: 0
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <div style={{ position: 'relative' }}>
@@ -113,7 +118,7 @@ export default function CustomChat() {
               <>
                 {/* Chat Area */}
                 <div ref={scrollRef} style={{
-                  flex: 1, padding: '24px', overflowY: 'auto',
+                  flex: 1, padding: window.innerWidth < 480 ? '16px' : '24px', overflowY: 'auto',
                   display: 'flex', flexDirection: 'column', gap: 20,
                   background: '#F9FAF9'
                 }}>
@@ -142,6 +147,7 @@ export default function CustomChat() {
                         border: msg.role === 'user' ? 'none' : '1px solid #E2DDD6',
                         borderTopRightRadius: msg.role === 'user' ? 4 : 18,
                         borderTopLeftRadius: msg.role === 'user' ? 18 : 4,
+                        wordBreak: 'break-word'
                       }}>
                         {msg.parts[0].text}
                       </div>
@@ -176,9 +182,9 @@ export default function CustomChat() {
 
                 {/* Input Area */}
                 <form onSubmit={handleSend} style={{ 
-                  padding: '20px 24px', background: '#fff',
+                  padding: window.innerWidth < 480 ? '16px' : '20px 24px', background: '#fff',
                   borderTop: '1px solid #E2DDD6', display: 'flex', gap: 12,
-                  alignItems: 'center'
+                  alignItems: 'center', flexShrink: 0
                 }}>
                   <input
                     value={message}
