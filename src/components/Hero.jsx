@@ -111,6 +111,10 @@ export default function Hero() {
                 </div>
               </motion.h1>
 
+              {/* Subtext */}
+              <p className="hero-subtext text-left md:text-left">
+
+              </p>
 
               {/* CTA Buttons */}
               <motion.div variants={fadeUp} style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: 48 }} className="hero-actions">
