@@ -16,10 +16,11 @@ const app = express();
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow no-origin requests (curl/mobile), any localhost port, CLIENT_URL, and Vercel domains
+    // Allow no-origin requests (curl/mobile), any localhost port, CLIENT_URL, Vercel domains, and custom domain
     if (!origin || /^http:\/\/localhost(:\d+)?$/.test(origin) ||
         origin === process.env.CLIENT_URL ||
-        /\.vercel\.app$/.test(origin)) {
+        /\.vercel\.app$/.test(origin) ||
+        /^https:\/\/(www\.)?designcustombox\.com$/.test(origin)) {
       return callback(null, true);
     }
     callback(new Error('Not allowed by CORS'));
