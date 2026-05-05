@@ -114,6 +114,8 @@ export default function Hero() {
               {/* Subtext */}
               <p className="hero-subtext text-left md:text-left">
 
+
+
               </p>
 
               {/* CTA Buttons */}
