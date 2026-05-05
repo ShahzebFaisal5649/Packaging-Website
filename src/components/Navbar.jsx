@@ -75,7 +75,7 @@ const MegaMenu = ({ categories, title, isOpen, setActiveMenu }) => (
     <div style={{ maxWidth: 1200, margin: '0 auto', padding: '40px 24px', display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 32 }}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40 }}>
         <div>
-          <h4 style={{ fontSize: 10, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 20 }}>Popular Categories</h4>
+          <h4 style={{ fontSize: 10, fontWeight: 500, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 20, fontFamily: 'DM Mono, monospace' }}>Popular Categories</h4>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
             {categories.col1.map((item, idx) => (
               <Link key={idx} to={`/${title.toLowerCase()}/${item.name.toLowerCase().replace(/ /g, '-')}`}
@@ -88,7 +88,7 @@ const MegaMenu = ({ categories, title, isOpen, setActiveMenu }) => (
           </div>
         </div>
         <div>
-          <h4 style={{ fontSize: 10, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 20 }}>More Categories</h4>
+          <h4 style={{ fontSize: 10, fontWeight: 500, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 20, fontFamily: 'DM Mono, monospace' }}>More Categories</h4>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
             {categories.col2.map((item, idx) => (
               <Link key={idx} to={`/${title.toLowerCase()}/${item.name.toLowerCase().replace(/ /g, '-')}`}
@@ -204,6 +204,7 @@ export default function Navbar() {
     padding: '6px 0',
     transition: 'color 0.15s',
     letterSpacing: '0.01em',
+    fontFamily: 'DM Sans, sans-serif',
   };
 
   return (
@@ -244,7 +245,7 @@ export default function Navbar() {
               <img src={logo} alt="Design Custom Box" style={{ height: '85%', width: '85%', objectFit: 'contain' }}
                 onError={e => { e.target.style.display = 'none'; }} />
             </div>
-            <span style={{ fontSize: 22, fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#fff', letterSpacing: '-0.02em' }}>
+            <span style={{ fontSize: 22, fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 700, color: '#fff', letterSpacing: '-0.02em' }}>
               Design Custom <span style={{ color: ACCENT }}>Box</span>
             </span>
           </Link>
@@ -410,7 +411,7 @@ export default function Navbar() {
                 style={{
                   background: 'none',
                   border: 'none',
-                  color: '#fff',
+                  color: mobileMenuOpen ? '#1A4D2E' : '#fff',
                   cursor: 'pointer',
                   padding: 6,
                   borderRadius: 6,
@@ -459,7 +460,7 @@ export default function Navbar() {
             bottom: 0,
             width: '100%',
             maxWidth: 340,
-            background: G,
+            background: '#F5F2ED',
             zIndex: 10003,
             transform: mobileMenuOpen ? 'translateX(0)' : 'translateX(100%)',
             transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -467,24 +468,24 @@ export default function Navbar() {
             paddingBottom: 40,
             display: 'flex',
             flexDirection: 'column',
-            boxShadow: mobileMenuOpen ? '-10px 0 30px rgba(0,0,0,0.3)' : 'none',
+            boxShadow: mobileMenuOpen ? '-10px 0 30px rgba(0,0,0,0.12)' : 'none',
           }}
         >
           {/* Drawer Header */}
-          <div style={{ height: 72, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+          <div style={{ height: 72, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', borderBottom: '1px solid rgba(26,77,46,0.1)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <div style={{ width: 32, height: 32, borderRadius: 8, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <img src={logo} alt="" style={{ width: '80%', height: '80%', objectFit: 'contain' }} />
               </div>
-              <span style={{ fontSize: 16, fontWeight: 800, color: '#fff', letterSpacing: '-0.02em' }}>Menu</span>
+              <span style={{ fontSize: 16, fontWeight: 700, color: '#1A4D2E', letterSpacing: '-0.02em', fontFamily: '"Playfair Display", serif' }}>Menu</span>
             </div>
             <button
               onClick={() => setMobileMenuOpen(false)}
               aria-label="Close menu"
               style={{ 
-                background: 'rgba(255,255,255,0.15)', 
+                background: 'rgba(26,77,46,0.08)', 
                 border: 'none', 
-                color: '#fff', 
+                color: '#1A4D2E', 
                 cursor: 'pointer', 
                 borderRadius: '50%', 
                 width: 44, 
@@ -493,10 +494,10 @@ export default function Navbar() {
                 alignItems: 'center', 
                 justifyContent: 'center', 
                 transition: 'all 0.2s',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                boxShadow: '0 4px 12px rgba(26,77,46,0.08)'
               }}
-              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.25)'}
-              onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(26,77,46,0.15)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'rgba(26,77,46,0.08)'}
             >
               <X size={28} strokeWidth={2.5} />
             </button>
@@ -508,16 +509,16 @@ export default function Navbar() {
               { to: '/products',   label: 'Products',   key: 'Products',   items: [...productCategories.col1,  ...productCategories.col2]  },
               { to: '/industries', label: 'Industries', key: 'Industries', items: [...industryCategories.col1, ...industryCategories.col2] },
             ].map(item => (
-              <div key={item.key} style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+              <div key={item.key} style={{ borderBottom: '1px solid rgba(26,77,46,0.1)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', padding: '16px 0' }}>
                   <Link to={item.to}
-                    style={{ flex: 1, fontSize: 17, fontWeight: 700, color: '#fff', textDecoration: 'none' }}
+                    style={{ flex: 1, fontSize: 17, fontWeight: 700, color: '#1A4D2E', textDecoration: 'none', fontFamily: '"Playfair Display", serif' }}
                     onClick={() => setMobileMenuOpen(false)}>
                     {item.label}
                   </Link>
                   <button
                     onClick={() => setMobileExpanded(p => ({ ...p, [item.key]: !p[item.key] }))}
-                    style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', padding: 4 }}>
+                    style={{ background: 'none', border: 'none', color: '#C8860A', cursor: 'pointer', padding: 4 }}>
                     <ChevronDown size={18} style={{ transform: mobileExpanded[item.key] ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
                   </button>
                 </div>
@@ -526,7 +527,7 @@ export default function Navbar() {
                     {item.items.map((sub, si) => (
                       <Link key={si}
                         to={`/${item.key.toLowerCase()}/${sub.name.toLowerCase().replace(/ /g, '-')}`}
-                        style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)', textDecoration: 'none' }}
+                        style={{ fontSize: 14, color: '#666', textDecoration: 'none', fontFamily: 'DM Sans, sans-serif' }}
                         onClick={() => setMobileMenuOpen(false)}>
                         {sub.name}
                       </Link>
@@ -546,7 +547,7 @@ export default function Navbar() {
               ...(isAdmin ? [] : [{ to: '/favourites', label: favCount > 0 ? `Favourites (${favCount})` : 'Favourites' }]),
             ].map(item => (
               <Link key={item.to} to={item.to}
-                style={{ display: 'block', padding: '16px 0', fontSize: 17, fontWeight: 700, color: '#fff', textDecoration: 'none', borderBottom: '1px solid rgba(255,255,255,0.1)' }}
+                style={{ display: 'block', padding: '16px 0', fontSize: 17, fontWeight: 700, color: '#1A4D2E', textDecoration: 'none', borderBottom: '1px solid rgba(26,77,46,0.1)', fontFamily: '"Playfair Display", serif' }}
                 onClick={() => setMobileMenuOpen(false)}>
                 {item.label}
               </Link>
@@ -557,13 +558,13 @@ export default function Navbar() {
               {isAuthenticated ? (
                 <>
                   <Link to="/profile"
-                    style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 15, fontWeight: 600, color: '#fff', textDecoration: 'none' }}
+                    style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 15, fontWeight: 600, color: '#1A4D2E', textDecoration: 'none' }}
                     onClick={() => setMobileMenuOpen(false)}>
                     <UserCircle size={18} /> My Profile
                   </Link>
                   {user?.role === 'admin' && (
                     <Link to="/admin"
-                      style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 15, fontWeight: 600, color: '#fff', textDecoration: 'none' }}
+                      style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 15, fontWeight: 600, color: '#1A4D2E', textDecoration: 'none' }}
                       onClick={() => setMobileMenuOpen(false)}>
                       <Settings size={18} /> Admin Panel
                     </Link>
@@ -577,7 +578,7 @@ export default function Navbar() {
                 </>
               ) : (
                 <Link to="/login"
-                  style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 15, fontWeight: 600, color: '#fff', textDecoration: 'none' }}
+                  style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 15, fontWeight: 600, color: '#1A4D2E', textDecoration: 'none' }}
                   onClick={() => setMobileMenuOpen(false)}>
                   <User size={18} /> Sign In
                 </Link>

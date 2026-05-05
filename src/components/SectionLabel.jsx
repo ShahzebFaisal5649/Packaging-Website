@@ -1,6 +1,6 @@
 export default function SectionLabel({ text }) {
   return (
-    <p className="text-xs font-semibold uppercase tracking-widest text-[#F47920] mb-2">
+    <p className="font-dm-mono text-xs font-medium uppercase tracking-[0.15em] text-[#C8860A] mb-3">
       {text}
     </p>
   );

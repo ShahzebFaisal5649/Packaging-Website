@@ -82,18 +82,18 @@ export default function Login() {
         />
         <div style={{ position: 'absolute', inset: 0, background: `linear-gradient(135deg, rgba(20,60,36,0.92) 0%, rgba(20,60,36,0.70) 100%)` }} />
         <div style={{ position: 'relative', zIndex: 2, padding: '60px 56px', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-          <p style={{ fontSize: 11, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 14 }}>Design Custom Box Portal</p>
-          <h2 style={{ fontSize: 'clamp(28px,3vw,40px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#fff', lineHeight: 1.15, marginBottom: 20 }}>
+          <p style={{ fontSize: 11, fontFamily: '"DM Mono", monospace', fontWeight: 500, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 14 }}>Design Custom Box Portal</p>
+          <h2 style={{ fontSize: 'clamp(28px,3vw,40px)', fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 700, color: '#fff', lineHeight: 1.15, marginBottom: 20 }}>
             Your packaging command center in all in one place.
           </h2>
-          <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.65)', lineHeight: 1.75, marginBottom: 40, maxWidth: 380 }}>
+          <p style={{ fontSize: 15, fontFamily: '"DM Sans", sans-serif', color: 'rgba(255,255,255,0.65)', lineHeight: 1.75, marginBottom: 40, maxWidth: 380 }}>
             Manage orders, save custom box designs, get quotes, and track shipments with your Design Custom Box account.
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             {PERKS.map((p, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <CheckCircle size={16} color={ACCENT} strokeWidth={2.5} />
-                <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.8)', fontWeight: 500 }}>{p}</span>
+                <span style={{ fontSize: 14, fontFamily: '"DM Sans", sans-serif', color: 'rgba(255,255,255,0.8)', fontWeight: 500 }}>{p}</span>
               </div>
             ))}
           </div>
@@ -104,19 +104,19 @@ export default function Login() {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px 24px', backgroundColor: '#F5F2ED' }}>
         <div style={{ width: '100%', maxWidth: 420 }}>
           <div style={{ marginBottom: 36 }}>
-            <h1 style={{ fontSize: 30, fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#1A1A1A', marginBottom: 8 }}>Welcome back</h1>
-            <p style={{ fontSize: 14, color: '#777' }}>Sign in to manage your orders and designs.</p>
+            <h1 style={{ fontSize: 30, fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 700, color: '#1A1A1A', marginBottom: 8 }}>Welcome back</h1>
+            <p style={{ fontSize: 14, fontFamily: '"DM Sans", sans-serif', color: '#777' }}>Sign in to manage your orders and designs.</p>
           </div>
 
           <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
             <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#333', marginBottom: 8 }}>Email Address</label>
+              <label style={{ display: 'block', fontSize: 13, fontFamily: '"DM Sans", sans-serif', fontWeight: 600, color: '#333', marginBottom: 8 }}>Email Address</label>
               <div style={{ position: 'relative' }}>
                 <Mail size={17} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#aaa' }} />
                 <input
                   type="email" value={email} onChange={e => setEmail(e.target.value)}
                   placeholder="you@company.com" required
-                  style={{ width: '100%', paddingLeft: 44, paddingRight: 16, paddingTop: 12, paddingBottom: 12, background: '#fff', border: '1.5px solid #E0DBD3', borderRadius: 10, fontSize: 14, color: '#1A1A1A', outline: 'none', transition: 'border-color 0.15s', boxSizing: 'border-box' }}
+                  style={{ width: '100%', paddingLeft: 44, paddingRight: 16, paddingTop: 12, paddingBottom: 12, background: '#fff', border: '1.5px solid #E0DBD3', borderRadius: 10, fontSize: 14, fontFamily: '"DM Sans", sans-serif', color: '#1A1A1A', outline: 'none', transition: 'border-color 0.15s', boxSizing: 'border-box' }}
                   onFocus={e => e.target.style.borderColor = G} onBlur={e => e.target.style.borderColor = '#E0DBD3'}
                 />
               </div>
@@ -124,8 +124,8 @@ export default function Login() {
 
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                <label style={{ fontSize: 13, fontWeight: 600, color: '#333' }}>Password</label>
-                <Link to="/forgot-password" style={{ fontSize: 12, fontWeight: 600, color: G, textDecoration: 'none' }}
+                <label style={{ fontSize: 13, fontFamily: '"DM Sans", sans-serif', fontWeight: 600, color: '#333' }}>Password</label>
+                <Link to="/forgot-password" style={{ fontSize: 12, fontFamily: '"DM Sans", sans-serif', fontWeight: 600, color: G, textDecoration: 'none' }}
                   onMouseEnter={e => e.target.style.color = ACCENT} onMouseLeave={e => e.target.style.color = G}>Forgot?</Link>
               </div>
               <div style={{ position: 'relative' }}>
@@ -133,7 +133,7 @@ export default function Login() {
                 <input
                   type={showPassword ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)}
                   placeholder="••••••••" required
-                  style={{ width: '100%', paddingLeft: 44, paddingRight: 48, paddingTop: 12, paddingBottom: 12, background: '#fff', border: '1.5px solid #E0DBD3', borderRadius: 10, fontSize: 14, color: '#1A1A1A', outline: 'none', transition: 'border-color 0.15s', boxSizing: 'border-box' }}
+                  style={{ width: '100%', paddingLeft: 44, paddingRight: 48, paddingTop: 12, paddingBottom: 12, background: '#fff', border: '1.5px solid #E0DBD3', borderRadius: 10, fontSize: 14, fontFamily: '"DM Sans", sans-serif', color: '#1A1A1A', outline: 'none', transition: 'border-color 0.15s', boxSizing: 'border-box' }}
                   onFocus={e => e.target.style.borderColor = G} onBlur={e => e.target.style.borderColor = '#E0DBD3'}
                 />
                 <button type="button" onClick={() => setShowPassword(!showPassword)}
@@ -144,7 +144,7 @@ export default function Login() {
             </div>
 
             <button type="submit" disabled={isSubmitting}
-              style={{ padding: '14px', background: G, color: '#fff', border: 'none', borderRadius: 10, fontWeight: 700, fontSize: 15, cursor: isSubmitting ? 'not-allowed' : 'pointer', opacity: isSubmitting ? 0.7 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: 'background 0.15s' }}
+              style={{ padding: '14px', background: G, color: '#fff', border: 'none', borderRadius: 10, fontWeight: 700, fontSize: 15, fontFamily: '"DM Sans", sans-serif', cursor: isSubmitting ? 'not-allowed' : 'pointer', opacity: isSubmitting ? 0.7 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: 'background 0.15s' }}
               onMouseEnter={e => { if (!isSubmitting) e.currentTarget.style.background = ACCENT; }}
               onMouseLeave={e => e.currentTarget.style.background = G}>
               {isSubmitting ? 'Signing in...' : <><span>Sign In</span> <ArrowRight size={16} /></>}
@@ -153,7 +153,7 @@ export default function Login() {
 
           <div style={{ margin: '28px 0', display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{ flex: 1, height: 1, background: '#E0DBD3' }} />
-            <span style={{ fontSize: 12, color: '#aaa', fontWeight: 500 }}>or continue with</span>
+            <span style={{ fontSize: 12, fontFamily: '"DM Sans", sans-serif', color: '#aaa', fontWeight: 500 }}>or continue with</span>
             <div style={{ flex: 1, height: 1, background: '#E0DBD3' }} />
           </div>
 
@@ -168,7 +168,7 @@ export default function Login() {
             />
           </div>
 
-          <p style={{ marginTop: 28, textAlign: 'center', fontSize: 13, color: '#888' }}>
+          <p style={{ marginTop: 28, textAlign: 'center', fontSize: 13, fontFamily: '"DM Sans", sans-serif', color: '#888' }}>
             Don't have an account?{' '}
             <Link to="/register" style={{ fontWeight: 700, color: G, textDecoration: 'none' }}
               onMouseEnter={e => e.target.style.color = ACCENT} onMouseLeave={e => e.target.style.color = G}>Create one free</Link>

@@ -19,8 +19,8 @@ app.use(cors({
     // Allow no-origin requests (curl/mobile), any localhost port, CLIENT_URL, Vercel domains, and custom domain
     if (!origin || /^http:\/\/localhost(:\d+)?$/.test(origin) ||
         origin === process.env.CLIENT_URL ||
-        /\.vercel\.app$/.test(origin) ||
-        /^https:\/\/(www\.)?designcustombox\.com$/.test(origin)) {
+        origin.includes('.vercel.app') ||
+        origin.includes('designcustombox.com')) {
       return callback(null, true);
     }
     callback(new Error('Not allowed by CORS'));

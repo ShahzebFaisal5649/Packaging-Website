@@ -1,12 +1,11 @@
-import { useEffect, useState, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowRight, Package, Truck, Star, TrendingUp, ShieldCheck, Leaf, Zap,
   Clock, Award, CheckCircle, ChevronRight, Box, Layers, Cpu, Recycle,
   Play, Users, BarChart3, Sparkles, RefreshCw, MessageCircle, ChevronLeft,
 } from 'lucide-react';
-import AOS from 'aos';
-import 'aos/dist/aos.css';
 
 import Hero from '../components/Hero';
 import TrendingProducts from '../components/TrendingProducts';
@@ -16,41 +15,12 @@ const G = '#1A4D2E';
 const ACCENT = '#C8860A';
 const BG = '#F5F2ED';
 
-// ── Animated counter hook ────────────────────────────────────────────────────
-function useCountUp(target, duration = 1800, start = false) {
-  const [val, setVal] = useState(0);
-  useEffect(() => {
-    if (!start) return;
-    let startTime = null;
-    const step = (ts) => {
-      if (!startTime) startTime = ts;
-      const progress = Math.min((ts - startTime) / duration, 1);
-      setVal(Math.floor(progress * target));
-      if (progress < 1) requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
-  }, [start, target, duration]);
-  return val;
-}
-
-function StatNumber({ value, suffix = '', duration = 1800 }) {
-  const ref = useRef(null);
-  const [started, setStarted] = useState(false);
-  const count = useCountUp(value, duration, started);
-  useEffect(() => {
-    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setStarted(true); }, { threshold: 0.5 });
-    if (ref.current) obs.observe(ref.current);
-    return () => obs.disconnect();
-  }, []);
-  return <span ref={ref}>{count.toLocaleString()}{suffix}</span>;
-}
-
 // ── Data ─────────────────────────────────────────────────────────────────────
 const STATS = [
-  { number: 500, suffix: 'K+', label: 'Boxes Delivered', icon: <Package size={22} color={ACCENT} /> },
-  { number: 10000, suffix: '+', label: 'Happy Brands', icon: <Award size={22} color={ACCENT} /> },
-  { number: 8, suffix: ' Days', label: 'Avg. Turnaround', icon: <Clock size={22} color={ACCENT} /> },
-  { number: 99, suffix: '%', label: 'Satisfaction Rate', icon: <Star size={22} color={ACCENT} strokeWidth={1.5} /> },
+  { number: '500K+', label: 'Boxes Delivered', icon: <Package size={24} color={ACCENT} /> },
+  { number: '10,000+', label: 'Happy Brands', icon: <Award size={24} color={ACCENT} /> },
+  { number: '8 Days', label: 'Avg. Turnaround', icon: <Clock size={24} color={ACCENT} /> },
+  { number: '99%', label: 'Satisfaction Rate', icon: <Star size={24} color={ACCENT} strokeWidth={1.5} /> },
 ];
 
 const MATERIALS = [
@@ -102,60 +72,16 @@ const FINISHES = [
 ];
 
 const STEPS = [
-  {
-    step: '01', title: 'Select Your Box',
-    desc: 'Choose from 50+ box styles, materials, and sizes in our full catalog.',
-    img: 'https://images.unsplash.com/photo-1553531384-cc64ac80f931?w=600&q=80',
-    time: '2 minutes',
-  },
-  {
-    step: '02', title: 'Customize Design',
-    desc: 'Use our live 3D configurator or collaborate with our design team.',
-    img: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=600&q=80',
-    time: '5 minutes',
-  },
-  {
-    step: '03', title: 'Review & Approve',
-    desc: 'Get a digital 3D proof or request a physical sample before we print.',
-    img: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=600&q=80',
-    time: '24 hours',
-  },
-  {
-    step: '04', title: 'Production & Delivery',
-    desc: 'We manufacture and ship directly to your door in 8 to 10 business days.',
-    img: 'https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=600&q=80',
-    time: '8 to 10 days',
-  },
+  { step: '01', title: 'Select Your Box', desc: 'Choose from 50+ box styles, materials, and sizes in our full catalog.', img: 'https://images.unsplash.com/photo-1553531384-cc64ac80f931?w=600&q=80', time: '2 minutes' },
+  { step: '02', title: 'Customize Design', desc: 'Use our live 3D configurator or collaborate with our design team.', img: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=600&q=80', time: '5 minutes' },
+  { step: '03', title: 'Review & Approve', desc: 'Get a digital 3D proof or request a physical sample before we print.', img: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=600&q=80', time: '24 hours' },
+  { step: '04', title: 'Production & Delivery', desc: 'We manufacture and ship directly to your door in 8 to 10 business days.', img: 'https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=600&q=80', time: '8 to 10 days' },
 ];
 
 const TESTIMONIALS = [
-  {
-    name: 'Sarah Mitchell',
-    role: 'Founder, Lumière Beauty',
-    company: 'Lumière Beauty',
-    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80',
-    quote: 'Design Custom Box delivered our skincare boxes in 7 days with flawless matte finish, zero defects. Our customers love the unboxing experience.',
-    rating: 5,
-    metric: '3× increase in repeat purchases',
-  },
-  {
-    name: 'James Kowalski',
-    role: 'Ops Manager, TechShip Inc.',
-    company: 'TechShip Inc.',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80',
-    quote: 'Scaled from 2,000 to 80,000 units in six months. Design Custom Box handled every order on time with consistent quality across all batches.',
-    rating: 5,
-    metric: '40× volume scale in 6 months',
-  },
-  {
-    name: 'Priya Sharma',
-    role: 'Brand Director, GreenLeaf Organics',
-    company: 'GreenLeaf Organics',
-    avatar: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=100&q=80',
-    quote: 'The FSC-certified kraft boxes are exactly on-brand for us. Eco-friendly packaging that looks amazing on retail shelves.',
-    rating: 5,
-    metric: '28% reduction in packaging cost',
-  },
+  { name: 'Sarah Mitchell', role: 'Founder, Lumière Beauty', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80', quote: 'Design Custom Box delivered our skincare boxes in 7 days with flawless matte finish, zero defects. Our customers love the unboxing experience.', rating: 5, metric: '3× increase in repeat purchases' },
+  { name: 'James Kowalski', role: 'Ops Manager, TechShip Inc.', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80', quote: 'Scaled from 2,000 to 80,000 units in six months. Design Custom Box handled every order on time with consistent quality across all batches.', rating: 5, metric: '40× volume scale in 6 months' },
+  { name: 'Priya Sharma', role: 'Brand Director, GreenLeaf Organics', avatar: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=100&q=80', quote: 'The FSC-certified kraft boxes are exactly on-brand for us. Eco-friendly packaging that looks amazing on retail shelves.', rating: 5, metric: '28% reduction in packaging cost' },
 ];
 
 const INSP_GALLERY = [
@@ -182,10 +108,6 @@ export default function Home() {
   const [testimonialIdx, setTestimonialIdx] = useState(0);
   const [showVideoModal, setShowVideoModal] = useState(false);
 
-  useEffect(() => {
-    AOS.init({ duration: 700, once: true, easing: 'ease-out-cubic' });
-  }, []);
-
   // Auto-rotate testimonials
   useEffect(() => {
     const t = setInterval(() => setTestimonialIdx(i => (i + 1) % TESTIMONIALS.length), 5000);
@@ -193,446 +115,353 @@ export default function Home() {
   }, []);
 
   return (
-    <div style={{ backgroundColor: BG }}>
+    <div style={{ backgroundColor: BG, overflowX: 'hidden' }}>
 
-      {/* ── 1. Hero ─────────────────────────────────────────────────────────── */}
+      {/* 1. Hero */}
       <Hero />
 
-      {/* ── 2. Stats Bar ────────────────────────────────────────────────────── */}
-      <section style={{ backgroundColor: G }}>
+      {/* 2. Stats Bar */}
+      <section style={{ backgroundColor: '#fff', borderBottom: '1px solid #E8E4DC', position: 'relative', zIndex: 10 }}>
         <div style={{ maxWidth: 1400, margin: '0 auto', padding: '0 24px' }}>
-          <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
             {STATS.map((s, i) => (
-              <div key={i} data-aos="fade-up" data-aos-delay={i * 70}
-                style={{
-                  padding: '36px 24px', textAlign: 'center',
-                  borderRight: i < STATS.length - 1 ? '1px solid rgba(255,255,255,0.1)' : 'none',
-                }}>
-                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 12 }}>{s.icon}</div>
-                <div style={{ fontSize: 34, fontWeight: 900, color: '#fff', fontFamily: 'Outfit,sans-serif', lineHeight: 1 }}>
-                  <StatNumber value={s.number} suffix={s.suffix} />
-                </div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', marginTop: 8, textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 700 }}>{s.label}</div>
-              </div>
+              <motion.div 
+                key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-50px' }} transition={{ delay: i * 0.1, duration: 0.6 }}
+                style={{ padding: '48px 24px', textAlign: 'center', borderRight: i < 3 ? '1px solid #F0EDE8' : 'none' }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>{s.icon}</div>
+                <div style={{ fontSize: 36, fontWeight: 700, color: G, fontFamily: '"Playfair Display", Georgia, serif', lineHeight: 1, marginBottom: 8 }}>{s.number}</div>
+                <div style={{ fontSize: 12, fontFamily: '"DM Mono", monospace', color: '#888', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600 }}>{s.label}</div>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── 3. Trending Products ─────────────────────────────────────────────── */}
+      {/* 3. Trending Products */}
       <TrendingProducts />
 
-      {/* ── 4. Materials — Interactive Showcase ─────────────────────────────── */}
-      <section style={{ padding: '100px 24px', backgroundColor: '#fff' }}>
+      {/* 4. Materials — Interactive Showcase */}
+      <section style={{ padding: '120px 24px', backgroundColor: '#fff' }}>
         <div style={{ maxWidth: 1300, margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: 56 }} data-aos="fade-up">
-            <span style={{ fontSize: 11, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.14em', display: 'block', marginBottom: 12 }}>Built to Spec</span>
-            <h2 style={{ fontSize: 'clamp(28px,3.5vw,44px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#1A1A1A', marginBottom: 14 }}>Premium Materials &amp; Finishes</h2>
-            <p style={{ fontSize: 16, color: '#666', maxWidth: 520, margin: '0 auto', lineHeight: 1.7 }}>
-              Four core substrates, each optimised for different industries and price points.
+          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} style={{ textAlign: 'center', marginBottom: 64 }}>
+            <span style={{ fontSize: 12, fontWeight: 600, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.15em', display: 'block', marginBottom: 16, fontFamily: '"DM Mono", monospace' }}>Built to Spec</span>
+            <h2 style={{ fontSize: 'clamp(32px, 4vw, 48px)', fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 700, color: '#1A1A1A', marginBottom: 16 }}>Premium Materials &amp; Finishes</h2>
+            <p style={{ fontSize: 18, fontFamily: '"DM Sans", sans-serif', color: '#666', maxWidth: 540, margin: '0 auto', lineHeight: 1.7 }}>
+              Four core substrates, each engineered for distinct industries, durability requirements, and price points.
             </p>
-          </div>
+          </motion.div>
 
           {/* Material Tabs */}
-          <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginBottom: 36, flexWrap: 'wrap' }} data-aos="fade-up">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} style={{ display: 'flex', gap: 12, justifyContent: 'center', marginBottom: 48, flexWrap: 'wrap' }}>
             {MATERIALS.map((m, i) => (
               <button key={i} onClick={() => setActiveMaterial(i)}
                 style={{
-                  padding: '10px 22px', borderRadius: 100, border: `2px solid ${activeMaterial === i ? G : '#E8E4DC'}`,
+                  position: 'relative', padding: '12px 28px', borderRadius: 100, border: `1px solid ${activeMaterial === i ? G : '#E8E4DC'}`,
                   background: activeMaterial === i ? G : '#fff', color: activeMaterial === i ? '#fff' : '#555',
-                  fontWeight: 700, fontSize: 13, cursor: 'pointer', transition: 'all 0.2s', fontFamily: 'Outfit,sans-serif',
+                  fontWeight: 700, fontSize: 14, cursor: 'pointer', transition: 'all 0.2s', fontFamily: '"DM Sans", sans-serif',
                 }}>
                 {m.name}
               </button>
             ))}
-          </div>
+          </motion.div>
 
           {/* Active Material Showcase */}
-          <div data-aos="fade-up" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0, borderRadius: 20, overflow: 'hidden', border: '1px solid #E8E4DC', boxShadow: '0 20px 60px rgba(0,0,0,0.08)' }} className="material-showcase">
-            <div style={{ overflow: 'hidden', minHeight: 380 }}>
-              <img
-                key={activeMaterial}
-                src={MATERIALS[activeMaterial].img}
-                alt={MATERIALS[activeMaterial].name}
-                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'opacity 0.4s', animation: 'fadeIn 0.4s ease' }}
-                onError={e => { e.target.src = 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=800&q=80'; }}
-              />
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.6 }} 
+            style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', borderRadius: 24, overflow: 'hidden', border: '1px solid #E8E4DC', boxShadow: '0 32px 64px rgba(26,77,46,0.06)' }} className="material-showcase">
+            <div style={{ overflow: 'hidden', position: 'relative' }}>
+              <AnimatePresence mode="wait">
+                <motion.img
+                  key={activeMaterial}
+                  initial={{ opacity: 0, scale: 1.05 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}
+                  src={MATERIALS[activeMaterial].img} alt={MATERIALS[activeMaterial].name}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', minHeight: 400 }}
+                />
+              </AnimatePresence>
             </div>
-            <div style={{ padding: '52px 48px', display: 'flex', flexDirection: 'column', justifyContent: 'center', background: BG }}>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', background: `${MATERIALS[activeMaterial].badgeColor}22`, color: MATERIALS[activeMaterial].badgeColor, borderRadius: 8, fontSize: 11, fontWeight: 700, textTransform: 'none', letterSpacing: '0.04em', marginBottom: 20, width: 'fit-content' }}>
-                {MATERIALS[activeMaterial].badge}
-              </span>
-              <h3 style={{ fontSize: 32, fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#1A1A1A', marginBottom: 16 }}>{MATERIALS[activeMaterial].name}</h3>
-              <p style={{ fontSize: 16, color: '#666', lineHeight: 1.75, marginBottom: 28 }}>{MATERIALS[activeMaterial].desc}</p>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 28, padding: '14px 20px', background: '#fff', borderRadius: 10, border: `1px solid ${G}20` }}>
-                <CheckCircle size={18} color={G} />
-                <span style={{ fontSize: 14, fontWeight: 600, color: G }}>{MATERIALS[activeMaterial].highlight}</span>
-              </div>
-              <div style={{ marginBottom: 36 }}>
-                <p style={{ fontSize: 11, fontWeight: 700, color: '#6B6B6B', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 12 }}>Industries covered</p>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
-                  {MATERIALS[activeMaterial].usedFor.map(u => (
-                    <span key={u} style={{ fontSize: 10, fontWeight: 700, padding: '4px 10px', borderRadius: 6, background: '#fff', color: G, border: `1px solid ${G}15`, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{u}</span>
-                  ))}
-                </div>
-              </div>
-              <Link to="/custom-box" state={{ material: MATERIALS[activeMaterial].name }}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '14px 28px', background: G, color: '#fff', borderRadius: 10, fontWeight: 700, fontSize: 14, textDecoration: 'none', width: 'fit-content', transition: 'background 0.15s' }}
-                onMouseEnter={e => e.currentTarget.style.background = ACCENT}
-                onMouseLeave={e => e.currentTarget.style.background = G}>
-                Configure with {MATERIALS[activeMaterial].name} <ArrowRight size={16} />
-              </Link>
+            
+            <div style={{ padding: '64px', display: 'flex', flexDirection: 'column', justifyContent: 'center', background: BG }}>
+              <AnimatePresence mode="wait">
+                <motion.div key={activeMaterial} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.4 }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', padding: '6px 14px', background: `${MATERIALS[activeMaterial].badgeColor}15`, color: MATERIALS[activeMaterial].badgeColor, borderRadius: 100, fontSize: 11, fontFamily: '"DM Mono", monospace', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 24 }}>
+                    {MATERIALS[activeMaterial].badge}
+                  </span>
+                  <h3 style={{ fontSize: 36, fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 700, color: '#1A1A1A', marginBottom: 16 }}>{MATERIALS[activeMaterial].name}</h3>
+                  <p style={{ fontSize: 16, fontFamily: '"DM Sans", sans-serif', color: '#666', lineHeight: 1.7, marginBottom: 32 }}>{MATERIALS[activeMaterial].desc}</p>
+                  
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 32, padding: '16px 24px', background: '#fff', borderRadius: 12, border: `1px solid #E8E4DC` }}>
+                    <CheckCircle size={20} color={G} />
+                    <span style={{ fontSize: 15, fontFamily: '"DM Sans", sans-serif', fontWeight: 700, color: G }}>{MATERIALS[activeMaterial].highlight}</span>
+                  </div>
+                  
+                  <div style={{ marginBottom: 40 }}>
+                    <p style={{ fontSize: 11, fontFamily: '"DM Mono", monospace', fontWeight: 600, color: '#888', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 12 }}>Industries covered</p>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+                      {MATERIALS[activeMaterial].usedFor.map(u => (
+                        <span key={u} style={{ fontSize: 12, fontFamily: '"DM Sans", sans-serif', fontWeight: 600, padding: '6px 14px', borderRadius: 8, background: '#fff', color: G, border: `1px solid #E8E4DC` }}>{u}</span>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <Link to="/custom-box" state={{ material: MATERIALS[activeMaterial].name }}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '16px 32px', background: G, color: '#fff', borderRadius: 12, fontWeight: 700, fontSize: 15, fontFamily: '"DM Sans", sans-serif', textDecoration: 'none', transition: 'all 0.3s' }}
+                    onMouseEnter={e => { e.currentTarget.style.background = ACCENT; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = G; e.currentTarget.style.transform = 'none'; }}>
+                    Configure with {MATERIALS[activeMaterial].name} <ArrowRight size={16} />
+                  </Link>
+                </motion.div>
+              </AnimatePresence>
             </div>
-          </div>
+          </motion.div>
 
           {/* Finishes Strip */}
-          <div style={{ background: BG, borderRadius: 16, border: '1px solid #E8E4DC', padding: '36px 40px', marginTop: 24 }} data-aos="fade-up">
-            <p style={{ fontSize: 11, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 28, textAlign: 'center' }}>Available Finishes</p>
-            <div className="finishes-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gap: 16 }}>
+          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} style={{ background: '#fff', borderRadius: 24, border: '1px solid #E8E4DC', padding: '48px', marginTop: 40, boxShadow: '0 20px 40px rgba(0,0,0,0.02)' }}>
+            <p style={{ fontSize: 12, fontFamily: '"DM Mono", monospace', fontWeight: 600, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 32, textAlign: 'center' }}>Available Finishes</p>
+            <div className="finishes-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gap: 20 }}>
               {FINISHES.map((f, i) => (
-                <div key={i}
-                  style={{ textAlign: 'center', padding: '18px 12px', borderRadius: 12, background: '#fff', border: '1px solid #E8E4DC', cursor: 'default', transition: 'transform 0.2s, box-shadow 0.2s' }}
-                  onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.08)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'none'; }}>
-                  <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 10, width: 48, height: 48, borderRadius: '50%', background: f.color, alignItems: 'center', margin: '0 auto 12px' }}>{f.icon}</div>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#1A1A1A', marginBottom: 5, fontFamily: 'Outfit,sans-serif' }}>{f.name}</div>
-                  <div style={{ fontSize: 11, color: '#888', lineHeight: 1.4 }}>{f.desc}</div>
-                </div>
+                <motion.div key={i} whileHover={{ y: -6, boxShadow: '0 12px 24px rgba(0,0,0,0.06)' }}
+                  style={{ textAlign: 'center', padding: '24px 16px', borderRadius: 16, background: BG, border: '1px solid #E8E4DC', cursor: 'pointer', transition: 'all 0.3s' }}>
+                  <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16, width: 56, height: 56, borderRadius: '50%', background: f.color, alignItems: 'center', margin: '0 auto 16px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>{f.icon}</div>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: G, marginBottom: 8, fontFamily: '"Playfair Display", serif' }}>{f.name}</div>
+                  <div style={{ fontSize: 13, fontFamily: '"DM Sans", sans-serif', color: '#6B6B6B', lineHeight: 1.5 }}>{f.desc}</div>
+                </motion.div>
               ))}
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* ── 5. Why Design Custom Box ─────────────────────────────────────────── */}
-      <section style={{ padding: '100px 24px', backgroundColor: BG }}>
+      {/* 5. Why Design Custom Box */}
+      <section style={{ padding: '120px 24px', backgroundColor: BG }}>
         <div style={{ maxWidth: 1300, margin: '0 auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'center' }} className="why-grid">
-            <div data-aos="fade-right">
-              <span style={{ fontSize: 11, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.14em', display: 'block', marginBottom: 16 }}>The Design Custom Box Difference</span>
-              <h2 style={{ fontSize: 'clamp(28px,3.5vw,44px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#1A1A1A', lineHeight: 1.15, marginBottom: 20 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: 80, alignItems: 'center' }} className="why-grid">
+            <motion.div initial={{ opacity: 0, x: -40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }}>
+              <span style={{ fontSize: 12, fontFamily: '"DM Mono", monospace', fontWeight: 600, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.15em', display: 'block', marginBottom: 16 }}>The Difference</span>
+              <h2 style={{ fontSize: 'clamp(32px, 4vw, 48px)', fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 700, color: G, lineHeight: 1.15, marginBottom: 24 }}>
                 Why 10,000+ brands choose us
               </h2>
-              <p style={{ fontSize: 16, color: '#666', lineHeight: 1.8, marginBottom: 36 }}>
-                From startup brands to enterprise operations, Design Custom Box delivers custom packaging with the speed, quality, and service that modern businesses demand.
+              <p style={{ fontSize: 17, fontFamily: '"DM Sans", sans-serif', color: '#666', lineHeight: 1.7, marginBottom: 40 }}>
+                From ambitious startups to enterprise operations, we deliver custom packaging with the speed, precision, and service that modern businesses demand.
               </p>
-              <div style={{ display: 'flex', gap: 16, marginBottom: 40 }}>
-                <div style={{ padding: '20px 24px', background: '#fff', borderRadius: 14, border: `2px solid ${G}20`, flex: 1, textAlign: 'center' }}>
-                  <div style={{ fontSize: 28, fontWeight: 900, color: G, fontFamily: 'Outfit,sans-serif' }}>100</div>
-                  <div style={{ fontSize: 11, color: '#888', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700, marginTop: 4 }}>Min. Order</div>
-                </div>
-                <div style={{ padding: '20px 24px', background: '#fff', borderRadius: 14, border: `2px solid ${ACCENT}20`, flex: 1, textAlign: 'center' }}>
-                  <div style={{ fontSize: 28, fontWeight: 900, color: ACCENT, fontFamily: 'Outfit,sans-serif' }}>Free</div>
-                  <div style={{ fontSize: 11, color: '#888', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700, marginTop: 4 }}>Design Help</div>
-                </div>
-                <div style={{ padding: '20px 24px', background: '#fff', borderRadius: 14, border: `2px solid ${G}20`, flex: 1, textAlign: 'center' }}>
-                  <div style={{ fontSize: 28, fontWeight: 900, color: G, fontFamily: 'Outfit,sans-serif' }}>8</div>
-                  <div style={{ fontSize: 11, color: '#888', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700, marginTop: 4 }}>Days Ship</div>
-                </div>
-              </div>
-              <Link to="/about"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 28px', background: G, color: '#fff', borderRadius: 10, fontWeight: 700, fontSize: 14, textDecoration: 'none', transition: 'background 0.15s' }}
-                onMouseEnter={e => e.currentTarget.style.background = ACCENT}
-                onMouseLeave={e => e.currentTarget.style.background = G}>
-                Learn Our Story <ArrowRight size={16} />
-              </Link>
-            </div>
-
-            <div data-aos="fade-left">
-              <div className="features-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 16 }}>
-                {FEATURES.map((f, i) => (
-                  <div key={i}
-                    style={{ padding: '24px', background: '#fff', borderRadius: 14, border: '1px solid #E8E4DC', transition: 'transform 0.2s, box-shadow 0.2s' }}
-                    onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 12px 32px rgba(0,0,0,0.08)'; }}
-                    onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'none'; }}>
-                    <div style={{ marginBottom: 12 }}>{f.icon}</div>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: '#1A1A1A', fontFamily: 'Outfit,sans-serif', marginBottom: 6 }}>{f.title}</div>
-                    <div style={{ fontSize: 12, color: '#777', lineHeight: 1.6 }}>{f.desc}</div>
+              <div style={{ display: 'flex', gap: 16, marginBottom: 48 }}>
+                {[
+                  { value: '100', label: 'Min. Order', color: G },
+                  { value: 'Free', label: 'Design Help', color: ACCENT },
+                  { value: '8', label: 'Days Ship', color: G }
+                ].map((item, i) => (
+                  <div key={i} style={{ padding: '24px', background: '#fff', borderRadius: 16, border: `1px solid #E8E4DC`, flex: 1, textAlign: 'center', boxShadow: '0 12px 24px rgba(0,0,0,0.02)' }}>
+                    <div style={{ fontSize: 32, fontWeight: 700, color: item.color, fontFamily: '"Playfair Display", serif', lineHeight: 1, marginBottom: 8 }}>{item.value}</div>
+                    <div style={{ fontSize: 11, fontFamily: '"DM Mono", monospace', color: '#888', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600 }}>{item.label}</div>
                   </div>
                 ))}
               </div>
-            </div>
+              <Link to="/about"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '16px 36px', background: G, color: '#fff', borderRadius: 12, fontWeight: 700, fontSize: 15, fontFamily: '"DM Sans", sans-serif', textDecoration: 'none', transition: 'all 0.3s' }}
+                onMouseEnter={e => { e.currentTarget.style.background = ACCENT; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = G; e.currentTarget.style.transform = 'none'; }}>
+                Learn Our Story <ArrowRight size={16} />
+              </Link>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, x: 40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, staggerChildren: 0.1 }}>
+              <div className="features-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 20 }}>
+                {FEATURES.map((f, i) => (
+                  <motion.div key={i} whileHover={{ y: -6, boxShadow: '0 20px 40px rgba(0,0,0,0.05)' }}
+                    style={{ padding: '32px 24px', background: '#fff', borderRadius: 16, border: '1px solid #E8E4DC', transition: 'all 0.3s' }}>
+                    <div style={{ marginBottom: 20, width: 48, height: 48, borderRadius: 12, backgroundColor: BG, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{f.icon}</div>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: G, fontFamily: '"Playfair Display", serif', marginBottom: 10 }}>{f.title}</div>
+                    <div style={{ fontSize: 14, fontFamily: '"DM Sans", sans-serif', color: '#6B6B6B', lineHeight: 1.6 }}>{f.desc}</div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>
 
-      {/* ── 6. Industries ────────────────────────────────────────────────────── */}
+      {/* 6. Industries */}
       <EmpoweringBrands />
 
-      {/* ── 7. How It Works ──────────────────────────────────────────────────── */}
-      <section style={{ padding: '100px 24px', backgroundColor: '#fff' }}>
+      {/* 7. How It Works */}
+      <section style={{ padding: '120px 24px', backgroundColor: '#fff' }}>
         <div style={{ maxWidth: 1300, margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: 64 }} data-aos="fade-up">
-            <span style={{ fontSize: 11, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.14em', display: 'block', marginBottom: 12 }}>Simple Process</span>
-            <h2 style={{ fontSize: 'clamp(28px,3.5vw,44px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#1A1A1A', marginBottom: 14 }}>From Idea to Doorstep</h2>
-            <p style={{ fontSize: 16, color: '#666', maxWidth: 480, margin: '0 auto', lineHeight: 1.7 }}>
+          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} style={{ textAlign: 'center', marginBottom: 80 }}>
+            <span style={{ fontSize: 12, fontFamily: '"DM Mono", monospace', fontWeight: 600, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.15em', display: 'block', marginBottom: 16 }}>Simple Process</span>
+            <h2 style={{ fontSize: 'clamp(32px, 4vw, 48px)', fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 700, color: G, marginBottom: 16 }}>From Idea to Doorstep</h2>
+            <p style={{ fontSize: 18, fontFamily: '"DM Sans", sans-serif', color: '#666', maxWidth: 540, margin: '0 auto', lineHeight: 1.7 }}>
               Four simple steps to get professional custom packaging delivered to you.
             </p>
-          </div>
+          </motion.div>
 
           <div className="steps-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 24, position: 'relative' }}>
-            <div style={{ position: 'absolute', top: 52, left: '12%', right: '12%', height: 2, background: `linear-gradient(90deg, transparent, ${ACCENT}50, ${ACCENT}, ${ACCENT}50, transparent)` }} className="step-line" />
+            <div style={{ position: 'absolute', top: 52, left: '12%', right: '12%', height: 2, background: `linear-gradient(90deg, transparent, ${ACCENT}50, ${ACCENT}, ${ACCENT}50, transparent)` }} className="step-line hidden md:block" />
+            
             {STEPS.map((s, idx) => (
-              <div key={idx} data-aos="fade-up" data-aos-delay={idx * 110}
-                style={{ background: '#fff', borderRadius: 18, overflow: 'hidden', border: '1px solid #E8E4DC', position: 'relative', zIndex: 1, transition: 'box-shadow 0.25s, transform 0.25s', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}
-                onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 20px 48px rgba(0,0,0,0.12)'; e.currentTarget.style.transform = 'translateY(-8px)'; }}
-                onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)'; e.currentTarget.style.transform = 'none'; }}>
-                <div style={{ height: 150, overflow: 'hidden', position: 'relative' }}>
-                  <img src={s.img} alt={s.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.5s' }}
-                    onMouseEnter={e => e.target.style.transform = 'scale(1.07)'} onMouseLeave={e => e.target.style.transform = 'scale(1)'}
-                    onError={e => { e.target.src = 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=600&q=80'; }} />
-                  <div style={{ position: 'absolute', top: 12, left: 12, width: 40, height: 40, borderRadius: '50%', background: ACCENT, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 800, fontFamily: 'Outfit,sans-serif', boxShadow: '0 4px 12px rgba(200,134,10,0.4)' }}>{s.step}</div>
-                  <div style={{ position: 'absolute', bottom: 10, right: 10, padding: '4px 10px', background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(4px)', borderRadius: 100, fontSize: 10, fontWeight: 700, color: '#fff' }}>{s.time}</div>
+              <motion.div key={idx} initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.15, duration: 0.6 }}
+                whileHover={{ y: -10, boxShadow: '0 24px 48px rgba(0,0,0,0.08)' }}
+                style={{ background: BG, borderRadius: 20, overflow: 'hidden', border: '1px solid #E8E4DC', position: 'relative', zIndex: 1, transition: 'all 0.3s ease' }}>
+                <div style={{ height: 180, overflow: 'hidden', position: 'relative' }}>
+                  <img src={s.img} alt={s.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                  <div style={{ position: 'absolute', top: 16, left: 16, width: 44, height: 44, borderRadius: '50%', background: ACCENT, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 600, fontFamily: '"DM Mono", monospace', boxShadow: '0 4px 16px rgba(200,134,10,0.4)' }}>{s.step}</div>
+                  <div style={{ position: 'absolute', bottom: 12, right: 12, padding: '6px 14px', background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)', borderRadius: 100, fontSize: 11, fontFamily: '"DM Mono", monospace', fontWeight: 600, color: '#fff', letterSpacing: '0.05em' }}>{s.time}</div>
                 </div>
-                <div style={{ padding: '22px 24px 28px' }}>
-                  <h3 style={{ fontSize: 16, fontWeight: 800, color: '#1A1A1A', marginBottom: 10, fontFamily: 'Outfit,sans-serif' }}>{s.title}</h3>
-                  <p style={{ fontSize: 13, color: '#777', lineHeight: 1.65, textAlign: 'left' }}>{s.desc}</p>
+                <div style={{ padding: '32px 24px' }}>
+                  <h3 style={{ fontSize: 20, fontWeight: 700, color: G, marginBottom: 12, fontFamily: '"Playfair Display", serif' }}>{s.title}</h3>
+                  <p style={{ fontSize: 15, fontFamily: '"DM Sans", sans-serif', color: '#6B6B6B', lineHeight: 1.6 }}>{s.desc}</p>
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
-
-          <div style={{ textAlign: 'center', marginTop: 52 }} data-aos="fade-up">
-            <Link to="/custom-box"
-              style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '16px 36px', background: G, color: '#fff', borderRadius: 10, fontWeight: 700, textDecoration: 'none', fontSize: 15, fontFamily: 'Outfit,sans-serif', transition: 'background 0.15s, transform 0.15s' }}
-              onMouseEnter={e => { e.currentTarget.style.background = ACCENT; e.currentTarget.style.transform = 'scale(1.03)'; }}
-              onMouseLeave={e => { e.currentTarget.style.background = G; e.currentTarget.style.transform = 'scale(1)'; }}>
-              Start Designing Free <ArrowRight size={16} />
-            </Link>
           </div>
         </div>
       </section>
 
-      {/* ── 8. Testimonials — Slider ─────────────────────────────────────────── */}
-      <section style={{ padding: '100px 24px', background: `linear-gradient(135deg, ${G} 0%, #0D3520 100%)`, position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(255,255,255,0.025) 1px, transparent 1px)', backgroundSize: '32px 32px', pointerEvents: 'none' }} />
-        <div style={{ maxWidth: 1100, margin: '0 auto', position: 'relative' }}>
-          <div style={{ textAlign: 'center', marginBottom: 64 }} data-aos="fade-up">
-            <span style={{ fontSize: 11, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.14em', display: 'block', marginBottom: 12 }}>Client Stories</span>
-            <h2 style={{ fontSize: 'clamp(28px,3.5vw,44px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#fff' }}>What Our Clients Say</h2>
+      {/* 8. Testimonials */}
+      <section style={{ padding: '120px 24px', background: G, position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(200,134,10,0.15) 2px, transparent 2px)', backgroundSize: '40px 40px', pointerEvents: 'none' }} />
+        <div style={{ maxWidth: 1100, margin: '0 auto', position: 'relative', zIndex: 1 }}>
+          <div style={{ textAlign: 'center', marginBottom: 80 }}>
+            <span style={{ fontSize: 12, fontFamily: '"DM Mono", monospace', fontWeight: 600, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.15em', display: 'block', marginBottom: 16 }}>Client Stories</span>
+            <h2 style={{ fontSize: 'clamp(32px, 4vw, 48px)', fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 700, color: '#fff' }}>What Our Clients Say</h2>
           </div>
 
-          {/* Featured testimonial */}
-          <div style={{ position: 'relative', minHeight: 280 }}>
-            {TESTIMONIALS.map((t, i) => (
-              <div key={i}
-                style={{
-                  position: i === 0 ? 'relative' : 'absolute', top: 0, left: 0, right: 0,
-                  opacity: testimonialIdx === i ? 1 : 0,
-                  transform: testimonialIdx === i ? 'translateY(0)' : 'translateY(20px)',
-                  transition: 'opacity 0.5s ease, transform 0.5s ease',
-                  pointerEvents: testimonialIdx === i ? 'auto' : 'none',
-                }}>
-                <div style={{ background: 'rgba(255,255,255,0.07)', borderRadius: 20, padding: '44px 52px', border: '1px solid rgba(255,255,255,0.1)', display: 'grid', gridTemplateColumns: '1fr auto', gap: 40, alignItems: 'center' }} className="testimonial-inner">
-                  <div>
-                    <div style={{ display: 'flex', gap: 4, marginBottom: 20 }}>
-                      {Array.from({ length: t.rating }).map((_, si) => (
-                        <Star key={si} size={16} style={{ color: ACCENT, fill: ACCENT }} />
-                      ))}
-                    </div>
-                    <p style={{ fontSize: 20, color: 'rgba(255,255,255,0.92)', lineHeight: 1.7, marginBottom: 28, fontStyle: 'italic', fontFamily: 'Outfit,sans-serif' }}>"{t.quote}"</p>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                      <img src={t.avatar} alt={t.name}
-                        style={{ width: 54, height: 54, borderRadius: '50%', objectFit: 'cover', border: `2px solid ${ACCENT}` }}
-                        onError={e => { e.target.style.display = 'none'; }} />
-                      <div>
-                        <div style={{ fontSize: 16, fontWeight: 700, color: '#fff', fontFamily: 'Outfit,sans-serif' }}>{t.name}</div>
-                        <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginTop: 3 }}>{t.role}</div>
-                      </div>
-                    </div>
+          <div style={{ position: 'relative', minHeight: 320 }}>
+            <AnimatePresence mode="wait">
+              <motion.div key={testimonialIdx} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.5 }}
+                style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(10px)', borderRadius: 24, padding: '56px', border: '1px solid rgba(255,255,255,0.1)', display: 'grid', gridTemplateColumns: '1fr auto', gap: 60, alignItems: 'center' }} className="testimonial-inner">
+                <div>
+                  <div style={{ display: 'flex', gap: 4, marginBottom: 24 }}>
+                    {[...Array(5)].map((_, i) => <Star key={i} size={18} style={{ color: ACCENT, fill: ACCENT }} />)}
                   </div>
-                  <div style={{ textAlign: 'center', background: 'rgba(200,134,10,0.15)', borderRadius: 14, padding: '28px 32px', border: `1px solid ${ACCENT}30`, minWidth: 160 }} className="metric-box">
-                    <TrendingUp size={28} color={ACCENT} style={{ marginBottom: 12 }} />
-                    <p style={{ fontSize: 12, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.08em', lineHeight: 1.5 }}>{t.metric}</p>
+                  <p style={{ fontSize: 'clamp(20px, 2.5vw, 26px)', color: '#fff', lineHeight: 1.6, marginBottom: 32, fontStyle: 'italic', fontFamily: '"Playfair Display", Georgia, serif' }}>"{TESTIMONIALS[testimonialIdx].quote}"</p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                    <img src={TESTIMONIALS[testimonialIdx].avatar} alt={TESTIMONIALS[testimonialIdx].name} style={{ width: 64, height: 64, borderRadius: '50%', objectFit: 'cover', border: `2px solid ${ACCENT}` }} />
+                    <div>
+                      <div style={{ fontSize: 18, fontWeight: 700, color: '#fff', fontFamily: '"Playfair Display", serif', marginBottom: 4 }}>{TESTIMONIALS[testimonialIdx].name}</div>
+                      <div style={{ fontSize: 13, fontFamily: '"DM Mono", monospace', color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{TESTIMONIALS[testimonialIdx].role}</div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+                <div style={{ textAlign: 'center', background: 'rgba(200,134,10,0.1)', borderRadius: 20, padding: '40px', border: `1px solid rgba(200,134,10,0.3)`, minWidth: 200 }} className="metric-box">
+                  <TrendingUp size={36} color={ACCENT} style={{ marginBottom: 16, marginInline: 'auto' }} />
+                  <p style={{ fontSize: 14, fontFamily: '"DM Sans", sans-serif', fontWeight: 700, color: ACCENT, lineHeight: 1.5 }}>{TESTIMONIALS[testimonialIdx].metric}</p>
+                </div>
+              </motion.div>
+            </AnimatePresence>
           </div>
 
-          {/* Dots + Nav */}
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 16, marginTop: 40 }}>
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 20, marginTop: 48 }}>
             <button onClick={() => setTestimonialIdx(i => (i - 1 + TESTIMONIALS.length) % TESTIMONIALS.length)}
-              style={{ width: 40, height: 40, borderRadius: '50%', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', transition: 'background 0.15s' }}
-              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
-              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-              <ChevronLeft size={18} />
+              style={{ width: 48, height: 48, borderRadius: '50%', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', transition: 'all 0.2s' }}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+              <ChevronLeft size={20} />
             </button>
-            <div style={{ display: 'flex', gap: 8 }}>
+            <div style={{ display: 'flex', gap: 10 }}>
               {TESTIMONIALS.map((_, i) => (
-                <button key={i} onClick={() => setTestimonialIdx(i)}
-                  style={{ width: testimonialIdx === i ? 24 : 8, height: 8, borderRadius: 100, border: 'none', background: testimonialIdx === i ? ACCENT : 'rgba(255,255,255,0.3)', cursor: 'pointer', transition: 'all 0.3s' }} />
+                <button key={i} onClick={() => setTestimonialIdx(i)} style={{ width: testimonialIdx === i ? 32 : 10, height: 10, borderRadius: 100, border: 'none', background: testimonialIdx === i ? ACCENT : 'rgba(255,255,255,0.3)', cursor: 'pointer', transition: 'all 0.3s' }} />
               ))}
             </div>
             <button onClick={() => setTestimonialIdx(i => (i + 1) % TESTIMONIALS.length)}
-              style={{ width: 40, height: 40, borderRadius: '50%', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', transition: 'background 0.15s' }}
-              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
-              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-              <ChevronRight size={18} />
+              style={{ width: 48, height: 48, borderRadius: '50%', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', transition: 'all 0.2s' }}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+              <ChevronRight size={20} />
             </button>
           </div>
         </div>
       </section>
 
-      {/* ── 9. Inspiration Gallery ───────────────────────────────────────────── */}
-      <section style={{ padding: '100px 24px', backgroundColor: '#fff' }}>
+      {/* 9. Inspiration Gallery */}
+      <section style={{ padding: '120px 24px', backgroundColor: BG }}>
         <div style={{ maxWidth: 1300, margin: '0 auto' }}>
-          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 40, gap: 16 }} data-aos="fade-up">
-            <div>
-              <span style={{ fontSize: 11, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.14em', display: 'block', marginBottom: 10 }}>Packaging in the Wild</span>
-              <h2 style={{ fontSize: 'clamp(26px,3vw,40px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#1A1A1A', marginBottom: 8 }}>Packaging Inspiration</h2>
-              <p style={{ fontSize: 14, color: '#777', maxWidth: 420 }}>Real work from our customers around the world collected every week.</p>
-            </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 56, gap: 24 }}>
+            <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
+              <span style={{ fontSize: 12, fontFamily: '"DM Mono", monospace', fontWeight: 600, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.15em', display: 'block', marginBottom: 12 }}>Packaging in the Wild</span>
+              <h2 style={{ fontSize: 'clamp(32px, 4vw, 48px)', fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 700, color: G, marginBottom: 12 }}>Packaging Inspiration</h2>
+              <p style={{ fontSize: 16, fontFamily: '"DM Sans", sans-serif', color: '#6B6B6B', maxWidth: 480 }}>Real work from our customers around the world collected every week.</p>
+            </motion.div>
             <Link to="/success-stories"
-              style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: G, textDecoration: 'none', transition: 'color 0.15s' }}
+              style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 15, fontFamily: '"DM Sans", sans-serif', fontWeight: 700, color: G, textDecoration: 'none', transition: 'color 0.2s' }}
               onMouseEnter={e => e.currentTarget.style.color = ACCENT} onMouseLeave={e => e.currentTarget.style.color = G}>
-              View All <ChevronRight size={16} />
+              View All <ChevronRight size={18} />
             </Link>
           </div>
 
-          <div className="gallery-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16 }}>
-            {/* Large featured image */}
-            <div style={{ gridRow: 'span 2', borderRadius: 16, overflow: 'hidden', cursor: 'pointer', position: 'relative', minHeight: 340 }}
-              data-aos="zoom-in"
-              onMouseEnter={e => { e.currentTarget.querySelector('img').style.transform = 'scale(1.06)'; e.currentTarget.querySelector('.overlay').style.opacity = '1'; }}
-              onMouseLeave={e => { e.currentTarget.querySelector('img').style.transform = 'scale(1)'; e.currentTarget.querySelector('.overlay').style.opacity = '0'; }}>
-              <img src={INSP_GALLERY[0].img} alt={INSP_GALLERY[0].label} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.6s ease' }}
-                onError={e => { e.target.src = 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=600&q=80'; }} />
-              <div className="overlay" style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%)', opacity: 0, transition: 'opacity 0.3s', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: 24 }}>
-                <span style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: ACCENT, marginBottom: 6 }}>{INSP_GALLERY[0].tag}</span>
-                <span style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>{INSP_GALLERY[0].label}</span>
-              </div>
-            </div>
-            {INSP_GALLERY.slice(1).map((item, i) => (
-              <div key={i} style={{ borderRadius: 16, overflow: 'hidden', cursor: 'pointer', position: 'relative', aspectRatio: '4/3' }}
-                data-aos="zoom-in" data-aos-delay={(i + 1) * 70}
-                onMouseEnter={e => { e.currentTarget.querySelector('img').style.transform = 'scale(1.06)'; e.currentTarget.querySelector('.overlay').style.opacity = '1'; }}
-                onMouseLeave={e => { e.currentTarget.querySelector('img').style.transform = 'scale(1)'; e.currentTarget.querySelector('.overlay').style.opacity = '0'; }}>
-                <img src={item.img} alt={item.label} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.6s ease' }}
-                  onError={e => { e.target.src = 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=600&q=80'; }} />
-                <div className="overlay" style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 60%)', opacity: 0, transition: 'opacity 0.3s', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: 18 }}>
-                  <span style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: ACCENT, marginBottom: 4 }}>{item.tag}</span>
-                  <span style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>{item.label}</span>
+          <div className="gallery-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 20 }}>
+            {INSP_GALLERY.map((item, i) => (
+              <motion.div key={i} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1, duration: 0.6 }}
+                style={{ gridRow: i === 0 ? 'span 2' : 'span 1', borderRadius: 20, overflow: 'hidden', cursor: 'pointer', position: 'relative', minHeight: i === 0 ? 400 : 250 }}
+                className="group">
+                <img src={item.img} alt={item.label} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)' }} className="group-hover:scale-105" />
+                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 50%)', opacity: 0, transition: 'opacity 0.3s' }} className="group-hover:opacity-100" />
+                <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: 24, transform: 'translateY(10px)', opacity: 0, transition: 'all 0.3s' }} className="group-hover:opacity-100 group-hover:translate-y-0">
+                  <span style={{ fontSize: 10, fontFamily: '"DM Mono", monospace', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', color: ACCENT, marginBottom: 8, display: 'block' }}>{item.tag}</span>
+                  <span style={{ fontSize: 20, fontFamily: '"Playfair Display", serif', fontWeight: 700, color: '#fff' }}>{item.label}</span>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── 10. Get a Quick Quote CTA Strip ────────────────────────────────────── */}
-      <section style={{ padding: '60px 24px', backgroundColor: BG, borderTop: '1px solid #E8E4DC' }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', flexWrap: 'wrap', gap: 24, alignItems: 'center', justifyContent: 'space-between' }} data-aos="fade-up">
+      {/* 10. Quick Quote CTA Strip */}
+      <section style={{ padding: '80px 24px', backgroundColor: '#fff', borderTop: '1px solid #E8E4DC', borderBottom: '1px solid #E8E4DC' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', flexWrap: 'wrap', gap: 32, alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
-            <h3 style={{ fontSize: 24, fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#1A1A1A', marginBottom: 6 }}>Need a quote in under 2 minutes?</h3>
-            <p style={{ fontSize: 14, color: '#777' }}>Use our online configurator for instant pricing and no email required.</p>
+            <h3 style={{ fontSize: 28, fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 700, color: G, marginBottom: 10 }}>Need a quote in under 2 minutes?</h3>
+            <p style={{ fontSize: 16, fontFamily: '"DM Sans", sans-serif', color: '#6B6B6B' }}>Use our online configurator for instant pricing and no email required.</p>
           </div>
-          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
-            <Link to="/custom-box"
-              style={{ padding: '14px 32px', background: G, color: '#fff', borderRadius: 10, fontWeight: 700, fontSize: 14, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8, transition: 'background 0.15s' }}
-              onMouseEnter={e => e.currentTarget.style.background = ACCENT}
-              onMouseLeave={e => e.currentTarget.style.background = G}>
-              <RefreshCw size={16} /> Get Instant Quote
+          <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+            <Link to="/custom-box" style={{ padding: '16px 36px', background: G, color: '#fff', borderRadius: 12, fontWeight: 700, fontSize: 15, fontFamily: '"DM Sans", sans-serif', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 10, transition: 'all 0.3s' }}
+              onMouseEnter={e => { e.currentTarget.style.background = ACCENT; e.currentTarget.style.transform = 'translateY(-2px)'; }} onMouseLeave={e => { e.currentTarget.style.background = G; e.currentTarget.style.transform = 'none'; }}>
+              <RefreshCw size={18} /> Get Instant Quote
             </Link>
-            <Link to="/contact-us"
-              style={{ padding: '14px 28px', background: 'transparent', border: `2px solid ${G}`, color: G, borderRadius: 10, fontWeight: 700, fontSize: 14, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8, transition: 'all 0.15s' }}
-              onMouseEnter={e => { e.currentTarget.style.background = G; e.currentTarget.style.color = '#fff'; }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = G; }}>
-              <MessageCircle size={16} /> Talk to an Expert
+            <Link to="/contact-us" style={{ padding: '16px 36px', background: 'transparent', border: `1.5px solid ${G}`, color: G, borderRadius: 12, fontWeight: 700, fontSize: 15, fontFamily: '"DM Sans", sans-serif', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 10, transition: 'all 0.3s' }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(26,77,46,0.05)'; e.currentTarget.style.transform = 'translateY(-2px)'; }} onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.transform = 'none'; }}>
+              <MessageCircle size={18} /> Talk to an Expert
             </Link>
           </div>
         </div>
       </section>
 
-      {/* ── 11. Trust Strip ─────────────────────────────────────────────────── */}
-      <section style={{ padding: '32px 24px', backgroundColor: '#fff', borderTop: '1px solid #E8E4DC', borderBottom: '1px solid #E8E4DC' }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '16px 44px', alignItems: 'center' }}>
-            {[
-              { icon: <ShieldCheck size={17} color={G} />, label: '100% Quality Guarantee' },
-              { icon: <Leaf size={17} color="#2E7D32" />, label: 'FSC-Certified Materials' },
-              { icon: <Truck size={17} color={ACCENT} />, label: 'Free Shipping on 500+' },
-              { icon: <Zap size={17} color={ACCENT} />, label: '8–10 Day Turnaround' },
-              { icon: <Recycle size={17} color="#2E7D32" />, label: '100% Recyclable Options' },
-              { icon: <CheckCircle size={17} color={G} />, label: 'Free Digital Proof' },
-            ].map((b, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                {b.icon}
-                <span style={{ fontSize: 13, fontWeight: 600, color: '#3A3A3A' }}>{b.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── 12. Final CTA ────────────────────────────────────────────────────── */}
-      <section style={{ padding: '110px 24px', background: `linear-gradient(135deg, ${G} 0%, #0F2E1A 100%)`, position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(200,134,10,0.06) 1.5px, transparent 1.5px)', backgroundSize: '28px 28px', pointerEvents: 'none' }} />
-        {/* Floating decorative shapes */}
-        <div style={{ position: 'absolute', top: '15%', left: '8%', width: 200, height: 200, borderRadius: '50%', border: `1px solid rgba(200,134,10,0.1)`, pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', bottom: '10%', right: '6%', width: 140, height: 140, borderRadius: '50%', border: `1px solid rgba(255,255,255,0.06)`, pointerEvents: 'none' }} />
-
-        <div style={{ maxWidth: 760, margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 1 }} data-aos="fade-up">
-          <span style={{ fontSize: 11, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.14em', display: 'block', marginBottom: 16 }}>Get Started Today</span>
-          <h2 style={{ fontSize: 'clamp(30px,4vw,52px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#fff', marginBottom: 20, lineHeight: 1.12 }}>
+      {/* 11. Final CTA */}
+      <section style={{ padding: '140px 24px', background: `linear-gradient(135deg, ${G} 0%, #0F2E1A 100%)`, position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(200,134,10,0.1) 2px, transparent 2px)', backgroundSize: '32px 32px' }} />
+        
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.8 }}
+          style={{ maxWidth: 800, margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 1 }}>
+          <span style={{ fontSize: 12, fontFamily: '"DM Mono", monospace', fontWeight: 600, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.15em', display: 'block', marginBottom: 20 }}>Get Started Today</span>
+          <h2 style={{ fontSize: 'clamp(36px, 5vw, 64px)', fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 700, color: '#fff', marginBottom: 24, lineHeight: 1.1 }}>
             Ready to elevate your packaging?
           </h2>
-          <p style={{ fontSize: 17, color: 'rgba(255,255,255,0.62)', marginBottom: 44, maxWidth: 500, margin: '0 auto 44px', lineHeight: 1.75 }}>
-            Join 10,000+ brands who trust Design Custom Box for consistent quality, fast delivery, and packaging that sells.
+          <p style={{ fontSize: 18, fontFamily: '"DM Sans", sans-serif', color: 'rgba(255,255,255,0.7)', marginBottom: 48, maxWidth: 600, margin: '0 auto 48px', lineHeight: 1.7 }}>
+            Join 10,000+ brands who trust Design Custom Box for premium quality, fast delivery, and packaging that sells.
           </p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: 14 }}>
-            <Link to="/custom-box"
-              style={{ padding: '17px 40px', background: ACCENT, color: '#fff', fontWeight: 700, fontSize: 15, borderRadius: 10, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 10, transition: 'filter 0.15s, transform 0.15s', boxShadow: '0 8px 24px rgba(200,134,10,0.35)' }}
-              onMouseEnter={e => { e.currentTarget.style.filter = 'brightness(1.12)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-              onMouseLeave={e => { e.currentTarget.style.filter = 'none'; e.currentTarget.style.transform = 'none'; }}>
-              Request a Quote <ArrowRight size={16} />
-            </Link>
-            <Link to="/contact-us"
-              style={{ padding: '17px 36px', background: 'transparent', border: '1.5px solid rgba(255,255,255,0.3)', color: '#fff', fontWeight: 700, fontSize: 15, borderRadius: 10, textDecoration: 'none', transition: 'background 0.15s, border-color 0.15s' }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.6)'; }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)'; }}>
-              Contact Sales
+          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
+            <Link to="/custom-box" style={{ padding: '18px 48px', background: ACCENT, color: '#fff', fontWeight: 700, fontSize: 16, fontFamily: '"DM Sans", sans-serif', borderRadius: 12, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 12, transition: 'all 0.3s', boxShadow: '0 12px 24px rgba(200,134,10,0.3)' }}
+              onMouseEnter={e => { e.currentTarget.style.filter = 'brightness(1.1)'; e.currentTarget.style.transform = 'translateY(-2px)'; }} onMouseLeave={e => { e.currentTarget.style.filter = 'none'; e.currentTarget.style.transform = 'none'; }}>
+              Request a Quote <ArrowRight size={18} />
             </Link>
           </div>
-          <div style={{ display: 'flex', gap: 32, justifyContent: 'center', marginTop: 44, flexWrap: 'wrap' }}>
-            {[<><CheckCircle size={14} /> No minimum commitment</>, <><CheckCircle size={14} /> Free design review</>, <><CheckCircle size={14} /> Ship in 8 days</>].map((item, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'rgba(255,255,255,0.55)', fontWeight: 600 }}>{item}</div>
-            ))}
-          </div>
-        </div>
+        </motion.div>
       </section>
 
-      {/* Video Modal */}
-      {showVideoModal && (
-        <div onClick={() => setShowVideoModal(false)}
-          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ background: '#000', borderRadius: 12, overflow: 'hidden', width: 'min(90vw, 800px)', aspectRatio: '16/9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ color: '#fff', textAlign: 'center' }}>
-              <Play size={48} style={{ marginBottom: 16, color: ACCENT }} />
-              <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)' }}>Click anywhere to close</p>
-            </div>
-          </div>
-        </div>
-      )}
-
       <style>{`
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .group:hover .group-hover\\:scale-105 { transform: scale(1.05); }
+        .group:hover .group-hover\\:opacity-100 { opacity: 1; }
+        .group:hover .group-hover\\:translate-y-0 { transform: translateY(0); }
+        
         @media (max-width: 1024px) {
           .why-grid { grid-template-columns: 1fr !important; gap: 48px !important; }
           .material-showcase { grid-template-columns: 1fr !important; }
           .gallery-grid { grid-template-columns: repeat(2,1fr) !important; }
         }
         @media (max-width: 900px) {
-          .stats-grid { grid-template-columns: repeat(2,1fr) !important; }
           .finishes-grid { grid-template-columns: repeat(3,1fr) !important; }
           .steps-grid { grid-template-columns: repeat(2,1fr) !important; }
-          .step-line { display: none !important; }
           .testimonial-inner { grid-template-columns: 1fr !important; }
           .metric-box { display: none !important; }
           .features-grid { grid-template-columns: 1fr !important; }
         }
         @media (max-width: 600px) {
-          .stats-grid { grid-template-columns: repeat(2,1fr) !important; }
           .finishes-grid { grid-template-columns: repeat(2,1fr) !important; }
           .steps-grid { grid-template-columns: 1fr !important; }
           .gallery-grid { grid-template-columns: 1fr !important; }

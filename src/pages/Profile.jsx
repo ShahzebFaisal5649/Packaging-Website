@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import { User, Package, FileText, Layout, MapPin, Settings, LogOut, Camera, Plus, Trash2, Edit, X, ExternalLink, Copy, Menu, ChevronLeft } from 'lucide-react';
+import { User, Package, FileText, Layout, MapPin, Settings, LogOut, Camera, Plus, Trash2, Edit, X, ExternalLink, Copy, Menu, ChevronLeft, Lock } from 'lucide-react';
 import api from '../services/api';
 
 const G = '#1A4D2E';
@@ -30,7 +30,7 @@ function Modal({ onClose, title, children }) {
       <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 9000 }} onClick={onClose} />
       <div style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', backgroundColor: '#fff', borderRadius: 16, padding: 32, width: 'min(90vw,560px)', zIndex: 9001, maxHeight: '85vh', overflowY: 'auto' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-          <h3 style={{ fontSize: 18, fontFamily: 'Outfit,sans-serif', fontWeight: 700, color: '#1A1A1A' }}>{title}</h3>
+          <h3 style={{ fontSize: 18, fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 700, color: '#1A1A1A' }}>{title}</h3>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B6B6B' }}><X size={20} /></button>
         </div>
         {children}
@@ -67,7 +67,7 @@ function OverviewTab({ user, setTab, updateUser, showToast }) {
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 }}>
-        <h2 style={{ fontSize: 22, fontFamily: 'Outfit,sans-serif', fontWeight: 700, color: '#1A1A1A' }}>Account Overview</h2>
+        <h2 style={{ fontSize: 22, fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 700, color: '#1A1A1A' }}>Account Overview</h2>
         <button onClick={() => setEditOpen(true)} style={{ padding: '8px 18px', border: `1.5px solid #D0CAC0`, borderRadius: 8, background: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: '#1A1A1A', display: 'flex', alignItems: 'center', gap: 6 }}>
           <Edit size={14} /> Edit Profile
         </button>
@@ -77,7 +77,7 @@ function OverviewTab({ user, setTab, updateUser, showToast }) {
         {stats.map((s, i) => (
           <div key={i} style={{ backgroundColor: BG, borderRadius: 12, padding: '18px 16px', border: '1px solid #E2DDD6' }}>
             <p style={{ fontSize: 11, fontWeight: 700, color: '#6B6B6B', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>{s.label}</p>
-            <p style={{ fontSize: 28, fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#1A1A1A' }}>{s.value}</p>
+            <p style={{ fontSize: 28, fontFamily: '"DM Mono", monospace', fontWeight: 500, color: '#1A1A1A' }}>{s.value}</p>
           </div>
         ))}
       </div>
@@ -86,7 +86,7 @@ function OverviewTab({ user, setTab, updateUser, showToast }) {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 12 }}>
           <div>
             <p style={{ fontSize: 11, fontWeight: 700, color: '#6B6B6B', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>Loyalty Tier</p>
-            <h3 style={{ fontSize: 20, fontFamily: 'Outfit,sans-serif', fontWeight: 700, color: ACCENT }}>{tier} Member</h3>
+            <h3 style={{ fontSize: 20, fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 700, color: ACCENT }}>{tier} Member</h3>
           </div>
           <span style={{ fontSize: 13, fontWeight: 700, color: '#1A1A1A' }}>{loyaltyPoints} pts</span>
         </div>
@@ -130,6 +130,7 @@ function OverviewTab({ user, setTab, updateUser, showToast }) {
 // --- ORDERS TAB ---
 function OrdersTab({ orders }) {
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const displayOrders = orders?.length ? orders.map(o => ({
     ...o,
     id: o.orderId || o.id,
@@ -138,15 +139,41 @@ function OrdersTab({ orders }) {
     qty: o.items ? o.items.reduce((acc, item) => acc + (item.quantity || item.qty || 1), 0) : o.qty,
   })) : [];
 
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
     <div>
-      <h2 style={{ fontSize: 22, fontFamily: 'Outfit,sans-serif', fontWeight: 700, color: '#1A1A1A', marginBottom: 24 }}>My Orders</h2>
+      <h2 style={{ fontSize: 22, fontFamily: '"Playfair Display", serif', fontWeight: 700, color: '#1A1A1A', marginBottom: 24 }}>My Orders</h2>
       {displayOrders.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '48px', backgroundColor: BG, borderRadius: 12, border: '1px dashed #D0CAC0' }}>
           <Package size={48} style={{ color: '#D0CAC0', margin: '0 auto 12px' }} />
           <p style={{ color: '#6B6B6B' }}>No orders found. Place your first order to get started!</p>
         </div>
+      ) : isMobile ? (
+        /* ── Mobile Card Layout ── */
+        <div style={{ display: 'grid', gap: 16 }}>
+          {displayOrders.map((o, i) => (
+            <div key={i} style={{ backgroundColor: '#fff', borderRadius: 12, padding: 16, border: '1px solid #E2DDD6' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                <p style={{ fontSize: 14, fontWeight: 700, color: G }}>{o.id}</p>
+                <Badge status={o.status} />
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 13 }}>
+                <p><strong>Product:</strong> {o.product}</p>
+                <p><strong>Qty:</strong> {o.qty}</p>
+                <p><strong>Date:</strong> {o.date}</p>
+                <p><strong>Total:</strong> ${(+o.total).toFixed(2)}</p>
+              </div>
+              <button onClick={() => setSelectedOrder(o)} style={{ marginTop: 12, fontSize: 12, fontWeight: 700, color: G, background: 'none', border: `1px solid ${G}`, cursor: 'pointer', padding: '6px 12px', borderRadius: 6 }}>View Details</button>
+            </div>
+          ))}
+        </div>
       ) : (
+        /* ── Desktop Table Layout ── */
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
@@ -233,7 +260,7 @@ function QuotesTab({ quotes }) {
 
   return (
     <div>
-      <h2 style={{ fontSize: 22, fontFamily: 'Outfit,sans-serif', fontWeight: 700, color: '#1A1A1A', marginBottom: 24 }}>My Quotes</h2>
+      <h2 style={{ fontSize: 22, fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 700, color: '#1A1A1A', marginBottom: 24 }}>My Quotes</h2>
       {displayQuotes.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '48px', backgroundColor: BG, borderRadius: 12, border: '1px dashed #D0CAC0' }}>
           <FileText size={48} style={{ color: '#D0CAC0', margin: '0 auto 12px' }} />
@@ -351,7 +378,7 @@ function DesignsTab({ designs, saveDesign, deleteDesign, showToast, navigate }) 
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-        <h2 style={{ fontSize: 22, fontFamily: 'Outfit,sans-serif', fontWeight: 700, color: '#1A1A1A' }}>Saved Designs</h2>
+        <h2 style={{ fontSize: 22, fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 700, color: '#1A1A1A' }}>Saved Designs</h2>
         <button onClick={() => navigate('/custom-box')} style={{ padding: '9px 18px', backgroundColor: G, color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
           <Plus size={15} /> Start New Design
         </button>
@@ -483,7 +510,7 @@ function AddressesTab({ addresses, addAddress, updateAddress, deleteAddress, sho
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-        <h2 style={{ fontSize: 22, fontFamily: 'Outfit,sans-serif', fontWeight: 700, color: '#1A1A1A' }}>Saved Addresses</h2>
+        <h2 style={{ fontSize: 22, fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 700, color: '#1A1A1A' }}>Saved Addresses</h2>
         <button onClick={() => { setShowForm(true); setEditId(null); setForm(EMPTY_ADDR); setErrors({}); }} style={{ padding: '9px 18px', backgroundColor: G, color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
           <Plus size={15} /> Add Address
         </button>
@@ -524,7 +551,7 @@ function AddressesTab({ addresses, addAddress, updateAddress, deleteAddress, sho
 
       {showForm && (
         <div style={{ backgroundColor: BG, borderRadius: 12, padding: '24px', border: '1px solid #E2DDD6' }}>
-          <h3 style={{ fontFamily: 'Outfit,sans-serif', fontWeight: 700, fontSize: 16, color: '#1A1A1A', marginBottom: 16 }}>{editId ? 'Edit Address' : 'New Address'}</h3>
+          <h3 style={{ fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 700, fontSize: 16, color: '#1A1A1A', marginBottom: 16 }}>{editId ? 'Edit Address' : 'New Address'}</h3>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
             {[
               { key: 'label', label: 'Label', placeholder: 'Home, Work, etc.' },
@@ -572,11 +599,17 @@ function SettingsTab({ user, updateUser, showToast, logout }) {
   const [pwd, setPwd] = useState({ current: '', newPwd: '', confirm: '' });
   const [pwdErr, setPwdErr] = useState('');
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-  const [notifs, setNotifs] = useState(() => ({
-    orders: user?.notifications?.orders ?? true,
-    quotes: user?.notifications?.quotes ?? true,
-    designs: user?.notifications?.designs ?? false,
-  }));
+  const [notifs, setNotifs] = useState(() => {
+    try {
+      return {
+        orders: user?.notifications?.orders ?? true,
+        quotes: user?.notifications?.quotes ?? true,
+        designs: user?.notifications?.designs ?? false,
+      };
+    } catch {
+      return { orders: true, quotes: true, designs: false };
+    }
+  });
 
   const handleSaveInfo = async () => {
     await updateUser(info);
@@ -615,43 +648,45 @@ function SettingsTab({ user, updateUser, showToast, logout }) {
     navigate('/');
   };
 
-  const inp = { width: '100%', padding: '10px 12px', border: '1.5px solid #D0CAC0', borderRadius: 8, fontSize: 14, outline: 'none', boxSizing: 'border-box', fontFamily: 'Inter,sans-serif', backgroundColor: BG };
+  const inp = { width: '100%', padding: '10px 12px', border: '1.5px solid #D0CAC0', borderRadius: 8, fontSize: 14, fontFamily: '"DM Sans", sans-serif', outline: 'none', boxSizing: 'border-box', backgroundColor: BG };
   const section = { backgroundColor: '#fff', borderRadius: 12, padding: '24px', marginBottom: 20, border: '1px solid #E2DDD6' };
+
+  if (!user) return <div style={{ padding: 24, fontFamily: '"DM Sans", sans-serif' }}>Loading settings...</div>;
 
   return (
     <div style={{ maxWidth: 560 }}>
-      <h2 style={{ fontSize: 22, fontFamily: 'Outfit,sans-serif', fontWeight: 700, color: '#1A1A1A', marginBottom: 24 }}>Account Settings</h2>
+      <h2 style={{ fontSize: 22, fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 700, color: '#1A1A1A', marginBottom: 24 }}>Account Settings</h2>
 
       <div style={section}>
-        <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1A1A1A', marginBottom: 16, paddingBottom: 10, borderBottom: '1px solid #F0EDE8' }}>Personal Information</h3>
+        <h3 style={{ fontSize: 15, fontFamily: '"DM Sans", sans-serif', fontWeight: 700, color: '#1A1A1A', marginBottom: 16, paddingBottom: 10, borderBottom: '1px solid #F0EDE8' }}>Personal Information</h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <div>
-            <label style={{ fontSize: 12, fontWeight: 700, color: '#6B6B6B', display: 'block', marginBottom: 6 }}>Full Name</label>
+            <label style={{ fontSize: 12, fontFamily: '"DM Sans", sans-serif', fontWeight: 700, color: '#6B6B6B', display: 'block', marginBottom: 6 }}>Full Name</label>
             <input style={inp} value={info.name} onChange={e => setInfo(f => ({ ...f, name: e.target.value }))} />
           </div>
           <div>
-            <label style={{ fontSize: 12, fontWeight: 700, color: '#6B6B6B', display: 'block', marginBottom: 6 }}>Email (cannot change)</label>
+            <label style={{ fontSize: 12, fontFamily: '"DM Sans", sans-serif', fontWeight: 700, color: '#6B6B6B', display: 'block', marginBottom: 6 }}>Email (cannot change)</label>
             <input style={{ ...inp, opacity: 0.6, cursor: 'not-allowed' }} value={user?.email || ''} disabled />
           </div>
           <div>
-            <label style={{ fontSize: 12, fontWeight: 700, color: '#6B6B6B', display: 'block', marginBottom: 6 }}>Phone</label>
+            <label style={{ fontSize: 12, fontFamily: '"DM Sans", sans-serif', fontWeight: 700, color: '#6B6B6B', display: 'block', marginBottom: 6 }}>Phone</label>
             <input style={inp} value={info.phone} onChange={e => setInfo(f => ({ ...f, phone: e.target.value }))} placeholder="+1 (555) 000-0000" />
           </div>
-          <button onClick={handleSaveInfo} style={{ padding: '10px 24px', backgroundColor: G, color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer', alignSelf: 'flex-start' }}>Save Changes</button>
+          <button onClick={handleSaveInfo} style={{ padding: '10px 24px', backgroundColor: G, color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontFamily: '"DM Sans", sans-serif', cursor: 'pointer', alignSelf: 'flex-start' }}>Save Changes</button>
         </div>
       </div>
 
       <div style={section}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16, paddingBottom: 10, borderBottom: '1px solid #F0EDE8' }}>
           <Lock size={18} color={G} />
-          <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1A1A1A', margin: 0 }}>Security & Password</h3>
+          <h3 style={{ fontSize: 15, fontFamily: '"DM Sans", sans-serif', fontWeight: 700, color: '#1A1A1A', margin: 0 }}>Security & Password</h3>
         </div>
         
-        <p style={{ fontSize: 13, color: '#6B6B6B', marginBottom: 20 }}>
+        <p style={{ fontSize: 13, fontFamily: '"DM Sans", sans-serif', color: '#6B6B6B', marginBottom: 20 }}>
           Manage your account security and update your password. We recommend using a unique password to protect your account.
         </p>
 
-        {pwdErr && <p style={{ fontSize: 12, color: '#DC2626', marginBottom: 16, padding: '10px 14px', backgroundColor: '#FEE2E2', borderRadius: 8, border: '1px solid #FECACA' }}>{pwdErr}</p>}
+        {pwdErr && <p style={{ fontSize: 12, fontFamily: '"DM Sans", sans-serif', color: '#DC2626', marginBottom: 16, padding: '10px 14px', backgroundColor: '#FEE2E2', borderRadius: 8, border: '1px solid #FECACA' }}>{pwdErr}</p>}
         
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           {[
@@ -660,7 +695,7 @@ function SettingsTab({ user, updateUser, showToast, logout }) {
             { key: 'confirm', label: 'Confirm New Password', field: 'confirm', placeholder: 'Repeat new password' },
           ].map(({ key, label, field, placeholder }) => (
             <div key={key}>
-              <label style={{ fontSize: 12, fontWeight: 700, color: '#6B6B6B', display: 'block', marginBottom: 6 }}>{label}</label>
+              <label style={{ fontSize: 12, fontFamily: '"DM Sans", sans-serif', fontWeight: 700, color: '#6B6B6B', display: 'block', marginBottom: 6 }}>{label}</label>
               <input 
                 type="password" 
                 style={inp} 
@@ -682,6 +717,7 @@ function SettingsTab({ user, updateUser, showToast, logout }) {
               borderRadius: 10, 
               fontWeight: 700, 
               fontSize: 14,
+              fontFamily: '"DM Sans", sans-serif',
               cursor: 'pointer', 
               alignSelf: 'flex-start',
               transition: 'all 0.2s',
@@ -696,7 +732,7 @@ function SettingsTab({ user, updateUser, showToast, logout }) {
       </div>
 
       <div style={section}>
-        <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1A1A1A', marginBottom: 16, paddingBottom: 10, borderBottom: '1px solid #F0EDE8' }}>Notifications</h3>
+        <h3 style={{ fontSize: 15, fontFamily: '"DM Sans", sans-serif', fontWeight: 700, color: '#1A1A1A', marginBottom: 16, paddingBottom: 10, borderBottom: '1px solid #F0EDE8' }}>Notifications</h3>
         {[
           { key: 'orders', label: 'Order Updates', desc: 'Get notified when your order status changes' },
           { key: 'quotes', label: 'Quote Updates', desc: 'Receive updates on your custom quotes' },
@@ -704,8 +740,8 @@ function SettingsTab({ user, updateUser, showToast, logout }) {
         ].map(({ key, label, desc }) => (
           <div key={key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid #F0EDE8' }}>
             <div>
-              <p style={{ fontSize: 14, fontWeight: 600, color: '#1A1A1A', marginBottom: 2 }}>{label}</p>
-              <p style={{ fontSize: 12, color: '#6B6B6B' }}>{desc}</p>
+              <p style={{ fontSize: 14, fontFamily: '"DM Sans", sans-serif', fontWeight: 600, color: '#1A1A1A', marginBottom: 2 }}>{label}</p>
+              <p style={{ fontSize: 12, fontFamily: '"DM Sans", sans-serif', color: '#6B6B6B' }}>{desc}</p>
             </div>
             <button onClick={() => handleToggleNotif(key)} style={{ width: 44, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer', backgroundColor: notifs[key] ? G : '#D0CAC0', position: 'relative', transition: 'background 0.2s' }}>
               <span style={{ position: 'absolute', top: 2, left: notifs[key] ? 22 : 2, width: 20, height: 20, borderRadius: '50%', backgroundColor: '#fff', transition: 'left 0.2s', boxShadow: '0 1px 4px rgba(0,0,0,0.2)' }} />
@@ -715,18 +751,18 @@ function SettingsTab({ user, updateUser, showToast, logout }) {
       </div>
 
       <div style={{ ...section, borderColor: '#FECACA' }}>
-        <h3 style={{ fontSize: 15, fontWeight: 700, color: '#DC2626', marginBottom: 8 }}>Danger Zone</h3>
-        <p style={{ fontSize: 13, color: '#6B6B6B', marginBottom: 16 }}>Once you delete your account, there is no going back. All your data will be permanently removed.</p>
-        <button onClick={handleDeleteAccount} style={{ padding: '10px 20px', border: '1.5px solid #DC2626', color: '#DC2626', backgroundColor: 'transparent', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}>Delete My Account</button>
+        <h3 style={{ fontSize: 15, fontFamily: '"DM Sans", sans-serif', fontWeight: 700, color: '#DC2626', marginBottom: 8 }}>Danger Zone</h3>
+        <p style={{ fontSize: 13, fontFamily: '"DM Sans", sans-serif', color: '#6B6B6B', marginBottom: 16 }}>Once you delete your account, there is no going back. All your data will be permanently removed.</p>
+        <button onClick={handleDeleteAccount} style={{ padding: '10px 20px', border: '1.5px solid #DC2626', color: '#DC2626', backgroundColor: 'transparent', borderRadius: 8, fontWeight: 700, fontFamily: '"DM Sans", sans-serif', cursor: 'pointer' }}>Delete My Account</button>
       </div>
 
       {deleteConfirmOpen && (
         <Modal title="Delete Account" onClose={() => setDeleteConfirmOpen(false)}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <p style={{ color: '#1A1A1A' }}>Please confirm that you want to permanently delete your account. This action cannot be undone.</p>
+            <p style={{ color: '#1A1A1A', fontFamily: '"DM Sans", sans-serif' }}>Please confirm that you want to permanently delete your account. This action cannot be undone.</p>
             <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
-              <button onClick={() => setDeleteConfirmOpen(false)} style={{ padding: '10px 18px', backgroundColor: '#F3F4F6', border: '1px solid #D0CAC0', borderRadius: 8, color: '#374151', cursor: 'pointer' }}>Cancel</button>
-              <button onClick={confirmDeleteAccount} style={{ padding: '10px 18px', backgroundColor: '#DC2626', border: 'none', borderRadius: 8, color: '#fff', cursor: 'pointer' }}>Delete Account</button>
+              <button onClick={() => setDeleteConfirmOpen(false)} style={{ padding: '10px 18px', backgroundColor: '#F3F4F6', border: '1px solid #D0CAC0', borderRadius: 8, color: '#374151', cursor: 'pointer', fontFamily: '"DM Sans", sans-serif' }}>Cancel</button>
+              <button onClick={confirmDeleteAccount} style={{ padding: '10px 18px', backgroundColor: '#DC2626', border: 'none', borderRadius: 8, color: '#fff', cursor: 'pointer', fontFamily: '"DM Sans", sans-serif' }}>Delete Account</button>
             </div>
           </div>
         </Modal>
@@ -859,7 +895,7 @@ export default function Profile() {
           )}
 
           {/* Main Content */}
-          <div style={{ flex: 1, backgroundColor: '#fff', borderRadius: 14, border: '1px solid #E2DDD6', padding: '32px', minHeight: 600 }}>
+          <div style={{ flex: 1, minWidth: 0, backgroundColor: '#fff', borderRadius: 14, border: '1px solid #E2DDD6', padding: isMobile ? '24px 16px' : '32px', minHeight: 600 }}>
             {activeTab === 'overview' && <OverviewTab user={user} setTab={setActiveTab} updateUser={updateUser} showToast={showToast} />}
             {activeTab === 'orders' && <OrdersTab orders={user?.orders} />}
             {activeTab === 'quotes' && <QuotesTab quotes={user?.quotes || []} />}

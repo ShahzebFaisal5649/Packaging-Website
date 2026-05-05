@@ -35,6 +35,9 @@ export default function Footer() {
   return (
     <footer className="w-full overflow-x-hidden" style={{ backgroundColor: '#0F2E1A', color: '#fff' }}>
 
+      {/* Gold accent line at very top */}
+      <div style={{ height: 1, background: '#C8860A' }} />
+
       {/* Newsletter strip */}
       <div className="border-b border-white/10">
         <div className="mx-auto flex w-full max-w-[1400px] flex-col items-center px-4 py-14 text-center">
@@ -80,11 +83,11 @@ export default function Footer() {
                   style={{ height: '85%', width: '85%', objectFit: 'contain', display: 'block' }}
                 />
               </div>
-              <span style={{ fontFamily: 'Outfit,sans-serif', fontWeight: 800, fontSize: 22, color: '#fff', letterSpacing: '-0.5px' }}>
+              <span style={{ fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 700, fontSize: 22, color: 'rgba(255,255,255,0.9)', letterSpacing: '-0.5px' }}>
                 DESIGN CUSTOM <span style={{ color: ACCENT }}>BOX</span>
               </span>
             </Link>
-            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)', lineHeight: 1.7, maxWidth: 280, marginBottom: 24 }}>
+            <p style={{ fontSize: 13, fontFamily: 'DM Sans, sans-serif', color: 'rgba(255,255,255,0.6)', lineHeight: 1.7, maxWidth: 280, marginBottom: 24 }}>
               Premium, industry-grade custom packaging for brands that want to stand out. Fast turnaround, exceptional quality.
             </p>
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
@@ -105,11 +108,11 @@ export default function Footer() {
 
           {/* Col 2 — Products */}
           <div>
-            <h4 style={{ fontSize: 11, fontFamily: 'Outfit,sans-serif', fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.09em', marginBottom: 20 }}>Products</h4>
+            <h4 style={{ fontSize: 11, fontFamily: 'DM Mono, monospace', fontWeight: 500, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 20 }}>Products</h4>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 14 }}>
               {['Mailer Boxes', 'Shipping Boxes', 'Product Boxes', 'Folding Cartons', 'Rigid Boxes', 'Eco-Friendly'].map(link => (
                 <li key={link}>
-                  <Link to="/products" style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)', textDecoration: 'none', transition: 'color 0.15s' }}
+                  <Link to="/products" style={{ fontSize: 14, fontFamily: 'DM Sans, sans-serif', color: 'rgba(255,255,255,0.6)', textDecoration: 'none', transition: 'color 0.15s' }}
                     onMouseEnter={e => e.target.style.color = '#fff'}
                     onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.65)'}
                   >{link}</Link>
@@ -120,11 +123,11 @@ export default function Footer() {
 
           {/* Col 3 — Industries */}
           <div>
-            <h4 style={{ fontSize: 11, fontFamily: 'Outfit,sans-serif', fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.09em', marginBottom: 20 }}>Industries</h4>
+            <h4 style={{ fontSize: 11, fontFamily: 'DM Mono, monospace', fontWeight: 500, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 20 }}>Industries</h4>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 14 }}>
               {['Food & Beverage', 'Cosmetics', 'E-commerce', 'Apparel & Retail', 'Electronics', 'Cannabis & CBD'].map(link => (
                 <li key={link}>
-                  <Link to="/industries" style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)', textDecoration: 'none', transition: 'color 0.15s' }}
+                  <Link to="/industries" style={{ fontSize: 14, fontFamily: 'DM Sans, sans-serif', color: 'rgba(255,255,255,0.6)', textDecoration: 'none', transition: 'color 0.15s' }}
                     onMouseEnter={e => e.target.style.color = '#fff'}
                     onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.65)'}
                   >{link}</Link>
@@ -135,7 +138,7 @@ export default function Footer() {
 
           {/* Col 4 — Company */}
           <div>
-            <h4 style={{ fontSize: 11, fontFamily: 'Outfit,sans-serif', fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.09em', marginBottom: 20 }}>Company</h4>
+            <h4 style={{ fontSize: 11, fontFamily: 'DM Mono, monospace', fontWeight: 500, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 20 }}>Company</h4>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 14 }}>
               {[
                 { label: 'About Us', to: '/about' },
@@ -144,7 +147,7 @@ export default function Footer() {
                 { label: 'Contact', to: '/contact-us' },
               ].map(({ label, to }) => (
                 <li key={label}>
-                  <Link to={to} style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)', textDecoration: 'none', transition: 'color 0.15s' }}
+                  <Link to={to} style={{ fontSize: 14, fontFamily: 'DM Sans, sans-serif', color: 'rgba(255,255,255,0.6)', textDecoration: 'none', transition: 'color 0.15s' }}
                     onMouseEnter={e => e.target.style.color = '#fff'}
                     onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.65)'}
                   >{label}</Link>
@@ -155,7 +158,7 @@ export default function Footer() {
 
           {/* Col 5 — Support & Contact */}
           <div>
-            <h4 style={{ fontSize: 11, fontFamily: 'Outfit,sans-serif', fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.09em', marginBottom: 20 }}>Support & Contact</h4>
+            <h4 style={{ fontSize: 11, fontFamily: 'DM Mono, monospace', fontWeight: 500, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 20 }}>Support & Contact</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
               <a href="tel:9132282682" style={{ display: 'flex', gap: 12, alignItems: 'flex-start', textDecoration: 'none', color: 'rgba(255,255,255,0.65)', fontSize: 13 }}>
                 <Phone size={16} style={{ color: ACCENT, flexShrink: 0, marginTop: 2 }} />
@@ -190,7 +193,7 @@ export default function Footer() {
       {/* Bottom bar */}
       <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', padding: '20px 24px' }}>
         <div style={{ maxWidth: 1400, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
-          <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', margin: 0 }}>
+          <p style={{ fontSize: 12, fontFamily: 'DM Mono, monospace', color: 'rgba(255,255,255,0.4)', margin: 0 }}>
             © {year} Design Custom Box. reserved by NextStac.
           </p>
           <div style={{ display: 'flex', gap: 20, fontSize: 12 }}>

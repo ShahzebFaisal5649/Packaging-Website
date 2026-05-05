@@ -16,7 +16,7 @@ export default function TrendingProducts() {
     <section className="py-20 bg-white relative overflow-hidden">
       <div className="max-w-[1400px] mx-auto px-6">
         <div className="mb-2">
-          <span className="text-[11px] font-bold text-brand-accent uppercase tracking-widest">Best Sellers</span>
+          <span className="text-[11px] font-medium font-mono text-brand-accent uppercase tracking-widest">Best Sellers</span>
         </div>
         <ProductSlider products={productsList} title="Trending Now" />
       </div>

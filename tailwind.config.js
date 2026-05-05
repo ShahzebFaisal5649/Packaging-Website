@@ -5,18 +5,20 @@ export default {
     extend: {
       colors: {
         brand: {
-          primary: '#0A2E20', // Forest Green
-          accent: '#C88A4A',  // Warm Copper/Gold
-          bg: '#FAFAFA',      // Off-white Warm Gray
-          surface: '#FFFFFF', // Pure White for cards
+          primary: '#1A4D2E',
+          accent: '#C8860A',
+          bg: '#F5F2ED',
+          surface: '#FFFFFF',
+          footer: '#0F2E1A',
           textPrimary: '#1A1A1A',
           textSecondary: '#666666',
-          success: '#8A9A8A', // Muted Sage
+          success: '#8A9A8A',
         },
       },
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
-        display: ['Outfit', 'sans-serif'],
+        display: ['"Playfair Display"', 'Georgia', 'serif'],
+        sans: ['"DM Sans"', 'system-ui', 'sans-serif'],
+        mono: ['"DM Mono"', 'ui-monospace', 'monospace'],
       },
       screens: {
         sm: '640px',
@@ -24,7 +26,6 @@ export default {
         lg: '1200px',
       },
       spacing: {
-        // Enforcing 8px grid spacing explicitly although tailwind does this by default
         'base': '8px',
         '2base': '16px',
         '3base': '24px',
@@ -35,21 +36,25 @@ export default {
         '12base': '96px',
       },
       borderRadius: {
-        'card': '8px',
-        'button': '6px',
+        'card': '16px',
+        'button': '8px',
       },
       boxShadow: {
-        'card': '0 2px 8px rgba(10, 46, 32, 0.05)',
-        'card-hover': '0 8px 24px rgba(10, 46, 32, 0.1)',
+        'card': '0 2px 4px rgba(15,46,26,0.06), 0 8px 24px rgba(15,46,26,0.08)',
+        'card-hover': '0 12px 40px rgba(15,46,26,0.14)',
         'dropdown': '0 10px 40px rgba(0, 0, 0, 0.08)',
+        'form': '0 4px 6px rgba(15,46,26,0.06), 0 20px 60px rgba(15,46,26,0.10)',
       },
       transitionProperty: {
         'card': 'transform, box-shadow, border-color',
-        'button': 'background-color, border-color, color, transform',
+        'button': 'background-color, border-color, color, transform, box-shadow',
       },
       transitionDuration: {
         'fast': '150ms',
         'smooth': '200ms',
+      },
+      transitionTimingFunction: {
+        'premium': 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
       },
     },
   },

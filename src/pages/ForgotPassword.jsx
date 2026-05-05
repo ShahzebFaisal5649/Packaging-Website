@@ -63,10 +63,10 @@ export default function ForgotPassword() {
           <div style={{ width: 48, height: 48, borderRadius: 12, backgroundColor: `${G}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
             <Lock size={24} color={G} />
           </div>
-          <h1 style={{ fontSize: 24, fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#1A1A1A', marginBottom: 8 }}>
+          <h1 style={{ fontSize: 24, fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 700, color: '#1A1A1A', marginBottom: 8 }}>
             {token ? 'Set New Password' : 'Forgot Password'}
           </h1>
-          <p style={{ fontSize: 14, color: '#6B6B6B' }}>
+          <p style={{ fontSize: 14, fontFamily: '"DM Sans", sans-serif', color: '#6B6B6B' }}>
             {token 
               ? 'Enter your new password below to regain access to your account.'
               : 'Enter your email address and we\'ll send you a link to reset your password.'}
@@ -78,8 +78,8 @@ export default function ForgotPassword() {
             <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 64, height: 64, borderRadius: '50%', backgroundColor: '#D1FAE5', marginBottom: 16 }}>
               <CheckCircle size={32} color="#059669" />
             </div>
-            <p style={{ fontSize: 15, fontWeight: 700, color: '#1A1A1A', marginBottom: 8 }}>Check your inbox</p>
-            <p style={{ fontSize: 13, color: '#6B6B6B', marginBottom: 24 }}>If an account exists for {email}, an email will be sent with further instructions.</p>
+            <p style={{ fontSize: 15, fontFamily: '"DM Sans", sans-serif', fontWeight: 700, color: '#1A1A1A', marginBottom: 8 }}>Check your inbox</p>
+            <p style={{ fontSize: 13, fontFamily: '"DM Sans", sans-serif', color: '#6B6B6B', marginBottom: 24 }}>If an account exists for {email}, an email will be sent with further instructions.</p>
             <button onClick={() => setSuccess(false)} style={{ background: 'none', border: 'none', color: G, fontSize: 13, fontWeight: 700, cursor: 'pointer', textDecoration: 'underline' }}>
               Try another email
             </button>
@@ -136,7 +136,7 @@ export default function ForgotPassword() {
             <button 
               type="submit" 
               disabled={loading}
-              style={{ padding: '16px', backgroundColor: G, color: '#fff', border: 'none', borderRadius: 10, fontWeight: 700, fontSize: 15, cursor: loading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 8, opacity: loading ? 0.7 : 1 }}
+              style={{ padding: '16px', backgroundColor: G, color: '#fff', border: 'none', borderRadius: 10, fontWeight: 700, fontSize: 15, fontFamily: '"DM Sans", sans-serif', cursor: loading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 8, opacity: loading ? 0.7 : 1 }}
             >
               {loading ? 'Processing...' : (token ? 'Reset Password' : 'Send Reset Link')}
               {!loading && !token && <ArrowRight size={18} />}
@@ -145,7 +145,7 @@ export default function ForgotPassword() {
         )}
 
         <div style={{ textAlign: 'center', marginTop: 24, paddingTop: 24, borderTop: '1px solid #F0EDE8' }}>
-          <p style={{ fontSize: 13, color: '#6B6B6B' }}>
+          <p style={{ fontSize: 13, fontFamily: '"DM Sans", sans-serif', color: '#6B6B6B' }}>
             Remember your password?{' '}
             <Link to="/login" style={{ color: G, fontWeight: 700, textDecoration: 'none' }}>
               Log in

@@ -13,13 +13,14 @@
 
 ## 🌐 Live Deployment
 
-| Environment | URL |
-|---|---|
-| **Production** | [https://novapack-custom-box.vercel.app](https://novapack-custom-box.vercel.app) |
-| **Admin Panel** | [https://novapack-custom-box.vercel.app/admin](https://novapack-custom-box.vercel.app/admin) |
+| Environment           | URL                                                                                              |
+| --------------------- | ------------------------------------------------------------------------------------------------ |
+| **Production**  | [https://novapack-custom-box.vercel.app](https://novapack-custom-box.vercel.app)                    |
+| **Admin Panel** | [https://novapack-custom-box.vercel.app/admin](https://novapack-custom-box.vercel.app/admin)        |
 | **GitHub Repo** | [ShahzebFaisal5649/Custom-Box-Website-2](https://github.com/ShahzebFaisal5649/Custom-Box-Website-2) |
 
 **Admin Credentials (Seeded):**
+
 - Email: `Designcustombox@gmail.com`
 - Password: `Admin@123`
 
@@ -28,18 +29,21 @@
 ## ✨ Features
 
 ### 🎨 Premium UI/UX
+
 - **Brand Identity**: Forest Green (`#1A4D2E`) + Imperial Gold (`#C8860A`) palette
 - **Glassmorphism & Micro-animations**: Framer Motion powered transitions throughout
 - **Fully Responsive**: Optimized for mobile, tablet, and desktop
 - **Mobile Drawer**: Accessible close button, smooth slide-in navigation
 
 ### 🛠️ 3D Box Configurator
+
 - Real-time 3D visualization using Three.js / React Three Fiber
 - Supports Mailer, Rigid, Sleeve, Shipping, Display, and more
 - Dynamic dieline SVG export for production-ready design files
 - Material, finish, and dimension customization
 
 ### 🤖 Intelligent AI Chat Assistant
+
 - Powered by **Google Gemini 2.0 Flash**
 - Full product catalog and company knowledge injected via system instructions
 - Automatically falls back to static data if DB is unavailable — always online
@@ -48,18 +52,21 @@
 - Graceful error fallback with contact information
 
 ### 🛒 E-Commerce & Cart
+
 - Full shopping cart with quantity controls and persistent state
 - Cart Drawer with smooth slide-in animation and accessible close button
 - Checkout flow with Stripe payment integration
 - Guest checkout supported
 
 ### 🔐 Authentication & Security
+
 - JWT-based authentication with secure HTTP-only token storage
 - Google OAuth 2.0 login integration
 - Forgot Password / Reset Password with transactional email via Gmail SMTP
 - Role-based access control (user vs admin)
 
 ### 📊 Admin Panel
+
 - **Dashboard**: Revenue, orders, customers KPIs with charts
 - **Orders**: Full order lifecycle management with status updates
 - **Users**: View and manage all registered customers
@@ -73,6 +80,7 @@
 - "Back to Website" link directly in the sidebar
 
 ### 📧 Transactional Email
+
 - Nodemailer configured with Gmail SMTP + App Passwords
 - Password reset emails with secure tokenized links
 - Contact email: `Designcustombox@gmail.com`
@@ -81,20 +89,20 @@
 
 ## 🛠️ Technology Stack
 
-| Layer | Technology |
-|---|---|
-| **Frontend Framework** | React 19 + Vite |
-| **Styling** | Tailwind CSS + Vanilla CSS |
-| **Animations** | Framer Motion + AOS |
-| **3D Engine** | Three.js + @react-three/fiber + @react-three/drei |
-| **Icons** | Lucide React |
-| **AI** | Google Gemini 2.0 Flash (`@google/generative-ai`) |
-| **Backend** | Node.js + Express.js |
-| **Database** | MongoDB Atlas (Mongoose) |
-| **Auth** | JWT + Google OAuth 2.0 (`@react-oauth/google`) |
-| **Payments** | Stripe |
-| **Email** | Nodemailer (Gmail SMTP) |
-| **Deployment** | Vercel (Serverless + Static) |
+| Layer                        | Technology                                          |
+| ---------------------------- | --------------------------------------------------- |
+| **Frontend Framework** | React 19 + Vite                                     |
+| **Styling**            | Tailwind CSS + Vanilla CSS                          |
+| **Animations**         | Framer Motion + AOS                                 |
+| **3D Engine**          | Three.js + @react-three/fiber + @react-three/drei   |
+| **Icons**              | Lucide React                                        |
+| **AI**                 | Google Gemini 2.0 Flash (`@google/generative-ai`) |
+| **Backend**            | Node.js + Express.js                                |
+| **Database**           | MongoDB Atlas (Mongoose)                            |
+| **Auth**               | JWT + Google OAuth 2.0 (`@react-oauth/google`)    |
+| **Payments**           | Stripe                                              |
+| **Email**              | Nodemailer (Gmail SMTP)                             |
+| **Deployment**         | Vercel (Serverless + Static)                        |
 
 ---
 
@@ -153,6 +161,7 @@ Custom-Box-Website-2/
 ## ⚡ Local Setup
 
 ### Prerequisites
+
 - Node.js v18+
 - MongoDB Atlas account
 - Google Gemini API key ([get one free](https://aistudio.google.com/app/apikey))
@@ -161,7 +170,7 @@ Custom-Box-Website-2/
 ### 1. Clone & Install
 
 ```bash
-git clone https://github.com/ShahzebFaisal5649/Custom-Box-Website-2.git
+cgit clone https://github.com/ShahzebFaisal5649/Custom-Box-Website-2.git
 cd Custom-Box-Website-2
 
 # Install frontend dependencies
@@ -174,6 +183,7 @@ cd server && npm install && cd ..
 ### 2. Configure Environment Variables
 
 **Frontend (`/.env`):**
+
 ```env
 VITE_API_URL=http://localhost:5000/api
 VITE_GOOGLE_CLIENT_ID=your_google_client_id.apps.googleusercontent.com
@@ -181,6 +191,7 @@ VITE_STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_key
 ```
 
 **Backend (`/server/.env`):**
+
 ```env
 MONGODB_URI=mongodb+srv://user:password@cluster.mongodb.net/designcustombox
 JWT_SECRET=your_secure_jwt_secret
@@ -209,15 +220,15 @@ The project is pre-configured for Vercel via `vercel.json`.
 
 **Required Environment Variables in Vercel Dashboard:**
 
-| Variable | Value |
-|---|---|
-| `MONGODB_URI` | Your MongoDB Atlas connection string |
-| `JWT_SECRET` | Your JWT signing secret |
-| `EMAIL_USER` | `Designcustombox@gmail.com` |
-| `EMAIL_PASS` | Gmail App Password (16 chars) |
-| `GEMINI_API_KEY` | Your Google Gemini API key |
-| `CLIENT_URL` | `https://novapack-custom-box.vercel.app` |
-| `NODE_ENV` | `production` |
+| Variable           | Value                                      |
+| ------------------ | ------------------------------------------ |
+| `MONGODB_URI`    | Your MsongoDB Atlas connection string      |
+| `JWT_SECRET`     | Your JWT signing secret                    |
+| `EMAIL_USER`     | `Designcustombox@gmail.com`              |
+| `EMAIL_PASS`     | Gmail App Password (16 chars)              |
+| `GEMINI_API_KEY` | Your Google Gemini API key                 |
+| `CLIENT_URL`     | `https://novapack-custom-box.vercel.app` |
+| `NODE_ENV`       | `production`                             |
 
 > **Important:** The `VITE_*` env vars are set in `vercel.json` and do not need to be added manually.
 
@@ -225,12 +236,12 @@ The project is pre-configured for Vercel via `vercel.json`.
 
 ## 📞 Contact & Support
 
-| Channel | Details |
-|---|---|
-| **Email** | [Designcustombox@gmail.com](mailto:Designcustombox@gmail.com) |
-| **Phone** | (913) 228-2682 |
-| **Address** | 5532 Big River Dr, The Colony, Texas, US 75056 |
-| **Hours** | Mon–Fri 9am–6pm EST · Sat 10am–2pm EST |
+| Channel           | Details                                                    |
+| ----------------- | ---------------------------------------------------------- |
+| **Email**   | [Designcustombox@gmail.com](mailto:Designcustombox@gmail.com) |
+| **Phone**   | (913) 228-2682                                             |
+| **Address** | 5532 Big River Dr, The Colony, Texas, US 75056             |
+| **Hours**   | Mon–Fri 9am–6pm EST · Sat 10am–2pm EST                 |
 
 ---
 

@@ -65,7 +65,7 @@ function IndustryCard({ product }) {
           loading="lazy"
           onError={e => { e.target.src = 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=600&q=80'; }}
         />
-        <div style={{ position: 'absolute', top: 10, left: 10, backgroundColor: G, color: '#fff', fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', padding: '4px 8px', borderRadius: 4 }}>
+        <div style={{ position: 'absolute', top: 10, left: 10, backgroundColor: G, color: '#fff', fontSize: 9, fontFamily: '"DM Mono", monospace', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.07em', padding: '4px 8px', borderRadius: 4 }}>
           {product.cat}
         </div>
         <button onClick={handleFavourite} aria-label="Toggle favourite"
@@ -73,7 +73,7 @@ function IndustryCard({ product }) {
           <Heart size={14} style={{ color: isFav ? '#EF4444' : '#888', fill: isFav ? '#EF4444' : 'none' }} />
         </button>
         <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'linear-gradient(transparent, rgba(26,77,46,0.85))', padding: '24px 12px 10px', opacity: hovered ? 1 : 0, transition: 'opacity 0.25s' }}>
-          <span style={{ color: '#fff', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4 }}>
+          <span style={{ color: '#fff', fontSize: 11, fontFamily: '"DM Mono", monospace', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4 }}>
             <Search size={11} /> View Details <ChevronRight size={11} />
           </span>
         </div>
@@ -82,14 +82,14 @@ function IndustryCard({ product }) {
       {/* Card footer */}
       <div style={{ padding: '14px 16px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
         <div>
-          <h3 style={{ fontSize: 13, fontWeight: 700, color: '#1A1A1A', marginBottom: 2, fontFamily: 'Outfit,sans-serif', lineHeight: 1.3 }}>{product.name}</h3>
-          <span style={{ fontSize: 9, fontWeight: 600, color: ACCENT, backgroundColor: `${ACCENT}15`, padding: '2px 6px', borderRadius: 3, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{product.boxType}</span>
+          <h3 style={{ fontSize: 13, fontWeight: 700, color: '#1A1A1A', marginBottom: 2, fontFamily: '"DM Sans", sans-serif', lineHeight: 1.3 }}>{product.name}</h3>
+          <span style={{ fontSize: 9, fontFamily: '"DM Mono", monospace', fontWeight: 500, color: ACCENT, backgroundColor: `${ACCENT}15`, padding: '2px 6px', borderRadius: 3, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{product.boxType}</span>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
           <div>
-            <span style={{ fontSize: 20, fontWeight: 800, color: ACCENT, fontFamily: 'Outfit,sans-serif' }}>{product.price}</span>
-            <span style={{ fontSize: 10, color: '#9A9080', marginLeft: 3 }}>/ unit</span>
+            <span style={{ fontSize: 20, fontWeight: 700, color: ACCENT, fontFamily: '"DM Sans", sans-serif' }}>{product.price}</span>
+            <span style={{ fontSize: 10, fontFamily: '"DM Sans", sans-serif', color: '#9A9080', marginLeft: 3 }}>/ unit</span>
           </div>
           <button
             onClick={handleConfigure}
@@ -103,7 +103,7 @@ function IndustryCard({ product }) {
               fontWeight: 700,
               cursor: 'pointer',
               transition: 'background-color 0.2s',
-              fontFamily: 'Outfit,sans-serif',
+              fontFamily: '"DM Sans", sans-serif',
               whiteSpace: 'nowrap',
             }}
           >
@@ -111,7 +111,7 @@ function IndustryCard({ product }) {
           </button>
         </div>
 
-        <p style={{ fontSize: 10, color: '#B0A898', margin: 0, fontStyle: 'italic' }}>
+        <p style={{ fontSize: 10, fontFamily: '"DM Sans", sans-serif', color: '#B0A898', margin: 0, fontStyle: 'italic' }}>
           Tap card to see full specs &amp; details
         </p>
       </div>
@@ -164,9 +164,9 @@ export default function Industries() {
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(20,60,36,0.3), rgba(20,60,36,0.6))' }} />
         <div className="mx-auto max-w-[1400px]" style={{ position: 'relative', padding: '60px 24px', display: 'flex', alignItems: 'center' }}>
           <div style={{ maxWidth: 700 }}>
-            <p style={{ fontSize: 11, fontWeight: 700, color: '#F9C054', textTransform: 'uppercase', letterSpacing: '0.18em', marginBottom: 14 }}>Tailored Solutions</p>
-            <h1 style={{ fontSize: 'clamp(32px,4vw,52px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#fff', marginBottom: 18, lineHeight: 1.05 }}>Industries</h1>
-            <p style={{ maxWidth: 560, color: 'rgba(255,255,255,0.95)', fontSize: 16, lineHeight: 1.8, textAlign: 'left', textShadow: '0 2px 4px rgba(0,0,0,0.3)' }}>Packaging built for your market. Just tap any card to see full specs, materials, and options then pick your perfect box.</p>
+            <p style={{ fontSize: 11, fontFamily: '"DM Mono", monospace', fontWeight: 500, color: '#F9C054', textTransform: 'uppercase', letterSpacing: '0.18em', marginBottom: 14 }}>Tailored Solutions</p>
+            <h1 style={{ fontSize: 'clamp(32px,4vw,52px)', fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 700, color: '#fff', marginBottom: 18, lineHeight: 1.05 }}>Industries</h1>
+            <p style={{ maxWidth: 560, color: 'rgba(255,255,255,0.95)', fontSize: 16, fontFamily: '"DM Sans", sans-serif', lineHeight: 1.8, textAlign: 'left', textShadow: '0 2px 4px rgba(0,0,0,0.3)' }}>Packaging built for your market. Just tap any card to see full specs, materials, and options then pick your perfect box.</p>
           </div>
         </div>
       </section>
@@ -187,13 +187,13 @@ export default function Industries() {
               />
             </div>
 
-            <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#9A9080] mb-4">Industries</p>
+            <p className="text-[10px] font-mono font-medium uppercase tracking-[0.1em] text-[#9A9080] mb-4">Industries</p>
             <ul className="space-y-2">
               {dynamicCategories.map(cat => (
                 <li key={cat}>
                   <button
                     onClick={() => setActiveCategory(cat)}
-                    className={`w-full text-left rounded-xl px-3 py-2 text-sm font-semibold transition-all ${activeCategory === cat ? 'bg-[#C8860A]10 text-[#C8860A]' : 'bg-transparent text-[#6B6B6B] hover:bg-[#F0EDE8]'}`}
+                    className={`w-full text-left rounded-xl px-3 py-2 text-sm font-sans font-medium transition-all ${activeCategory === cat ? 'bg-[#C8860A]10 text-[#C8860A]' : 'bg-transparent text-[#6B6B6B] hover:bg-[#F0EDE8]'}`}
                   >
                     {cat}
                   </button>
@@ -219,7 +219,7 @@ export default function Industries() {
                   <button
                     key={cat}
                     onClick={() => setActiveCategory(cat)}
-                    className={`whitespace-nowrap rounded-full border px-4 py-2 text-sm font-semibold transition ${activeCategory === cat ? 'border-transparent bg-[#C8860A] text-white' : 'border-[#D8D3CB] bg-white text-[#6B6B6B] hover:bg-[#F0EDE8]'}`}
+                    className={`whitespace-nowrap rounded-full border px-4 py-2 text-sm font-sans font-medium transition ${activeCategory === cat ? 'border-transparent bg-[#C8860A] text-white' : 'border-[#D8D3CB] bg-white text-[#6B6B6B] hover:bg-[#F0EDE8]'}`}
                   >
                     {cat}
                   </button>

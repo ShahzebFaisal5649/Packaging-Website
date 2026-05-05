@@ -345,7 +345,7 @@ export default function CustomBox() {
               <button onClick={() => setPrefilledName(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.5)', padding: 0, display: 'flex' }}><X size={12} /></button>
             </div>
           )}
-          <h1 style={{ fontSize: 'clamp(28px,4vw,48px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#fff', marginBottom: 14, lineHeight: 1.15 }}>
+          <h1 style={{ fontSize: 'clamp(28px,4vw,48px)', fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 700, color: '#fff', marginBottom: 14, lineHeight: 1.15 }}>
             Design Your Custom Box
           </h1>
           <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.62)', maxWidth: 500, margin: '0 auto 28px', lineHeight: 1.7 }}>
@@ -734,7 +734,7 @@ export default function CustomBox() {
               <div style={{ background: `linear-gradient(135deg, ${G} 0%, #0D3520 100%)`, padding: '24px 28px' }}>
                 <p style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 6px' }}>Your Custom Box</p>
                 <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8 }}>
-                  <span className={`price-display`} style={{ fontSize: 42, fontWeight: 900, color: '#fff', fontFamily: 'Outfit,sans-serif', lineHeight: 1, transition: 'transform 0.3s', transform: isPricePulsing ? 'scale(1.06)' : 'scale(1)' }}>
+                  <span className={`price-display`} style={{ fontSize: 42, fontWeight: 700, color: '#fff', fontFamily: '"Playfair Display", Georgia, serif', lineHeight: 1, transition: 'transform 0.3s', transform: isPricePulsing ? 'scale(1.06)' : 'scale(1)' }}>
                     ${totalPrice.toFixed(2)}
                   </span>
                   <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', fontWeight: 600, marginBottom: 4 }}>total</span>
@@ -849,7 +849,7 @@ export default function CustomBox() {
                 <Package size={18} color={G} />
               </div>
               <div>
-                <h3 style={{ fontSize: 18, fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#1A1A1A', margin: 0 }}>Request a Physical Sample</h3>
+                <h3 style={{ fontSize: 18, fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 700, color: '#1A1A1A', margin: 0 }}>Request a Physical Sample</h3>
                 <p style={{ fontSize: 12, color: '#888', margin: 0 }}>We'll ship a sample to your address within 5–7 days</p>
               </div>
             </div>
@@ -940,5 +940,5 @@ export default function CustomBox() {
   );
 }
 
-const labelStyle = { fontSize: 11, fontWeight: 700, color: '#555', display: 'block', marginBottom: 4 };
-const fieldStyle = { width: '100%', padding: '10px 12px', border: '1.5px solid #E2DDD6', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box', background: '#fff' };
+const labelStyle = { fontSize: 11, fontFamily: '"DM Mono", monospace', fontWeight: 500, color: '#555', textTransform: 'uppercase', letterSpacing: '0.15em', display: 'block', marginBottom: 4 };
+const fieldStyle = { width: '100%', padding: '10px 12px', border: '1.5px solid #E2DDD6', borderRadius: 8, fontSize: 13, fontFamily: '"DM Sans", sans-serif', outline: 'none', boxSizing: 'border-box', background: '#fff' };

@@ -13,8 +13,7 @@ const FieldInput = ({ icon, type, name, value, onChange, placeholder, onToggle, 
   <div style={{ position: 'relative' }}>
     <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#aaa' }}>{icon}</span>
     <input
-      type={type} name={name} value={value} onChange={onChange} placeholder={placeholder}
-      style={{ width: '100%', paddingLeft: 44, paddingRight: onToggle ? 48 : 16, paddingTop: 12, paddingBottom: 12, background: '#fff', border: '1.5px solid #E0DBD3', borderRadius: 10, fontSize: 14, color: '#1A1A1A', outline: 'none', transition: 'border-color 0.15s', boxSizing: 'border-box' }}
+      style={{ width: '100%', paddingLeft: 44, paddingRight: onToggle ? 48 : 16, paddingTop: 12, paddingBottom: 12, background: '#fff', border: '1.5px solid #E0DBD3', borderRadius: 10, fontSize: 14, fontFamily: '"DM Sans", sans-serif', color: '#1A1A1A', outline: 'none', transition: 'border-color 0.15s', boxSizing: 'border-box' }}
       onFocus={e => e.target.style.borderColor = G} onBlur={e => e.target.style.borderColor = '#E0DBD3'}
     />
     {onToggle && (
@@ -93,17 +92,17 @@ export default function Register() {
         />
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(20,60,36,0.92) 0%, rgba(20,60,36,0.65) 100%)' }} />
         <div style={{ position: 'relative', zIndex: 2, padding: '60px 56px', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-          <p style={{ fontSize: 11, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 14 }}>Join Design Custom Box</p>
-          <h2 style={{ fontSize: 'clamp(26px,2.8vw,38px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#fff', lineHeight: 1.15, marginBottom: 20 }}>
+          <p style={{ fontSize: 11, fontFamily: '"DM Mono", monospace', fontWeight: 500, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 14 }}>Join Design Custom Box</p>
+          <h2 style={{ fontSize: 'clamp(26px,2.8vw,38px)', fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 700, color: '#fff', lineHeight: 1.15, marginBottom: 20 }}>
             Everything you need to manage your packaging, in one place.
           </h2>
-          <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.65)', lineHeight: 1.75, marginBottom: 36, maxWidth: 380 }}>
+          <p style={{ fontSize: 15, fontFamily: '"DM Sans", sans-serif', color: 'rgba(255,255,255,0.65)', lineHeight: 1.75, marginBottom: 36, maxWidth: 380 }}>
             Create a free account to access your order history, save custom designs, request quotes, and more.
           </p>
           {['Free account setup', 'no credit card required', 'Save unlimited custom box designs', 'Real-time order tracking & history', 'Dedicated account manager on request'].map((p, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
               <CheckCircle size={16} color={ACCENT} strokeWidth={2.5} />
-              <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.8)', fontWeight: 500 }}>{p}</span>
+              <span style={{ fontSize: 14, fontFamily: '"DM Sans", sans-serif', color: 'rgba(255,255,255,0.8)', fontWeight: 500 }}>{p}</span>
             </div>
           ))}
         </div>
@@ -113,47 +112,47 @@ export default function Register() {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px 24px', backgroundColor: '#F5F2ED', overflowY: 'auto' }}>
         <div style={{ width: '100%', maxWidth: 440 }}>
           <div style={{ marginBottom: 32 }}>
-            <h1 style={{ fontSize: 28, fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#1A1A1A', marginBottom: 8 }}>Create your account</h1>
-            <p style={{ fontSize: 14, color: '#777' }}>Join 10,000+ brands on Design Custom Box. It's free.</p>
+            <h1 style={{ fontSize: 28, fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 700, color: '#1A1A1A', marginBottom: 8 }}>Create your account</h1>
+            <p style={{ fontSize: 14, fontFamily: '"DM Sans", sans-serif', color: '#777' }}>Join 10,000+ brands on Design Custom Box. It's free.</p>
           </div>
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
 
             <div style={{ position: 'relative', textAlign: 'center', margin: '8px 0' }}>
               <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, height: 1, background: '#E0DBD3' }} />
-              <span style={{ position: 'relative', background: '#F5F2ED', padding: '0 12px', fontSize: 12, color: '#aaa', fontWeight: 600 }}>Create Account</span>
+              <span style={{ position: 'relative', background: '#F5F2ED', padding: '0 12px', fontSize: 12, fontFamily: '"DM Mono", monospace', color: '#aaa', fontWeight: 500 }}>Create Account</span>
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#333', marginBottom: 7 }}>Full Name</label>
+              <label style={{ display: 'block', fontSize: 13, fontFamily: '"DM Sans", sans-serif', fontWeight: 600, color: '#333', marginBottom: 7 }}>Full Name</label>
               <FieldInput icon={<User size={17} />} type="text" name="name" value={form.name} onChange={handleChange} placeholder="John Doe" />
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#333', marginBottom: 7 }}>Email Address</label>
+              <label style={{ display: 'block', fontSize: 13, fontFamily: '"DM Sans", sans-serif', fontWeight: 600, color: '#333', marginBottom: 7 }}>Email Address</label>
               <FieldInput icon={<Mail size={17} />} type="email" name="email" value={form.email} onChange={handleChange} placeholder="you@company.com" />
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#333', marginBottom: 7 }}>Password</label>
+              <label style={{ display: 'block', fontSize: 13, fontFamily: '"DM Sans", sans-serif', fontWeight: 600, color: '#333', marginBottom: 7 }}>Password</label>
               <FieldInput icon={<Lock size={17} />} type={showPwd ? 'text' : 'password'} name="password" value={form.password} onChange={handleChange} placeholder="••••••••" onToggle={() => setShowPwd(!showPwd)} show={showPwd} />
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#333', marginBottom: 7 }}>Confirm Password</label>
+              <label style={{ display: 'block', fontSize: 13, fontFamily: '"DM Sans", sans-serif', fontWeight: 600, color: '#333', marginBottom: 7 }}>Confirm Password</label>
               <FieldInput icon={<Lock size={17} />} type={showPwd ? 'text' : 'password'} name="confirmPassword" value={form.confirmPassword} onChange={handleChange} placeholder="••••••••" />
             </div>
 
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, paddingTop: 4 }}>
               <input type="checkbox" id="terms" name="terms" checked={form.terms} onChange={handleChange}
                 style={{ marginTop: 2, width: 16, height: 16, cursor: 'pointer', accentColor: G }} />
-              <label htmlFor="terms" style={{ fontSize: 12, color: '#666', cursor: 'pointer', lineHeight: 1.5 }}>
+              <label htmlFor="terms" style={{ fontSize: 12, fontFamily: '"DM Sans", sans-serif', color: '#666', cursor: 'pointer', lineHeight: 1.5 }}>
                 I agree to the <Link to="/terms" style={{ color: G, fontWeight: 700, textDecoration: 'none' }}>Terms</Link> & <Link to="/privacy" style={{ color: G, fontWeight: 700, textDecoration: 'none' }}>Privacy</Link>
               </label>
             </div>
 
             <button type="submit" disabled={isSubmitting}
-              style={{ padding: '14px', background: G, color: '#fff', border: 'none', borderRadius: 10, fontWeight: 700, fontSize: 15, cursor: isSubmitting ? 'not-allowed' : 'pointer', opacity: isSubmitting ? 0.7 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: 'background 0.15s', marginTop: 4 }}
+              style={{ padding: '14px', background: G, color: '#fff', border: 'none', borderRadius: 10, fontWeight: 700, fontSize: 15, fontFamily: '"DM Sans", sans-serif', cursor: isSubmitting ? 'not-allowed' : 'pointer', opacity: isSubmitting ? 0.7 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: 'background 0.15s', marginTop: 4 }}
               onMouseEnter={e => { if (!isSubmitting) e.currentTarget.style.background = ACCENT; }}
               onMouseLeave={e => e.currentTarget.style.background = G}>
               {isSubmitting ? 'Creating Account...' : <><span>Create Account</span><ArrowRight size={16} /></>}
@@ -162,7 +161,7 @@ export default function Register() {
 
           <div style={{ margin: '24px 0', display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{ flex: 1, height: 1, background: '#E0DBD3' }} />
-            <span style={{ fontSize: 12, color: '#aaa', fontWeight: 500 }}>or sign up with</span>
+            <span style={{ fontSize: 12, fontFamily: '"DM Sans", sans-serif', color: '#aaa', fontWeight: 500 }}>or sign up with</span>
             <div style={{ flex: 1, height: 1, background: '#E0DBD3' }} />
           </div>
 
@@ -177,7 +176,7 @@ export default function Register() {
             />
           </div>
 
-          <p style={{ marginTop: 24, textAlign: 'center', fontSize: 13, color: '#888' }}>
+          <p style={{ marginTop: 24, textAlign: 'center', fontSize: 13, fontFamily: '"DM Sans", sans-serif', color: '#888' }}>
             Already have an account?{' '}
             <Link to="/login" style={{ fontWeight: 700, color: G, textDecoration: 'none' }}
               onMouseEnter={e => e.target.style.color = ACCENT} onMouseLeave={e => e.target.style.color = G}>Sign in</Link>

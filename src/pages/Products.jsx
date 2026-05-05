@@ -44,7 +44,7 @@ const SidebarContent = ({ search, setSearch, activeCategory, setActiveCategory, 
       />
     </div>
 
-    <p style={{ fontSize: 10, fontWeight: 700, color: '#9A9080', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 14 }}>Categories</p>
+    <p style={{ fontSize: 10, fontFamily: '"DM Mono", monospace', fontWeight: 500, color: '#9A9080', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 14 }}>Categories</p>
     <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
       {allCategories.map(cat => (
         <li key={cat}>
@@ -59,6 +59,7 @@ const SidebarContent = ({ search, setSearch, activeCategory, setActiveCategory, 
               cursor: 'pointer',
               fontSize: 13,
               fontWeight: activeCategory === cat ? 700 : 500,
+              fontFamily: '"DM Sans", sans-serif',
               backgroundColor: activeCategory === cat ? `${ACCENT}18` : 'transparent',
               color: activeCategory === cat ? ACCENT : '#6B6B6B',
               transition: 'all 0.15s',
@@ -136,7 +137,7 @@ function ProductCard({ product }) {
           onError={e => { e.target.src = CATEGORY_IMGS[product.cat] || CATEGORY_IMGS.default; }}
         />
         {/* Category badge */}
-        <div style={{ position: 'absolute', top: 10, left: 10, backgroundColor: G, color: '#fff', fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', padding: '4px 8px', borderRadius: 4 }}>
+        <div style={{ position: 'absolute', top: 10, left: 10, backgroundColor: G, color: '#fff', fontSize: 9, fontFamily: '"DM Mono", monospace', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.07em', padding: '4px 8px', borderRadius: 4 }}>
           {product.cat}
         </div>
         {/* Favourite button */}
@@ -146,7 +147,7 @@ function ProductCard({ product }) {
         </button>
         {/* View details hint */}
         <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'linear-gradient(transparent, rgba(26,77,46,0.85))', padding: '24px 12px 10px', opacity: hovered ? 1 : 0, transition: 'opacity 0.25s' }}>
-          <span style={{ color: '#fff', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4 }}>
+          <span style={{ color: '#fff', fontSize: 11, fontFamily: '"DM Mono", monospace', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4 }}>
             <Search size={11} /> View Details <ChevronRight size={11} />
           </span>
         </div>
@@ -155,14 +156,14 @@ function ProductCard({ product }) {
       {/* Card footer */}
       <div style={{ padding: '14px 16px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
         <div>
-          <h3 style={{ fontSize: 13, fontWeight: 700, color: '#1A1A1A', marginBottom: 2, fontFamily: 'Outfit,sans-serif', lineHeight: 1.3 }}>{product.name}</h3>
-          <span style={{ fontSize: 9, fontWeight: 600, color: ACCENT, backgroundColor: `${ACCENT}15`, padding: '2px 6px', borderRadius: 3, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{product.boxType}</span>
+          <h3 style={{ fontSize: 13, fontWeight: 700, color: '#1A1A1A', marginBottom: 2, fontFamily: '"DM Sans", sans-serif', lineHeight: 1.3 }}>{product.name}</h3>
+          <span style={{ fontSize: 9, fontFamily: '"DM Mono", monospace', fontWeight: 500, color: ACCENT, backgroundColor: `${ACCENT}15`, padding: '2px 6px', borderRadius: 3, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{product.boxType}</span>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
           <div>
-            <span style={{ fontSize: 20, fontWeight: 800, color: ACCENT, fontFamily: 'Outfit,sans-serif' }}>{product.price}</span>
-            <span style={{ fontSize: 10, color: '#9A9080', marginLeft: 3 }}>/ unit</span>
+            <span style={{ fontSize: 20, fontWeight: 700, color: ACCENT, fontFamily: '"DM Sans", sans-serif' }}>{product.price}</span>
+            <span style={{ fontSize: 10, fontFamily: '"DM Sans", sans-serif', color: '#9A9080', marginLeft: 3 }}>/ unit</span>
           </div>
           <button
             onClick={handleConfigure}
@@ -176,7 +177,7 @@ function ProductCard({ product }) {
               fontWeight: 800,
               cursor: 'pointer',
               transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              fontFamily: 'Outfit,sans-serif',
+              fontFamily: '"DM Sans", sans-serif',
               whiteSpace: 'nowrap',
               display: 'flex',
               alignItems: 'center',
@@ -189,7 +190,7 @@ function ProductCard({ product }) {
           </button>
         </div>
 
-        <p style={{ fontSize: 10, color: '#B0A898', margin: 0, fontStyle: 'italic' }}>
+        <p style={{ fontSize: 10, fontFamily: '"DM Sans", sans-serif', color: '#B0A898', margin: 0, fontStyle: 'italic' }}>
           Tap card to see full specs &amp; details
         </p>
       </div>
@@ -254,9 +255,9 @@ export default function Products() {
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(20,60,36,0.3), rgba(20,60,36,0.6))' }} />
         <div className="mx-auto max-w-[1400px]" style={{ position: 'relative', padding: '60px 24px', display: 'flex', alignItems: 'center' }}>
           <div style={{ maxWidth: 700 }} className="mobile-center-text">
-            <p style={{ fontSize: 11, fontWeight: 700, color: '#F9C054', textTransform: 'uppercase', letterSpacing: '0.18em', marginBottom: 14 }}>Full Catalog</p>
-            <h1 style={{ fontSize: 'clamp(32px,4vw,52px)', fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#fff', marginBottom: 18, lineHeight: 1.05 }}>Products</h1>
-            <p style={{ maxWidth: 560, color: 'rgba(255,255,255,0.95)', fontSize: 16, lineHeight: 1.8, textAlign: 'left', textShadow: '0 2px 4px rgba(0,0,0,0.3)' }} className="mobile-center-text">Browse our full range of custom box styles. Just tap any card to see full details, then pick your exact sizes.</p>
+            <p style={{ fontSize: 11, fontFamily: '"DM Mono", monospace', fontWeight: 500, color: '#F9C054', textTransform: 'uppercase', letterSpacing: '0.18em', marginBottom: 14 }}>Full Catalog</p>
+            <h1 style={{ fontSize: 'clamp(32px,4vw,52px)', fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 700, color: '#fff', marginBottom: 18, lineHeight: 1.05 }}>Products</h1>
+            <p style={{ maxWidth: 560, color: 'rgba(255,255,255,0.95)', fontSize: 16, fontFamily: '"DM Sans", sans-serif', lineHeight: 1.8, textAlign: 'left', textShadow: '0 2px 4px rgba(0,0,0,0.3)' }} className="mobile-center-text">Browse our full range of custom box styles. Just tap any card to see full details, then pick your exact sizes.</p>
           </div>
         </div>
       </section>
