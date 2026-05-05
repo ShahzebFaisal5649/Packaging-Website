@@ -113,8 +113,6 @@ export default function Hero() {
 
               {/* Subtext */}
               <p className="hero-subtext text-left md:text-left">
-                Deliver unforgettable unboxing experiences with custom printed,
-                premium grade packaging. Fast turnaround. No minimums. Just results.
               </p>
 
               {/* CTA Buttons */}
