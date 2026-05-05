@@ -95,7 +95,7 @@ export default function Hero() {
               <motion.h1 variants={fadeUp} style={{ fontSize: 'clamp(46px, 6vw, 76px)', fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 800, color: '#FFFFFF', lineHeight: 1.05, marginBottom: 28, letterSpacing: '-0.02em' }}>
                 Packaging That<br />
                 Elevates<br />
-                <div style={{ position: 'relative', display: 'inline-block', whiteSpace: 'nowrap', minWidth: '300px', color: '#C8860A', overflow: 'visible' }}>
+                <div style={{ position: 'relative', display: 'inline-block', whiteSpace: 'nowrap', minWidth: '300px', color: '#C8860A', overflow: 'visible', height: '1.1em', verticalAlign: 'bottom' }}>
                   <AnimatePresence mode="popLayout">
                     <motion.span
                       key={wordIdx}
