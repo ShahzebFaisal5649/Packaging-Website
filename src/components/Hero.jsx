@@ -23,7 +23,7 @@ export default function Hero() {
   const [wordIdx, setWordIdx] = useState(0);
   const [showVideo, setShowVideo] = useState(false);
   const { scrollY } = useScroll();
-  
+
   // Parallax effects
   const yImage = useTransform(scrollY, [0, 1000], [0, 150]);
   const opacityHero = useTransform(scrollY, [0, 600], [1, 0]);
@@ -66,13 +66,13 @@ export default function Hero() {
       }} />
 
       {/* Glow blobs */}
-      <motion.div 
+      <motion.div
         animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.5, 0.3] }} transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-        style={{ position: 'absolute', top: '-10%', right: '-5%', width: 600, height: 600, background: 'radial-gradient(circle, rgba(200,134,10,0.15) 0%, transparent 60%)', borderRadius: '50%', zIndex: 1, pointerEvents: 'none' }} 
+        style={{ position: 'absolute', top: '-10%', right: '-5%', width: 600, height: 600, background: 'radial-gradient(circle, rgba(200,134,10,0.15) 0%, transparent 60%)', borderRadius: '50%', zIndex: 1, pointerEvents: 'none' }}
       />
-      <motion.div 
+      <motion.div
         animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.4, 0.2] }} transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-        style={{ position: 'absolute', bottom: '-20%', left: '-10%', width: 700, height: 700, background: 'radial-gradient(circle, rgba(26,77,46,0.5) 0%, transparent 60%)', borderRadius: '50%', zIndex: 1, pointerEvents: 'none' }} 
+        style={{ position: 'absolute', bottom: '-20%', left: '-10%', width: 700, height: 700, background: 'radial-gradient(circle, rgba(26,77,46,0.5) 0%, transparent 60%)', borderRadius: '50%', zIndex: 1, pointerEvents: 'none' }}
       />
 
       {/* ── Main Content ──────────────────────────────────────────────── */}
@@ -82,7 +82,7 @@ export default function Hero() {
 
             {/* LEFT - Typography & CTA */}
             <motion.div variants={staggerContainer} initial="hidden" animate="show" className="hero-left text-center lg:text-left">
-              
+
               {/* Badge */}
               <motion.div variants={fadeUp} style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '8px 20px', background: 'rgba(200,134,10,0.1)', border: '1px solid rgba(200,134,10,0.3)', borderRadius: 100, marginBottom: 32, backdropFilter: 'blur(10px)' }}>
                 <motion.span animate={{ scale: [1, 1.5, 1], opacity: [1, 0.5, 1] }} transition={{ duration: 2, repeat: Infinity }} style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#C8860A' }} />
@@ -112,15 +112,15 @@ export default function Hero() {
               </motion.h1>
 
               {/* Subtext */}
-              <motion.p variants={fadeUp} style={{ fontSize: 'clamp(16px, 1.5vw, 20px)', fontFamily: '"DM Sans", sans-serif', color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, marginBottom: 44, maxWidth: 540 }}>
+              <p className="hero-subtext text-left md:text-left">
                 Deliver unforgettable unboxing experiences with custom printed,
                 premium grade packaging. Fast turnaround. No minimums. Just results.
-              </motion.p>
+              </p>
 
               {/* CTA Buttons */}
               <motion.div variants={fadeUp} style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: 48 }} className="hero-actions">
                 <Link to="/custom-box" style={{ textDecoration: 'none' }}>
-                  <motion.div 
+                  <motion.div
                     whileHover={{ scale: 1.05, boxShadow: '0 20px 40px rgba(200,134,10,0.4)' }}
                     whileTap={{ scale: 0.95 }}
                     style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '18px 36px', borderRadius: 12, background: 'linear-gradient(135deg, #C8860A 0%, #E09520 100%)', color: '#fff', fontWeight: 800, fontSize: 16, fontFamily: '"DM Sans", sans-serif', boxShadow: '0 8px 24px rgba(200,134,10,0.25)' }}
@@ -129,7 +129,7 @@ export default function Hero() {
                   </motion.div>
                 </Link>
 
-                <motion.button 
+                <motion.button
                   onClick={() => setShowVideo(true)}
                   whileHover={{ scale: 1.05, backgroundColor: 'rgba(255,255,255,0.1)' }}
                   whileTap={{ scale: 0.95 }}
@@ -173,14 +173,14 @@ export default function Hero() {
             </motion.div>
 
             {/* RIGHT - Floating 3D Showcase */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1, delay: 0.5 }}
               style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', y: yImage }}
               className="hero-right"
             >
               <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '85%', height: '85%', borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,134,10,0.2) 0%, transparent 70%)', filter: 'blur(40px)', zIndex: 0 }} />
-              
-              <motion.div 
+
+              <motion.div
                 animate={{ y: [-15, 15, -15] }} transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
                 style={{ position: 'relative', zIndex: 2 }}
               >
@@ -192,7 +192,7 @@ export default function Hero() {
               </motion.div>
 
               {/* Floating Element 1 - Orders */}
-              <motion.div 
+              <motion.div
                 animate={{ y: [10, -10, 10], rotate: [0, -2, 0] }} transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
                 style={{ position: 'absolute', top: '10%', left: '-5%', zIndex: 10, background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(10px)', borderRadius: 16, padding: '16px 20px', boxShadow: '0 20px 40px rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', gap: 14, border: '1px solid rgba(255,255,255,0.5)' }}
                 className="hidden md:flex"
@@ -207,7 +207,7 @@ export default function Hero() {
               </motion.div>
 
               {/* Floating Element 2 - Speed */}
-              <motion.div 
+              <motion.div
                 animate={{ y: [-10, 10, -10], rotate: [0, 2, 0] }} transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
                 style={{ position: 'absolute', bottom: '15%', right: '-8%', zIndex: 10, background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(10px)', borderRadius: 16, padding: '16px 20px', boxShadow: '0 20px 40px rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', gap: 14, border: '1px solid rgba(255,255,255,0.5)' }}
                 className="hidden md:flex"
@@ -222,7 +222,7 @@ export default function Hero() {
               </motion.div>
 
               {/* Floating Badge - Rating */}
-              <motion.div 
+              <motion.div
                 animate={{ y: [5, -5, 5] }} transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
                 style={{ position: 'absolute', top: '-5%', right: '10%', zIndex: 10, background: 'rgba(255,255,255,0.95)', borderRadius: 100, padding: '10px 18px', boxShadow: '0 12px 24px rgba(0,0,0,0.2)', display: 'flex', alignItems: 'center', gap: 8, border: '1px solid rgba(255,255,255,0.5)' }}
                 className="hidden md:flex"
