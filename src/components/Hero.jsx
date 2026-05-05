@@ -95,7 +95,13 @@ export default function Hero() {
               <motion.h1 variants={fadeUp} style={{ fontSize: 'clamp(46px, 6vw, 76px)', fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 800, color: '#FFFFFF', lineHeight: 1.05, marginBottom: 28, letterSpacing: '-0.02em' }}>
                 Packaging That<br />
                 Elevates<br />
-                <div style={{ position: 'relative', display: 'inline-block', whiteSpace: 'nowrap', minWidth: '300px', color: '#C8860A', overflow: 'visible', height: '1.1em', verticalAlign: 'bottom' }}>
+                <div style={{
+                  position: 'relative',
+                  display: 'block',
+                  height: 'clamp(55px, 7.2vw, 91px)',  /* matches font-size × line-height */
+                  overflow: 'hidden',
+                  color: '#C8860A'
+                }}>
                   <AnimatePresence mode="popLayout">
                     <motion.span
                       key={wordIdx}
@@ -103,7 +109,7 @@ export default function Hero() {
                       animate={{ y: 0, opacity: 1, rotateX: 0 }}
                       exit={{ y: -40, opacity: 0, rotateX: 90 }}
                       transition={{ duration: 0.6, type: 'spring', bounce: 0.3 }}
-                      style={{ position: 'absolute', left: 0, top: 0, transformOrigin: 'center' }}
+                      style={{ display: 'block', transformOrigin: 'center' }}
                     >
                       {CYCLING_WORDS[wordIdx]}
                     </motion.span>
