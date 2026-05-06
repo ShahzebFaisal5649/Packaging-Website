@@ -341,7 +341,7 @@ router.delete('/subscribers/:id', async (req, res) => {
 // ── Revenue Analytics ────────────────────────────────────────────────────────
 router.get('/analytics', async (req, res) => {
   try {
-    const users = await User.find().select('orders createdAt');
+    const users = await User.find().select('orders createdAt addresses lastLocation');
     const allOrders = users.flatMap(u => u.orders || []);
 
     // Orders by status
