@@ -1310,34 +1310,24 @@ function UsersSection() {
     } catch (e) { showToast(e.message, 'error'); }
   };
 
-  const [search, setSearch] = useState('');
-  const [selected, setSelected] = useState(null);
-  const [deleteConfirm, setDeleteConfirm] = useState(null);
-  const [mapUser, setMapUser] = useState(null);
-
-  const load = async (signal = { cancelled: false }) => {
-    if (!signal.cancelled) setLoading(true);
-    try {
-      const data = await api.get('/admin/users');
-      if (!signal.cancelled) setUsers(data.users || []);
-    } catch (e) {
-      if (!signal.cancelled) showToast('Failed to load users: ' + e.message, 'error');
-    } finally {
-      if (!signal.cancelled) setLoading(false);
-    }
+  const exportCSV = () => {
+    const rows = [['Name', 'Email', 'Phone', 'Role', 'Orders', 'Loyalty Points', 'Joined']];
+    users.forEach(u => rows.push([u.name, u.email, u.phone || '', u.role, (u.orders || []).length, u.loyaltyPoints || 0, u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '']));
+    const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+    const a = document.createElement('a'); a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv); a.download = 'users.csv'; a.click();
   };
 
-  useEffect(() => {
-    let signal = { cancelled: false };
-    load(signal);
-    const interval = setInterval(async () => {
-      try {
-        const data = await api.get('/admin/users');
-        if (!signal.cancelled) setUsers(data.users || []);
-      } catch (e) { }
-    }, 10000); // 10s sync
-    return () => { signal.cancelled = true; clearInterval(interval); };
-  }, []);
+  const filtered = users.filter(u => !search || [u.name, u.email, u.phone].some(v => v && String(v).toLowerCase().includes(search.toLowerCase())));
+
+  return (
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
+        <h2 style={{ fontSize: 22, fontFamily: 'Outfit,sans-serif', fontWeight: 700 }}>User Management</h2>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <button onClick={() => setShowMap(true)} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: G, background: 'none', border: `1px solid ${G}`, borderRadius: 8, padding: '7px 14px', cursor: 'pointer' }}>
+            <MapPin size={13} /> View Customer Map
+          </button>
+          <button onClick={() => setRefreshKey(k => k + 1)} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: G, background: 'none', border: `1px solid ${G}`, borderRadius: 8, padding: '7px 14px', cursor: 'pointer' }}>
             <RefreshCw size={13} /> Refresh
           </button>
           <button onClick={exportCSV} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: '#fff', background: G, border: 'none', borderRadius: 8, padding: '7px 16px', cursor: 'pointer' }}>
