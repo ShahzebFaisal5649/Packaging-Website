@@ -39,9 +39,9 @@ export default function Register() {
     setForm(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
   };
 
-  const handleSubmit = async (e) => {
+    const handleSubmit = async (e) => {
     e.preventDefault();
-    if (form.name.trim().length < 2) return showToast('Name must be at least 2 characters', 'error');
+    if (!form.name || form.name.trim().length < 2) return showToast('Please enter your full name (at least 2 characters)', 'error');
     if (!/^\S+@\S+\.\S+$/.test(form.email)) return showToast('Enter a valid email address', 'error');
     if (form.password.length < 6) return showToast('Password must be at least 6 characters', 'error');
     if (form.password !== form.confirmPassword) return showToast('Passwords do not match', 'error');
@@ -126,7 +126,7 @@ export default function Register() {
 
             <div>
               <label style={{ display: 'block', fontSize: 13, fontFamily: '"DM Sans", sans-serif', fontWeight: 600, color: '#333', marginBottom: 7 }}>Full Name</label>
-              <FieldInput icon={<User size={17} />} type="text" name="name" value={form.name} onChange={handleChange} placeholder="John Doe" />
+              <FieldInput icon={<User size={17} />} type="text" name="name" value={form.name} onChange={handleChange} placeholder="John Doe" autoComplete="name" />
             </div>
 
             <div>

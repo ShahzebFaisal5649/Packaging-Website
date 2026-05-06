@@ -271,8 +271,11 @@ export default function CustomBox() {
     const newAddons = config.addons.includes(addon) ? config.addons.filter(a => a !== addon) : [...config.addons, addon];
     handleConfigChange('addons', newAddons);
   };
-  // Fix 6: Use product name from nav state; use product image if available
   const handleAddToCart = () => {
+    if (!config.quantity || config.quantity < 1) {
+      showToast('Please select a valid quantity (min 1).', 'error');
+      return;
+    }
     let cartImage = location.state?.productImage || 'https://images.unsplash.com/photo-1607083206968-13611e3d76db?q=80&w=400';
     if (canvasRef.current) {
       try { cartImage = canvasRef.current.toDataURL('image/jpeg', 0.5); } catch { /* canvas unavailable */ }
@@ -286,6 +289,10 @@ export default function CustomBox() {
   };
   // Fix 6: Same for Get Quote
   const handleGetQuote = () => {
+    if (!config.quantity || config.quantity < 1) {
+      showToast('Please select a valid quantity (min 1).', 'error');
+      return;
+    }
     const cartImage = location.state?.productImage
       || 'https://images.unsplash.com/photo-1607083206968-13611e3d76db?q=80&w=400';
     const finalConfig = { ...config, artworkUrl: artworkApplied ? artworkPreview : null };
@@ -464,7 +471,7 @@ export default function CustomBox() {
                       </div>
                     ))}
                   </div>
-                  <label style={{ fontSize: 11, fontWeight: 700, color: '#1A1A1A', display: 'block', marginBottom: 8 }}>Quantity</label>
+                  <label style={{ fontSize: 11, fontWeight: 700, color: '#1A1A1A', display: 'block', marginBottom: 8 }}>Quantity <span style={{ color: '#DC2626' }}>*</span></label>
                   <select value={config.quantity} onChange={e => handleConfigChange('quantity', parseInt(e.target.value))}
                     style={{ width: '100%', padding: '12px 14px', border: '1.5px solid #E8E4DC', borderRadius: 10, fontSize: 14, fontWeight: 700, outline: 'none', cursor: 'pointer', appearance: 'none', background: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 12px center / 16px, #fff` }}>
                     {[100, 250, 500, 1000, 2500, 5000].map(q => (

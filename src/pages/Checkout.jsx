@@ -38,10 +38,10 @@ const CARD_STYLE = {
 };
 
 // ── Payment Form ──────────────────────────────────────────────────────────────
-function PaymentForm({ clientSecret, amount }) {
+function PaymentForm({ clientSecret, amount, checkoutItems }) {
   const stripe = useStripe();
   const elements = useElements();
-  const { cartItems, clearCart } = useCart();
+  const { clearCart } = useCart();
   const { user, refreshUser } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
@@ -92,7 +92,7 @@ function PaymentForm({ clientSecret, amount }) {
         // Save order to MongoDB
         try {
           const orderData = {
-            items: cartItems,
+            items: checkoutItems,
             total: amount,
             shippingAddress: {
               name: form.name,
@@ -195,18 +195,19 @@ function PaymentForm({ clientSecret, amount }) {
 
 // ── Main Checkout Page ────────────────────────────────────────────────────────
 export default function Checkout() {
-  const { cartItems, cartTotal } = useCart();
+  const { cartItems, selectedItemIndices, selectedCartTotal } = useCart();
+  const checkoutItems = cartItems.filter((_, idx) => selectedItemIndices.includes(idx));
   const navigate = useNavigate();
   const [clientSecret, setClientSecret] = useState('');
   const [loadError, setLoadError] = useState('');
   const [fetchingIntent, setFetchingIntent] = useState(false);
   const fetchedRef = useRef(false);
 
-  const tax = cartTotal * 0.08;
-  const orderTotal = cartTotal + tax;
+  const tax = selectedCartTotal * 0.08;
+  const orderTotal = selectedCartTotal + tax;
 
   useEffect(() => {
-    if (cartItems.length === 0) { navigate('/products'); return; }
+    if (checkoutItems.length === 0) { navigate('/products'); return; }
     if (!STRIPE_KEY) { setLoadError('Stripe is not configured. Please contact support.'); return; }
     if (fetchedRef.current) return;
     fetchedRef.current = true;
@@ -270,7 +271,7 @@ export default function Checkout() {
               </div>
             ) : (
               <Elements stripe={stripePromise} options={{ clientSecret }}>
-                <PaymentForm clientSecret={clientSecret} amount={orderTotal} />
+                <PaymentForm clientSecret={clientSecret} amount={orderTotal} checkoutItems={checkoutItems} />
               </Elements>
             )}
           </div>
@@ -280,11 +281,11 @@ export default function Checkout() {
             <div style={{ background: '#fff', borderRadius: 16, overflow: 'hidden', boxShadow: '0 2px 16px rgba(0,0,0,0.06)' }}>
               <div style={{ background: G, padding: '16px 22px', display: 'flex', alignItems: 'center', gap: 10 }}>
                 <Package size={17} color="#fff" />
-                <h3 style={{ fontSize: 15, fontWeight: 800, color: '#fff', margin: 0 }}>Order Summary ({cartItems.length} {cartItems.length === 1 ? 'item' : 'items'})</h3>
+                <h3 style={{ fontSize: 15, fontWeight: 800, color: '#fff', margin: 0 }}>Order Summary ({checkoutItems.length} {checkoutItems.length === 1 ? 'item' : 'items'})</h3>
               </div>
               <div style={{ padding: '18px 22px', borderBottom: '1px solid #F0EDE8', maxHeight: 260, overflowY: 'auto' }}>
-                {cartItems.map((item, i) => (
-                  <div key={i} style={{ display: 'flex', gap: 12, marginBottom: i < cartItems.length - 1 ? 16 : 0, alignItems: 'center' }}>
+                {checkoutItems.map((item, i) => (
+                  <div key={i} style={{ display: 'flex', gap: 12, marginBottom: i < checkoutItems.length - 1 ? 16 : 0, alignItems: 'center' }}>
                     <div style={{ width: 52, height: 52, borderRadius: 8, background: '#F5F2ED', overflow: 'hidden', flexShrink: 0 }}>
                       <img src={item.image} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                         onError={e => { e.target.src = 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=200&q=60'; }} />
@@ -299,7 +300,7 @@ export default function Checkout() {
               </div>
               <div style={{ padding: '18px 22px' }}>
                 {[
-                  { label: 'Subtotal', val: `$${cartTotal.toFixed(2)}`, color: '#666' },
+                  { label: 'Subtotal', val: `$${selectedCartTotal.toFixed(2)}`, color: '#666' },
                   { label: 'Tax (8%)', val: `$${tax.toFixed(2)}`, color: '#666' },
                   { label: 'Shipping', val: 'FREE', color: '#059669' },
                 ].map(r => (

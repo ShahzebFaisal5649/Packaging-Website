@@ -11,7 +11,7 @@ import {
   Eye, Mail, Phone, Calendar,
   Shield, Ban, Star, ArrowUpRight,
   Package, Building, Upload, Menu, Plus, MapPin,
-  CheckCircle, Truck,
+  CheckCircle, Truck, ChevronDown,
 } from 'lucide-react';
 
 const G = '#1A4D2E';
@@ -1410,11 +1410,21 @@ function UsersSection() {
                       {u.phone && <div style={{ fontSize: 12, color: '#555', display: 'flex', alignItems: 'center', gap: 4 }}><Phone size={11} color="#aaa" /> {u.phone}</div>}
                     </td>
                     <td style={{ padding: '12px 14px' }}>
-                      <select value={u.role || 'user'} onChange={e => handleRoleChange(u, e.target.value)}
-                        style={{ padding: '5px 8px', borderRadius: 6, border: '1px solid #E2DDD6', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
-                        <option value="user">User</option>
-                        <option value="admin">Admin</option>
-                      </select>
+                      <div style={{ position: 'relative', width: 'fit-content' }}>
+                        <select value={u.role || 'user'} onChange={e => handleRoleChange(u, e.target.value)}
+                          style={{ 
+                            padding: '5px 28px 5px 12px', borderRadius: 100, border: '1px solid #E2DDD6', 
+                            fontSize: 11, fontWeight: 700, cursor: 'pointer', appearance: 'none',
+                            background: u.role === 'admin' ? `${G}15` : '#F8FAFC',
+                            color: u.role === 'admin' ? G : '#64748B',
+                            outline: 'none',
+                            transition: 'all 0.2s'
+                          }}>
+                          <option value="user">User</option>
+                          <option value="admin">Admin</option>
+                        </select>
+                        <ChevronDown size={10} style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', opacity: 0.5 }} />
+                      </div>
                     </td>
                     <td style={{ padding: '12px 14px', fontSize: 13, fontWeight: 600, color: '#1A1A1A' }}>{(u.orders || []).length}</td>
                     <td style={{ padding: '12px 14px' }}>
@@ -1653,6 +1663,9 @@ function MessagesSection() {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
+  const [replyingTo, setReplyingTo] = useState(null);
+  const [replyText, setReplyText] = useState('');
+  const [isSendingReply, setIsSendingReply] = useState(false);
   const [search, setSearch] = useState('');
 
   useEffect(() => {
@@ -1684,6 +1697,22 @@ function MessagesSection() {
       showToast('Marked as replied', 'success');
     } catch {
       showToast('Failed to update message', 'error');
+    }
+  };
+
+  const handleSendReply = async () => {
+    if (!replyText.trim()) return showToast('Please enter a reply', 'error');
+    setIsSendingReply(true);
+    try {
+      await api.post(`/admin/contact-messages/${replyingTo._id}/reply`, { replyMessage: replyText });
+      setMessages(prev => prev.map(m => m._id === replyingTo._id ? { ...m, status: 'Replied' } : m));
+      showToast('Reply sent successfully', 'success');
+      setReplyingTo(null);
+      setReplyText('');
+    } catch (err) {
+      showToast(err.message || 'Failed to send reply', 'error');
+    } finally {
+      setIsSendingReply(false);
     }
   };
 
@@ -1747,12 +1776,16 @@ function MessagesSection() {
                   <td style={{ padding: '12px 14px' }}><Badge status={m.status || 'New'} /></td>
                   <td style={{ padding: '12px 14px' }}>
                     <div style={{ display: 'flex', gap: 6 }}>
-                      <button onClick={() => setSelected(m)}
+                      <button onClick={() => setSelected(m)} title="View Message"
                         style={{ padding: '5px 10px', borderRadius: 6, border: `1px solid ${G}`, color: G, background: 'none', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
                         <Eye size={11} />
                       </button>
+                      <button onClick={() => setReplyingTo(m)} title="Send Reply"
+                        style={{ padding: '5px 10px', borderRadius: 6, border: `1px solid ${ACCENT}`, color: ACCENT, background: 'none', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
+                        <Mail size={11} />
+                      </button>
                       {m.status !== 'Replied' && (
-                        <button onClick={() => handleMarkReplied(m._id)}
+                        <button onClick={() => handleMarkReplied(m._id)} title="Mark Replied"
                           style={{ padding: '5px 10px', borderRadius: 6, border: '1px solid #D1FAE5', color: '#065F46', background: 'none', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
                           ✓
                         </button>
@@ -1797,13 +1830,36 @@ function MessagesSection() {
           )}
           <div style={{ display: 'flex', gap: 10, paddingTop: 16, borderTop: '1px solid #F0EDE8' }}>
             {selected.status !== 'Replied' && (
-              <button onClick={() => handleMarkReplied(selected._id)} style={{ flex: 1, padding: '10px', background: G, color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}>Mark as Replied</button>
+              <button onClick={() => setReplyingTo(selected)} style={{ flex: 1, padding: '10px', background: G, color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}>Write Reply</button>
             )}
             <a href={`mailto:${selected.email}?subject=Re: ${encodeURIComponent(selected.subject || '')}`}
-              style={{ flex: 1, padding: '10px', background: ACCENT, color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-              <Mail size={14} /> Reply via Email
+              style={{ flex: 1, padding: '10px', background: '#333', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+              <Mail size={14} /> Mail Client
             </a>
             <button onClick={() => handleDelete(selected._id)} style={{ padding: '10px 16px', background: '#FEE2E2', color: '#DC2626', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}><Trash2 size={14} /></button>
+          </div>
+        </Modal>
+      )}
+
+      {replyingTo && (
+        <Modal onClose={() => setReplyingTo(null)} title={`Reply to ${replyingTo.name}`}>
+          <div style={{ marginBottom: 16 }}>
+             <p style={{ fontSize: 12, color: '#666', marginBottom: 12 }}>Replying to: <strong>{replyingTo.subject}</strong></p>
+             <textarea 
+               value={replyText} 
+               onChange={e => setReplyText(e.target.value)}
+               placeholder="Write your response here..."
+               style={{ width: '100%', minHeight: 180, padding: 14, borderRadius: 10, border: '1.5px solid #E2DDD6', fontSize: 14, outline: 'none', boxSizing: 'border-box' }}
+             />
+          </div>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button onClick={() => setReplyingTo(null)} style={{ flex: 1, padding: '12px', background: '#fff', border: '1px solid #E2DDD6', borderRadius: 8, fontWeight: 700 }}>Cancel</button>
+            <button 
+              onClick={handleSendReply} 
+              disabled={isSendingReply}
+              style={{ flex: 1, padding: '12px', background: G, color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, cursor: isSendingReply ? 'not-allowed' : 'pointer', opacity: isSendingReply ? 0.7 : 1 }}>
+              {isSendingReply ? 'Sending...' : 'Send Reply'}
+            </button>
           </div>
         </Modal>
       )}
@@ -1974,16 +2030,20 @@ function AnalyticsSection() {
             <MapPin size={20} color="#3B82F6" /> Market Presence
           </h3>
           <p style={{ fontSize: 13, color: '#64748B', marginBottom: 20 }}>Geospatial density of your customer base.</p>
-          <div style={{ height: 220, borderRadius: 16, overflow: 'hidden', border: '1px solid #E2E8F0' }}>
+          <div style={{ height: 220, borderRadius: 16, overflow: 'hidden', border: '1px solid #E2E8F0', position: 'relative' }}>
             {data.locations && data.locations.length > 0 ? (
               <iframe
                 title="Global Distribution Map"
-                src={`https://www.google.com/maps?q=${encodeURIComponent(data.locations[0]?.city || 'USA')}&t=&z=3&ie=UTF8&iwloc=&output=embed`}
+                src={`https://www.google.com/maps?q=${encodeURIComponent(data.locations.map(l => l.city).join('|'))}&t=&z=3&ie=UTF8&iwloc=&output=embed`}
                 width="100%" height="100%" style={{ border: 0 }}
+                loading="lazy"
               />
             ) : (
               <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F8FAFC', color: '#94A3B8', fontSize: 13 }}>
-                Waiting for data...
+                <div style={{ textAlign: 'center' }}>
+                  <MapPin size={24} style={{ marginBottom: 8, opacity: 0.5 }} />
+                  <p>Awaiting Market Data...</p>
+                </div>
               </div>
             )}
           </div>

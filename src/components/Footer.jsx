@@ -197,12 +197,18 @@ export default function Footer() {
             © {year} Design Custom Box. reserved by NextStac.
           </p>
           <div style={{ display: 'flex', gap: 20, fontSize: 12 }}>
-            {['Privacy Policy', 'Terms of Service', 'Refund Policy'].map(t => (
-              <Link key={t} to="/" style={{ color: 'rgba(255,255,255,0.45)', textDecoration: 'none', transition: 'color 0.15s' }}
-                onMouseEnter={e => e.target.style.color = '#fff'}
-                onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.45)'}
-              >{t}</Link>
-            ))}
+            <Link to="/privacy" style={{ color: 'rgba(255,255,255,0.45)', textDecoration: 'none', transition: 'color 0.15s' }}
+              onMouseEnter={e => e.target.style.color = '#fff'}
+              onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.45)'}
+            >Privacy Policy</Link>
+            <Link to="/terms" style={{ color: 'rgba(255,255,255,0.45)', textDecoration: 'none', transition: 'color 0.15s' }}
+              onMouseEnter={e => e.target.style.color = '#fff'}
+              onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.45)'}
+            >Terms of Service</Link>
+            <Link to="/terms" style={{ color: 'rgba(255,255,255,0.45)', textDecoration: 'none', transition: 'color 0.15s' }}
+              onMouseEnter={e => e.target.style.color = '#fff'}
+              onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.45)'}
+            >Refund Policy</Link>
           </div>
         </div>
       </div>

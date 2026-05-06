@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Clock, User, ArrowUpRight } from 'lucide-react';
+import { ArrowRight, Clock, User, ArrowUpRight, CheckCircle } from 'lucide-react';
 import api from '../services/api';
 
 const G = '#1A4D2E';

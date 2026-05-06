@@ -30,6 +30,8 @@ const CustomBox = lazy(() => import('./pages/CustomBox'));
 const HowItWorks = lazy(() => import('./pages/HowItWorks'));
 const FAQ = lazy(() => import('./pages/FAQ'));
 const Favourites = lazy(() => import('./pages/Favourites'));
+const Terms = lazy(() => import('./pages/Terms'));
+const Privacy = lazy(() => import('./pages/Privacy'));
 
 // Auth Pages
 const Login = lazy(() => import('./pages/Login'));
@@ -168,6 +170,8 @@ export default function App() {
                           <Route path="/faqs" element={<FAQ />} />
                           <Route path="/blog" element={<Blog />} />
                           <Route path="/contact-us" element={<Contact />} />
+                          <Route path="/terms" element={<Terms />} />
+                          <Route path="/privacy" element={<Privacy />} />
                           <Route path="/favourites" element={<Favourites />} />
                           <Route path="/login" element={<Login />} />
                           <Route path="/register" element={<Register />} />

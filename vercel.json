@@ -27,5 +27,24 @@
     "VITE_TAWK_WIDGET_ID": "1jnmv9gk6",
     "VITE_API_URL": "/api",
     "VITE_STRIPE_PUBLISHABLE_KEY": "pk_test_51TNAL0D4DgHVyIx8AOcWm8ZJahwZGmCKa7djP9EPBThWuZ7U2ATe9zZi6cfDpIRJEFkjgQAEeZ69qqtWDcrYzq2N00dA3g1A4p"
-  }
+  },
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        }
+      ]
+    }
+  ]
 }

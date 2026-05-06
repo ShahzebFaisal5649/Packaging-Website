@@ -1,32 +1,144 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Design Custom Box — Premium Custom Packaging</title>
-    <meta name="description" content="Premium custom packaging and boxes by Design Custom Box. Fast turnaround, industry grade quality, and modern design tools." />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Google Fonts: Playfair Display (headings), DM Sans (body), DM Mono (labels/accents) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400;1,700&display=swap" rel="stylesheet" />
+  <!-- Primary SEO Meta Tags -->
+  <title>Design Custom Box — Premium Custom Packaging & Box Printing</title>
+  <meta name="title" content="Design Custom Box — Premium Custom Packaging & Box Printing" />
+  <meta name="description" content="Design Custom Box offers premium custom packaging solutions including mailer boxes, retail display boxes, and branded packaging for businesses. Free shipping on all orders." />
+  <meta name="keywords" content="custom boxes, custom packaging, mailer boxes, retail display boxes, branded packaging, box printing, custom mailer box, packaging solutions" />
+  <meta name="author" content="Design Custom Box" />
+  <meta name="robots" content="index, follow" />
+  <meta name="language" content="English" />
+  <meta name="revisit-after" content="7 days" />
 
-    <!-- CSP: allow Stripe, Tawk.to, Google Fonts, Unsplash -->
-    <meta http-equiv="Content-Security-Policy" content="
-      default-src 'self' https:;
-      script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://embed.tawk.to https://cdn.tawk.to https://va.tawk.to https://accounts.google.com;
-      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com https://embed.tawk.to;
-      font-src 'self' https://fonts.gstatic.com;
-      img-src 'self' data: blob: https:;
-      connect-src 'self' https: wss: https://api.stripe.com https://*.tawk.to wss://*.tawk.to;
-      frame-src https://js.stripe.com https://hooks.stripe.com https://www.google.com https://accounts.google.com;
-      worker-src blob:;
-    " />
-    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+  <!-- Canonical URL -->
+  <link rel="canonical" href="https://designcustombox.com/" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://designcustombox.com/" />
+  <meta property="og:title" content="Design Custom Box — Premium Custom Packaging & Box Printing" />
+  <meta property="og:description" content="Design Custom Box offers premium custom packaging solutions including mailer boxes, retail display boxes, and branded packaging for businesses. Free shipping on all orders." />
+  <meta property="og:image" content="https://designcustombox.com/og-image.png" />
+  <meta property="og:site_name" content="Design Custom Box" />
+  <meta property="og:locale" content="en_US" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="https://designcustombox.com/" />
+  <meta name="twitter:title" content="Design Custom Box — Premium Custom Packaging & Box Printing" />
+  <meta name="twitter:description" content="Design Custom Box offers premium custom packaging solutions including mailer boxes, retail display boxes, and branded packaging for businesses." />
+  <meta name="twitter:image" content="https://designcustombox.com/og-image.png" />
+
+  <!-- Favicon — Design Custom Box Logo -->
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+
+  <!-- Fonts -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Prata&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- Performance: Preload hero image -->
+  <link rel="preload" as="image" href="/hero-image.png" />
+
+  <!-- Structured Data: Organization -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Design Custom Box",
+    "url": "https://designcustombox.com",
+    "logo": "https://designcustombox.com/favicon.png",
+    "email": "Designcustombox@gmail.com",
+    "telephone": "+19132282682",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "5532 Big River Dr",
+      "addressLocality": "The Colony",
+      "addressRegion": "TX",
+      "postalCode": "75056",
+      "addressCountry": "US"
+    },
+    "sameAs": [
+      "https://www.facebook.com/designcustombox",
+      "https://www.instagram.com/designcustombox"
+    ],
+    "description": "Design Custom Box provides premium custom packaging solutions including mailer boxes, retail display boxes, and branded packaging for businesses of all sizes."
+  }
+  </script>
+
+  <!-- Structured Data: WebSite with SearchAction -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Design Custom Box",
+    "url": "https://designcustombox.com",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": "https://designcustombox.com/search?q={search_term_string}"
+      },
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+
+  <!-- Structured Data: LocalBusiness -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": "Design Custom Box",
+    "image": "https://designcustombox.com/favicon.png",
+    "email": "Designcustombox@gmail.com",
+    "telephone": "+19132282682",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "5532 Big River Dr",
+      "addressLocality": "The Colony",
+      "addressRegion": "TX",
+      "postalCode": "75056",
+      "addressCountry": "US"
+    },
+    "url": "https://designcustombox.com",
+    "openingHours": "Mo-Fr 09:00-18:00",
+    "priceRange": "$$",
+    "description": "Premium custom packaging and box printing solutions for businesses."
+  }
+  </script>
+
+  <!-- Global Styles -->
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #ffffff;
+      color: #1a1a1a;
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+    }
+    #root {
+      min-height: 100vh;
+    }
+    ::selection {
+      background: #1a472a;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
 </html>

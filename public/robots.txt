@@ -1,0 +1,67 @@
+# Design Custom Box — robots.txt
+# https://designcustombox.com
+
+# Allow all major search engine bots
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /_next/
+Disallow: /private/
+Disallow: /tmp/
+Disallow: /config/
+Disallow: /.git/
+Disallow: /node_modules/
+Disallow: /src/
+Disallow: /backup/
+
+# Allow static assets
+Allow: /assets/
+Allow: /images/
+Allow: /fonts/
+Allow: /*.css$
+Allow: /*.js$
+Allow: /*.png$
+Allow: /*.jpg$
+Allow: /*.jpeg$
+Allow: /*.svg$
+Allow: /*.webp$
+
+# Googlebot
+User-agent: Googlebot
+Allow: /
+
+# Google Image Bot
+User-agent: Googlebot-Image
+Allow: /
+
+# Bingbot
+User-agent: Bingbot
+Allow: /
+
+# DuckDuckBot
+User-agent: DuckDuckBot
+Allow: /
+
+# Yandex
+User-agent: Yandex
+Allow: /
+
+# Block SEO scrapers
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+# Sitemap location
+Sitemap: https://designcustombox.com/sitemap.xml
+
+# Canonical host
+Host: https://designcustombox.com

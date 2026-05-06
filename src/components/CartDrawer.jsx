@@ -4,15 +4,12 @@ import { X, Minus, Plus, ShoppingBag, ChevronRight, Trash2, CheckSquare, Square 
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 export default function CartDrawer() {
-  const { cartItems, isDrawerOpen, toggleDrawer, updateQuantity, removeFromCart, removeMultipleFromCart, cartTotal } = useCart();
-  const [selectedItems, setSelectedItems] = useState([]);
+  const { cartItems, isDrawerOpen, toggleDrawer, updateQuantity, removeFromCart, removeMultipleFromCart, selectedCartTotal, selectedItemIndices, toggleSelectedItem, selectAllItems } = useCart();
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Clear selections when cart closes
-  useEffect(() => {
-    if (!isDrawerOpen) setSelectedItems([]);
-  }, [isDrawerOpen]);
+  // Selected items are now managed globally in CartContext so Checkout can see them
+
 
   // Close cart when user navigates to a different page
   useEffect(() => {
@@ -56,15 +53,15 @@ export default function CartDrawer() {
           {cartItems.length > 0 && (
             <div className="flex items-center justify-between px-6 pb-4">
               <button 
-                onClick={() => setSelectedItems(selectedItems.length === cartItems.length ? [] : cartItems.map((_, i) => i))}
+                onClick={() => selectAllItems(selectedItemIndices.length !== cartItems.length)}
                 className="flex items-center gap-2 text-[13px] font-semibold text-gray-500 hover:text-brand-primary transition-colors"
               >
-                {selectedItems.length === cartItems.length ? <CheckSquare size={16} className="text-brand-primary" /> : <Square size={16} />}
+                {selectedItemIndices.length === cartItems.length ? <CheckSquare size={16} className="text-brand-primary" /> : <Square size={16} />}
                 Select All
               </button>
-              {selectedItems.length > 0 && (
+              {selectedItemIndices.length > 0 && (
                 <button 
-                  onClick={() => { removeMultipleFromCart(selectedItems); setSelectedItems([]); }}
+                  onClick={() => removeMultipleFromCart(selectedItemIndices)}
                   className="flex items-center gap-1.5 text-[13px] font-semibold text-red-500 hover:text-red-600 transition-colors bg-red-50 px-3 py-1.5 rounded-md"
                 >
                   <Trash2 size={14} /> Remove Selected
@@ -89,12 +86,12 @@ export default function CartDrawer() {
             </div>
           ) : (
             cartItems.map((item, idx) => (
-              <div key={idx} className={`flex gap-4 border-b border-gray-50 pb-6 last:border-0 last:pb-0 transition-colors ${selectedItems.includes(idx) ? 'bg-[#EEF4FB]/50 -mx-6 px-6 pt-2 pb-8 rounded-lg' : ''}`}>
+              <div key={idx} className={`flex gap-4 border-b border-gray-50 pb-6 last:border-0 last:pb-0 transition-colors ${selectedItemIndices.includes(idx) ? 'bg-[#EEF4FB]/50 -mx-6 px-6 pt-2 pb-8 rounded-lg' : ''}`}>
                 <button
-                  onClick={() => setSelectedItems(prev => prev.includes(idx) ? prev.filter(i => i !== idx) : [...prev, idx])}
+                  onClick={() => toggleSelectedItem(idx)}
                   className="mt-6 flex-shrink-0 text-gray-400 hover:text-brand-primary transition-colors"
                 >
-                  {selectedItems.includes(idx) ? <CheckSquare size={18} className="text-brand-primary" /> : <Square size={18} />}
+                  {selectedItemIndices.includes(idx) ? <CheckSquare size={18} className="text-brand-primary" /> : <Square size={18} />}
                 </button>
                 <div 
                   className="w-20 h-20 bg-gray-50 rounded-lg overflow-hidden flex-shrink-0 border border-gray-100 cursor-pointer"
@@ -138,8 +135,8 @@ export default function CartDrawer() {
           <div className="p-6 border-t border-gray-100 bg-brand-bg">
             <div className="space-y-3 mb-6">
               <div className="flex justify-between text-[14px] text-brand-textSecondary">
-                <span>Subtotal</span>
-                <span>${cartTotal.toFixed(2)}</span>
+                <span>Subtotal ({selectedItemIndices.length} items)</span>
+                <span>${selectedCartTotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-[14px] text-brand-textSecondary">
                 <span>Shipping</span>
@@ -147,18 +144,24 @@ export default function CartDrawer() {
               </div>
               <div className="flex justify-between text-[18px] font-bold text-brand-textPrimary pt-3 border-t border-gray-200">
                 <span>Total</span>
-                <span>${cartTotal.toFixed(2)}</span>
+                <span>${selectedCartTotal.toFixed(2)}</span>
               </div>
             </div>
             
             <div className="space-y-3">
-              <Link 
-                to="/checkout" 
-                onClick={() => toggleDrawer(false)}
-                className="block w-full py-3.5 bg-brand-accent text-white text-center font-bold text-[14px] rounded-button shadow-sm hover:bg-[#b57a3d] hover:scale-[1.02] active:scale-[0.97] transition-button"
+              <button 
+                onClick={() => {
+                  if (selectedItemIndices.length === 0) {
+                    alert('Please select at least one item to proceed to checkout.');
+                    return;
+                  }
+                  toggleDrawer(false);
+                  navigate('/checkout');
+                }}
+                className={`block w-full py-3.5 text-white text-center font-bold text-[14px] rounded-button shadow-sm transition-all ${selectedItemIndices.length === 0 ? 'bg-gray-400 cursor-not-allowed opacity-70' : 'bg-brand-accent hover:bg-[#b57a3d] hover:scale-[1.02] active:scale-[0.97]'}`}
               >
                 Proceed to Checkout
-              </Link>
+              </button>
               <button
                 onClick={() => { toggleDrawer(false); navigate('/products'); }}
                 className="w-full py-3.5 px-6 bg-white border-2 border-[#1A4D2E] text-[#1A4D2E] font-bold text-[14px] rounded-button hover:shadow-[0_8px_25px_rgba(26,77,46,0.15)] transition-all duration-300 flex items-center justify-between group overflow-hidden relative"
