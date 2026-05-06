@@ -237,7 +237,7 @@ router.put('/quotes/:userId/:quoteId', async (req, res) => {
         `;
         await sendEmail({
           email: user.email,
-          subject: \`Update on your Quote Request: \${quote.quoteId}\`,
+          subject: `Update on your Quote Request: ${quote.quoteId}`,
           html: htmlMessage,
         });
       } catch (err) {
@@ -297,7 +297,7 @@ router.post('/messages/:id/reply', async (req, res) => {
     
     await sendEmail({
       email: message.email,
-      subject: \`Re: \${message.subject}\`,
+      subject: `Re: ${message.subject}`,
       html: htmlMessage,
     });
 
