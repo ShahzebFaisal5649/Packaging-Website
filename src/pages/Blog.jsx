@@ -142,6 +142,7 @@ export default function Blog() {
 
               <motion.button 
                 whileHover={{ gap: 12, paddingLeft: 32, paddingRight: 24 }}
+                onClick={() => window.open('https://designcustombox.com/blog', '_self')}
                 style={{ alignSelf: 'flex-start', display: 'flex', alignItems: 'center', gap: 8, padding: '16px 32px', backgroundColor: ACCENT, color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontFamily: '"DM Sans", sans-serif', fontSize: 14, cursor: 'pointer', transition: 'all 0.3s' }}
               >
                 Read Article <ArrowRight size={16} />
@@ -208,6 +209,7 @@ export default function Blog() {
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.4, type: 'spring', bounce: 0.2 }}
                   key={post.id}
+                  onClick={() => window.open('https://designcustombox.com/blog', '_self')}
                   style={{ 
                     backgroundColor: '#fff', borderRadius: 16, overflow: 'hidden', border: '1px solid #E2DDD6', 
                     gridColumn: isLarge ? 'span 2' : 'span 1', 

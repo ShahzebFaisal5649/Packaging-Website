@@ -126,6 +126,7 @@ export default function Contact() {
 
                 <div style={{ display: 'flex', gap: 32, marginBottom: 16 }} className="form-row">
                   <FormInput name="subject" label="Subject / Project Type" formData={formData} setFormData={setFormData} required />
+                  <FormInput name="quantity" type="number" label="Approx. Quantity" formData={formData} setFormData={setFormData} required />
                 </div>
 
                 <div style={{ marginBottom: 40, marginTop: 16 }}>

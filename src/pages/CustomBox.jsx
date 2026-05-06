@@ -106,7 +106,7 @@ export default function CustomBox() {
   const [activeStep, setActiveStep] = useState(1);
   const [config, setConfig] = useState({
     boxType: 'Mailer Box',
-    l: '8', w: '6', h: '3', unit: 'in', quantity: 500,
+    l: '8', w: '6', h: '3', unit: 'in', quantity: '',
     material: 'Corrugated E-Flute',
     print: 'Outside Only', colorMode: 'CMYK Full Color', finish: 'Matte Lam',
     addons: [],
@@ -138,7 +138,7 @@ export default function CustomBox() {
       setPrefilledName(s.name || null);
       return;
     }
-    const updates = {};
+    const updates = { quantity: '' };
     if (s.boxType) updates.boxType = s.boxType;
     if (s.material) updates.material = s.material;
     if (s.finish) updates.finish = s.finish;
@@ -472,12 +472,14 @@ export default function CustomBox() {
                     ))}
                   </div>
                   <label style={{ fontSize: 11, fontWeight: 700, color: '#1A1A1A', display: 'block', marginBottom: 8 }}>Quantity <span style={{ color: '#DC2626' }}>*</span></label>
-                  <select value={config.quantity} onChange={e => handleConfigChange('quantity', parseInt(e.target.value))}
-                    style={{ width: '100%', padding: '12px 14px', border: '1.5px solid #E8E4DC', borderRadius: 10, fontSize: 14, fontWeight: 700, outline: 'none', cursor: 'pointer', appearance: 'none', background: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 12px center / 16px, #fff` }}>
+                  <select value={config.quantity || ''} onChange={e => handleConfigChange('quantity', e.target.value ? parseInt(e.target.value) : '')}
+                    style={{ width: '100%', padding: '12px 14px', border: `1.5px solid ${!config.quantity ? '#DC2626' : '#E8E4DC'}`, borderRadius: 10, fontSize: 14, fontWeight: 700, outline: 'none', cursor: 'pointer', appearance: 'none', background: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 12px center / 16px, #fff` }}>
+                    <option value="">Select Quantity</option>
                     {[100, 250, 500, 1000, 2500, 5000].map(q => (
                       <option key={q} value={q}>{q.toLocaleString()} units{q >= 1000 ? ' — Volume Discount' : q >= 500 ? ' — 10% Off' : ''}</option>
                     ))}
                   </select>
+                  {!config.quantity && <p style={{ color: '#DC2626', fontSize: 10, fontWeight: 700, marginTop: 4 }}>* Quantity is required</p>}
                   {config.quantity >= 500 && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10, padding: '8px 12px', background: '#D1FAE5', borderRadius: 8 }}>
                       <Star size={12} color="#059669" style={{ fill: '#059669' }} />

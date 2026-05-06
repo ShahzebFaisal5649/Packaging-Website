@@ -1237,6 +1237,8 @@ function UsersSection() {
   const [selected, setSelected] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [showMap, setShowMap] = useState(false);
+  const [mapUser, setMapUser] = useState(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   // Extract all addresses and login locations for the map
   const allAddresses = users.flatMap(u => {
@@ -1255,34 +1257,32 @@ function UsersSection() {
     return locs;
   });
 
-  async function load() {
-    setLoading(true);
+  const load = async (signal = { cancelled: false }) => {
+    if (!signal.cancelled) setLoading(true);
     try {
       const data = await api.get('/admin/users');
-      setUsers(data.users || []);
+      if (!signal.cancelled) setUsers(data.users || []);
     } catch (e) {
-      showToast('Failed to load users: ' + e.message, 'error');
+      if (!signal.cancelled) showToast('Failed to load users: ' + e.message, 'error');
     } finally {
-      setLoading(false);
+      if (!signal.cancelled) setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    let cancelled = false;
-    async function loadUsers() {
-      setLoading(true);
+    let signal = { cancelled: false };
+    load(signal);
+    
+    // Polling setup for "real-time" sync
+    const interval = setInterval(async () => {
       try {
         const data = await api.get('/admin/users');
-        if (!cancelled) setUsers(data.users || []);
-      } catch {
-        if (!cancelled) showToast('Failed to load users', 'error');
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
-    loadUsers();
-    return () => { cancelled = true; };
-  }, []);
+        if (!signal.cancelled) setUsers(data.users || []);
+      } catch (e) { }
+    }, 10000); // 10s sync
+    
+    return () => { signal.cancelled = true; clearInterval(interval); };
+  }, [refreshKey]);
 
   const handleDelete = async (user) => {
     try {
@@ -1310,24 +1310,34 @@ function UsersSection() {
     } catch (e) { showToast(e.message, 'error'); }
   };
 
-  const exportCSV = () => {
-    const rows = [['Name', 'Email', 'Phone', 'Role', 'Orders', 'Loyalty Points', 'Joined']];
-    users.forEach(u => rows.push([u.name, u.email, u.phone || '', u.role, (u.orders || []).length, u.loyaltyPoints || 0, u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '']));
-    const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
-    const a = document.createElement('a'); a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv); a.download = 'users.csv'; a.click();
+  const [search, setSearch] = useState('');
+  const [selected, setSelected] = useState(null);
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [mapUser, setMapUser] = useState(null);
+
+  const load = async (signal = { cancelled: false }) => {
+    if (!signal.cancelled) setLoading(true);
+    try {
+      const data = await api.get('/admin/users');
+      if (!signal.cancelled) setUsers(data.users || []);
+    } catch (e) {
+      if (!signal.cancelled) showToast('Failed to load users: ' + e.message, 'error');
+    } finally {
+      if (!signal.cancelled) setLoading(false);
+    }
   };
 
-  const filtered = users.filter(u => !search || [u.name, u.email, u.phone].some(v => v && String(v).toLowerCase().includes(search.toLowerCase())));
-
-  return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
-        <h2 style={{ fontSize: 22, fontFamily: 'Outfit,sans-serif', fontWeight: 700 }}>User Management</h2>
-        <div style={{ display: 'flex', gap: 10 }}>
-          <button onClick={() => setShowMap(true)} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: G, background: 'none', border: `1px solid ${G}`, borderRadius: 8, padding: '7px 14px', cursor: 'pointer' }}>
-            <MapPin size={13} /> View Customer Map
-          </button>
-          <button onClick={load} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: '#fff', background: G, border: 'none', borderRadius: 8, padding: '7px 14px', cursor: 'pointer' }}>
+  useEffect(() => {
+    let signal = { cancelled: false };
+    load(signal);
+    const interval = setInterval(async () => {
+      try {
+        const data = await api.get('/admin/users');
+        if (!signal.cancelled) setUsers(data.users || []);
+      } catch (e) { }
+    }, 10000); // 10s sync
+    return () => { signal.cancelled = true; clearInterval(interval); };
+  }, []);
             <RefreshCw size={13} /> Refresh
           </button>
           <button onClick={exportCSV} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: '#fff', background: G, border: 'none', borderRadius: 8, padding: '7px 16px', cursor: 'pointer' }}>
@@ -1437,6 +1447,10 @@ function UsersSection() {
                           style={{ padding: '5px 10px', borderRadius: 6, border: `1px solid ${G}`, color: G, background: 'none', fontSize: 11, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
                           <Eye size={11} /> View
                         </button>
+                        <button onClick={() => setMapUser(u)}
+                          style={{ padding: '5px 10px', borderRadius: 6, border: '1px solid #E2DDD6', color: '#555', background: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+                          <MapPin size={11} color={ACCENT} /> Map
+                        </button>
                         <button onClick={() => setDeleteConfirm(u)}
                           style={{ padding: '5px 10px', borderRadius: 6, border: '1px solid #FEE2E2', color: '#DC2626', background: 'none', fontSize: 11, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
                           <Trash2 size={11} />
@@ -1516,6 +1530,46 @@ function UsersSection() {
               <button onClick={() => setDeleteConfirm(null)} style={{ padding: '10px 24px', background: '#fff', border: '1px solid #E2DDD6', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>Cancel</button>
               <button onClick={() => handleDelete(deleteConfirm)} style={{ padding: '10px 24px', background: '#DC2626', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>Delete User</button>
             </div>
+          </div>
+        </Modal>
+      )}
+
+      {mapUser && (
+        <Modal onClose={() => setMapUser(null)} title={`Location — ${mapUser.name}`}>
+          <div style={{ padding: '4px 0' }}>
+            {mapUser.lastLocation && mapUser.lastLocation.city ? (
+              <>
+                <div style={{ marginBottom: 16, padding: '12px 14px', background: BG, borderRadius: 10 }}>
+                  <p style={{ fontSize: 12, color: '#555', margin: '0 0 4px' }}>Last known location: <strong>{mapUser.lastLocation.city}, {mapUser.lastLocation.country}</strong></p>
+                  <p style={{ fontSize: 11, color: '#888', margin: 0 }}>IP Geolocation accurate to city level</p>
+                </div>
+                <div style={{ height: 400, borderRadius: 12, overflow: 'hidden', border: '1px solid #E2DDD6' }}>
+                  <iframe 
+                    width="100%" height="100%" frameBorder="0" style={{ border: 0 }}
+                    src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyA8Y7z7z7z7z7z7z7z7z7z7z7z7z7z7z7&q=${encodeURIComponent(mapUser.lastLocation.city + ', ' + mapUser.lastLocation.country)}`}
+                    allowFullScreen>
+                  </iframe>
+                </div>
+              </>
+            ) : mapUser.addresses && mapUser.addresses.length > 0 ? (
+              <>
+                <div style={{ marginBottom: 16, padding: '12px 14px', background: BG, borderRadius: 10 }}>
+                  <p style={{ fontSize: 12, color: '#555', margin: '0 0 4px' }}>Shipping Address: <strong>{mapUser.addresses[0].city}, {mapUser.addresses[0].country || 'US'}</strong></p>
+                </div>
+                <div style={{ height: 400, borderRadius: 12, overflow: 'hidden', border: '1px solid #E2DDD6' }}>
+                  <iframe 
+                    width="100%" height="100%" frameBorder="0" style={{ border: 0 }}
+                    src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyA8Y7z7z7z7z7z7z7z7z7z7z7z7z7z7&q=${encodeURIComponent(mapUser.addresses[0].city + ', ' + (mapUser.addresses[0].country || 'US'))}`}
+                    allowFullScreen>
+                  </iframe>
+                </div>
+              </>
+            ) : (
+              <div style={{ padding: 40, textAlign: 'center', background: BG, borderRadius: 12 }}>
+                <MapPin size={32} color="#aaa" style={{ marginBottom: 12 }} />
+                <p style={{ fontSize: 14, color: '#888' }}>No location data available for this user.</p>
+              </div>
+            )}
           </div>
         </Modal>
       )}
