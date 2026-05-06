@@ -1,12 +1,18 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useCart } from '../context/CartContext';
-import { X, Minus, Plus, ShoppingBag, ChevronRight } from 'lucide-react';
+import { X, Minus, Plus, ShoppingBag, ChevronRight, Trash2, CheckSquare, Square } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 export default function CartDrawer() {
-  const { cartItems, isDrawerOpen, toggleDrawer, updateQuantity, removeFromCart, cartTotal } = useCart();
+  const { cartItems, isDrawerOpen, toggleDrawer, updateQuantity, removeFromCart, removeMultipleFromCart, cartTotal } = useCart();
+  const [selectedItems, setSelectedItems] = useState([]);
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Clear selections when cart closes
+  useEffect(() => {
+    if (!isDrawerOpen) setSelectedItems([]);
+  }, [isDrawerOpen]);
 
   // Close cart when user navigates to a different page
   useEffect(() => {
@@ -34,17 +40,38 @@ export default function CartDrawer() {
       <div className={`fixed top-0 right-0 h-full w-[100vw] max-w-[400px] bg-white shadow-2xl z-[10002] transform transition-transform duration-300 ease-out flex flex-col ${isDrawerOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-100">
-          <h2 className="text-xl font-display font-bold text-brand-textPrimary flex items-center gap-2">
-            <ShoppingBag size={20} /> Your Cart ({cartItems.length})
-          </h2>
-          <button 
-            onClick={() => toggleDrawer(false)} 
-            className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-500 hover:bg-gray-100 hover:text-brand-textPrimary transition-all"
-            aria-label="Close cart"
-          >
-            <X size={20} strokeWidth={2.5} />
-          </button>
+        <div className="flex flex-col border-b border-gray-100">
+          <div className="flex items-center justify-between p-6 pb-4">
+            <h2 className="text-xl font-display font-bold text-brand-textPrimary flex items-center gap-2">
+              <ShoppingBag size={20} /> Your Cart ({cartItems.length})
+            </h2>
+            <button 
+              onClick={() => toggleDrawer(false)} 
+              className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-500 hover:bg-gray-100 hover:text-brand-textPrimary transition-all"
+              aria-label="Close cart"
+            >
+              <X size={20} strokeWidth={2.5} />
+            </button>
+          </div>
+          {cartItems.length > 0 && (
+            <div className="flex items-center justify-between px-6 pb-4">
+              <button 
+                onClick={() => setSelectedItems(selectedItems.length === cartItems.length ? [] : cartItems.map((_, i) => i))}
+                className="flex items-center gap-2 text-[13px] font-semibold text-gray-500 hover:text-brand-primary transition-colors"
+              >
+                {selectedItems.length === cartItems.length ? <CheckSquare size={16} className="text-brand-primary" /> : <Square size={16} />}
+                Select All
+              </button>
+              {selectedItems.length > 0 && (
+                <button 
+                  onClick={() => { removeMultipleFromCart(selectedItems); setSelectedItems([]); }}
+                  className="flex items-center gap-1.5 text-[13px] font-semibold text-red-500 hover:text-red-600 transition-colors bg-red-50 px-3 py-1.5 rounded-md"
+                >
+                  <Trash2 size={14} /> Remove Selected
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Item List */}
@@ -62,7 +89,13 @@ export default function CartDrawer() {
             </div>
           ) : (
             cartItems.map((item, idx) => (
-              <div key={idx} className="flex gap-4 border-b border-gray-50 pb-6 last:border-0 last:pb-0">
+              <div key={idx} className={`flex gap-4 border-b border-gray-50 pb-6 last:border-0 last:pb-0 transition-colors ${selectedItems.includes(idx) ? 'bg-[#EEF4FB]/50 -mx-6 px-6 pt-2 pb-8 rounded-lg' : ''}`}>
+                <button
+                  onClick={() => setSelectedItems(prev => prev.includes(idx) ? prev.filter(i => i !== idx) : [...prev, idx])}
+                  className="mt-6 flex-shrink-0 text-gray-400 hover:text-brand-primary transition-colors"
+                >
+                  {selectedItems.includes(idx) ? <CheckSquare size={18} className="text-brand-primary" /> : <Square size={18} />}
+                </button>
                 <div 
                   className="w-20 h-20 bg-gray-50 rounded-lg overflow-hidden flex-shrink-0 border border-gray-100 cursor-pointer"
                   onClick={() => { toggleDrawer(false); navigate('/custom-box', { state: { ...item.configuration } }); }}

@@ -38,6 +38,11 @@ export const CartProvider = ({ children }) => {
     saveCart(newItems);
   };
 
+  const removeMultipleFromCart = (indices) => {
+    const newItems = cartItems.filter((_, idx) => !indices.includes(idx));
+    saveCart(newItems);
+  };
+
   const updateQuantity = (index, qty) => {
     if (qty <= 0) return removeFromCart(index);
     const newItems = [...cartItems];
@@ -61,6 +66,7 @@ export const CartProvider = ({ children }) => {
       cartItems, 
       addToCart, 
       removeFromCart, 
+      removeMultipleFromCart,
       updateQuantity, 
       clearCart, 
       cartCount, 

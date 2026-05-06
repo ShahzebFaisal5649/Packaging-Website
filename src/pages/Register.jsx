@@ -13,6 +13,7 @@ const FieldInput = ({ icon, type, name, value, onChange, placeholder, onToggle, 
   <div style={{ position: 'relative' }}>
     <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#aaa' }}>{icon}</span>
     <input
+      type={type} name={name} value={value} onChange={onChange} placeholder={placeholder}
       style={{ width: '100%', paddingLeft: 44, paddingRight: onToggle ? 48 : 16, paddingTop: 12, paddingBottom: 12, background: '#fff', border: '1.5px solid #E0DBD3', borderRadius: 10, fontSize: 14, fontFamily: '"DM Sans", sans-serif', color: '#1A1A1A', outline: 'none', transition: 'border-color 0.15s', boxSizing: 'border-box' }}
       onFocus={e => e.target.style.borderColor = G} onBlur={e => e.target.style.borderColor = '#E0DBD3'}
     />

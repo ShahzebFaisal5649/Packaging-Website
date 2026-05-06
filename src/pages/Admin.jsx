@@ -1011,7 +1011,18 @@ function OrdersSection() {
       }
     }
     loadOrders();
-    return () => { cancelled = true; };
+    
+    // Polling setup
+    const interval = setInterval(async () => {
+      try {
+        const data = await api.get('/admin/orders');
+        if (!cancelled) setOrders(data.orders || []);
+      } catch (e) {
+        // silently fail for polling
+      }
+    }, 15000);
+    
+    return () => { cancelled = true; clearInterval(interval); };
   }, []);
 
   const handleStatusChange = async (order, status) => {
@@ -1526,7 +1537,18 @@ function QuotesSection() {
   useEffect(() => {
     let signal = { cancelled: false };
     Promise.resolve().then(() => loadQuotes(signal));
-    return () => { signal.cancelled = true; };
+    
+    // Polling setup
+    const interval = setInterval(async () => {
+      try {
+        const data = await api.get('/admin/quotes');
+        if (!signal.cancelled) setQuotes(data.quotes || []);
+      } catch (e) {
+        // silently fail for polling
+      }
+    }, 15000);
+    
+    return () => { signal.cancelled = true; clearInterval(interval); };
   }, [refreshKey]);
 
   const handleUpdateQuote = async (q, updates) => {
@@ -1634,11 +1656,24 @@ function MessagesSection() {
   const [search, setSearch] = useState('');
 
   useEffect(() => {
+    let cancelled = false;
     setLoading(true);
     api.get('/admin/contact-messages')
-      .then(data => setMessages(data.messages || []))
-      .catch(() => showToast('Failed to load messages', 'error'))
-      .finally(() => setLoading(false));
+      .then(data => { if (!cancelled) setMessages(data.messages || []); })
+      .catch(() => { if (!cancelled) showToast('Failed to load messages', 'error'); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+      
+    // Polling setup
+    const interval = setInterval(async () => {
+      try {
+        const data = await api.get('/admin/contact-messages');
+        if (!cancelled) setMessages(data.messages || []);
+      } catch (e) {
+        // silently fail for polling
+      }
+    }, 15000);
+    
+    return () => { cancelled = true; clearInterval(interval); };
   }, []);
 
   const handleMarkReplied = async (id) => {
