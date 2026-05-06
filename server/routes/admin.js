@@ -274,7 +274,7 @@ router.put('/contact-messages/:id', async (req, res) => {
   }
 });
 
-router.post('/contact-messages/:id/reply', async (req, res) => {
+router.post('/messages/:id/reply', async (req, res) => {
   try {
     const { replyMessage } = req.body;
     const message = await ContactMessage.findById(req.params.id);

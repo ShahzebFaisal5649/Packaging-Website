@@ -1527,37 +1527,34 @@ function UsersSection() {
       {mapUser && (
         <Modal onClose={() => setMapUser(null)} title={`Location — ${mapUser.name}`}>
           <div style={{ padding: '4px 0' }}>
-            {mapUser.lastLocation && mapUser.lastLocation.city ? (
+            {mapUser.addresses && mapUser.addresses.length > 0 ? (
               <>
                 <div style={{ marginBottom: 16, padding: '12px 14px', background: BG, borderRadius: 10 }}>
-                  <p style={{ fontSize: 12, color: '#555', margin: '0 0 4px' }}>Last known location: <strong>{mapUser.lastLocation.city}, {mapUser.lastLocation.country}</strong></p>
-                  <p style={{ fontSize: 11, color: '#888', margin: 0 }}>IP Geolocation accurate to city level</p>
+                  <p style={{ fontSize: 13, fontWeight: 700, color: G, margin: '0 0 4px' }}>Saved Shipping Address</p>
+                  <p style={{ fontSize: 12, color: '#555', margin: 0 }}>
+                    {mapUser.addresses[0].street ? mapUser.addresses[0].street + ', ' : ''}
+                    {mapUser.addresses[0].city}, {mapUser.addresses[0].state || ''} {mapUser.addresses[0].zip || ''}
+                    {mapUser.addresses[0].country ? ', ' + mapUser.addresses[0].country : ''}
+                  </p>
                 </div>
                 <div style={{ height: 400, borderRadius: 12, overflow: 'hidden', border: '1px solid #E2DDD6' }}>
                   <iframe 
                     width="100%" height="100%" frameBorder="0" style={{ border: 0 }}
-                    src={`https://maps.google.com/maps?q=${encodeURIComponent(mapUser.lastLocation.city + ' ' + mapUser.lastLocation.country)}&hl=en&z=14&output=embed`}
-                    allowFullScreen>
-                  </iframe>
-                </div>
-              </>
-            ) : mapUser.addresses && mapUser.addresses.length > 0 ? (
-              <>
-                <div style={{ marginBottom: 16, padding: '12px 14px', background: BG, borderRadius: 10 }}>
-                  <p style={{ fontSize: 12, color: '#555', margin: '0 0 4px' }}>Shipping Address: <strong>{mapUser.addresses[0].city}, {mapUser.addresses[0].country || 'US'}</strong></p>
-                </div>
-                <div style={{ height: 400, borderRadius: 12, overflow: 'hidden', border: '1px solid #E2DDD6' }}>
-                  <iframe 
-                    width="100%" height="100%" frameBorder="0" style={{ border: 0 }}
-                    src={`https://maps.google.com/maps?q=${encodeURIComponent(mapUser.addresses[0].city + ' ' + (mapUser.addresses[0].state || '') + ' ' + (mapUser.addresses[0].country || 'US'))}&hl=en&z=14&output=embed`}
+                    src={`https://maps.google.com/maps?q=${encodeURIComponent(
+                      (mapUser.addresses[0].street ? mapUser.addresses[0].street + ' ' : '') + 
+                      mapUser.addresses[0].city + ' ' + 
+                      (mapUser.addresses[0].state || '') + ' ' + 
+                      (mapUser.addresses[0].country || '')
+                    )}&hl=en&z=14&output=embed`}
                     allowFullScreen>
                   </iframe>
                 </div>
               </>
             ) : (
-              <div style={{ padding: 40, textAlign: 'center', background: BG, borderRadius: 12 }}>
+              <div style={{ padding: 60, textAlign: 'center', background: BG, borderRadius: 12 }}>
                 <MapPin size={32} color="#aaa" style={{ marginBottom: 12 }} />
-                <p style={{ fontSize: 14, color: '#888' }}>No location data available for this user.</p>
+                <p style={{ fontSize: 14, fontWeight: 600, color: '#666' }}>No saved addresses found for this user.</p>
+                <p style={{ fontSize: 12, color: '#999', marginTop: 4 }}>Locations are only shown for users with saved shipping details.</p>
               </div>
             )}
           </div>
@@ -1748,7 +1745,7 @@ function MessagesSection() {
     if (!replyText.trim()) return showToast('Please enter a reply', 'error');
     setIsSendingReply(true);
     try {
-      await api.post(`/admin/contact-messages/${replyingTo._id}/reply`, { replyMessage: replyText });
+      await api.post(`/admin/messages/${replyingTo._id}/reply`, { replyMessage: replyText });
       setMessages(prev => prev.map(m => m._id === replyingTo._id ? { ...m, status: 'Replied' } : m));
       showToast('Reply sent successfully', 'success');
       setReplyingTo(null);
