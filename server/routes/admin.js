@@ -354,9 +354,13 @@ router.get('/analytics', async (req, res) => {
     for (let i = 5; i >= 0; i--) {
       const d = new Date();
       d.setMonth(d.getMonth() - i);
-      const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      const month = d.getMonth();
+      const year = d.getFullYear();
       const val = allOrders
-        .filter(o => o.date && o.date.startsWith(monthKey))
+        .filter(o => {
+          const od = new Date(o.createdAt || Date.now());
+          return od.getMonth() === month && od.getFullYear() === year;
+        })
         .reduce((s, o) => s + (parseFloat(o.total) || 0), 0);
       monthRevenue.push({ label: d.toLocaleString('en', { month: 'short' }), value: Math.round(val) });
     }
@@ -378,19 +382,19 @@ router.get('/analytics', async (req, res) => {
     // Extract locations from users (saved addresses) and orders
     const locations = [];
     users.forEach(u => {
-      if (u.addresses && u.addresses.length > 0) {
+      if (u.addresses && Array.isArray(u.addresses)) {
         u.addresses.forEach(addr => {
           if (addr.city) locations.push({ city: addr.city, country: addr.country || 'US', type: 'User' });
         });
       }
       if (u.lastLocation && u.lastLocation.city) {
-        locations.push({ ...u.lastLocation, type: 'Login' });
+        locations.push({ city: u.lastLocation.city, country: u.lastLocation.country || 'US', type: 'Login' });
       }
     });
     allOrders.forEach(o => {
       if (o.shippingAddress && o.shippingAddress.city) {
         locations.push({ city: o.shippingAddress.city, country: 'US', type: 'Order' });
-      } else if (o.address && o.address.includes(',')) {
+      } else if (o.address && typeof o.address === 'string' && o.address.includes(',')) {
         const parts = o.address.split(',');
         const city = parts[parts.length - 2]?.trim();
         if (city) locations.push({ city, country: 'US', type: 'Order' });
