@@ -1536,7 +1536,7 @@ function UsersSection() {
                 <div style={{ height: 400, borderRadius: 12, overflow: 'hidden', border: '1px solid #E2DDD6' }}>
                   <iframe 
                     width="100%" height="100%" frameBorder="0" style={{ border: 0 }}
-                    src={`https://maps.google.com/maps?q=${encodeURIComponent(mapUser.lastLocation.city + ', ' + mapUser.lastLocation.country)}&t=&z=13&ie=UTF8&iwloc=&output=embed`}
+                    src={`https://maps.google.com/maps?q=${encodeURIComponent(mapUser.lastLocation.city + ' ' + mapUser.lastLocation.country)}&hl=en&z=14&output=embed`}
                     allowFullScreen>
                   </iframe>
                 </div>
@@ -1549,7 +1549,7 @@ function UsersSection() {
                 <div style={{ height: 400, borderRadius: 12, overflow: 'hidden', border: '1px solid #E2DDD6' }}>
                   <iframe 
                     width="100%" height="100%" frameBorder="0" style={{ border: 0 }}
-                    src={`https://maps.google.com/maps?q=${encodeURIComponent(mapUser.addresses[0].city + ', ' + (mapUser.addresses[0].country || 'US'))}&t=&z=13&ie=UTF8&iwloc=&output=embed`}
+                    src={`https://maps.google.com/maps?q=${encodeURIComponent(mapUser.addresses[0].city + ' ' + (mapUser.addresses[0].state || '') + ' ' + (mapUser.addresses[0].country || 'US'))}&hl=en&z=14&output=embed`}
                     allowFullScreen>
                   </iframe>
                 </div>
