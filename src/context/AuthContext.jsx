@@ -5,20 +5,47 @@ import api from '../services/api';
 const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
 
+const CACHE_KEY = 'dcb_user_cache';
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   // On mount: restore session from JWT → get fresh DB data
+  // Falls back to cached user if DB is unavailable (503)
   useEffect(() => {
     const restore = async () => {
       const token = api.getToken();
       if (token) {
+        // Try to decode expiry without a library
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          if (payload.exp && payload.exp * 1000 < Date.now()) {
+            // Token expired — clear it
+            api.setToken(null);
+            localStorage.removeItem(CACHE_KEY);
+            setLoading(false);
+            return;
+          }
+        } catch { /* ignore decode errors */ }
+
         try {
           const data = await api.get('/auth/me');
           setUser(data.user);
-        } catch {
-          api.setToken(null);
+          localStorage.setItem(CACHE_KEY, JSON.stringify(data.user));
+        } catch (err) {
+          // Only clear session if it's explicitly UNAUTHORIZED (401)
+          // Otherwise, try to use cached user to maintain session during temporary blips
+          if (err.status === 401) {
+            api.setToken(null);
+            localStorage.removeItem(CACHE_KEY);
+            setUser(null);
+          } else {
+            const cached = localStorage.getItem(CACHE_KEY);
+            if (cached) {
+              try { setUser(JSON.parse(cached)); } catch { /* ignore */ }
+            }
+          }
         }
       }
       setLoading(false);
@@ -31,6 +58,7 @@ export const AuthProvider = ({ children }) => {
     const data = await api.post('/auth/login', { email, password });
     api.setToken(data.token);
     setUser(data.user);
+    localStorage.setItem(CACHE_KEY, JSON.stringify(data.user));
     return data.user;
   };
 
@@ -38,11 +66,13 @@ export const AuthProvider = ({ children }) => {
     const data = await api.post('/auth/register', userData);
     api.setToken(data.token);
     setUser(data.user);
+    localStorage.setItem(CACHE_KEY, JSON.stringify(data.user));
     return data.user;
   };
 
   const logout = () => {
     api.setToken(null);
+    localStorage.removeItem(CACHE_KEY);
     setUser(null);
   };
 
@@ -50,6 +80,7 @@ export const AuthProvider = ({ children }) => {
     const data = await api.post('/auth/google', googleData);
     api.setToken(data.token);
     setUser(data.user);
+    localStorage.setItem(CACHE_KEY, JSON.stringify(data.user));
     return data.user;
   };
 
@@ -58,6 +89,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const data = await api.get('/auth/me');
       setUser(data.user);
+      localStorage.setItem(CACHE_KEY, JSON.stringify(data.user));
       return data.user;
     } catch (err) {
       console.warn('refreshUser failed:', err);
@@ -75,6 +107,7 @@ export const AuthProvider = ({ children }) => {
       try {
         const data = await api.put('/users/profile', profileFields);
         setUser(data.user);
+        localStorage.setItem(CACHE_KEY, JSON.stringify(data.user));
         return data.user;
       } catch (err) {
         console.warn('updateUser failed:', err);
@@ -82,6 +115,7 @@ export const AuthProvider = ({ children }) => {
     }
     const updated = { ...user, ...updates };
     setUser(updated);
+    localStorage.setItem(CACHE_KEY, JSON.stringify(updated));
     return updated;
   };
 
@@ -122,7 +156,6 @@ export const AuthProvider = ({ children }) => {
     if (!user) return;
     const current = user.favorites || [];
     const isFav = current.includes(productId);
-    // Optimistic update
     setUser({ ...user, favorites: isFav ? current.filter(id => id !== productId) : [...current, productId] });
     try {
       await api.post(`/users/favourites/${productId}`, {});

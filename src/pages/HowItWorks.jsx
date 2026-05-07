@@ -1,102 +1,195 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ChevronRight, MessageSquare, Upload, Eye, Package } from 'lucide-react';
+import { ChevronRight, MessageSquare, Upload, Eye, Package, ShieldCheck, Zap, Award, Headphones, Box, ArrowRight, Play, Info, CheckCircle2 } from 'lucide-react';
 import SectionLabel from '../components/SectionLabel';
 import CTABanner from '../components/CTABanner';
 
 const G = '#1A4D2E';
+const ACCENT = '#C8860A';
 const BG = '#F5F2ED';
 
 const steps = [
-  { num: '01', Icon: MessageSquare, title: 'Get a Custom Box',
-    desc: 'Use our online box configurator or call our team to specify your dimensions, style, material, finish, and quantity for an instant price estimate.',
-    tips: ['No account required', 'Instant pricing estimate', 'All box styles covered'] },
-  { num: '02', Icon: Upload, title: 'Submit Your Artwork',
-    desc: "Upload your design files (AI, EPS, PDF, PSD) or our free design team will build print-ready artwork from your logo. We'll prepare a dieline template for your exact dimensions.",
-    tips: ['Free dieline template', 'In-house design team', 'CMYK + Pantone matching'] },
-  { num: '03', Icon: Eye, title: 'Approve Your Proof',
-    desc: "Review a detailed 2D flat dieline and a full-color 3D digital mockup. We don't start production until you're 100% satisfied with how it looks.",
-    tips: ['2D and 3D digital proofs', 'Unlimited revisions', 'Physical sample available'] },
-  { num: '04', Icon: Package, title: 'Receive Your Order',
-    desc: 'Your custom boxes are printed, quality-inspected, and shipped directly to your door with real-time tracking and a dedicated account manager keeping you informed.',
-    tips: ['8–10 day production', 'Real-time tracking', '14-point quality check'] },
+  { num: '01', Icon: MessageSquare, title: 'Configure & Quote',
+    desc: 'Use our industry-leading box configurator to specify every detail—from custom dimensions and premium materials to high-end finishes and quantities.',
+    tips: ['Real-time price estimates', 'No hidden setup fees', 'All industry styles available'] },
+  { num: '02', Icon: Upload, title: 'Design & Artwork',
+    desc: "Upload your existing designs or collaborate with our in-house experts. We'll provide a custom dieline template perfectly matched to your box dimensions.",
+    tips: ['Pro design assistance', 'Dieline creation included', 'Color matching (CMYK/PMS)'] },
+  { num: '03', Icon: Eye, title: 'Review & Proofing',
+    desc: "Verify your vision with high-fidelity 2D dielines and interactive 3D digital mockups. We only proceed when you're 100% satisfied with the digital proof.",
+    tips: ['3D 360° interactive view', 'Unlimited design revisions', 'Physical prototype options'] },
+  { num: '04', Icon: Package, title: 'Print & Ship',
+    desc: 'Your order moves into our state-of-the-art production facility. After a rigorous 14-point quality inspection, your boxes are shipped tracked to your door.',
+    tips: ['Rapid 8-10 day turnaround', 'Secure premium shipping', 'Quality guaranteed'] },
+];
+
+const features = [
+  { icon: <ShieldCheck size={28} />, title: 'Quality Guaranteed', desc: "Every single unit undergoes a strict quality control check before it leaves our facility." },
+  { icon: <Zap size={28} />, title: 'Fast Turnaround', desc: "Standard production in 8-10 business days. Priority shipping available for urgent launches." },
+  { icon: <Award size={28} />, title: 'Premium Finish', desc: "Access high-end finishes like spot UV, embossing, and foil stamping to make your brand pop." },
+  { icon: <Headphones size={28} />, title: 'Expert Support', desc: "Dedicated account managers to guide you from initial concept to final delivery." },
 ];
 
 export default function HowItWorks() {
   return (
     <div style={{ backgroundColor: BG }}>
-      <section style={{ position: 'relative', overflow: 'hidden', padding: '80px 24px 60px', backgroundColor: G, minHeight: 420 }}>
-        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'url(https://images.unsplash.com/photo-1556740749-887f6717d7e4?w=1600&q=80)', backgroundSize: 'cover', backgroundPosition: 'center', filter: 'brightness(1.1) contrast(1.15)' }} />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(26,77,46,0.35), rgba(26,77,46,0.65))' }} />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6" style={{ position: 'relative', zIndex: 1 }}>
-          <div className="flex items-center gap-2 text-white/70 text-xs mb-5 mobile-center-header">
+      {/* Dynamic Hero Section */}
+      <section style={{ position: 'relative', overflow: 'hidden', padding: '120px 24px 80px', backgroundColor: G, minHeight: 500, display: 'flex', alignItems: 'center' }}>
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'url(https://images.unsplash.com/photo-1556740749-887f6717d7e4?w=1600&q=80)', backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.25 }} />
+        <div style={{ position: 'absolute', inset: 0, background: `linear-gradient(to bottom, transparent, ${G} 95%)` }} />
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 w-100" style={{ position: 'relative', zIndex: 1 }}>
+          <div className="flex items-center gap-2 text-white/50 text-xs mb-8">
             <Link to="/" className="hover:text-white transition-colors">Home</Link>
             <ChevronRight size={12} />
             <span className="text-white font-semibold">How It Works</span>
           </div>
-          <div className="max-w-2xl mobile-center-text">
-            <SectionLabel text="Our Process" />
-            <h1 className="text-4xl sm:text-5xl font-bold text-white mt-1 mb-4 leading-tight">
-              How It Works
-            </h1>
-            <p className="text-white/80 text-base leading-relaxed mobile-center-text">
-              Ordering custom packaging has never been easier. Our 4-step process gets you from
-              idea to delivery as smoothly and reliably as possible.
-            </p>
+          
+          <div style={{ maxWidth: 800 }}>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+              <SectionLabel text="Seamless Process" />
+              <h1 style={{ fontSize: 'clamp(40px, 8vw, 72px)', color: '#fff', fontWeight: 900, fontFamily: '"Playfair Display", serif', lineHeight: 1.1, marginTop: 12, marginBottom: 24 }}>
+                From Concept to <span style={{ color: ACCENT }}>Doorstep</span>.
+              </h1>
+              <p style={{ fontSize: 'clamp(16px, 3vw, 20px)', color: 'rgba(255,255,255,0.7)', lineHeight: 1.6, marginBottom: 40, maxWidth: 600 }}>
+                Ordering world-class custom packaging shouldn't be complicated. We've streamlined every step to ensure your brand shines without the stress.
+              </p>
+              <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+                <Link to="/custom-box" style={{ padding: '18px 40px', background: ACCENT, color: '#fff', borderRadius: 12, fontWeight: 700, textDecoration: 'none', boxShadow: `0 20px 40px rgba(200,134,10,0.3)` }}>Start Designing</Link>
+                <button onClick={() => window.scrollTo({ top: 900, behavior: 'smooth' })} style={{ padding: '18px 40px', background: 'rgba(255,255,255,0.1)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 12, fontWeight: 700, cursor: 'pointer', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', gap: 10 }}>
+                   <Play size={16} fill="white" /> Watch Process
+                </button>
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>
 
-      <section className="bg-white py-16">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6">
-          {steps.map(({ num, Icon, title, desc, tips }, i) => (
-            <motion.div
-              key={num}
-              initial={{ opacity: 0, x: i % 2 === 0 ? -24 : 24 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-              className="flex gap-6 mb-14 last:mb-0"
-            >
-              <div className="flex flex-col items-center">
-                <div className="w-14 h-14 bg-[#1A4D2E] rounded-full flex items-center justify-center shadow-md flex-shrink-0">
-                  <Icon size={22} className="text-white" />
-                </div>
-                {i < 3 && <div className="w-px flex-1 bg-[#1A4D2E]/15 mt-3" style={{ minHeight: 48 }} />}
-              </div>
-              <div className="flex-1 pb-4">
-                <p className="text-xs font-bold text-[#C8860A] uppercase tracking-widest mb-1">Step {num}</p>
-                <h2 className="text-2xl font-bold text-[#1A4D2E] mb-3">{title}</h2>
-                <p className="text-[#6B7280] text-sm leading-relaxed mb-4 text-left">{desc}</p>
-                <div className="flex flex-wrap gap-2">
-                  {tips.map((tip) => (
-                    <span key={tip} className="bg-[#F5F2ED] text-[#1A4D2E] text-xs font-semibold px-3 py-1.5 rounded-full border border-[#1A4D2E]/10">
-                      ✓ {tip}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-          ))}
+      {/* The 4-Step Journey */}
+      <section style={{ padding: '120px 24px', background: '#fff' }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div style={{ textAlign: 'center', marginBottom: 100 }}>
+            <h2 style={{ fontSize: 42, fontFamily: '"Playfair Display", serif', fontWeight: 800, color: G, marginBottom: 16 }}>Your Project Timeline</h2>
+            <p style={{ color: '#666', maxWidth: 600, margin: '0 auto' }}>We handle the heavy lifting so you can focus on growing your business. Here is what happens after you click start.</p>
+          </div>
+
+          <div style={{ position: 'relative' }}>
+             {/* Background Line for desktop */}
+             <div className="hidden lg:block" style={{ position: 'absolute', top: 120, left: '10%', right: '10%', height: 2, background: `linear-gradient(to right, transparent, ${G}15 20%, ${G}15 80%, transparent)`, zIndex: 0 }} />
+
+             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 40 }}>
+                {steps.map((s, i) => (
+                  <motion.div 
+                    key={s.num} 
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.15 }}
+                    style={{ position: 'relative', zIndex: 1, textAlign: 'center' }}
+                  >
+                    <div style={{ width: 80, height: 80, borderRadius: 24, background: G, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 32px', boxShadow: '0 20px 40px rgba(26,77,46,0.2)', transform: 'rotate(-5deg)' }}>
+                       <s.Icon size={32} />
+                    </div>
+                    <span style={{ fontSize: 12, fontWeight: 800, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.2em' }}>Step {s.num}</span>
+                    <h3 style={{ fontSize: 22, fontWeight: 800, color: G, margin: '12px 0 16px' }}>{s.title}</h3>
+                    <p style={{ fontSize: 14, color: '#666', lineHeight: 1.6, marginBottom: 24 }}>{s.desc}</p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'center' }}>
+                       {s.tips.map(t => (
+                         <div key={t} style={{ fontSize: 12, color: G, fontWeight: 600, background: `${G}08`, padding: '6px 12px', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <CheckCircle2 size={12} /> {t}
+                         </div>
+                       ))}
+                    </div>
+                  </motion.div>
+                ))}
+             </div>
+          </div>
         </div>
       </section>
 
-      <section className="bg-[#1A4D2E] py-14">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">Ready to get started?</h2>
-          <p className="text-white/70 text-sm mb-7">
-            Use our interactive box builder to configure your custom packaging and get an instant quote.
-          </p>
-          <Link
-            to="/custom-box"
-            className="inline-block bg-[#C8860A] hover:bg-[#b07509] text-white font-semibold px-10 py-4 rounded-md text-base transition-all hover:scale-105"
-          >
-            Build Your Box Now
-          </Link>
+      {/* Value Prop Section */}
+      <section style={{ padding: '100px 24px', background: '#F8F6F2', borderTop: '1px solid #EAE6E1', borderBottom: '1px solid #EAE6E1' }}>
+        <div className="max-w-7xl mx-auto">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 40 }}>
+             {features.map((f, i) => (
+               <div key={i} style={{ display: 'flex', gap: 20 }}>
+                  <div style={{ color: ACCENT, flexShrink: 0 }}>{f.icon}</div>
+                  <div>
+                    <h4 style={{ fontSize: 18, fontWeight: 700, color: G, marginBottom: 8 }}>{f.title}</h4>
+                    <p style={{ fontSize: 14, color: '#666', lineHeight: 1.5 }}>{f.desc}</p>
+                  </div>
+               </div>
+             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Pro Tips Section */}
+      <section style={{ padding: '120px 24px', background: '#fff' }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+           <div style={{ background: G, borderRadius: 32, padding: '60px 40px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 60, alignItems: 'center', overflow: 'hidden', position: 'relative' }} className="responsive-split">
+              <div style={{ position: 'absolute', right: '-10%', top: '-10%', width: 400, height: 400, background: 'rgba(255,255,255,0.03)', borderRadius: '50%' }} />
+              
+              <div>
+                 <SectionLabel text="Expert Advice" light />
+                 <h2 style={{ fontSize: 36, fontWeight: 800, color: '#fff', marginTop: 12, marginBottom: 24, fontFamily: '"Playfair Display", serif' }}>Dielines & Design Specs</h2>
+                 <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 16, lineHeight: 1.7, marginBottom: 32 }}>
+                   Getting your artwork right is the key to perfect packaging. We provide custom dielines for every order, but if you're starting from scratch, here are a few things to keep in mind:
+                 </p>
+                 <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: 16 }}>
+                    {[
+                      'Use vector formats (.AI, .EPS) for crisp logos',
+                      'Maintain 300 DPI for any raster images',
+                      'Ensure all text is outlined/converted to shapes',
+                      'Allow 0.125" bleed for all background colors'
+                    ].map(item => (
+                      <li key={item} style={{ color: '#fff', fontSize: 14, display: 'flex', alignItems: 'center', gap: 12, fontWeight: 500 }}>
+                         <div style={{ width: 16, height: 16, borderRadius: '50%', background: ACCENT, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><ArrowRight size={10} color="white" /></div>
+                         {item}
+                      </li>
+                    ))}
+                 </ul>
+              </div>
+              
+              <div style={{ position: 'relative', height: 400, borderRadius: 24, overflow: 'hidden', boxShadow: '0 32px 64px rgba(0,0,0,0.3)' }}>
+                 <img src="https://images.unsplash.com/photo-1544816155-12df9643f363?w=800&q=80" alt="Design Specs" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                 <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.6), transparent)' }} />
+              </div>
+           </div>
+        </div>
+      </section>
+
+      {/* FAQ Mini */}
+      <section style={{ padding: '80px 24px 120px' }}>
+        <div className="max-w-4xl mx-auto">
+           <h3 style={{ fontSize: 28, fontWeight: 800, color: G, marginBottom: 40, textAlign: 'center' }}>Frequently Asked Questions</h3>
+           <div style={{ display: 'grid', gap: 16 }}>
+              {[
+                { q: "What is the minimum order quantity?", a: "Our minimums vary by box style but typically start as low as 10-25 units for digital printing, making it easy for small businesses to test new designs." },
+                { q: "Can I get a physical sample before full production?", a: "Yes! We offer physical sample prototypes for a nominal fee, which is often credited back to your full production order." },
+                { q: "Do you offer international shipping?", a: "We ship globally. Delivery times and costs vary by region, but we always provide fully tracked shipping options." }
+              ].map((faq, i) => (
+                <div key={i} style={{ background: '#F8F6F2', borderRadius: 16, padding: '24px 32px', border: '1px solid #EAE6E1' }}>
+                   <h4 style={{ fontSize: 16, fontWeight: 800, color: G, marginBottom: 10, display: 'flex', gap: 12 }}><Info size={18} color={ACCENT} /> {faq.q}</h4>
+                   <p style={{ fontSize: 14, color: '#666', lineHeight: 1.6, paddingLeft: 30 }}>{faq.a}</p>
+                </div>
+              ))}
+           </div>
         </div>
       </section>
 
       <CTABanner wave={false} />
+
+      <style>{`
+        @media (max-width: 900px) {
+          .responsive-split { grid-template-columns: 1fr !important; gap: 40px !important; }
+        }
+        .mobile-center-text { text-align: left; }
+        @media (max-width: 600px) {
+          .mobile-center-text { text-align: center; }
+          .mobile-center-header { justify-content: center; }
+        }
+      `}</style>
     </div>
   );
 }

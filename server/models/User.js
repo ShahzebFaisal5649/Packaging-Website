@@ -14,8 +14,8 @@ const addressSchema = new mongoose.Schema({
 
 const orderSchema = new mongoose.Schema({
   orderId: String,
-  product: String, // fallback for legacy
-  qty: Number,     // fallback for legacy
+  product: String,
+  qty: Number,
   items: [{
     name: String,
     price: Number,
@@ -28,6 +28,7 @@ const orderSchema = new mongoose.Schema({
   tax: Number,
   status: { type: String, enum: ['Processing', 'Shipped', 'Delivered', 'Cancelled'], default: 'Processing' },
   tracking: String,
+  shippedEmailSent: { type: Boolean, default: false },
   address: String,
   shippingAddress: {
     name: String,
@@ -46,7 +47,7 @@ const quoteSchema = new mongoose.Schema({
   qty: Number,
   dims: String,
   material: String,
-  type: { type: String, default: 'quote' }, // 'quote' or 'sample'
+  type: { type: String, default: 'quote' },
   productName: String,
   deliveryAddress: String,
   status: { type: String, enum: ['Pending', 'Reviewing', 'Quoted', 'Accepted', 'Rejected'], default: 'Pending' },
@@ -76,7 +77,7 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true, lowercase: true, trim: true },
   password: { type: String, required: true, minlength: 6 },
   phone: { type: String, default: '' },
-  role: { type: String, enum: ['user', 'admin'], default: 'user' },
+  role: { type: String, enum: ['user', 'admin', 'super_admin'], default: 'user' },
   avatar: { type: String, default: '' },
   loyaltyPoints: { type: Number, default: 150 },
   loyaltyTier: { type: String, default: 'Silver' },

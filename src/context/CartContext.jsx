@@ -23,15 +23,28 @@ export const CartProvider = ({ children }) => {
     setSelectedItemIndices(prev => prev.filter(idx => idx < items.length));
   };
 
-  const addToCart = (product) => {
-    const existingIndex = cartItems.findIndex(item => item.id === product.id && JSON.stringify(item.configuration) === JSON.stringify(product.configuration));
+  const addToCart = (product, select = false) => {
+    const existingIndex = cartItems.findIndex(item => 
+      item.id === product.id && 
+      JSON.stringify(item.configuration) === JSON.stringify(product.configuration)
+    );
     
+    let newItems = [...cartItems];
+    let targetIndex = existingIndex;
+
     if (existingIndex > -1) {
-      const newItems = [...cartItems];
       newItems[existingIndex].quantity += (product.quantity || 1);
-      saveCart(newItems);
     } else {
-      saveCart([...cartItems, { ...product, quantity: product.quantity || 1 }]);
+      newItems.push({ ...product, quantity: product.quantity || 1 });
+      targetIndex = newItems.length - 1;
+    }
+
+    saveCart(newItems);
+    
+    if (select && targetIndex > -1) {
+      setSelectedItemIndices(prev => 
+        prev.includes(targetIndex) ? prev : [...prev, targetIndex]
+      );
     }
   };
 

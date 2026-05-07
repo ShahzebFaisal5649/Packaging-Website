@@ -348,7 +348,7 @@ export default function Navbar() {
                           <span style={{ color: '#888' }}>{item.icon}</span> {item.label}
                         </Link>
                       ))}
-                      {user?.role === 'admin' && (
+                      {(user?.role === 'admin' || user?.role === 'super_admin') && (
                         <Link to="/admin"
                           style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 8, fontSize: 13, fontWeight: 500, color: '#333', textDecoration: 'none', borderTop: '1px solid #f0f0f0', marginTop: 4, paddingTop: 12, transition: 'background 0.1s' }}
                           onMouseEnter={e => e.currentTarget.style.background = '#f5f5f5'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
@@ -562,7 +562,7 @@ export default function Navbar() {
                     onClick={() => setMobileMenuOpen(false)}>
                     <UserCircle size={18} /> My Profile
                   </Link>
-                  {user?.role === 'admin' && (
+                  {(user?.role === 'admin' || user?.role === 'super_admin') && (
                     <Link to="/admin"
                       style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 15, fontWeight: 600, color: '#1A4D2E', textDecoration: 'none' }}
                       onClick={() => setMobileMenuOpen(false)}>

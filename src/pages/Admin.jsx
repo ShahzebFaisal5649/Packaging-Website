@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
@@ -24,6 +24,32 @@ const FINISHES = ['Matte Lam', 'Gloss Lam', 'Uncoated', 'Soft-Touch', 'Foil Stam
 const ADDON_OPTIONS = ['Spot UV', 'Embossing', 'Debossing', 'Foil Stamping', 'Window Patch', 'Hang Tab', 'Ribbon Pull', 'Magnetic Closure', 'Inside Printing', 'Custom Die-Cut'];
 
 // ── helpers ───────────────────────────────────────────────────────────────────
+class SectionErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error, errorInfo) {
+    console.error("Admin Section Error:", error, errorInfo);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ padding: 40, textAlign: 'center', background: '#FEF2F2', borderRadius: 16, border: '1px solid #FECACA' }}>
+          <Ban size={40} color="#DC2626" style={{ marginBottom: 16 }} />
+          <h3 style={{ fontSize: 18, fontWeight: 800, color: '#991B1B', margin: 0 }}>Section Unavailable</h3>
+          <p style={{ fontSize: 14, color: '#B91C1C', marginTop: 8 }}>This part of the admin panel encountered an error. Please try refreshing.</p>
+          <button onClick={() => this.setState({ hasError: false })} style={{ marginTop: 20, padding: '8px 20px', background: '#DC2626', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 700 }}>Retry Section</button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 const STATUS_COLORS = {
   Delivered:  { bg: '#DCFCE7', text: '#15803D', icon: <CheckCircle size={12} /> },
   Processing: { bg: '#DBEAFE', text: '#1D4ED8', icon: <RefreshCw size={12} className="spin" /> },
@@ -48,6 +74,24 @@ function Badge({ status }) {
       {s.icon} {status}
     </span>
   );
+}
+
+function RoleBadge({ role }) {
+  if (role === 'super_admin') {
+    return (
+      <span style={{ backgroundColor: '#FFF7ED', color: '#C2410C', border: '1px solid #FDBA74', padding: '2px 10px', borderRadius: 100, fontSize: 10, fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+        <Shield size={10} fill="#C2410C" /> SUPER ADMIN
+      </span>
+    );
+  }
+  if (role === 'admin') {
+    return (
+      <span style={{ backgroundColor: '#F0FDF4', color: '#15803D', border: '1px solid #86EFAC', padding: '2px 10px', borderRadius: 100, fontSize: 10, fontWeight: 800 }}>
+        ADMIN
+      </span>
+    );
+  }
+  return null;
 }
 
 function Modal({ onClose, title, children, wide }) {
@@ -1026,6 +1070,11 @@ function OrdersSection() {
   }, []);
 
   const handleStatusChange = async (order, status) => {
+    if (status === 'Shipped' && !order.tracking && !editTracking) {
+      showToast('Please add a tracking number before marking as Shipped.', 'warning');
+      setSelected(order);
+      return;
+    }
     try {
       if (order.userId && order._id) {
         await api.put(`/admin/orders/${order.userId}/${order._id}`, { status });
@@ -1202,7 +1251,7 @@ function OrdersSection() {
               <div style={{ borderRadius: 10, overflow: 'hidden', height: 200, border: '1px solid #E2DDD6' }}>
                 <iframe
                   title="Customer Location Map"
-                  src={`https://www.google.com/maps?q=${encodeURIComponent(selected.address?.replace(/,\s*United States$/i, ''))}&t=&z=13&ie=UTF8&iwloc=&output=embed`}
+                  src={`https://www.google.com/maps?q=${encodeURIComponent(selected.address?.replace(/,\s*United States$/i, ''))}&t=&z=13&ie=UTF8&iwloc=B&output=embed`}
                   width="100%" height="100%"
                   style={{ border: 0, display: 'block' }}
                   loading="lazy"
@@ -1230,7 +1279,7 @@ function OrdersSection() {
 
 // ── Users ─────────────────────────────────────────────────────────────────────
 function UsersSection() {
-  const { showToast } = useToast();
+  const { user: currentUser } = useAuth();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -1239,9 +1288,10 @@ function UsersSection() {
   const [showMap, setShowMap] = useState(false);
   const [mapUser, setMapUser] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [activeTab, setActiveTab] = useState('all'); // 'all', 'users', or 'admins'
 
   // Extract all addresses and login locations for the map
-  const allAddresses = users.flatMap(u => {
+  const allAddresses = (users || []).flatMap(u => {
     const locs = (u.addresses || []).map(a => ({ 
       user: u.name, 
       full: `${a.street || ''}, ${a.city}, ${a.state} ${a.zip}, ${a.country}`,
@@ -1294,6 +1344,10 @@ function UsersSection() {
   };
 
   const handleRoleChange = async (user, role) => {
+    if (user._id === currentUser?._id && user.role === 'super_admin' && role !== 'super_admin') {
+      showToast('Super Admin cannot demote themselves for security reasons.', 'warning');
+      return;
+    }
     try {
       if (user._id) await api.put(`/admin/users/${user._id}`, { role });
       showToast('Role updated', 'success');
@@ -1317,33 +1371,49 @@ function UsersSection() {
     const a = document.createElement('a'); a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv); a.download = 'users.csv'; a.click();
   };
 
-  const filtered = users.filter(u => !search || [u.name, u.email, u.phone].some(v => v && String(v).toLowerCase().includes(search.toLowerCase())));
+  const filtered = users.filter(u => {
+    const matchesSearch = !search || [u.name, u.email, u.phone].some(v => v && String(v).toLowerCase().includes(search.toLowerCase()));
+    if (activeTab === 'all') return matchesSearch;
+    if (activeTab === 'admins') return matchesSearch && (u.role === 'admin' || u.role === 'super_admin');
+    return matchesSearch && (u.role === 'user' || !u.role);
+  });
+
+  const [mapAddress, setMapAddress] = useState(null);
 
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
-        <h2 style={{ fontSize: 22, fontFamily: 'Outfit,sans-serif', fontWeight: 700 }}>User Management</h2>
+        <div style={{ display: 'flex', gap: 24, borderBottom: '1px solid #E2DDD6', paddingBottom: 0 }}>
+          {['all', 'users', 'admins'].map(tab => (
+            <button key={tab} onClick={() => setActiveTab(tab)}
+              style={{ padding: '12px 4px', background: 'none', border: 'none', borderBottom: `2px solid ${activeTab === tab ? G : 'transparent'}`, color: activeTab === tab ? G : '#64748B', fontWeight: 700, fontSize: 15, cursor: 'pointer', textTransform: 'capitalize', transition: 'all 0.2s' }}>
+              {tab === 'all' ? 'All Users' : tab} (
+                {tab === 'all' ? users.length : (tab === 'users' ? users.filter(u => u.role === 'user' || !u.role).length : users.filter(u => u.role === 'admin' || u.role === 'super_admin').length)}
+              )
+            </button>
+          ))}
+        </div>
         <div style={{ display: 'flex', gap: 10 }}>
           <button onClick={() => setShowMap(true)} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: G, background: 'none', border: `1px solid ${G}`, borderRadius: 8, padding: '7px 14px', cursor: 'pointer' }}>
-            <MapPin size={13} /> View Customer Map
+            <MapPin size={13} /> Map
           </button>
           <button onClick={() => setRefreshKey(k => k + 1)} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: G, background: 'none', border: `1px solid ${G}`, borderRadius: 8, padding: '7px 14px', cursor: 'pointer' }}>
-            <RefreshCw size={13} /> Refresh
+            <RefreshCw size={13} />
           </button>
           <button onClick={exportCSV} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: '#fff', background: G, border: 'none', borderRadius: 8, padding: '7px 16px', cursor: 'pointer' }}>
-            <Download size={13} /> Export CSV
+            <Download size={13} /> Export
           </button>
         </div>
       </div>
 
       {showMap && (
-        <Modal onClose={() => setShowMap(false)} title="Customer Distribution Map" wide>
-          <p style={{ fontSize: 13, color: '#666', marginBottom: 16 }}>Showing locations for {allAddresses.length} saved addresses.</p>
+        <Modal onClose={() => { setShowMap(false); setMapAddress(null); }} title="Customer Distribution Map" wide>
+          <p style={{ fontSize: 13, color: '#666', marginBottom: 16 }}>Showing {allAddresses.length} saved addresses. Click an address below to focus the map.</p>
           <div style={{ height: 450, borderRadius: 12, overflow: 'hidden', border: '1px solid #E2DDD6', position: 'relative' }}>
             {allAddresses.length > 0 ? (
               <iframe
                 title="Customer Map"
-                src={`https://www.google.com/maps?q=${encodeURIComponent(allAddresses[0]?.full?.replace(/,\s*United States$/i, '') || 'USA')}&t=&z=4&ie=UTF8&iwloc=&output=embed`}
+                src={`https://www.google.com/maps?q=${encodeURIComponent((mapAddress || allAddresses[0]?.full)?.replace(/,\s*United States$/i, ''))}&t=&z=${mapAddress ? 14 : 4}&ie=UTF8&iwloc=B&output=embed`}
                 width="100%" height="100%" style={{ border: 0 }}
               />
             ) : (
@@ -1356,15 +1426,22 @@ function UsersSection() {
             </div>
           </div>
           <div style={{ marginTop: 16, maxHeight: 150, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 4 }}>
-             {allAddresses.map((a, i) => (
-               <div key={i} style={{ fontSize: 11, padding: '8px 12px', background: '#f8f8f8', borderRadius: 6, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                   <span style={{ padding: '2px 6px', borderRadius: 4, background: a.type === 'Login' ? '#DBEAFE' : '#D1FAE5', color: a.type === 'Login' ? '#1E40AF' : '#065F46', fontSize: 9, fontWeight: 800 }}>{a.type}</span>
-                   <span style={{ fontWeight: 700 }}>{a.user}</span>
-                 </div>
-                 <span style={{ color: '#666' }}>{a.full}</span>
-               </div>
-             ))}
+              {allAddresses.map((a, i) => (
+                <div key={i} 
+                  onClick={() => setMapAddress(a.full)}
+                  style={{ 
+                    fontSize: 11, padding: '8px 12px', background: mapAddress === a.full ? `${G}10` : '#f8f8f8', 
+                    borderRadius: 6, display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                    cursor: 'pointer', border: `1px solid ${mapAddress === a.full ? G : 'transparent'}`,
+                    transition: 'all 0.2s'
+                  }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ padding: '2px 6px', borderRadius: 4, background: a.type === 'Login' ? '#DBEAFE' : '#D1FAE5', color: a.type === 'Login' ? '#1E40AF' : '#065F46', fontSize: 9, fontWeight: 800 }}>{a.type}</span>
+                    <span style={{ fontWeight: 700 }}>{a.user}</span>
+                  </div>
+                  <span style={{ color: '#666' }}>{a.full}</span>
+                </div>
+              ))}
           </div>
         </Modal>
       )}
@@ -1410,20 +1487,28 @@ function UsersSection() {
                       {u.phone && <div style={{ fontSize: 12, color: '#555', display: 'flex', alignItems: 'center', gap: 4 }}><Phone size={11} color="#aaa" /> {u.phone}</div>}
                     </td>
                     <td style={{ padding: '12px 14px' }}>
-                      <div style={{ position: 'relative', width: 'fit-content' }}>
-                        <select value={u.role || 'user'} onChange={e => handleRoleChange(u, e.target.value)}
-                          style={{ 
-                            padding: '5px 28px 5px 12px', borderRadius: 100, border: '1px solid #E2DDD6', 
-                            fontSize: 11, fontWeight: 700, cursor: 'pointer', appearance: 'none',
-                            background: u.role === 'admin' ? `${G}15` : '#F8FAFC',
-                            color: u.role === 'admin' ? G : '#64748B',
-                            outline: 'none',
-                            transition: 'all 0.2s'
-                          }}>
-                          <option value="user">User</option>
-                          <option value="admin">Admin</option>
-                        </select>
-                        <ChevronDown size={10} style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', opacity: 0.5 }} />
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <div style={{ position: 'relative' }}>
+                          <select 
+                            value={u.role || 'user'} 
+                            disabled={u.role === 'super_admin' && currentUser?.role !== 'super_admin'}
+                            onChange={e => handleRoleChange(u, e.target.value)}
+                            style={{ 
+                              padding: '5px 28px 5px 12px', borderRadius: 100, border: '1px solid #E2DDD6', 
+                              fontSize: 11, fontWeight: 700, cursor: (u.role === 'super_admin' && currentUser?.role !== 'super_admin') ? 'not-allowed' : 'pointer', 
+                              appearance: 'none',
+                              background: (u.role === 'admin' || u.role === 'super_admin') ? `${G}15` : '#F8FAFC',
+                              color: (u.role === 'admin' || u.role === 'super_admin') ? G : '#64748B',
+                              outline: 'none',
+                              transition: 'all 0.2s'
+                            }}>
+                            <option value="user">User</option>
+                            <option value="admin">Admin</option>
+                            {currentUser?.role === 'super_admin' && <option value="super_admin">Super Admin</option>}
+                          </select>
+                          <ChevronDown size={10} style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', opacity: 0.5 }} />
+                        </div>
+                        <RoleBadge role={u.role} />
                       </div>
                     </td>
                     <td style={{ padding: '12px 14px', fontSize: 13, fontWeight: 600, color: '#1A1A1A' }}>{(u.orders || []).length}</td>
@@ -1439,12 +1524,14 @@ function UsersSection() {
                         </button>
                         <button onClick={() => setMapUser(u)}
                           style={{ padding: '5px 10px', borderRadius: 6, border: '1px solid #E2DDD6', color: '#555', background: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
-                          <MapPin size={11} color={ACCENT} /> Map
+                          <MapPin size={11} color={ACCENT} />
                         </button>
-                        <button onClick={() => setDeleteConfirm(u)}
-                          style={{ padding: '5px 10px', borderRadius: 6, border: '1px solid #FEE2E2', color: '#DC2626', background: 'none', fontSize: 11, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
-                          <Trash2 size={11} />
-                        </button>
+                        {u.role !== 'super_admin' && (
+                          <button onClick={() => setDeleteConfirm(u)}
+                            style={{ padding: '5px 10px', borderRadius: 6, border: '1px solid #FEE2E2', color: '#DC2626', background: 'none', fontSize: 11, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+                            <Trash2 size={11} />
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -1540,12 +1627,12 @@ function UsersSection() {
                 <div style={{ height: 400, borderRadius: 12, overflow: 'hidden', border: '1px solid #E2DDD6' }}>
                   <iframe 
                     width="100%" height="100%" frameBorder="0" style={{ border: 0 }}
-                    src={`https://maps.google.com/maps?q=${encodeURIComponent(
+                    src={`https://www.google.com/maps?q=${encodeURIComponent(
                       (mapUser.addresses[0].street ? mapUser.addresses[0].street + ' ' : '') + 
                       mapUser.addresses[0].city + ' ' + 
                       (mapUser.addresses[0].state || '') + ' ' + 
                       (mapUser.addresses[0].country || '')
-                    )}&hl=en&z=14&output=embed`}
+                    )}&t=&z=14&ie=UTF8&iwloc=B&output=embed`}
                     allowFullScreen>
                   </iframe>
                 </div>
@@ -1908,6 +1995,7 @@ function MessagesSection() {
   );
 }
 
+
 // ── Subscribers ───────────────────────────────────────────────────────────────
 function SubscribersSection() {
   const { showToast } = useToast();
@@ -2111,6 +2199,18 @@ function AnalyticsSection() {
 }
 
 // ── Main Admin Page ───────────────────────────────────────────────────────────
+const SECTION_MAP = { 
+  dashboard: DashboardSection, 
+  orders: OrdersSection, 
+  users: UsersSection, 
+  products: ProductsSection, 
+  industries: IndustriesSection, 
+  quotes: QuotesSection, 
+  messages: MessagesSection, 
+  subscribers: SubscribersSection, 
+  analytics: AnalyticsSection 
+};
+
 export default function Admin() {
   const { user, logout } = useAuth();
   const { showToast } = useToast();
@@ -2118,12 +2218,12 @@ export default function Admin() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
-    if (user && user.role !== 'admin') {
+    if (user && user.role !== 'admin' && user.role !== 'super_admin') {
       showToast('Access denied.', 'error');
     }
   }, [user, showToast]);
 
-  if (!user || user.role !== 'admin') {
+  if (!user || (user.role !== 'admin' && user.role !== 'super_admin')) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: BG }}>
         <div style={{ textAlign: 'center' }}>
@@ -2135,7 +2235,6 @@ export default function Admin() {
     );
   }
 
-  const SECTION_MAP = { dashboard: DashboardSection, orders: OrdersSection, users: UsersSection, products: ProductsSection, industries: IndustriesSection, quotes: QuotesSection, messages: MessagesSection, subscribers: SubscribersSection, analytics: AnalyticsSection };
   const SectionComp = SECTION_MAP[activeSection] || DashboardSection;
 
   const handleNavClick = (key) => {
@@ -2145,9 +2244,23 @@ export default function Admin() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#F8FAFC', display: 'flex' }}>
+      {/* Mobile Menu Button - Floating Fab */}
+      <button 
+        onClick={() => setSidebarOpen(true)}
+        style={{ 
+          position: 'fixed', bottom: 24, right: 24, zIndex: 999,
+          width: 56, height: 56, borderRadius: '50%', background: G, color: '#fff',
+          border: 'none', boxShadow: '0 8px 24px rgba(26,77,46,0.3)',
+          display: 'none', alignItems: 'center', justifyContent: 'center', cursor: 'pointer'
+        }}
+        className="admin-mobile-toggle"
+      >
+        <Menu size={24} />
+      </button>
+
       {/* Mobile overlay */}
       {sidebarOpen && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200 }} onClick={() => setSidebarOpen(false)} />
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', backdropFilter: 'blur(4px)', zIndex: 1000 }} onClick={() => setSidebarOpen(false)} />
       )}
 
       {/* Sidebar */}
@@ -2159,6 +2272,7 @@ export default function Admin() {
         borderRight: '1px solid rgba(255,255,255,0.05)',
         zIndex: 1001,
         boxShadow: '10px 0 40px rgba(0,0,0,0.1)',
+        overflowY: 'auto',
       }}>
         <div style={{ padding: '32px 24px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)', marginBottom: 12, position: 'relative' }}>
           {/* Mobile Close Button */}
@@ -2185,7 +2299,9 @@ export default function Admin() {
             </div>
             <div>
               <p style={{ fontSize: 14, fontWeight: 700, color: '#fff', margin: 0 }}>{user?.name || 'Administrator'}</p>
-              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', margin: '2px 0 0', fontWeight: 500 }}>System Administrator</p>
+              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', margin: '2px 0 0', fontWeight: 500 }}>
+                {user?.role === 'super_admin' ? 'Super Admin' : 'Administrator'}
+              </p>
             </div>
           </div>
         </div>
@@ -2219,15 +2335,18 @@ export default function Admin() {
       </aside>
 
       {/* Content */}
-      <main style={{ flex: 1, padding: '40px 48px', overflowX: 'hidden', minWidth: 0 }}>
-        {/* Mobile hamburger */}
-        <div style={{ position: 'sticky', top: 0, zIndex: 100, background: '#F8FAFC', padding: '10px 0', display: 'none' }} className="admin-mobile-header">
+      <main style={{ flex: 1, padding: '40px 48px', overflowX: 'hidden', minWidth: 0, position: 'relative' }}>
+        {/* Mobile hamburger header */}
+        <div style={{ position: 'sticky', top: 0, zIndex: 100, background: '#F8FAFC', padding: '10px 0', display: 'none', borderBottom: '1px solid #E2E8F0', marginBottom: 24 }} className="admin-mobile-header">
           <button className="admin-hamburger" onClick={() => setSidebarOpen(true)}
             style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 14px', background: G, color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
             <Menu size={16} /> Admin Menu
           </button>
         </div>
-        <SectionComp />
+
+        <SectionErrorBoundary key={activeSection}>
+          <SectionComp />
+        </SectionErrorBoundary>
       </main>
 
       <style>{`
@@ -2245,6 +2364,8 @@ export default function Admin() {
             box-shadow: none;
             visibility: hidden;
             transition: all 0.3s ease;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
           }
           .admin-sidebar.open {
             transform: translateX(0) !important;

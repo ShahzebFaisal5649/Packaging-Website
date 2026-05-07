@@ -1,6 +1,8 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
+const SUPER_ADMIN_EMAIL = 'designcustombox@gmail.com';
+
 const protect = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
@@ -18,11 +20,20 @@ const protect = async (req, res, next) => {
   }
 };
 
+// Allow both admin and super_admin roles
 const adminOnly = (req, res, next) => {
-  if (req.user?.role !== 'admin') {
+  if (req.user?.role !== 'admin' && req.user?.role !== 'super_admin') {
     return res.status(403).json({ message: 'Admin access required' });
   }
   next();
 };
 
-module.exports = { protect, adminOnly };
+// Only super_admin can access
+const superAdminOnly = (req, res, next) => {
+  if (req.user?.role !== 'super_admin') {
+    return res.status(403).json({ message: 'Unauthorized: Only the Super Admin can perform this action.' });
+  }
+  next();
+};
+
+module.exports = { protect, adminOnly, superAdminOnly, SUPER_ADMIN_EMAIL };

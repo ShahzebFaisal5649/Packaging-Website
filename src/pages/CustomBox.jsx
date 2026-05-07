@@ -296,7 +296,7 @@ export default function CustomBox() {
     const cartImage = location.state?.productImage
       || 'https://images.unsplash.com/photo-1607083206968-13611e3d76db?q=80&w=400';
     const finalConfig = { ...config, artworkUrl: artworkApplied ? artworkPreview : null };
-    addToCart({ id: `box-${Date.now()}`, name: prefilledName || designName.trim() || `Custom ${config.boxType}`, image: cartImage, price: unitPrice, quantity: config.quantity, configuration: finalConfig });
+    addToCart({ id: `box-${Date.now()}`, name: prefilledName || designName.trim() || `Custom ${config.boxType}`, image: cartImage, price: unitPrice, quantity: config.quantity, configuration: finalConfig }, true);
     navigate('/checkout');
   };
   // Fix 7: Save Design with canvas thumbnail and artwork

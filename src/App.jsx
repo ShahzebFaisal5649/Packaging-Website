@@ -40,6 +40,7 @@ const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
 const Profile = lazy(() => import('./pages/Profile'));
 const Admin = lazy(() => import('./pages/Admin'));
 const Checkout = lazy(() => import('./pages/Checkout'));
+const BlogPost = lazy(() => import('./pages/BlogPost'));
 
 class ErrorBoundary extends Component {
   constructor(props) {
@@ -131,10 +132,10 @@ const AdminGuard = ({ children }) => {
   const { user, loading } = useAuth();
   const { showToast } = useToast();
   useEffect(() => {
-    if (!loading && user?.role !== 'admin') showToast('Access denied', 'error');
+    if (!loading && user && (user.role !== 'admin' && user.role !== 'super_admin')) showToast('Access denied', 'error');
   }, [loading, user, showToast]);
   if (loading) return null;
-  return user?.role === 'admin' ? children : <Navigate to="/" replace />;
+  return (user?.role === 'admin' || user?.role === 'super_admin') ? children : <Navigate to="/" replace />;
 };
 
 export default function App() {
@@ -169,6 +170,7 @@ export default function App() {
                           <Route path="/testimonials" element={<SuccessStories />} />
                           <Route path="/faqs" element={<FAQ />} />
                           <Route path="/blog" element={<Blog />} />
+                          <Route path="/blog/:id" element={<BlogPost />} />
                           <Route path="/contact-us" element={<Contact />} />
                           <Route path="/terms" element={<Terms />} />
                           <Route path="/privacy" element={<Privacy />} />

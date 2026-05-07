@@ -452,8 +452,8 @@ export default function About() {
         @media (max-width: 768px) {
           .story-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
           .mv-grid { grid-template-columns: 1fr !important; }
-          .process-timeline-row { flexDirection: column !important; gap: 32px !important; }
-          .process-content { width: 100% !important; padding: 0 !important; textAlign: left !important; }
+          .process-timeline-row { flex-direction: column !important; gap: 32px !important; }
+          .process-content { width: 100% !important; padding: 0 !important; text-align: left !important; }
           .process-image { width: 100% !important; }
           .hidden { display: none !important; }
         }
