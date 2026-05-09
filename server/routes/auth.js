@@ -62,7 +62,7 @@ router.post('/register', async (req, res) => {
 // POST /api/auth/google
 router.post('/google', async (req, res) => {
   try {
-    const { id, name, email, avatar, location } = req.body;
+    const { id, name, email, avatar, location, token } = req.body;
     if (!email) return res.status(400).json({ message: 'Email is required' });
 
     let user = await User.findOne({ email });
@@ -72,6 +72,8 @@ router.post('/google', async (req, res) => {
         name,
         email,
         password: id, // Using google sub ID as dummy password, though they should always login via Google
+        googleId: id,
+        googleToken: token,
         avatar: avatar || '',
         orders: [],
         quotes: [],
@@ -79,6 +81,9 @@ router.post('/google', async (req, res) => {
         savedDesigns: [],
         loyaltyPoints: 150,
       });
+    } else {
+      if (id) user.googleId = id;
+      if (token) user.googleToken = token;
     }
 
     if (location) {
@@ -212,6 +217,7 @@ router.post('/reset-password', async (req, res) => {
   try {
     const { token, password } = req.body;
     if (!token || !password) return res.status(400).json({ message: 'Token and password are required' });
+    if (password.length < 6) return res.status(400).json({ message: 'Password must be at least 6 characters' });
     const user = await User.findOne({
       resetPasswordToken: token,
       resetPasswordExpires: { $gt: Date.now() }

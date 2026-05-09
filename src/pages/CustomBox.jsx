@@ -161,7 +161,24 @@ export default function CustomBox() {
   }, [location.state]);
 
   // Pre-fill sample form from user profile
-  // Removed to avoid setState in effect
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      setSampleForm(f => ({
+        ...f,
+        name: user.name || f.name,
+        email: user.email || f.email,
+        phone: user.phone || f.phone,
+        ...(user.addresses?.length > 0 && f.addressMode === 'manual' && !f.street ? {
+          street: user.addresses[0].street || '',
+          city: user.addresses[0].city || '',
+          state: user.addresses[0].state || '',
+          zip: user.addresses[0].zip || '',
+          country: user.addresses[0].country || 'US',
+          addressMode: '0'
+        } : {})
+      }));
+    }
+  }, [isAuthenticated, user]);
 
   const handleSampleSubmit = async () => {
     const { name, email, street, city, zip } = sampleForm;

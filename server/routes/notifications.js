@@ -39,6 +39,26 @@ router.put('/:id/read', protect, async (req, res) => {
   }
 });
 
+// DELETE /api/notifications/all — clear all notifications
+router.delete('/all', protect, async (req, res) => {
+  try {
+    await Notification.deleteMany({ userId: req.user._id });
+    res.json({ message: 'All notifications cleared' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// DELETE /api/notifications/clear — legacy alias
+router.delete('/clear', protect, async (req, res) => {
+  try {
+    await Notification.deleteMany({ userId: req.user._id });
+    res.json({ message: 'All notifications cleared' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 // DELETE /api/notifications/:id
 router.delete('/:id', protect, async (req, res) => {
   try {

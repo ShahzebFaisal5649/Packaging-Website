@@ -55,14 +55,7 @@ function OverviewTab({ user, setTab, updateUser, showToast }) {
   const needed = nextTier ? tierMax - loyaltyPoints : 0;
   const progress = nextTier ? Math.min(((loyaltyPoints - tierMin) / (tierMax - tierMin)) * 100, 100) : 100;
 
-  const [editOpen, setEditOpen] = useState(false);
-  const [editForm, setEditForm] = useState({ name: user?.name || '', phone: user?.phone || '' });
 
-  const handleSaveEdit = async () => {
-    await updateUser(editForm);
-    showToast('Profile updated!', 'success');
-    setEditOpen(false);
-  };
 
   const stats = [
     { label: 'Total Orders', value: user?.orders?.length || 0 },
@@ -75,9 +68,6 @@ function OverviewTab({ user, setTab, updateUser, showToast }) {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 }}>
         <h2 style={{ fontSize: 22, fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 700, color: '#1A1A1A' }}>Account Overview</h2>
-        <button onClick={() => setEditOpen(true)} style={{ padding: '8px 18px', border: `1.5px solid #D0CAC0`, borderRadius: 8, background: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: '#1A1A1A', display: 'flex', alignItems: 'center', gap: 6 }}>
-          <Edit size={14} /> Edit Profile
-        </button>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 16, marginBottom: 28 }}>
@@ -112,44 +102,15 @@ function OverviewTab({ user, setTab, updateUser, showToast }) {
         </button>
       </div>
 
-      {editOpen && (
-        <Modal onClose={() => setEditOpen(false)} title="Edit Profile">
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <div>
-              <label style={{ fontSize: 12, fontWeight: 700, color: '#6B6B6B', display: 'block', marginBottom: 6 }}>Full Name</label>
-              <input value={editForm.name} onChange={e => setEditForm(f => ({ ...f, name: e.target.value }))} style={{ width: '100%', padding: '10px 12px', border: '1.5px solid #D0CAC0', borderRadius: 8, fontSize: 14, outline: 'none', boxSizing: 'border-box' }} />
-            </div>
-            <div>
-              <label style={{ fontSize: 12, fontWeight: 700, color: '#6B6B6B', display: 'block', marginBottom: 6 }}>Phone</label>
-              <input value={editForm.phone} onChange={e => setEditForm(f => ({ ...f, phone: e.target.value }))} style={{ width: '100%', padding: '10px 12px', border: '1.5px solid #D0CAC0', borderRadius: 8, fontSize: 14, outline: 'none', boxSizing: 'border-box' }} />
-            </div>
-            <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
-              <button onClick={handleSaveEdit} style={{ flex: 1, padding: '10px', backgroundColor: G, color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}>Save Changes</button>
-              <button onClick={() => setEditOpen(false)} style={{ flex: 1, padding: '10px', backgroundColor: 'transparent', border: '1.5px solid #D0CAC0', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}>Cancel</button>
-            </div>
-          </div>
-        </Modal>
-      )}
+
     </div>
   );
 }
 
 // --- ORDERS TAB ---
-function OrdersTab() {
-  const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
+function OrdersTab({ orders, loading }) {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-
-  useEffect(() => {
-    let cancelled = false;
-    api.get('/users/orders').then(res => {
-      if (!cancelled) { setOrders(res.orders || []); setLoading(false); }
-    }).catch(err => {
-      if (!cancelled) { console.error('Orders fetch err:', err); setLoading(false); }
-    });
-    return () => { cancelled = true; };
-  }, []);
 
   const displayOrders = orders?.length ? orders.map(o => ({
     ...o,
@@ -271,21 +232,9 @@ function OrdersTab() {
 }
 
 // --- QUOTES TAB ---
-function QuotesTab() {
-  const [quotes, setQuotes] = useState([]);
-  const [loading, setLoading] = useState(true);
+function QuotesTab({ quotes, loading }) {
   const [selectedQuote, setSelectedQuote] = useState(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-
-  useEffect(() => {
-    let cancelled = false;
-    api.get('/users/quotes').then(res => {
-      if (!cancelled) { setQuotes(res.quotes || []); setLoading(false); }
-    }).catch(err => {
-      if (!cancelled) { console.error('Quotes fetch err:', err); setLoading(false); }
-    });
-    return () => { cancelled = true; };
-  }, []);
 
   const displayQuotes = quotes?.length ? quotes.map(q => ({
     ...q,
@@ -637,40 +586,29 @@ function AddressesTab({ addresses, addAddress, updateAddress, deleteAddress, sho
 
 // --- SETTINGS TAB ---
 //// ── Password Strength Helper ───────────────────────────────────────────────
-function getPasswordStrength(p) {
-  if (!p) return { score: 0, label: '', color: '#E2DDD6' };
-  let score = 0;
-  if (p.length >= 8) score++;
-  if (p.length >= 12) score++;
-  if (/[A-Z]/.test(p)) score++;
-  if (/[0-9]/.test(p)) score++;
-  if (/[^A-Za-z0-9]/.test(p)) score++;
-  if (score <= 1) return { score, label: 'Weak', color: '#EF4444' };
-  if (score <= 3) return { score, label: 'Medium', color: '#F59E0B' };
-  return { score, label: 'Strong', color: '#10B981' };
-}
+const getStrength = (pw) => {
+  if (!pw) return null;
+  if (pw.length < 6) return { label: 'Too short', color: '#E24B4A', width: '20%' };
+  if (pw.length < 8 || !/[0-9]/.test(pw)) return { label: 'Weak', color: '#EF9F27', width: '40%' };
+  if (!/[A-Z]/.test(pw) || !/[^a-zA-Z0-9]/.test(pw)) return { label: 'Medium', color: '#EF9F27', width: '65%' };
+  return { label: 'Strong', color: '#639922', width: '100%' };
+};
 
 function PasswordStrengthBar({ password }) {
-  const { score, label, color } = getPasswordStrength(password);
-  if (!password) return null;
+  const strength = getStrength(password);
+  if (!strength) return null;
   return (
     <div style={{ marginTop: 8 }}>
-      <div style={{ display: 'flex', gap: 4, marginBottom: 4 }}>
-        {[1, 2, 3, 4, 5].map(i => (
-          <div key={i} style={{ flex: 1, height: 4, borderRadius: 4, backgroundColor: i <= score ? color : '#E2DDD6', transition: 'background 0.3s' }} />
-        ))}
+      <div style={{ height: 4, width: '100%', backgroundColor: '#E2DDD6', borderRadius: 2, overflow: 'hidden', marginBottom: 4 }}>
+        <div style={{ height: '100%', width: strength.width, backgroundColor: strength.color, transition: 'width 0.3s ease' }} />
       </div>
-      <p style={{ fontSize: 11, fontWeight: 700, color, margin: 0 }}>{label}</p>
+      <p style={{ fontSize: 11, fontWeight: 700, color: strength.color, margin: 0 }}>{strength.label}</p>
     </div>
   );
 }
 
 // ── Phone Validation Helper ────────────────────────────────────────────────
-function validatePhone(phone) {
-  if (!phone) return true;
-  const digits = phone.replace(/\D/g, '');
-  return digits.length >= 7 && digits.length <= 15;
-}
+const validatePhone = (v) => /^\+?[\d\s\-().]{7,15}$/.test(v);
 
 function SettingsTab({ user, updateUser, showToast, logout }) {
   const navigate = useNavigate();
@@ -715,10 +653,13 @@ function SettingsTab({ user, updateUser, showToast, logout }) {
 
   const handleUpdatePassword = async () => {
     if (!pwd.current) { setPwdErr('Enter your current password'); return; }
-    if (pwd.newPwd.length < 8) { setPwdErr('New password must be at least 8 characters'); return; }
+    if (pwd.newPwd.length < 6) { setPwdErr('Password must be at least 6 characters'); return; }
     if (pwd.newPwd !== pwd.confirm) { setPwdErr('Passwords do not match'); return; }
-    const { score } = getPasswordStrength(pwd.newPwd);
-    if (score < 2) { setPwdErr('Password is too weak — add uppercase, numbers or symbols'); return; }
+    const strength = getStrength(pwd.newPwd);
+    if (!strength || strength.label === 'Too short' || strength.label === 'Weak') {
+      setPwdErr('Password is too weak — add uppercase, numbers or symbols');
+      return;
+    }
     setPwdErr('');
     try {
       await api.put('/users/password', { currentPassword: pwd.current, newPassword: pwd.newPwd });
@@ -785,7 +726,7 @@ function SettingsTab({ user, updateUser, showToast, logout }) {
               value={info.phone}
               onChange={e => { setInfo(f => ({ ...f, phone: e.target.value })); setPhoneErr(''); }}
               onFocus={e => e.target.style.borderColor = G}
-              onBlur={e => { e.target.style.borderColor = phoneErr ? '#EF4444' : '#D0CAC0'; if (info.phone && !validatePhone(info.phone)) setPhoneErr('Invalid phone number. Use 7–15 digits.'); }}
+              onBlur={e => { e.target.style.borderColor = phoneErr ? '#EF4444' : '#D0CAC0'; if (info.phone && !validatePhone(info.phone)) setPhoneErr('Enter a valid phone number (7–15 digits)'); }}
               placeholder="+1 (555) 000-0000" />
             {phoneErr && <p style={{ fontSize: 11, color: '#EF4444', marginTop: 4 }}>{phoneErr}</p>}
           </div>
@@ -832,7 +773,7 @@ function SettingsTab({ user, updateUser, showToast, logout }) {
             onClick={handleUpdatePassword}
             loading={saving}
           >
-            Update Password
+            {saving ? 'Updating...' : 'Update Password'}
           </Button>
         </div>
       </div>
@@ -928,17 +869,32 @@ function NotificationsTab() {
     } catch (e) { showToast('Action failed', 'error'); }
   };
 
+  const handleClearAll = async () => {
+    try {
+      await api.delete('/notifications/all');
+      setNotifications([]);
+      showToast('All notifications cleared', 'success');
+    } catch (e) { showToast('Action failed', 'error'); }
+  };
+
   if (loading) return <div style={{ padding: 40, textAlign: 'center' }}><Bell size={32} style={{ color: '#ccc', animation: 'pulse 2s infinite' }} /></div>;
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
         <h2 style={{ fontSize: 22, fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 700, color: '#1A1A1A' }}>Notifications</h2>
-        {notifications.some(n => !n.isRead) && (
-          <button onClick={handleMarkAllRead} style={{ background: 'none', border: 'none', color: G, fontWeight: 700, fontSize: 13, cursor: 'pointer', textDecoration: 'underline' }}>
-            Mark all as read
-          </button>
-        )}
+        <div style={{ display: 'flex', gap: 16 }}>
+          {notifications.some(n => !n.isRead) && (
+            <button onClick={handleMarkAllRead} style={{ background: 'none', border: 'none', color: G, fontWeight: 700, fontSize: 13, cursor: 'pointer', textDecoration: 'underline' }}>
+              Mark all as read
+            </button>
+          )}
+          {notifications.length > 0 && (
+            <button onClick={handleClearAll} style={{ background: 'none', border: 'none', color: '#DC2626', fontWeight: 700, fontSize: 13, cursor: 'pointer', textDecoration: 'underline' }}>
+              Clear All
+            </button>
+          )}
+        </div>
       </div>
 
       {notifications.length === 0 ? (
@@ -983,7 +939,17 @@ function NotificationsTab() {
                 <div style={{ flex: 1, pr: 30 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
                     <h4 style={{ fontSize: 14, fontWeight: 700, color: '#1A1A1A', margin: 0 }}>{n.title}</h4>
-                    <span style={{ fontSize: 11, color: '#888' }}>{new Date(n.createdAt).toLocaleDateString()}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <span style={{ fontSize: 11, color: '#888' }}>{new Date(n.createdAt).toLocaleDateString()}</span>
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); handleDismiss(n._id); }} 
+                        style={{ background: 'none', border: 'none', color: '#9CA3AF', cursor: 'pointer', fontSize: 18, padding: '0 4px', lineHeight: 1, transition: 'color 0.2s' }}
+                        onMouseEnter={e => e.target.style.color = '#DC2626'}
+                        onMouseLeave={e => e.target.style.color = '#9CA3AF'}
+                      >
+                        &times;
+                      </button>
+                    </div>
                   </div>
                   <p style={{ fontSize: 13, color: '#4B5563', margin: '0 0 12px', lineHeight: 1.5 }}>{n.message}</p>
                   <div style={{ display: 'flex', gap: 12 }}>
@@ -1036,6 +1002,29 @@ export default function Profile() {
   const [activeTab, setActiveTab] = useState(() => location.state?.tab || 'overview');
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [orders, setOrders] = useState([]);
+  const [quotes, setQuotes] = useState([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
+  const [quotesLoading, setQuotesLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const data = await api.get('/users/orders');
+        setOrders(Array.isArray(data) ? data : (data.orders || []));
+      } catch (e) { console.error('Orders fetch err:', e); }
+      finally { setOrdersLoading(false); }
+    };
+    const fetchQuotes = async () => {
+      try {
+        const data = await api.get('/users/quotes');
+        setQuotes(Array.isArray(data) ? data : (data.quotes || []));
+      } catch (e) { console.error('Quotes fetch err:', e); }
+      finally { setQuotesLoading(false); }
+    };
+    fetchOrders();
+    fetchQuotes();
+  }, []);
 
   useEffect(() => {
     const handler = () => setIsMobile(window.innerWidth < 768);
@@ -1142,9 +1131,9 @@ export default function Profile() {
 
           {/* Main Content */}
           <div style={{ flex: 1, minWidth: 0, backgroundColor: '#fff', borderRadius: 14, border: '1px solid #E2DDD6', padding: isMobile ? '24px 16px' : '32px', minHeight: 600 }}>
-            {activeTab === 'overview' && <OverviewTab user={user} setTab={setActiveTab} updateUser={updateUser} showToast={showToast} />}
-            {activeTab === 'orders' && <OrdersTab />}
-            {activeTab === 'quotes' && <QuotesTab />}
+            {activeTab === 'overview' && <OverviewTab user={{ ...user, orders, quotes }} setTab={setActiveTab} updateUser={updateUser} showToast={showToast} />}
+            {activeTab === 'orders' && <OrdersTab orders={orders} loading={ordersLoading} />}
+            {activeTab === 'quotes' && <QuotesTab quotes={quotes} loading={quotesLoading} />}
             {activeTab === 'notifications' && <NotificationsTab />}
             {activeTab === 'designs' && <DesignsTab designs={user?.savedDesigns || []} saveDesign={saveDesign} deleteDesign={deleteDesign} showToast={showToast} navigate={navigate} />}
             {activeTab === 'addresses' && <AddressesTab addresses={user?.addresses || []} addAddress={addAddress} updateAddress={updateAddress} deleteAddress={deleteAddress} showToast={showToast} />}

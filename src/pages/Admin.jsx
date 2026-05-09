@@ -12,7 +12,8 @@ import {
   Eye, Mail, Phone, Calendar,
   Shield, Ban, Star, ArrowUpRight,
   Package, Building, Upload, Menu, Plus, MapPin,
-  CheckCircle, Truck, ChevronDown, Filter, Layers
+  CheckCircle, Truck, ChevronDown, Filter, Layers,
+  Bell, BellRing
 } from 'lucide-react';
 
 const G = '#1A4D2E';
@@ -112,6 +113,105 @@ function Modal({ onClose, title, children, wide }) {
         <div style={{ padding: 24 }}>{children}</div>
       </motion.div>
     </motion.div>
+  );
+}
+
+
+function AdminNotifications() {
+  const [notifications, setNotifications] = useState([]);
+  const [open, setOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const data = await api.get('/notifications');
+        setNotifications(data.notifications || []);
+      } catch (e) { console.error(e); }
+    };
+    load();
+    const interval = setInterval(load, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const click = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setOpen(false);
+    };
+    document.addEventListener('mousedown', click);
+    return () => document.removeEventListener('mousedown', click);
+  }, []);
+
+  const unread = notifications.filter(n => !n.isRead).length;
+
+  const handleMarkRead = async () => {
+    try {
+      await api.put('/notifications/read-all');
+      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+    } catch (e) { }
+  };
+
+  const handleClearAll = async () => {
+    try {
+      await api.delete('/notifications/all');
+      setNotifications([]);
+    } catch (e) { }
+  };
+
+  const handleDismiss = async (e, id) => {
+    e.stopPropagation();
+    try {
+      await api.delete(`/notifications/${id}`);
+      setNotifications(prev => prev.filter(n => n._id !== id));
+    } catch (e) { }
+  };
+
+  return (
+    <div style={{ position: 'relative' }} ref={dropdownRef}>
+      <button onClick={() => setOpen(!open)} style={{ position: 'relative', background: '#fff', border: '1px solid #E2E8F0', padding: 10, borderRadius: 12, cursor: 'pointer', color: '#64748B', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Bell size={20} />
+        {unread > 0 && (
+          <span style={{ position: 'absolute', top: -4, right: -4, background: '#EF4444', color: '#fff', fontSize: 10, fontWeight: 800, width: 18, height: 18, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #F8FAFC' }}>
+            {unread}
+          </span>
+        )}
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div initial={{ opacity: 0, y: 10, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 10, scale: 0.95 }}
+            style={{ position: 'absolute', top: '100%', right: 0, marginTop: 12, width: 340, background: '#fff', borderRadius: 16, boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)', border: '1px solid #E2E8F0', zIndex: 1000, overflow: 'hidden' }}>
+            <div style={{ padding: '16px 20px', borderBottom: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#F8FAFC' }}>
+              <span style={{ fontSize: 14, fontWeight: 800, color: '#0F172A' }}>Notifications</span>
+              <div style={{ display: 'flex', gap: 12 }}>
+                {unread > 0 && <button onClick={handleMarkRead} style={{ background: 'none', border: 'none', color: '#3B82F6', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>Mark all read</button>}
+                {notifications.length > 0 && <button onClick={handleClearAll} style={{ background: 'none', border: 'none', color: '#EF4444', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>Clear all</button>}
+              </div>
+            </div>
+            <div style={{ maxHeight: 400, overflowY: 'auto', padding: 8 }}>
+              {notifications.length === 0 ? (
+                <div style={{ padding: '40px 20px', textAlign: 'center', color: '#94A3B8' }}>
+                  <BellRing size={32} style={{ marginBottom: 12, opacity: 0.2 }} />
+                  <p style={{ fontSize: 13, fontWeight: 500, margin: 0 }}>All caught up!</p>
+                </div>
+              ) : (
+                notifications.map(n => (
+                  <div key={n._id} style={{ position: 'relative', padding: '12px 16px', borderRadius: 12, background: n.isRead ? 'transparent' : 'rgba(59, 130, 246, 0.03)', borderBottom: '1px solid #F1F5F9', cursor: 'pointer', transition: 'all 0.2s' }}
+                    onMouseEnter={e => e.currentTarget.style.background = '#F8FAFC'} onMouseLeave={e => e.currentTarget.style.background = n.isRead ? 'transparent' : 'rgba(59, 130, 246, 0.03)'}>
+                    <p style={{ fontSize: 13, fontWeight: 700, color: '#1E293B', margin: '0 0 4px' }}>{n.title}</p>
+                    <p style={{ fontSize: 12, color: '#64748B', margin: '0 0 6px', lineHeight: 1.5 }}>{n.message}</p>
+                    <span style={{ fontSize: 10, color: '#94A3B8', fontWeight: 600 }}>{new Date(n.createdAt).toLocaleDateString()}</span>
+                    <button onClick={(e) => handleDismiss(e, n._id)} style={{ position: 'absolute', top: 12, right: 12, background: 'none', border: 'none', color: '#CBD5E1', cursor: 'pointer', padding: 4 }}>
+                      <X size={14} />
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
 
@@ -319,7 +419,8 @@ function DashboardSection() {
           <h2 style={{ fontSize: 28, fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#0F172A', margin: 0, letterSpacing: '-0.02em' }}>Command Center</h2>
           <p style={{ fontSize: 14, color: '#64748B', marginTop: 4, fontWeight: 500 }}>Overview of your business performance and logistics.</p>
         </div>
-        <div style={{ display: 'flex', gap: 12 }}>
+        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+          <AdminNotifications />
           <button onClick={() => setRefreshKey(k => k + 1)} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 700, color: '#0F172A', background: '#fff', border: '1px solid #E2E8F0', borderRadius: 12, padding: '10px 18px', cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }} onMouseEnter={e => e.currentTarget.style.borderColor = '#3B82F6'} onMouseLeave={e => e.currentTarget.style.borderColor = '#E2E8F0'}>
             <RefreshCw size={16} className={loading ? 'spin' : ''} /> Synchronize
           </button>
@@ -401,6 +502,7 @@ function ProductsSection() {
   const [editForm, setEditForm] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [activeTab, setActiveTab] = useState('all'); // 'all', 'featured'
 
   const emptyForm = { name: '', slug: '', cat: '', description: '', price: '', img: '', featured: false, boxType: '', material: '', finish: '', dimL: '', dimW: '', dimH: '', minQty: '', addons: [], customIndustry: '' };
@@ -566,12 +668,17 @@ function ProductsSection() {
   };
 
   const handleDelete = async (id) => {
+    setIsDeleting(true);
     try {
       await api.delete(`/admin/products/${id}`);
       setDeleteConfirm(null);
+      showToast('Product deleted');
       loadProducts(false);
     } catch (err) {
       console.error('Failed to delete product:', err);
+      showToast(err.message || 'Delete failed', 'error');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -764,12 +871,12 @@ function ProductsSection() {
           </div>
 
           <div style={{ display: 'flex', gap: 10, marginTop: 20, paddingTop: 16, borderTop: '1px solid #F0EDE8' }}>
-            <button onClick={handleSave} disabled={isSaving} style={{ flex: 1, padding: '11px', background: isSaving ? '#9CA3AF' : G, color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: isSaving ? 'not-allowed' : 'pointer' }}>
-              {isSaving ? 'Saving...' : editForm.id ? 'Save Changes' : 'Add Product'}
-            </button>
-            <button onClick={() => setEditForm(null)} disabled={isSaving} style={{ flex: 1, padding: '11px', background: '#fff', color: '#666', border: '1px solid #E2DDD6', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: isSaving ? 'not-allowed' : 'pointer' }}>
+            <Button onClick={handleSave} loading={isSaving} style={{ flex: 1 }}>
+              {editForm.id ? 'Save Changes' : 'Add Product'}
+            </Button>
+            <Button variant="outline" onClick={() => setEditForm(null)} disabled={isSaving} style={{ flex: 1 }}>
               Cancel
-            </button>
+            </Button>
           </div>
         </Modal>
       )}
@@ -778,8 +885,12 @@ function ProductsSection() {
         <Modal onClose={() => setDeleteConfirm(null)} title="Delete Product">
           <p style={{ color: '#555', fontSize: 14, marginBottom: 20 }}>Are you sure? This cannot be undone.</p>
           <div style={{ display: 'flex', gap: 10 }}>
-            <button onClick={() => handleDelete(deleteConfirm)} style={{ flex: 1, padding: '10px', background: '#DC2626', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}>Delete</button>
-            <button onClick={() => setDeleteConfirm(null)} style={{ flex: 1, padding: '10px', background: '#fff', color: '#666', border: '1px solid #E2DDD6', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}>Cancel</button>
+            <Button variant="danger" onClick={() => handleDelete(deleteConfirm)} loading={isDeleting} style={{ flex: 1 }}>
+              Delete
+            </Button>
+            <Button variant="outline" onClick={() => setDeleteConfirm(null)} disabled={isDeleting} style={{ flex: 1 }}>
+              Cancel
+            </Button>
           </div>
         </Modal>
       )}
@@ -881,12 +992,17 @@ function IndustriesSection() {
   };
 
   const handleDelete = async (id) => {
+    setIsDeleting(true);
     try {
       await api.delete(`/admin/industries/${id}`);
       setDeleteConfirm(null);
+      showToast('Industry deleted');
       loadIndustries(false);
     } catch (err) {
       console.error('Failed to delete industry:', err);
+      showToast(err.message || 'Delete failed', 'error');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -993,12 +1109,12 @@ function IndustriesSection() {
           </div>
 
           <div style={{ display: 'flex', gap: 10, marginTop: 20, paddingTop: 16, borderTop: '1px solid #F0EDE8' }}>
-            <button onClick={handleSave} disabled={isSaving} style={{ flex: 1, padding: '11px', background: isSaving ? '#9CA3AF' : G, color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: isSaving ? 'not-allowed' : 'pointer' }}>
-              {isSaving ? 'Saving...' : editForm.id ? 'Save Changes' : 'Add Industry'}
-            </button>
-            <button onClick={() => setEditForm(null)} disabled={isSaving} style={{ flex: 1, padding: '11px', background: '#fff', color: '#666', border: '1px solid #E2DDD6', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: isSaving ? 'not-allowed' : 'pointer' }}>
+            <Button onClick={handleSave} loading={isSaving} style={{ flex: 1 }}>
+              {editForm.id ? 'Save Changes' : 'Add Industry'}
+            </Button>
+            <Button variant="outline" onClick={() => setEditForm(null)} disabled={isSaving} style={{ flex: 1 }}>
               Cancel
-            </button>
+            </Button>
           </div>
         </Modal>
       )}
@@ -1007,8 +1123,12 @@ function IndustriesSection() {
         <Modal onClose={() => setDeleteConfirm(null)} title="Delete Industry">
           <p style={{ color: '#555', fontSize: 14, marginBottom: 20 }}>Are you sure? This cannot be undone.</p>
           <div style={{ display: 'flex', gap: 10 }}>
-            <button onClick={() => handleDelete(deleteConfirm)} style={{ flex: 1, padding: '10px', background: '#DC2626', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}>Delete</button>
-            <button onClick={() => setDeleteConfirm(null)} style={{ flex: 1, padding: '10px', background: '#fff', color: '#666', border: '1px solid #E2DDD6', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}>Cancel</button>
+            <Button variant="danger" onClick={() => handleDelete(deleteConfirm)} loading={isDeleting} style={{ flex: 1 }}>
+              Delete
+            </Button>
+            <Button variant="outline" onClick={() => setDeleteConfirm(null)} disabled={isDeleting} style={{ flex: 1 }}>
+              Cancel
+            </Button>
           </div>
         </Modal>
       )}
@@ -1017,94 +1137,6 @@ function IndustriesSection() {
 }
 
 // ── Orders ────────────────────────────────────────────────────────────────────
-// ── Map Component ────────────────────────────────────────────────────────────
-function CustomerMap({ orders, selectedOrder, mode, onModeChange }) {
-  const markers = (mode === 'All' ? orders : (selectedOrder ? [selectedOrder] : []))
-    .filter(o => o.userLocation?.lat && o.userLocation?.lng)
-    .map(o => ({
-      id: o._id,
-      position: [o.userLocation.lat, o.userLocation.lng],
-      name: o.userName,
-      orderId: o.id || o.orderId,
-      address: o.fullAddress || o.address,
-      status: o.status,
-    }));
-
-  const getPinColor = (status) => {
-    switch (status) {
-      case 'Processing': return '#EAB308'; // Yellow
-      case 'Shipped': return '#3B82F6';    // Blue
-      case 'Delivered': return '#22C55E';  // Green
-      case 'Cancelled': return '#EF4444';  // Red
-      default: return '#94A3B8';
-    }
-  };
-
-  function MapFocus() {
-    const map = useMap();
-    useEffect(() => {
-      if (selectedOrder?.userLocation?.lat && mode === 'Selected') {
-        map.setView([selectedOrder.userLocation.lat, selectedOrder.userLocation.lng], 13);
-      } else if (mode === 'All' && markers.length > 0) {
-        const bounds = L.latLngBounds(markers.map(m => m.position));
-        map.fitBounds(bounds, { padding: [50, 50] });
-      }
-    }, [selectedOrder, mode, map]);
-    return null;
-  }
-
-  return (
-    <div style={{ position: 'relative', borderRadius: 20, overflow: 'hidden', border: '1px solid #E2E8F0', height: 440, background: '#F8FAFC', marginBottom: 24 }}>
-      <div style={{ position: 'absolute', top: 16, right: 16, zIndex: 1000, display: 'flex', background: '#fff', borderRadius: 10, padding: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', border: '1px solid #E2E8F0' }}>
-        <button 
-          onClick={() => onModeChange('All')}
-          style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: mode === 'All' ? G : 'transparent', color: mode === 'All' ? '#fff' : '#64748B', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, transition: 'all 0.2s' }}
-        >
-          <Layers size={14} /> All Markets
-        </button>
-        <button 
-          onClick={() => onModeChange('Selected')}
-          disabled={!selectedOrder}
-          style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: mode === 'Selected' ? G : 'transparent', color: mode === 'Selected' ? '#fff' : (selectedOrder ? '#64748B' : '#CBD5E1'), fontSize: 12, fontWeight: 700, cursor: selectedOrder ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', gap: 8, transition: 'all 0.2s' }}
-        >
-          <MapPin size={14} /> Focus Selection
-        </button>
-      </div>
-
-      <MapContainer center={[39.8283, -98.5795]} zoom={4} zoomControl={false} style={{ height: '100%', width: '100%', zIndex: 1 }}>
-        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-        <ZoomControl position="bottomright" />
-        <MapFocus />
-        
-        <MarkerClusterGroup>
-          {markers.map(m => (
-            <Marker 
-              key={m.id} 
-              position={m.position}
-              icon={L.divIcon({
-                className: 'custom-pin',
-                html: `<div style="background: ${getPinColor(m.status)}; width: 14px; height: 14px; border-radius: 50%; border: 2.5px solid white; box-shadow: 0 3px 6px rgba(0,0,0,0.2);"></div>`,
-                iconSize: [14, 14],
-                iconAnchor: [7, 7]
-              })}
-            >
-              <Popup>
-                <div style={{ minWidth: 180, padding: 2 }}>
-                  <p style={{ margin: '0 0 6px', fontWeight: 800, color: G, fontSize: 14 }}>{m.name}</p>
-                  <p style={{ margin: '0 0 10px', fontSize: 11, color: '#64748B', fontFamily: 'monospace' }}>ID: {m.orderId}</p>
-                  <div style={{ marginBottom: 12 }}><Badge status={m.status} /></div>
-                  <div style={{ fontSize: 12, color: '#334155', borderTop: '1px solid #F1F5F9', paddingTop: 8, lineHeight: 1.4 }}>
-                    <MapPin size={10} style={{ marginRight: 4, opacity: 0.5 }} /> {m.address}
-                  </div>
-                </div>
-              </Popup>
-            </Marker>
-          ))}
-        </MarkerClusterGroup>
-      </MapContainer>
-    </div>
-  );
-}
 
 function OrdersSection() {
   const { showToast } = useToast();
@@ -1114,7 +1146,6 @@ function OrdersSection() {
   const [filter, setFilter] = useState('All');
   const [selected, setSelected] = useState(null);
   const [editTracking, setEditTracking] = useState('');
-  const [mapMode, setMapMode] = useState('All');
 
   async function load() {
     setLoading(true);
@@ -1233,14 +1264,12 @@ function OrdersSection() {
   const filtered = orders.filter(o => {
     const matchSearch = !search || [o.id, o.orderId, o.userName, o.userEmail, o.product, o.fullAddress].some(v => v && String(v).toLowerCase().includes(search.toLowerCase()));
     const matchFilter = filter === 'All' || o.status === filter;
-    const matchMapMode = mapMode === 'All' || (selected && o._id === selected._id);
-    return matchSearch && matchFilter && matchMapMode;
+    return matchSearch && matchFilter;
   });
 
   const handleViewOrder = (order) => {
     setSelected(order);
     setEditTracking(order.tracking || '');
-    setMapMode('Selected');
   };
 
   return (
@@ -1253,12 +1282,7 @@ function OrdersSection() {
         </div>
       </div>
 
-      <CustomerMap 
-        orders={orders} 
-        selectedOrder={selected} 
-        mode={mapMode} 
-        onModeChange={setMapMode} 
-      />
+
 
       <div style={{ display: 'flex', gap: 12, marginBottom: 18, flexWrap: 'wrap', alignItems: 'center' }}>
         <div style={{ position: 'relative', flex: 1, minWidth: 220 }}>
@@ -1283,7 +1307,7 @@ function OrdersSection() {
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: '#FAFAF9' }}>
-                  {['Order ID', 'Customer', 'Product', 'Qty', 'Status', 'Total', 'Date', 'Actions'].map(h => (
+                  {['Order ID', 'Customer', 'Product', 'Qty', 'Status', 'Total', 'Status Date', 'Actions'].map(h => (
                     <th key={h} style={{ padding: '11px 14px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>{h}</th>
                   ))}
                 </tr>
@@ -1313,7 +1337,7 @@ function OrdersSection() {
                     <td style={{ padding: '12px 14px', fontSize: 12, color: '#555' }}>{(o.items && Array.isArray(o.items)) ? o.items.reduce((s, it) => s + (it?.quantity || it?.qty || 1), 0) : o.qty || 0}</td>
                     <td style={{ padding: '12px 14px' }}><Badge status={o.status} /></td>
                     <td style={{ padding: '12px 14px', fontSize: 13, fontWeight: 700 }}>${(+o.total || 0).toFixed(2)}</td>
-                    <td style={{ padding: '12px 14px', fontSize: 11, color: '#888', whiteSpace: 'nowrap' }}>{o.createdAt ? new Date(o.createdAt).toLocaleDateString() : '—'}</td>
+                    <td style={{ padding: '12px 14px', fontSize: 11, color: '#888', whiteSpace: 'nowrap' }}>{o.statusDates?.[o.status] ? new Date(o.statusDates[o.status]).toLocaleDateString() : (o.createdAt ? new Date(o.createdAt).toLocaleDateString() : '—')}</td>
                     <td style={{ padding: '12px 14px' }}>
                       <div style={{ display: 'flex', gap: 6 }}>
                         <button onClick={() => handleViewOrder(o)}
@@ -1350,10 +1374,10 @@ function OrdersSection() {
               { label: 'Product', value: (selected.items && Array.isArray(selected.items) && selected.items.length > 0) ? selected.items.map(i => i.name).join(', ') : selected.product },
               { label: 'Quantity', value: `${(selected.items && Array.isArray(selected.items)) ? selected.items.reduce((s, it) => s + (it?.quantity || it?.qty || 1), 0) : selected.qty || 0} units` },
               { label: 'Total', value: `$${(+selected.total || 0).toFixed(2)}` },
-              { label: 'Processing Date', value: selected.createdAt ? new Date(selected.createdAt).toLocaleDateString() : '—' },
-              selected.shippedDate && { label: 'Shipped On', value: new Date(selected.shippedDate).toLocaleDateString() },
-              selected.deliveredDate && { label: 'Delivered On', value: new Date(selected.deliveredDate).toLocaleDateString() },
-              selected.cancelledDate && { label: 'Cancelled On', value: new Date(selected.cancelledDate).toLocaleDateString() },
+              { label: 'Processing Date', value: selected.statusDates?.Processing ? new Date(selected.statusDates.Processing).toLocaleDateString() : (selected.createdAt ? new Date(selected.createdAt).toLocaleDateString() : '—') },
+              selected.statusDates?.Shipped && { label: 'Shipped On', value: new Date(selected.statusDates.Shipped).toLocaleDateString() },
+              selected.statusDates?.Delivered && { label: 'Delivered On', value: new Date(selected.statusDates.Delivered).toLocaleDateString() },
+              selected.statusDates?.Cancelled && { label: 'Cancelled On', value: new Date(selected.statusDates.Cancelled).toLocaleDateString() },
               { label: 'Address', value: selected.address || selected.fullAddress || '—' },
               { label: 'Status', value: <Badge status={selected.status} /> },
             ].filter(Boolean).map((item) => (
@@ -1393,18 +1417,12 @@ function OrdersSection() {
             </div>
           </div>
 
-          {/* Customer Location Map */}
+          {/* Customer Location Info */}
           {selected.address && selected.address !== '—' && selected.address !== 'Sample Address' && (
             <div style={{ marginBottom: 16 }}>
               <label style={{ fontSize: 11, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 8 }}>Customer Location</label>
-              <div style={{ borderRadius: 10, overflow: 'hidden', height: 200, border: '1px solid #E2DDD6' }}>
-                <iframe
-                  title="Customer Location Map"
-                  src={`https://www.google.com/maps?q=${encodeURIComponent(selected.address?.replace(/,\s*United States$/i, ''))}&t=&z=13&ie=UTF8&iwloc=B&output=embed`}
-                  width="100%" height="100%"
-                  style={{ border: 0, display: 'block' }}
-                  loading="lazy"
-                />
+              <div style={{ padding: 16, background: '#F8FAFC', borderRadius: 10, border: '1px dashed #CBD5E1', color: '#64748B', fontSize: 13, textAlign: 'center' }}>
+                Address: {selected.address}
               </div>
             </div>
           )}
@@ -1585,7 +1603,7 @@ function UsersSection() {
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: '#FAFAF9' }}>
-                  {['Customer', 'Contact', 'Role', 'Orders', 'Loyalty Pts', 'Joined', 'Actions'].map(h => (
+                  {['Customer', 'Contact', 'Role', 'Orders', 'Loyalty Pts', 'Joined', 'Last Login', 'Actions'].map(h => (
                     <th key={h} style={{ padding: '11px 14px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>{h}</th>
                   ))}
                 </tr>
@@ -1641,6 +1659,7 @@ function UsersSection() {
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Star size={12} color={ACCENT} style={{ fill: ACCENT }} /><span style={{ fontSize: 13, fontWeight: 600 }}>{u.loyaltyPoints || 0}</span></div>
                     </td>
                     <td style={{ padding: '12px 14px', fontSize: 11, color: '#888' }}>{u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '—'}</td>
+                    <td style={{ padding: '12px 14px', fontSize: 11, color: '#888' }}>{u.lastLoginAt ? new Date(u.lastLoginAt).toLocaleDateString() : 'Never'}</td>
                     <td style={{ padding: '12px 14px' }}>
                       <div style={{ display: 'flex', gap: 6 }}>
                         <button onClick={() => setSelected(u)}
@@ -1673,6 +1692,7 @@ function UsersSection() {
               { icon: <Star size={14} />, label: 'Loyalty Points', value: selected.loyaltyPoints || 0 },
               { icon: <ShoppingBag size={14} />, label: 'Orders', value: selected.orderCount || 0 },
               { icon: <Calendar size={14} />, label: 'Member Since', value: selected.createdAt ? new Date(selected.createdAt).toLocaleDateString() : '—' },
+              selected.lastLoginAt && { icon: <Clock size={14} />, label: 'Last Login', value: new Date(selected.lastLoginAt).toLocaleString() },
             ].map(({ icon, label, value }) => (
               <div key={label} style={{ background: BG, borderRadius: 10, padding: '12px 14px', display: 'flex', alignItems: 'flex-start', gap: 10 }}>
                 <div style={{ color: G, marginTop: 1 }}>{icon}</div>

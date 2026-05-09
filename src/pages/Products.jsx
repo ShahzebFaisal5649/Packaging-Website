@@ -37,6 +37,7 @@ const SidebarContent = ({
   activeBoxType, setActiveBoxType,
   activeMaterial, setActiveMaterial,
   activePriceRange, setActivePriceRange,
+  featuredOnly, setFeaturedOnly,
   allCategories, allBoxTypes, allMaterials,
   setSidebarOpen, ACCENT, G 
 }) => {
@@ -122,16 +123,23 @@ const SidebarContent = ({
         ))}
       </select>
 
-      <label style={labelStyle}>Price Range</label>
-      <select 
-        value={activePriceRange} 
+      <label style={labelStyle}>Price Range ($0 - ${activePriceRange})</label>
+      <input 
+        type="range"
+        min="0"
+        max="500"
+        step="1"
+        value={activePriceRange === 'all' ? 500 : activePriceRange}
         onChange={e => setActivePriceRange(e.target.value)}
-        style={filterSelectStyle}
-      >
-        {priceRanges.map(range => (
-          <option key={range.value} value={range.value}>{range.label}</option>
-        ))}
-      </select>
+        style={{ width: '100%', accentColor: ACCENT, cursor: 'pointer', marginBottom: 24 }}
+      />
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20, cursor: 'pointer' }} onClick={() => setFeaturedOnly(!featuredOnly)}>
+        <div style={{ width: 44, height: 24, borderRadius: 100, backgroundColor: featuredOnly ? G : '#E2DDD6', position: 'relative', transition: 'background 0.3s' }}>
+          <div style={{ position: 'absolute', top: 2, left: featuredOnly ? 22 : 2, width: 20, height: 20, borderRadius: '50%', backgroundColor: '#fff', transition: 'left 0.3s' }} />
+        </div>
+        <span style={{ fontSize: 13, fontWeight: 700, color: '#1A1A1A' }}>Featured Only</span>
+      </div>
 
       <button
         onClick={() => {
@@ -139,6 +147,7 @@ const SidebarContent = ({
           setActiveBoxType('All Types');
           setActiveMaterial('All Materials');
           setActivePriceRange('all');
+          setFeaturedOnly(false);
           setSearch('');
         }}
         style={{
@@ -294,6 +303,7 @@ export default function Products() {
   const [activeBoxType, setActiveBoxType] = useState('All Types');
   const [activeMaterial, setActiveMaterial] = useState('All Materials');
   const [activePriceRange, setActivePriceRange] = useState('all');
+  const [featuredOnly, setFeaturedOnly] = useState(false);
   const [search, setSearch] = useState('');
   const [fetchedProducts, setFetchedProducts] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -353,13 +363,13 @@ export default function Products() {
     let matchPrice = true;
     if (activePriceRange !== 'all') {
       const priceVal = parseFloat((p.price || '$0').replace(/[^0-9.]/g, ''));
-      if (activePriceRange === '0-1') matchPrice = priceVal < 1;
-      else if (activePriceRange === '1-2') matchPrice = priceVal >= 1 && priceVal <= 2;
-      else if (activePriceRange === '2-5') matchPrice = priceVal > 2 && priceVal <= 5;
-      else if (activePriceRange === '5-up') matchPrice = priceVal > 5;
+      matchPrice = priceVal <= parseFloat(activePriceRange);
     }
 
-    return matchCat && matchType && matchMaterial && matchSearch && matchPrice;
+    // Featured match
+    const matchFeatured = !featuredOnly || p.featured === true;
+
+    return matchCat && matchType && matchMaterial && matchSearch && matchPrice && matchFeatured;
   });
 
   const sidebarProps = {
@@ -368,6 +378,7 @@ export default function Products() {
     activeBoxType, setActiveBoxType,
     activeMaterial, setActiveMaterial,
     activePriceRange, setActivePriceRange,
+    featuredOnly, setFeaturedOnly,
     allCategories, allBoxTypes, allMaterials,
     setSidebarOpen, ACCENT, G
   };

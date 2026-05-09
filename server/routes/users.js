@@ -158,7 +158,7 @@ router.post('/favourites/:productId', protect, async (req, res) => {
 router.get('/orders', protect, async (req, res) => {
   try {
     const orders = await Order.find({ userId: req.user._id }).sort({ createdAt: -1 });
-    res.json({ orders });
+    res.json(orders);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -192,46 +192,11 @@ router.post('/orders', protect, async (req, res) => {
     });
 
     // ── Loyalty Points Logic ──────────────────────────────────────────────────
-    const totalQty = items.reduce((s, it) => s + (parseInt(it.quantity || it.qty) || 1), 0);
-    const orderCount = await Order.countDocuments({ userId: user._id });
-
-    let pointsEarned = 25; // base points per order
-    if (totalQty >= 100 && orderCount >= 10) pointsEarned = 100;
-    else if (totalQty >= 50) pointsEarned = 75;
-    else if (totalQty >= 25) pointsEarned = 50;
-
-    const prevPoints = user.loyaltyPoints || 0;
-    const newPoints = prevPoints + pointsEarned;
-    user.loyaltyPoints = newPoints;
-
-    // Tier thresholds
-    const TIERS = [
-      { name: 'Bronze', min: 0 },
-      { name: 'Silver', min: 350, bonus: '10 free boxes' },
-      { name: 'Gold',   min: 750, bonus: '20 free boxes' },
-      { name: 'Platinum', min: 1500, bonus: '50 free boxes + free shipping' },
-      { name: 'Diamond', min: 3000, bonus: '100 free boxes + priority support' },
-    ];
-    const getTier = pts => [...TIERS].reverse().find(t => pts >= t.min);
-    const prevTier = getTier(prevPoints);
-    const newTier = getTier(newPoints);
+    const pointsEarned = Math.floor((order.total || 0) / 10); // 1 point per $10
+    user.loyaltyPoints = (user.loyaltyPoints || 0) + pointsEarned;
     await user.save();
 
-    // Fire tier-up notification if tier changed
-    let tierNotification = null;
-    if (newTier.name !== prevTier.name) {
-      tierNotification = { tier: newTier.name, bonus: newTier.bonus };
-      try {
-        const { sendNotification } = require('../utils/notifications');
-        await sendNotification(user._id, {
-          title: `🎉 You reached ${newTier.name} tier!`,
-          message: `Congratulations! You've unlocked ${newTier.name} status. Bonus: ${newTier.bonus}.`,
-          type: 'tier_upgrade',
-        });
-      } catch(e) { /* non-fatal */ }
-    }
-
-    res.json({ order, pointsEarned, newPoints: user.loyaltyPoints, tierNotification, message: 'Order created successfully' });
+    res.json({ order, pointsEarned, newPoints: user.loyaltyPoints, message: 'Order created successfully' });
   } catch (err) {
     console.error('Order creation error:', err);
     res.status(500).json({ message: err.message });
@@ -242,7 +207,7 @@ router.post('/orders', protect, async (req, res) => {
 router.get('/quotes', protect, async (req, res) => {
   try {
     const quotes = await Quote.find({ userId: req.user._id }).sort({ createdAt: -1 });
-    res.json({ quotes });
+    res.json(quotes);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -287,12 +252,47 @@ router.delete('/account', protect, async (req, res) => {
     if (req.user.email === 'designcustombox@gmail.com') {
       return res.status(403).json({ message: 'Super admin account cannot be deleted.' });
     }
+    const userDoc = await User.findById(userId);
+    if (!userDoc) return res.status(404).json({ message: 'User not found' });
+
     await Promise.all([
       Order.deleteMany({ userId }),
       Quote.deleteMany({ userId }),
       User.findByIdAndDelete(userId),
     ]);
+
+    if (userDoc.googleToken) {
+      // Attempt token revocation (fire and forget)
+      fetch(`https://oauth2.googleapis.com/revoke?token=${userDoc.googleToken}`, { method: 'POST' })
+        .catch(() => {});
+    }
     res.json({ message: 'Account permanently deleted.' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// DELETE /api/users/notifications/:id — remove one notification
+router.delete('/notifications/:id', protect, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    user.notifications.pull({ _id: req.params.id });
+    await user.save();
+    res.json({ message: 'Notification removed', user: user.toSafeObject() });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// DELETE /api/users/notifications/all — clear all notifications
+router.delete('/notifications/all', protect, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    user.notifications = [];
+    await user.save();
+    res.json({ message: 'All notifications cleared', user: user.toSafeObject() });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

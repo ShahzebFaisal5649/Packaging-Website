@@ -223,6 +223,7 @@ router.get('/orders', async (req, res) => {
     const formattedOrders = orders.map(o => ({
       ...o.toObject(),
       id: o.orderId,
+      qty: o.items?.reduce((sum, i) => sum + (i.quantity || 0), 0) || 0,
       fullAddress: o.shippingAddress ? `${o.shippingAddress.line1 || ''}, ${o.shippingAddress.city || ''}` : null
     }));
     res.json({ orders: formattedOrders });
@@ -273,9 +274,8 @@ router.put('/orders/:userId/:orderId', async (req, res) => {
     if (tracking !== undefined) order.tracking = tracking;
     if (status && order.status !== status) {
       order.status = status;
-      if (status === 'Shipped') order.shippedDate = new Date();
-      if (status === 'Delivered') order.deliveredDate = new Date();
-      if (status === 'Cancelled') order.cancelledDate = new Date();
+      if (!order.statusDates) order.statusDates = {};
+      order.statusDates[status] = new Date();
     }
 
     // Send shipped email only once
@@ -379,6 +379,17 @@ router.put('/quotes/:userId/:quoteId', async (req, res) => {
     if (!quote) return res.status(404).json({ message: 'Quote not found' });
     Object.assign(quote, req.body);
     await quote.save();
+    
+    // Sync standalone quote to embedded User doc
+    const quoteQuery = isObjectId ? { 'quotes._id': req.params.quoteId } : { 'quotes.quoteId': req.params.quoteId };
+    await User.findOneAndUpdate(
+      { _id: req.params.userId, ...quoteQuery },
+      { $set: {
+        'quotes.$.status': quote.status,
+        'quotes.$.adminReply': quote.adminReply,
+        'quotes.$.quotedPrice': quote.quotedPrice
+      }}
+    );
     
     const userEmail = quote.userEmail || (await User.findById(quote.userId))?.email;
     const userName = quote.userName || 'Customer';
@@ -575,5 +586,7 @@ router.get('/analytics', async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
+// ── End of Routes ────────────────────────────────────────────────────────────
 
 module.exports = router;

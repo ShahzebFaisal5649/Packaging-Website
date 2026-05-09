@@ -56,7 +56,8 @@ export default function Login() {
         id: decoded.sub,
         name: decoded.name,
         email: decoded.email,
-        avatar: decoded.picture
+        avatar: decoded.picture,
+        token: credentialResponse.credential
       };
       
       await googleLogin(googleProfile);

@@ -150,7 +150,7 @@ export default function Blog() {
                     <h3 style={{ fontSize: isLarge ? 24 : 18, fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 700, color: '#1A1A1A', marginBottom: 12, lineHeight: 1.25, marginTop: 0 }} className="group-hover:text-accent">
                       {post.title}
                     </h3>
-                    <p style={{ fontSize: 14, fontFamily: '"DM Sans", sans-serif', color: '#6B6B6B', lineHeight: 1.6, marginBottom: 24, display: '-webkit-box', WebkitLineClamp: isLarge ? 4 : 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                    <p style={{ fontSize: 14, fontFamily: '"DM Sans", sans-serif', color: '#6B6B6B', lineHeight: 1.6, marginBottom: 24, display: '-webkit-box', WebkitLineClamp: isLarge ? 4 : 3, WebkitBoxOrient: 'vertical', overflow: 'hidden', textAlign: 'justify' }}>
                       {post.excerpt}
                     </p>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto', paddingTop: 20, borderTop: '1px solid #F0EDE8' }}>

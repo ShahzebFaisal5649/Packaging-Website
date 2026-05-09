@@ -191,6 +191,13 @@ export default function Navbar() {
     } catch (e) { console.error('Failed to mark read', e); }
   };
 
+  const handleClearAll = async () => {
+    try {
+      await api.delete('/notifications/all');
+      setNotifications([]);
+    } catch (e) { console.error('Failed to clear notifications', e); }
+  };
+
   const handleDismissNotification = async (e, id) => {
     e.preventDefault();
     e.stopPropagation();
@@ -293,7 +300,7 @@ export default function Navbar() {
                 onMouseLeave={() => setActiveMenu(null)}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
                   <Link to="/products" 
-                    style={{ ...linkStyle, color: (location.pathname.startsWith('/products') || activeMenu === 'Products') ? ACCENT : '#fff' }}
+                    style={{ ...linkStyle, color: (location.pathname.startsWith('/products') || activeMenu === 'Products') ? ACCENT : '#fff', borderBottom: (location.pathname.startsWith('/products') || activeMenu === 'Products') ? `2px solid ${ACCENT}` : 'none' }}
                     onClick={() => setActiveMenu(null)}>Products</Link>
                   <ChevronDown size={13} style={{ color: (location.pathname.startsWith('/products') || activeMenu === 'Products') ? ACCENT : 'rgba(255,255,255,0.6)', transition: 'transform 0.2s', transform: activeMenu === 'Products' ? 'rotate(180deg)' : 'rotate(0deg)' }} />
                 </div>
@@ -304,17 +311,17 @@ export default function Navbar() {
                 onMouseLeave={() => setActiveMenu(null)}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
                   <Link to="/industries" 
-                    style={{ ...linkStyle, color: (location.pathname.startsWith('/industries') || activeMenu === 'Industries') ? ACCENT : '#fff' }}
+                    style={{ ...linkStyle, color: (location.pathname.startsWith('/industries') || activeMenu === 'Industries') ? ACCENT : '#fff', borderBottom: (location.pathname.startsWith('/industries') || activeMenu === 'Industries') ? `2px solid ${ACCENT}` : 'none' }}
                     onClick={() => setActiveMenu(null)}>Industries</Link>
                   <ChevronDown size={13} style={{ color: (location.pathname.startsWith('/industries') || activeMenu === 'Industries') ? ACCENT : 'rgba(255,255,255,0.6)', transition: 'transform 0.2s', transform: activeMenu === 'Industries' ? 'rotate(180deg)' : 'rotate(0deg)' }} />
                 </div>
               </div>
 
-              <Link to="/about" style={{ ...linkStyle, color: location.pathname === '/about' ? ACCENT : '#fff' }} onMouseEnter={e => e.target.style.color = ACCENT} onMouseLeave={e => { if(location.pathname !== '/about') e.target.style.color = '#fff' }}>About</Link>
-              <Link to="/how-it-works" style={{ ...linkStyle, color: location.pathname === '/how-it-works' ? ACCENT : '#fff' }} onMouseEnter={e => e.target.style.color = ACCENT} onMouseLeave={e => { if(location.pathname !== '/how-it-works') e.target.style.color = '#fff' }}>How It Works</Link>
-              <Link to="/success-stories" style={{ ...linkStyle, color: location.pathname === '/success-stories' ? ACCENT : '#fff' }} onMouseEnter={e => e.target.style.color = ACCENT} onMouseLeave={e => { if(location.pathname !== '/success-stories') e.target.style.color = '#fff' }}>Inspiration</Link>
-              <Link to="/blog" style={{ ...linkStyle, color: location.pathname.startsWith('/blog') ? ACCENT : '#fff' }} onMouseEnter={e => e.target.style.color = ACCENT} onMouseLeave={e => { if(!location.pathname.startsWith('/blog')) e.target.style.color = '#fff' }}>Blog</Link>
-              <Link to="/contact-us" style={{ ...linkStyle, color: location.pathname === '/contact-us' ? ACCENT : '#fff' }} onMouseEnter={e => e.target.style.color = ACCENT} onMouseLeave={e => { if(location.pathname !== '/contact-us') e.target.style.color = '#fff' }}>Contact</Link>
+              <Link to="/about" style={{ ...linkStyle, color: location.pathname === '/about' ? ACCENT : '#fff', borderBottom: location.pathname === '/about' ? `2px solid ${ACCENT}` : 'none' }}>About</Link>
+              <Link to="/how-it-works" style={{ ...linkStyle, color: location.pathname === '/how-it-works' ? ACCENT : '#fff', borderBottom: location.pathname === '/how-it-works' ? `2px solid ${ACCENT}` : 'none' }}>How It Works</Link>
+              <Link to="/success-stories" style={{ ...linkStyle, color: location.pathname === '/success-stories' ? ACCENT : '#fff', borderBottom: location.pathname === '/success-stories' ? `2px solid ${ACCENT}` : 'none' }}>Inspiration</Link>
+              <Link to="/blog" style={{ ...linkStyle, color: location.pathname.startsWith('/blog') ? ACCENT : '#fff', borderBottom: location.pathname.startsWith('/blog') ? `2px solid ${ACCENT}` : 'none' }}>Blog</Link>
+              <Link to="/contact-us" style={{ ...linkStyle, color: location.pathname === '/contact-us' ? ACCENT : '#fff', borderBottom: location.pathname === '/contact-us' ? `2px solid ${ACCENT}` : 'none' }}>Contact</Link>
             </nav>
           )}
 
@@ -342,7 +349,7 @@ export default function Navbar() {
                 </button>
               )}
 
-              {isAuthenticated && !isAdmin && (
+              {isAuthenticated && (
                 <div style={{ position: 'relative' }} onMouseEnter={() => setNotificationsDropdownOpen(true)} onMouseLeave={() => setNotificationsDropdownOpen(false)}>
                   <Link to="/profile?tab=notifications" style={{ position: 'relative', color: 'rgba(255,255,255,0.8)', transition: 'color 0.15s' }}
                     onMouseEnter={e => e.currentTarget.style.color = '#fff'} onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.8)'}>
@@ -362,9 +369,14 @@ export default function Navbar() {
                   }}>
                     <div style={{ padding: '14px 16px', borderBottom: '1px solid #f5f5f5', background: '#fafafa', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                       <span style={{ fontSize: 13, fontWeight: 700, color: '#1A1A1A' }}>Notifications</span>
-                      {unreadCount > 0 && (
-                        <button onClick={handleMarkAllRead} style={{ fontSize: 11, color: G, background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>Mark all read</button>
-                      )}
+                        <div style={{ display: 'flex', gap: 12 }}>
+                          {unreadCount > 0 && (
+                            <button onClick={handleMarkAllRead} style={{ fontSize: 11, color: G, background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>Mark all read</button>
+                          )}
+                          {notifications.length > 0 && (
+                            <button onClick={handleClearAll} style={{ fontSize: 11, color: '#EF4444', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>Clear all</button>
+                          )}
+                        </div>
                     </div>
                     <div style={{ maxHeight: 380, overflowY: 'auto', scrollbarWidth: 'thin' }}>
                       {notifications.length === 0 ? (
@@ -606,7 +618,7 @@ export default function Navbar() {
               <div key={item.key} style={{ borderBottom: '1px solid rgba(26,77,46,0.1)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', padding: '16px 0' }}>
                   <Link to={item.to}
-                    style={{ flex: 1, fontSize: 17, fontWeight: 700, color: '#1A4D2E', textDecoration: 'none', fontFamily: '"Playfair Display", serif' }}
+                    style={{ flex: 1, fontSize: 17, fontWeight: 700, color: location.pathname.startsWith(item.to) ? ACCENT : '#1A4D2E', textDecoration: 'none', fontFamily: '"Playfair Display", serif' }}
                     onClick={() => setMobileMenuOpen(false)}>
                     {item.label}
                   </Link>
@@ -641,7 +653,7 @@ export default function Navbar() {
               ...(isAdmin ? [] : [{ to: '/favourites', label: favCount > 0 ? `Favourites (${favCount})` : 'Favourites' }]),
             ].map(item => (
               <Link key={item.to} to={item.to}
-                style={{ display: 'block', padding: '16px 0', fontSize: 17, fontWeight: 700, color: '#1A4D2E', textDecoration: 'none', borderBottom: '1px solid rgba(26,77,46,0.1)', fontFamily: '"Playfair Display", serif' }}
+                style={{ display: 'block', padding: '16px 0', fontSize: 17, fontWeight: 700, color: location.pathname === item.to || (item.to !== '/' && location.pathname.startsWith(item.to)) ? ACCENT : '#1A4D2E', textDecoration: 'none', borderBottom: '1px solid rgba(26,77,46,0.1)', fontFamily: '"Playfair Display", serif' }}
                 onClick={() => setMobileMenuOpen(false)}>
                 {item.label}
               </Link>

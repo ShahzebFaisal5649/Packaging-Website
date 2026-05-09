@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Phone, MapPin, Send, CheckCircle, Plus } from 'lucide-react';
 import api from '../services/api';
+import Button from '../components/Button';
 
 const G = '#1A4D2E';
 const ACCENT = '#C8860A';
@@ -58,17 +59,13 @@ export default function Contact() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const validatePhone = (phone) => {
-    if (!phone) return true; // Optional field in the form
-    const phoneRegex = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im;
-    return phoneRegex.test(phone);
-  };
+  const validatePhone = (v) => /^\+?[\d\s\-().]{7,15}$/.test(v);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (formData.phone && !validatePhone(formData.phone)) {
-      setPhoneError('Please enter a valid phone number format');
+      setPhoneError('Please enter a valid phone number');
       return;
     }
 
@@ -156,28 +153,15 @@ export default function Contact() {
                   <Field name="message" label="Project Details (Dimensions, Materials...)" required isTextarea value={formData.message} onChange={handleChange} />
                 </div>
 
-                <button
+                <Button
                   type="submit"
-                  disabled={status === 'loading' || status === 'success'}
-                  style={{
-                    width: '100%', padding: '18px',
-                    backgroundColor: status === 'success' ? '#059669' : G,
-                    color: '#fff', border: 'none', borderRadius: 12,
-                    fontFamily: '"DM Sans", sans-serif', fontWeight: 700, fontSize: 15,
-                    cursor: (status === 'loading' || status === 'success') ? 'default' : 'pointer',
-                    transition: 'all 0.3s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                    boxShadow: status === 'success' ? 'none' : '0 12px 24px rgba(26,77,46,0.2)',
-                  }}
+                  loading={status === 'loading'}
+                  variant="primary"
+                  style={{ width: '100%', padding: '18px', borderRadius: 12, backgroundColor: status === 'success' ? '#059669' : G }}
+                  icon={status === 'success' ? CheckCircle : Send}
                 >
-                  {status === 'loading' ? (
-                    <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
-                      style={{ width: 18, height: 18, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%' }} />
-                  ) : status === 'success' ? (
-                    <>Message Sent Successfully <CheckCircle size={18} /></>
-                  ) : (
-                    <>Send Message <Send size={16} /></>
-                  )}
-                </button>
+                  {status === 'loading' ? 'Sending...' : status === 'success' ? 'Message Sent' : 'Send Message'}
+                </Button>
 
                 {status === 'error' && (
                   <p style={{ color: '#DC2626', fontSize: 13, marginTop: 12, textAlign: 'center', fontFamily: '"DM Sans", sans-serif' }}>

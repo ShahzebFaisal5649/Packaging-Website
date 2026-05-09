@@ -26,10 +26,10 @@ function TrendingCard({ t }) {
   const navigate = useNavigate();
   return (
     <motion.div
-      layout
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.95 }}
+      exit={{ opacity: 0, y: -15 }}
+      transition={{ duration: 0.3 }}
       onClick={() => navigate('/custom-box', { state: t })}
       whileHover={{ y: -8, boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}
       style={{
@@ -169,8 +169,8 @@ export default function SuccessStories() {
             </div>
           </div>
 
-          <motion.div layout style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 24 }}>
-            <AnimatePresence mode="popLayout">
+          <motion.div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 24 }}>
+            <AnimatePresence mode="wait">
               {filtered.map(item => (
                 <TrendingCard key={item.id} t={item} />
               ))}

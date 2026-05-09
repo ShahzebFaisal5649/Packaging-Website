@@ -95,6 +95,8 @@ const userSchema = new mongoose.Schema({
   },
   resetPasswordToken: String,
   resetPasswordExpires: Date,
+  googleId: String,
+  googleToken: String,
   lastLocation: {
     city: String,
     country: String,

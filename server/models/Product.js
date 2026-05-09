@@ -18,7 +18,7 @@ const productSchema = new mongoose.Schema({
     w: Number,
     h: Number,
   },
-  createdAt: { type: Date, default: Date.now },
-});
+  featured: { type: Boolean, default: false },
+}, { timestamps: true });
 
 module.exports = mongoose.model('Product', productSchema);

@@ -20,10 +20,13 @@ const orderSchema = new mongoose.Schema({
     enum: ['Processing', 'Shipped', 'Delivered', 'Cancelled'], 
     default: 'Processing' 
   },
+  statusDates: {
+    Processing: { type: Date },
+    Shipped:    { type: Date },
+    Delivered:  { type: Date },
+    Cancelled:  { type: Date },
+  },
   processingDate: { type: Date, default: Date.now },
-  shippedDate: Date,
-  deliveredDate: Date,
-  cancelledDate: Date,
   tracking: { type: String, default: '' },
   shippedEmailSent: { type: Boolean, default: false },
   shippingAddress: {

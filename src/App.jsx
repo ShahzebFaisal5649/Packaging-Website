@@ -83,6 +83,21 @@ class ErrorBoundary extends Component {
   }
 }
 
+class LeafletErrorBoundary extends Component {
+  constructor(props) { super(props); this.state = { hasError: false }; }
+  static getDerivedStateFromError() { return { hasError: true }; }
+  render() {
+    if (this.state.hasError) return (
+      <div style={{ padding: 40, textAlign: 'center', background: '#F8FAFC', borderRadius: 20, border: '1px solid #E2E8F0', margin: 20 }}>
+        <h2 style={{ color: '#1A4D2E', marginBottom: 12 }}>Map Loading Issue</h2>
+        <p style={{ color: '#64748B', fontSize: 14 }}>The interactive map failed to initialize. You can still manage all other administrative features.</p>
+        <button onClick={() => window.location.reload()} style={{ marginTop: 20, padding: '10px 24px', background: '#1A4D2E', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer' }}>Reload</button>
+      </div>
+    );
+    return this.props.children;
+  }
+}
+
 function ScrollToTop() {
   const { pathname } = useLocation();
   useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
@@ -119,14 +134,24 @@ function Layout({ children }) {
 }
 
 const AuthGuard = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const { showToast } = useToast();
   const location = useLocation();
+
   useEffect(() => {
-    if (!loading && !isAuthenticated) showToast('Please login to continue', 'warning');
-  }, [loading, isAuthenticated, showToast]);
-  if (loading) return null;
-  return isAuthenticated ? children : <Navigate to="/login" state={{ from: location }} replace />;
+    if (!authLoading && !isAuthenticated) showToast('Please login to continue', 'warning');
+  }, [authLoading, isAuthenticated, showToast]);
+
+  if (authLoading) return (
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: '#F5F2ED', gap: 20 }}>
+      <div style={{ width: 40, height: 40, border: '3px solid #E2DDD6', borderTopColor: '#1A4D2E', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+      <p style={{ fontFamily: '"DM Mono", monospace', fontSize: 13, color: '#1A4D2E', fontWeight: 600, letterSpacing: '0.1em' }}>RE-AUTHENTICATING...</p>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    </div>
+  );
+
+  if (!isAuthenticated) return <Navigate to="/login" state={{ from: location }} replace />;
+  return children;
 };
 
 const AdminGuard = ({ children }) => {
@@ -184,7 +209,7 @@ export default function App() {
                           <Route path="/reset-password" element={<ForgotPassword />} />
                           <Route path="/checkout" element={<Checkout />} />
                           <Route path="/profile" element={<AuthGuard><Profile /></AuthGuard>} />
-                          <Route path="/admin" element={<AdminGuard><Admin /></AdminGuard>} />
+                          <Route path="/admin" element={<AdminGuard><LeafletErrorBoundary><Admin /></LeafletErrorBoundary></AdminGuard>} />
                           <Route path="*" element={
                             <div className="py-32 text-center">
                               <h1 className="text-6xl font-display font-bold text-brand-textPrimary">404</h1>
