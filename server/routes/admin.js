@@ -223,7 +223,7 @@ router.get('/orders', async (req, res) => {
     const formattedOrders = orders.map(o => ({
       ...o.toObject(),
       id: o.orderId,
-      qty: o.items?.reduce((sum, i) => sum + (i.quantity || 0), 0) || 0,
+      qty: o.items?.reduce((sum, i) => sum + (i.quantity || 1), 0) || 0,
       fullAddress: o.shippingAddress ? `${o.shippingAddress.line1 || ''}, ${o.shippingAddress.city || ''}` : null
     }));
     res.json({ orders: formattedOrders });
@@ -273,9 +273,25 @@ router.put('/orders/:userId/:orderId', async (req, res) => {
 
     if (tracking !== undefined) order.tracking = tracking;
     if (status && order.status !== status) {
+      const oldStatus = order.status;
       order.status = status;
       if (!order.statusDates) order.statusDates = {};
-      order.statusDates[status] = new Date();
+      order.statusDates[status.toLowerCase()] = new Date();
+
+      // Auto-calculate loyalty points when marked as Delivered
+      if (status === 'Delivered' && oldStatus !== 'Delivered') {
+        try {
+          const pointsToAdd = Math.floor((order.total || 0) / 10); // 1 point per $10
+          if (pointsToAdd > 0) {
+            await User.findByIdAndUpdate(order.userId, { 
+              $inc: { loyaltyPoints: pointsToAdd } 
+            });
+            console.log(`✅ Added ${pointsToAdd} loyalty points to user ${order.userId}`);
+          }
+        } catch (loyaltyErr) {
+          console.error('❌ Failed to add loyalty points:', loyaltyErr.message);
+        }
+      }
     }
 
     // Send shipped email only once

@@ -21,10 +21,10 @@ const orderSchema = new mongoose.Schema({
     default: 'Processing' 
   },
   statusDates: {
-    Processing: { type: Date },
-    Shipped:    { type: Date },
-    Delivered:  { type: Date },
-    Cancelled:  { type: Date },
+    processing: { type: Date },
+    shipped:    { type: Date },
+    delivered:  { type: Date },
+    cancelled:  { type: Date },
   },
   processingDate: { type: Date, default: Date.now },
   tracking: { type: String, default: '' },

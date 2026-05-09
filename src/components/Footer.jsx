@@ -5,9 +5,7 @@ import { useToast } from '../context/ToastContext';
 import logo from '../assets/logo.png';
 import api from '../services/api';
 
-// Inline SVG social icons
-const FacebookIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>;
-const InstagramIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>;
+import { FaFacebook, FaXTwitter, FaInstagram, FaLinkedin } from 'react-icons/fa6';
 
 const ACCENT = '#C8860A';
 
@@ -98,14 +96,16 @@ export default function Footer() {
             </p>
             <div style={{ display: 'flex', gap: 12 }}>
               {[
-                { Icon: FacebookIcon, href: 'https://facebook.com/designcustombox' },
-                { Icon: InstagramIcon, href: 'https://instagram.com/designcustombox' },
+                { Icon: FaFacebook, href: 'https://facebook.com/designcustombox' },
+                { Icon: FaXTwitter, href: 'https://twitter.com/designcustombox' },
+                { Icon: FaInstagram, href: 'https://instagram.com/designcustombox' },
+                { Icon: FaLinkedin, href: 'https://linkedin.com/company/designcustombox' },
               ].map((s, i) => (
                 <a key={i} href={s.href} target="_blank" rel="noreferrer" style={{ 
                   width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.05)', 
                   display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', transition: 'all 0.2s' 
                 }} onMouseEnter={e => { e.currentTarget.style.backgroundColor = ACCENT; e.currentTarget.style.transform = 'translateY(-3px)'; }} onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'; e.currentTarget.style.transform = 'none'; }}>
-                  <s.Icon />
+                  <s.Icon size={18} />
                 </a>
               ))}
             </div>

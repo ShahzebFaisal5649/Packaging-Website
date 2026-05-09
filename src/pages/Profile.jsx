@@ -97,9 +97,6 @@ function OverviewTab({ user, setTab, updateUser, showToast }) {
         <button onClick={() => setTab('orders')} style={{ padding: '10px 20px', backgroundColor: G, color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
           View Order History
         </button>
-        <button onClick={() => setTab('settings')} style={{ padding: '10px 20px', backgroundColor: 'transparent', color: '#1A1A1A', border: '1.5px solid #D0CAC0', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
-          Account Settings
-        </button>
       </div>
 
 
@@ -730,10 +727,13 @@ function SettingsTab({ user, updateUser, showToast, logout }) {
               placeholder="+1 (555) 000-0000" />
             {phoneErr && <p style={{ fontSize: 11, color: '#EF4444', marginTop: 4 }}>{phoneErr}</p>}
           </div>
-          <button onClick={handleSaveInfo} disabled={saving}
-            style={{ padding: '10px 24px', backgroundColor: saving ? '#aaa' : G, color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, cursor: saving ? 'not-allowed' : 'pointer', alignSelf: 'flex-start', transition: 'background 0.2s' }}>
+          <Button 
+            onClick={handleSaveInfo} 
+            loading={saving}
+            style={{ alignSelf: 'flex-start' }}
+          >
             {saving ? 'Saving…' : 'Save Changes'}
-          </button>
+          </Button>
         </div>
       </div>
 

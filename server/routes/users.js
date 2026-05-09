@@ -46,8 +46,8 @@ router.put('/profile', protect, async (req, res) => {
 router.put('/password', protect, async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
-    if (!newPassword || newPassword.length < 8) {
-      return res.status(400).json({ message: 'New password must be at least 8 characters.' });
+    if (!newPassword || newPassword.length < 6) {
+      return res.status(400).json({ message: 'New password must be at least 6 characters.' });
     }
     const user = await User.findById(req.user._id);
     if (!(await user.comparePassword(currentPassword))) {

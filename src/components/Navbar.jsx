@@ -238,15 +238,19 @@ export default function Navbar() {
     return () => { document.body.style.overflow = ''; };
   }, [mobileMenuOpen]);
 
-  const linkStyle = {
-    fontSize: 14,
-    fontWeight: 600,
-    color: '#fff',
-    textDecoration: 'none',
-    padding: '6px 0',
-    transition: 'color 0.15s',
-    letterSpacing: '0.01em',
-    fontFamily: 'DM Sans, sans-serif',
+  const linkStyle = (path) => {
+    const isActive = path === '/' ? location.pathname === '/' : location.pathname.startsWith(path);
+    return {
+      fontSize: 14,
+      fontWeight: 600,
+      color: isActive ? ACCENT : '#fff',
+      textDecoration: 'none',
+      padding: '6px 0',
+      transition: 'all 0.15s',
+      letterSpacing: '0.01em',
+      fontFamily: 'DM Sans, sans-serif',
+      borderBottom: isActive ? `2px solid ${ACCENT}` : '2px solid transparent',
+    };
   };
 
   return (
@@ -300,7 +304,7 @@ export default function Navbar() {
                 onMouseLeave={() => setActiveMenu(null)}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
                   <Link to="/products" 
-                    style={{ ...linkStyle, color: (location.pathname.startsWith('/products') || activeMenu === 'Products') ? ACCENT : '#fff', borderBottom: (location.pathname.startsWith('/products') || activeMenu === 'Products') ? `2px solid ${ACCENT}` : 'none' }}
+                    style={linkStyle('/products')}
                     onClick={() => setActiveMenu(null)}>Products</Link>
                   <ChevronDown size={13} style={{ color: (location.pathname.startsWith('/products') || activeMenu === 'Products') ? ACCENT : 'rgba(255,255,255,0.6)', transition: 'transform 0.2s', transform: activeMenu === 'Products' ? 'rotate(180deg)' : 'rotate(0deg)' }} />
                 </div>
@@ -311,17 +315,17 @@ export default function Navbar() {
                 onMouseLeave={() => setActiveMenu(null)}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
                   <Link to="/industries" 
-                    style={{ ...linkStyle, color: (location.pathname.startsWith('/industries') || activeMenu === 'Industries') ? ACCENT : '#fff', borderBottom: (location.pathname.startsWith('/industries') || activeMenu === 'Industries') ? `2px solid ${ACCENT}` : 'none' }}
+                    style={linkStyle('/industries')}
                     onClick={() => setActiveMenu(null)}>Industries</Link>
                   <ChevronDown size={13} style={{ color: (location.pathname.startsWith('/industries') || activeMenu === 'Industries') ? ACCENT : 'rgba(255,255,255,0.6)', transition: 'transform 0.2s', transform: activeMenu === 'Industries' ? 'rotate(180deg)' : 'rotate(0deg)' }} />
                 </div>
               </div>
 
-              <Link to="/about" style={{ ...linkStyle, color: location.pathname === '/about' ? ACCENT : '#fff', borderBottom: location.pathname === '/about' ? `2px solid ${ACCENT}` : 'none' }}>About</Link>
-              <Link to="/how-it-works" style={{ ...linkStyle, color: location.pathname === '/how-it-works' ? ACCENT : '#fff', borderBottom: location.pathname === '/how-it-works' ? `2px solid ${ACCENT}` : 'none' }}>How It Works</Link>
-              <Link to="/success-stories" style={{ ...linkStyle, color: location.pathname === '/success-stories' ? ACCENT : '#fff', borderBottom: location.pathname === '/success-stories' ? `2px solid ${ACCENT}` : 'none' }}>Inspiration</Link>
-              <Link to="/blog" style={{ ...linkStyle, color: location.pathname.startsWith('/blog') ? ACCENT : '#fff', borderBottom: location.pathname.startsWith('/blog') ? `2px solid ${ACCENT}` : 'none' }}>Blog</Link>
-              <Link to="/contact-us" style={{ ...linkStyle, color: location.pathname === '/contact-us' ? ACCENT : '#fff', borderBottom: location.pathname === '/contact-us' ? `2px solid ${ACCENT}` : 'none' }}>Contact</Link>
+              <Link to="/about" style={linkStyle('/about')}>About</Link>
+              <Link to="/how-it-works" style={linkStyle('/how-it-works')}>How It Works</Link>
+              <Link to="/success-stories" style={linkStyle('/success-stories')}>Inspiration</Link>
+              <Link to="/blog" style={linkStyle('/blog')}>Blog</Link>
+              <Link to="/contact-us" style={linkStyle('/contact-us')}>Contact</Link>
             </nav>
           )}
 

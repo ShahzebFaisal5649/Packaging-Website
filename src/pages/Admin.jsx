@@ -1307,7 +1307,7 @@ function OrdersSection() {
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: '#FAFAF9' }}>
-                  {['Order ID', 'Customer', 'Product', 'Qty', 'Status', 'Total', 'Status Date', 'Actions'].map(h => (
+                  {['Order ID', 'Customer', 'Product', 'Qty', 'Status', 'Total', 'Shipped On', 'Actions'].map(h => (
                     <th key={h} style={{ padding: '11px 14px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>{h}</th>
                   ))}
                 </tr>
@@ -1337,7 +1337,7 @@ function OrdersSection() {
                     <td style={{ padding: '12px 14px', fontSize: 12, color: '#555' }}>{(o.items && Array.isArray(o.items)) ? o.items.reduce((s, it) => s + (it?.quantity || it?.qty || 1), 0) : o.qty || 0}</td>
                     <td style={{ padding: '12px 14px' }}><Badge status={o.status} /></td>
                     <td style={{ padding: '12px 14px', fontSize: 13, fontWeight: 700 }}>${(+o.total || 0).toFixed(2)}</td>
-                    <td style={{ padding: '12px 14px', fontSize: 11, color: '#888', whiteSpace: 'nowrap' }}>{o.statusDates?.[o.status] ? new Date(o.statusDates[o.status]).toLocaleDateString() : (o.createdAt ? new Date(o.createdAt).toLocaleDateString() : '—')}</td>
+                    <td style={{ padding: '12px 14px', fontSize: 11, color: '#888', whiteSpace: 'nowrap' }}>{o.statusDates?.shipped ? new Date(o.statusDates.shipped).toLocaleDateString() : '—'}</td>
                     <td style={{ padding: '12px 14px' }}>
                       <div style={{ display: 'flex', gap: 6 }}>
                         <button onClick={() => handleViewOrder(o)}

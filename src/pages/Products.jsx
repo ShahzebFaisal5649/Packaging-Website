@@ -123,14 +123,14 @@ const SidebarContent = ({
         ))}
       </select>
 
-      <label style={labelStyle}>Price Range ($0 - ${activePriceRange})</label>
+      <label style={labelStyle}>Price Range (Up to ${activePriceRange === 'all' ? '500+' : activePriceRange})</label>
       <input 
         type="range"
         min="0"
         max="500"
-        step="1"
+        step="5"
         value={activePriceRange === 'all' ? 500 : activePriceRange}
-        onChange={e => setActivePriceRange(e.target.value)}
+        onChange={e => setActivePriceRange(e.target.value === '500' ? 'all' : e.target.value)}
         style={{ width: '100%', accentColor: ACCENT, cursor: 'pointer', marginBottom: 24 }}
       />
 

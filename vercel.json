@@ -2,48 +2,22 @@
   "version": 2,
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "builds": [
-    {
-      "src": "server/index.js",
-      "use": "@vercel/node",
-      "config": {
-        "includeFiles": ["server/**", "server/models/**", "server/routes/**", "server/middleware/**"]
-      }
-    },
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": { "distDir": "dist" }
+  "functions": {
+    "server/index.js": {
+      "runtime": "@vercel/node@3"
     }
-  ],
-  "routes": [
-    { "src": "/api/(.*)", "dest": "/server/index.js" },
-    { "handle": "filesystem" },
-    { "src": "/(.*)", "dest": "/index.html" }
-  ],
-  "env": {
-    "NODE_ENV": "production",
-    "VITE_TAWK_PROPERTY_ID": "69f748e548ca411c3004e297",
-    "VITE_TAWK_WIDGET_ID": "1jnmv9gk6",
-    "VITE_API_URL": "/api",
-    "VITE_STRIPE_PUBLISHABLE_KEY": "pk_test_51TNAL0D4DgHVyIx8AOcWm8ZJahwZGmCKa7djP9EPBThWuZ7U2ATe9zZi6cfDpIRJEFkjgQAEeZ69qqtWDcrYzq2N00dA3g1A4p"
   },
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "/server/index.js" },
+    { "source": "/:path*", "destination": "/index.html" }
+  ],
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "X-Frame-Options",
-          "value": "DENY"
-        },
-        {
-          "key": "X-XSS-Protection",
-          "value": "1; mode=block"
-        }
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "X-XSS-Protection", "value": "1; mode=block" }
       ]
     }
   ]

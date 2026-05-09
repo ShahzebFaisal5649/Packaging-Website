@@ -133,7 +133,7 @@ export default function BlogPost() {
             <div style={{ position: 'sticky', top: 100 }}>
               <div style={{ background: G, padding: 32, borderRadius: 20, color: '#fff' }}>
                 <h3 style={{ fontSize: 24, fontFamily: '"Playfair Display", serif', marginBottom: 16 }}>Need Custom Boxes?</h3>
-                <p style={{ fontSize: 15, opacity: 0.8, lineHeight: 1.6, marginBottom: 24 }}>Transform your brand with premium packaging designed specifically for your products.</p>
+                <p style={{ fontSize: 15, opacity: 0.8, lineHeight: 1.6, marginBottom: 24, textAlign: 'justify' }}>Transform your brand with premium packaging designed specifically for your products.</p>
                 <Link to="/custom-box" style={{ display: 'block', textAlign: 'center', background: ACCENT, color: '#fff', padding: '14px', borderRadius: 12, textDecoration: 'none', fontWeight: 700 }}>Start Designing</Link>
               </div>
             </div>

@@ -121,7 +121,7 @@ export default function HowItWorks() {
         </div>
       </section>
 
-      {/* Pro Tips Section */}
+      {/* Expert Advice Section */}
       <section style={{ padding: '120px 24px', background: '#fff' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
            <div style={{ background: G, borderRadius: 32, padding: '60px 40px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 60, alignItems: 'center', overflow: 'hidden', position: 'relative' }} className="responsive-split">
@@ -156,17 +156,11 @@ export default function HowItWorks() {
         </div>
       </section>
 
-
       <CTABanner wave={false} />
 
       <style>{`
         @media (max-width: 900px) {
           .responsive-split { grid-template-columns: 1fr !important; gap: 40px !important; }
-        }
-        .mobile-center-text { text-align: left; }
-        @media (max-width: 600px) {
-          .mobile-center-text { text-align: center; }
-          .mobile-center-header { justify-content: center; }
         }
       `}</style>
     </div>
