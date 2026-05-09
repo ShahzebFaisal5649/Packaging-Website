@@ -25,6 +25,35 @@ const FieldInput = ({ icon, type, name, value, onChange, placeholder, onToggle, 
   </div>
 );
 
+//// ── Password Strength Helper ───────────────────────────────────────────────
+function getPasswordStrength(p) {
+  if (!p) return { score: 0, label: '', color: '#E2DDD6' };
+  let score = 0;
+  if (p.length >= 8) score++;
+  if (p.length >= 12) score++;
+  if (/[A-Z]/.test(p)) score++;
+  if (/[0-9]/.test(p)) score++;
+  if (/[^A-Za-z0-9]/.test(p)) score++;
+  if (score <= 1) return { score, label: 'Weak', color: '#EF4444' };
+  if (score <= 3) return { score, label: 'Medium', color: '#F59E0B' };
+  return { score, label: 'Strong', color: '#10B981' };
+}
+
+function PasswordStrengthBar({ password }) {
+  const { score, label, color } = getPasswordStrength(password);
+  if (!password) return null;
+  return (
+    <div style={{ marginTop: 8 }}>
+      <div style={{ display: 'flex', gap: 4, marginBottom: 4 }}>
+        {[1, 2, 3, 4, 5].map(i => (
+          <div key={i} style={{ flex: 1, height: 4, borderRadius: 4, backgroundColor: i <= score ? color : '#E2DDD6', transition: 'background 0.3s' }} />
+        ))}
+      </div>
+      <p style={{ fontSize: 11, fontFamily: '"DM Sans", sans-serif', fontWeight: 700, color, margin: 0 }}>{label}</p>
+    </div>
+  );
+}
+
 export default function Register() {
   const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', confirmPassword: '', terms: false });
   const [showPwd, setShowPwd] = useState(false);
@@ -43,7 +72,9 @@ export default function Register() {
     e.preventDefault();
     if (!form.name || form.name.trim().length < 2) return showToast('Please enter your full name (at least 2 characters)', 'error');
     if (!/^\S+@\S+\.\S+$/.test(form.email)) return showToast('Enter a valid email address', 'error');
-    if (form.password.length < 6) return showToast('Password must be at least 6 characters', 'error');
+    if (form.password.length < 8) return showToast('Password must be at least 8 characters', 'error');
+    const { score } = getPasswordStrength(form.password);
+    if (score < 2) return showToast('Password is too weak. Add uppercase, numbers, or symbols.', 'error');
     if (form.password !== form.confirmPassword) return showToast('Passwords do not match', 'error');
     if (!form.terms) return showToast('Please agree to the Terms & Privacy', 'error');
 
@@ -136,7 +167,8 @@ export default function Register() {
 
             <div>
               <label style={{ display: 'block', fontSize: 13, fontFamily: '"DM Sans", sans-serif', fontWeight: 600, color: '#333', marginBottom: 7 }}>Password</label>
-              <FieldInput icon={<Lock size={17} />} type={showPwd ? 'text' : 'password'} name="password" value={form.password} onChange={handleChange} placeholder="••••••••" onToggle={() => setShowPwd(!showPwd)} show={showPwd} />
+              <FieldInput icon={<Lock size={17} />} type={showPwd ? 'text' : 'password'} name="password" value={form.password} onChange={handleChange} placeholder="Min. 8 characters" onToggle={() => setShowPwd(!showPwd)} show={showPwd} />
+              <PasswordStrengthBar password={form.password} />
             </div>
 
             <div>

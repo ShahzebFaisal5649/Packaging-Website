@@ -88,7 +88,7 @@ export default function About() {
 
   return (
     <div style={{ backgroundColor: BG, minHeight: '100vh', overflowX: 'hidden' }}>
-      
+
       {/* 1 — Parallax Hero */}
       <section style={{ position: 'relative', minHeight: '85vh', display: 'flex', alignItems: 'center', overflow: 'hidden' }}>
         <motion.div style={{ position: 'absolute', inset: -50, y: yHero, scale: 1.05 }}>
@@ -99,8 +99,8 @@ export default function About() {
           />
           <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(20,60,36,0.5) 0%, rgba(20,60,36,0.85) 100%)' }} />
         </motion.div>
-        
-        <motion.div 
+
+        <motion.div
           style={{ position: 'relative', zIndex: 2, maxWidth: 1200, margin: '0 auto', padding: '0 24px', width: '100%', opacity: opacityHero }}
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
@@ -112,25 +112,25 @@ export default function About() {
               <ChevronRight size={14} color="rgba(255,255,255,0.4)" />
               <span style={{ fontSize: 13, fontFamily: '"DM Mono", monospace', color: 'rgba(255,255,255,0.9)' }}>About Us</span>
             </div>
-            <motion.p 
+            <motion.p
               initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3, duration: 0.6 }}
               style={{ fontSize: 13, fontFamily: '"DM Mono", monospace', fontWeight: 500, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 20 }}
             >
               Our Story
             </motion.p>
-            <motion.h1 
+            <motion.h1
               initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4, duration: 0.8 }}
               style={{ fontSize: 'clamp(42px, 6vw, 76px)', fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 800, color: '#fff', lineHeight: 1.05, marginBottom: 28 }}
             >
               Built on Craft.<br />Driven by Brand.
             </motion.h1>
-            <motion.p 
+            <motion.p
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 0.8 }}
               style={{ fontSize: 18, fontFamily: '"DM Sans", sans-serif', color: 'rgba(255,255,255,0.8)', lineHeight: 1.7, maxWidth: 540, marginBottom: 44 }}
             >
-              Since 2010, we've helped over 10,000 brands create packaging that leaves a lasting impression—from ambitious startups to Fortune 500 leaders.
+              Since 2010, we've helped over 10,000 brands create packaging that leaves a lasting impression from ambitious startups to Fortune 500 leaders.
             </motion.p>
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6, duration: 0.8 }}
               style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}
             >
@@ -155,8 +155,8 @@ export default function About() {
               { value: <CountUp target={30} suffix="+" />, label: 'Industries', icon: Globe },
               { value: <CountUp target={98} suffix="%" />, label: 'On-Time Rate', icon: TrendingUp },
             ].map((s, i) => (
-              <motion.div 
-                key={i} 
+              <motion.div
+                key={i}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-50px' }}
@@ -176,7 +176,7 @@ export default function About() {
       <section style={{ padding: '120px 24px', backgroundColor: BG }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'center' }} className="story-grid">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, x: -40 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: '-100px' }}
@@ -186,7 +186,7 @@ export default function About() {
               <div style={{ paddingRight: '20%', paddingBottom: '10%' }}>
                 <img src="https://images.unsplash.com/photo-1553481187-be93c21490a9?w=800&q=80" alt="Warehouse" style={{ width: '100%', borderRadius: 16, boxShadow: '0 24px 48px rgba(0,0,0,0.08)' }} />
               </div>
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -197,7 +197,7 @@ export default function About() {
                 <div style={{ fontSize: 13, fontFamily: '"DM Sans", sans-serif', color: '#6B6B6B', lineHeight: 1.6 }}>Founded in Chicago, now serving brands globally.</div>
               </motion.div>
             </motion.div>
-            
+
             <motion.div
               initial={{ opacity: 0, x: 40 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -240,8 +240,8 @@ export default function About() {
               { label: 'Our Mission', title: 'Packaging that makes an impression.', desc: 'To empower every brand with custom packaging that creates a powerful first impression. We believe great packaging is the first handshake.', img: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=800&q=80' },
               { label: 'Our Vision', title: 'Every unboxing should be an experience.', desc: 'We envision packaging as the most powerful marketing touchpoint in a brand\'s arsenal—one that turns regular customers into loyal advocates.', img: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&q=80' },
             ].map((c, i) => (
-              <motion.div 
-                key={i} 
+              <motion.div
+                key={i}
                 initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-50px' }}
@@ -264,8 +264,8 @@ export default function About() {
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 32 }} className="values-grid">
             {VALUES.map((v, i) => (
-              <motion.div 
-                key={i} 
+              <motion.div
+                key={i}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-50px' }}
@@ -293,8 +293,8 @@ export default function About() {
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 32 }} className="team-grid">
             {TEAM.map((m, i) => (
-              <motion.div 
-                key={i} 
+              <motion.div
+                key={i}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-50px' }}
@@ -305,7 +305,7 @@ export default function About() {
                 <div style={{ height: 380, width: '100%', overflow: 'hidden' }}>
                   <img src={m.img} alt={m.name} style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'grayscale(30%)', transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)' }} className="group-hover:scale-105 group-hover:grayscale-0" />
                 </div>
-                
+
                 {/* Default Info Layer */}
                 <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '24px', background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)', transition: 'opacity 0.3s', opacity: 1 }} className="group-hover:opacity-0">
                   <h3 style={{ fontSize: 20, fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 700, color: '#fff', marginBottom: 4 }}>{m.name}</h3>
@@ -331,14 +331,14 @@ export default function About() {
             <p style={{ fontSize: 12, fontFamily: '"DM Mono", monospace', fontWeight: 500, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 16 }}>How It Works</p>
             <h2 style={{ fontSize: 'clamp(32px,4vw,48px)', fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 700, color: G }}>Our Production Process</h2>
           </div>
-          
+
           <div style={{ position: 'relative' }}>
             {/* Vertical Line */}
             <div style={{ position: 'absolute', top: 0, bottom: 0, left: '50%', width: 2, backgroundColor: '#F0EDE8', transform: 'translateX(-50%)' }} className="hidden md:block" />
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 80 }}>
               {PROCESS.map((s, i) => (
-                <motion.div 
+                <motion.div
                   key={i}
                   initial={{ opacity: 0, y: 40 }}
                   whileInView={{ opacity: 1, y: 0 }}
@@ -378,8 +378,8 @@ export default function About() {
           </div>
           <div style={{ display: 'flex', justifyContent: 'center', gap: 16, flexWrap: 'wrap', marginBottom: 80 }}>
             {CERTS.map((cert, i) => (
-              <motion.button 
-                key={cert.name} 
+              <motion.button
+                key={cert.name}
                 initial={{ opacity: 0, scale: 0.9 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}

@@ -11,6 +11,7 @@ const adminRoutes = require('./routes/admin');
 const chatRoutes = require('./routes/chat');
 const paymentRoutes = require('./routes/payment');
 const contentRoutes = require('./routes/content');
+const notificationRoutes = require('./routes/notifications');
 
 const app = express();
 
@@ -70,6 +71,54 @@ const connectDB = () => {
       await admin.save();
       console.log('✅ Admin upgraded to super_admin');
     }
+
+    // Run migration non-blocking in background
+    setTimeout(async () => {
+      try {
+        const Order = require('./models/Order');
+        const Quote = require('./models/Quote');
+        
+        const usersWithOrders = await User.find({ 'orders.0': { $exists: true } });
+        let migratedOrders = 0;
+        for (const u of usersWithOrders) {
+          for (const o of u.orders) {
+            const existing = await Order.findOne({ orderId: o.orderId });
+            if (!existing) {
+              await Order.create({
+                ...o.toObject(),
+                userId: u._id,
+                userName: u.name,
+                userEmail: u.email,
+              }).catch(e => console.error('Failed to migrate order:', e.message));
+              migratedOrders++;
+            }
+          }
+        }
+        if (migratedOrders > 0) console.log(`✅ Migrated ${migratedOrders} legacy orders to new collection`);
+
+        const usersWithQuotes = await User.find({ 'quotes.0': { $exists: true } });
+        let migratedQuotes = 0;
+        for (const u of usersWithQuotes) {
+          for (const q of u.quotes) {
+            const existing = await Quote.findOne({ quoteId: q.quoteId });
+            if (!existing) {
+              await Quote.create({
+                ...q.toObject(),
+                userId: u._id,
+                userName: u.name,
+                userEmail: u.email,
+              }).catch(e => console.error('Failed to migrate quote:', e.message));
+              migratedQuotes++;
+            }
+          }
+        }
+        if (migratedQuotes > 0) console.log(`✅ Migrated ${migratedQuotes} legacy quotes to new collection`);
+      } catch (migErr) {
+        console.error('Migration error (non-fatal):', migErr);
+      }
+    }, 1000);
+
+    
   }).catch(err => {
     connectionPromise = null;
     console.error('❌ MongoDB error:', err.message);
@@ -96,6 +145,7 @@ app.use('/api/admin', requireDb, adminRoutes);
 app.use('/api/chat', requireDb, chatRoutes);
 app.use('/api/content', requireDb, contentRoutes);
 app.use('/api/payment', paymentRoutes);
+app.use('/api/notifications', requireDb, notificationRoutes);
 
 // Health check
 app.get('/api/health', async (req, res) => {

@@ -2,8 +2,9 @@ import { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import { User, Package, FileText, Layout, MapPin, Settings, LogOut, Camera, Plus, Trash2, Edit, X, ExternalLink, Copy, Menu, ChevronLeft, Lock } from 'lucide-react';
+import { User, Package, FileText, Layout, MapPin, Settings, LogOut, ChevronLeft, X, Edit, Trash2, Plus, Bell, CheckCircle, Info, AlertCircle, Eye, RefreshCw } from 'lucide-react';
 import api from '../services/api';
+import Button from '../components/Button';
 
 const G = '#1A4D2E';
 const ACCENT = '#C8860A';
@@ -42,11 +43,17 @@ function Modal({ onClose, title, children }) {
 // --- OVERVIEW TAB ---
 function OverviewTab({ user, setTab, updateUser, showToast }) {
   const loyaltyPoints = user?.loyaltyPoints || 0;
-  let tier = 'Bronze', nextTier = 'Silver', needed = 500 - loyaltyPoints;
-  let progress = (loyaltyPoints / 500) * 100;
-  if (loyaltyPoints >= 500) { tier = 'Silver'; nextTier = 'Gold'; needed = 1000 - loyaltyPoints; progress = ((loyaltyPoints - 500) / 500) * 100; }
-  if (loyaltyPoints >= 1000) { tier = 'Gold'; nextTier = 'Platinum'; needed = 2500 - loyaltyPoints; progress = ((loyaltyPoints - 1000) / 1500) * 100; }
-  if (loyaltyPoints >= 2500) { tier = 'Platinum'; nextTier = null; needed = 0; progress = 100; }
+  const TIERS = [
+    { name: 'Bronze',   min: 0,    next: 'Silver',   max: 350  },
+    { name: 'Silver',   min: 350,  next: 'Gold',      max: 750  },
+    { name: 'Gold',     min: 750,  next: 'Platinum',  max: 1500 },
+    { name: 'Platinum', min: 1500, next: 'Diamond',   max: 3000 },
+    { name: 'Diamond',  min: 3000, next: null,        max: 3000 },
+  ];
+  const currentTier = [...TIERS].reverse().find(t => loyaltyPoints >= t.min) || TIERS[0];
+  const { name: tier, next: nextTier, min: tierMin, max: tierMax } = currentTier;
+  const needed = nextTier ? tierMax - loyaltyPoints : 0;
+  const progress = nextTier ? Math.min(((loyaltyPoints - tierMin) / (tierMax - tierMin)) * 100, 100) : 100;
 
   const [editOpen, setEditOpen] = useState(false);
   const [editForm, setEditForm] = useState({ name: user?.name || '', phone: user?.phone || '' });
@@ -100,8 +107,8 @@ function OverviewTab({ user, setTab, updateUser, showToast }) {
         <button onClick={() => setTab('orders')} style={{ padding: '10px 20px', backgroundColor: G, color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
           View Order History
         </button>
-        <button onClick={() => setEditOpen(true)} style={{ padding: '10px 20px', backgroundColor: 'transparent', color: '#1A1A1A', border: '1.5px solid #D0CAC0', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
-          Edit Profile
+        <button onClick={() => setTab('settings')} style={{ padding: '10px 20px', backgroundColor: 'transparent', color: '#1A1A1A', border: '1.5px solid #D0CAC0', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+          Account Settings
         </button>
       </div>
 
@@ -128,9 +135,22 @@ function OverviewTab({ user, setTab, updateUser, showToast }) {
 }
 
 // --- ORDERS TAB ---
-function OrdersTab({ orders }) {
+function OrdersTab() {
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    let cancelled = false;
+    api.get('/users/orders').then(res => {
+      if (!cancelled) { setOrders(res.orders || []); setLoading(false); }
+    }).catch(err => {
+      if (!cancelled) { console.error('Orders fetch err:', err); setLoading(false); }
+    });
+    return () => { cancelled = true; };
+  }, []);
+
   const displayOrders = orders?.length ? orders.map(o => ({
     ...o,
     id: o.orderId || o.id,
@@ -144,6 +164,8 @@ function OrdersTab({ orders }) {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  if (loading) return <div style={{ padding: 40, textAlign: 'center', color: '#888' }}><RefreshCw size={24} style={{ animation: 'spin 1s linear infinite' }} /></div>;
 
   return (
     <div>
@@ -216,7 +238,13 @@ function OrdersTab({ orders }) {
                 { label: 'Order Date', value: selectedOrder.date },
                 { label: 'Total', value: `$${(+selectedOrder.total).toFixed(2)}` },
                 { label: 'Status', value: <Badge status={selectedOrder.status} /> },
-                { label: 'Shipping Address', value: selectedOrder.address || 'N/A' },
+                { label: 'Shipping Address', value: (() => {
+                    const sa = selectedOrder.shippingAddress;
+                    if (sa && (sa.line1 || sa.street)) {
+                      return [sa.line1 || sa.street, sa.city, sa.state, sa.postal_code || sa.zip].filter(Boolean).join(', ');
+                    }
+                    return selectedOrder.address || selectedOrder.fullAddress || 'Not provided';
+                  })() },
               ].map(({ label, value }, i) => (
                 <div key={i} style={{ backgroundColor: BG, borderRadius: 8, padding: '12px 14px' }}>
                   <p style={{ fontSize: 11, fontWeight: 700, color: '#6B6B6B', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</p>
@@ -243,9 +271,22 @@ function OrdersTab({ orders }) {
 }
 
 // --- QUOTES TAB ---
-function QuotesTab({ quotes }) {
+function QuotesTab() {
+  const [quotes, setQuotes] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [selectedQuote, setSelectedQuote] = useState(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    let cancelled = false;
+    api.get('/users/quotes').then(res => {
+      if (!cancelled) { setQuotes(res.quotes || []); setLoading(false); }
+    }).catch(err => {
+      if (!cancelled) { console.error('Quotes fetch err:', err); setLoading(false); }
+    });
+    return () => { cancelled = true; };
+  }, []);
+
   const displayQuotes = quotes?.length ? quotes.map(q => ({
     ...q,
     id: q.quoteId || q.id,
@@ -257,6 +298,8 @@ function QuotesTab({ quotes }) {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  if (loading) return <div style={{ padding: 40, textAlign: 'center', color: '#888' }}><RefreshCw size={24} style={{ animation: 'spin 1s linear infinite' }} /></div>;
 
   return (
     <div>
@@ -593,37 +636,93 @@ function AddressesTab({ addresses, addAddress, updateAddress, deleteAddress, sho
 }
 
 // --- SETTINGS TAB ---
+//// ── Password Strength Helper ───────────────────────────────────────────────
+function getPasswordStrength(p) {
+  if (!p) return { score: 0, label: '', color: '#E2DDD6' };
+  let score = 0;
+  if (p.length >= 8) score++;
+  if (p.length >= 12) score++;
+  if (/[A-Z]/.test(p)) score++;
+  if (/[0-9]/.test(p)) score++;
+  if (/[^A-Za-z0-9]/.test(p)) score++;
+  if (score <= 1) return { score, label: 'Weak', color: '#EF4444' };
+  if (score <= 3) return { score, label: 'Medium', color: '#F59E0B' };
+  return { score, label: 'Strong', color: '#10B981' };
+}
+
+function PasswordStrengthBar({ password }) {
+  const { score, label, color } = getPasswordStrength(password);
+  if (!password) return null;
+  return (
+    <div style={{ marginTop: 8 }}>
+      <div style={{ display: 'flex', gap: 4, marginBottom: 4 }}>
+        {[1, 2, 3, 4, 5].map(i => (
+          <div key={i} style={{ flex: 1, height: 4, borderRadius: 4, backgroundColor: i <= score ? color : '#E2DDD6', transition: 'background 0.3s' }} />
+        ))}
+      </div>
+      <p style={{ fontSize: 11, fontWeight: 700, color, margin: 0 }}>{label}</p>
+    </div>
+  );
+}
+
+// ── Phone Validation Helper ────────────────────────────────────────────────
+function validatePhone(phone) {
+  if (!phone) return true;
+  const digits = phone.replace(/\D/g, '');
+  return digits.length >= 7 && digits.length <= 15;
+}
+
 function SettingsTab({ user, updateUser, showToast, logout }) {
   const navigate = useNavigate();
   const [info, setInfo] = useState({ name: user?.name || '', phone: user?.phone || '' });
+  const [phoneErr, setPhoneErr] = useState('');
   const [pwd, setPwd] = useState({ current: '', newPwd: '', confirm: '' });
   const [pwdErr, setPwdErr] = useState('');
+  const [saving, setSaving] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-  const [notifs, setNotifs] = useState(() => {
-    try {
-      return {
-        orders: user?.notifications?.orders ?? true,
-        quotes: user?.notifications?.quotes ?? true,
-        designs: user?.notifications?.designs ?? false,
-      };
-    } catch {
-      return { orders: true, quotes: true, designs: false };
-    }
+  const [notifs, setNotifs] = useState({
+    orders: user?.notifications?.orders ?? true,
+    quotes: user?.notifications?.quotes ?? true,
+    designs: user?.notifications?.designs ?? true,
   });
 
+  useEffect(() => {
+    if (user?.notifications) {
+      setNotifs({
+        orders: user.notifications.orders ?? true,
+        quotes: user.notifications.quotes ?? true,
+        designs: user.notifications.designs ?? true,
+      });
+    }
+  }, [user]);
+
   const handleSaveInfo = async () => {
-    await updateUser(info);
-    showToast('Profile updated!', 'success');
+    if (info.phone && !validatePhone(info.phone)) {
+      setPhoneErr('Invalid phone number. Use 7–15 digits.');
+      return;
+    }
+    setPhoneErr('');
+    setSaving(true);
+    try {
+      await updateUser(info);
+      showToast('Profile updated!', 'success');
+    } catch (err) {
+      showToast(err.message || 'Failed to save', 'error');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleUpdatePassword = async () => {
     if (!pwd.current) { setPwdErr('Enter your current password'); return; }
-    if (pwd.newPwd.length < 6) { setPwdErr('New password must be at least 6 characters'); return; }
+    if (pwd.newPwd.length < 8) { setPwdErr('New password must be at least 8 characters'); return; }
     if (pwd.newPwd !== pwd.confirm) { setPwdErr('Passwords do not match'); return; }
+    const { score } = getPasswordStrength(pwd.newPwd);
+    if (score < 2) { setPwdErr('Password is too weak — add uppercase, numbers or symbols'); return; }
     setPwdErr('');
     try {
       await api.put('/users/password', { currentPassword: pwd.current, newPassword: pwd.newPwd });
-      showToast('Password updated!', 'success');
+      showToast('Password updated successfully!', 'success');
       setPwd({ current: '', newPwd: '', confirm: '' });
     } catch (err) {
       setPwdErr(err.message || 'Current password is incorrect');
@@ -637,102 +736,110 @@ function SettingsTab({ user, updateUser, showToast, logout }) {
     showToast('Notification preferences saved.', 'success');
   };
 
-  const handleDeleteAccount = () => {
-    setDeleteConfirmOpen(true);
-  };
-
-  const confirmDeleteAccount = () => {
+  const confirmDeleteAccount = async () => {
     setDeleteConfirmOpen(false);
+    try {
+      // Revoke Google token if exists
+      const googleToken = localStorage.getItem('google_token');
+      if (googleToken) {
+        await fetch(`https://accounts.google.com/o/oauth2/revoke?token=${googleToken}`).catch(() => {});
+      }
+      // Delete account on backend
+      await api.delete('/users/account');
+    } catch (e) { /* proceed anyway */ }
     logout();
     localStorage.clear();
+    sessionStorage.clear();
+    // Force Google to show account picker on next login
+    document.cookie.split(';').forEach(c => {
+      document.cookie = c.replace(/^ +/, '').replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/');
+    });
     navigate('/');
   };
 
   const inp = { width: '100%', padding: '10px 12px', border: '1.5px solid #D0CAC0', borderRadius: 8, fontSize: 14, fontFamily: '"DM Sans", sans-serif', outline: 'none', boxSizing: 'border-box', backgroundColor: BG };
   const section = { backgroundColor: '#fff', borderRadius: 12, padding: '24px', marginBottom: 20, border: '1px solid #E2DDD6' };
 
-  if (!user) return <div style={{ padding: 24, fontFamily: '"DM Sans", sans-serif' }}>Loading settings...</div>;
+  if (!user) return <div style={{ padding: 24 }}>Loading settings...</div>;
 
   return (
     <div style={{ maxWidth: 560 }}>
       <h2 style={{ fontSize: 22, fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 700, color: '#1A1A1A', marginBottom: 24 }}>Account Settings</h2>
 
+      {/* Personal Information */}
       <div style={section}>
-        <h3 style={{ fontSize: 15, fontFamily: '"DM Sans", sans-serif', fontWeight: 700, color: '#1A1A1A', marginBottom: 16, paddingBottom: 10, borderBottom: '1px solid #F0EDE8' }}>Personal Information</h3>
+        <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1A1A1A', marginBottom: 16, paddingBottom: 10, borderBottom: '1px solid #F0EDE8' }}>Personal Information</h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <div>
-            <label style={{ fontSize: 12, fontFamily: '"DM Sans", sans-serif', fontWeight: 700, color: '#6B6B6B', display: 'block', marginBottom: 6 }}>Full Name</label>
-            <input style={inp} value={info.name} onChange={e => setInfo(f => ({ ...f, name: e.target.value }))} />
+            <label style={{ fontSize: 12, fontWeight: 700, color: '#6B6B6B', display: 'block', marginBottom: 6 }}>Full Name</label>
+            <input style={inp} value={info.name} onChange={e => setInfo(f => ({ ...f, name: e.target.value }))}
+              onFocus={e => e.target.style.borderColor = G} onBlur={e => e.target.style.borderColor = '#D0CAC0'} />
           </div>
           <div>
-            <label style={{ fontSize: 12, fontFamily: '"DM Sans", sans-serif', fontWeight: 700, color: '#6B6B6B', display: 'block', marginBottom: 6 }}>Email (cannot change)</label>
+            <label style={{ fontSize: 12, fontWeight: 700, color: '#6B6B6B', display: 'block', marginBottom: 6 }}>Email (cannot change)</label>
             <input style={{ ...inp, opacity: 0.6, cursor: 'not-allowed' }} value={user?.email || ''} disabled />
           </div>
           <div>
-            <label style={{ fontSize: 12, fontFamily: '"DM Sans", sans-serif', fontWeight: 700, color: '#6B6B6B', display: 'block', marginBottom: 6 }}>Phone</label>
-            <input style={inp} value={info.phone} onChange={e => setInfo(f => ({ ...f, phone: e.target.value }))} placeholder="+1 (555) 000-0000" />
+            <label style={{ fontSize: 12, fontWeight: 700, color: '#6B6B6B', display: 'block', marginBottom: 6 }}>Phone Number</label>
+            <input style={{ ...inp, borderColor: phoneErr ? '#EF4444' : '#D0CAC0' }}
+              value={info.phone}
+              onChange={e => { setInfo(f => ({ ...f, phone: e.target.value })); setPhoneErr(''); }}
+              onFocus={e => e.target.style.borderColor = G}
+              onBlur={e => { e.target.style.borderColor = phoneErr ? '#EF4444' : '#D0CAC0'; if (info.phone && !validatePhone(info.phone)) setPhoneErr('Invalid phone number. Use 7–15 digits.'); }}
+              placeholder="+1 (555) 000-0000" />
+            {phoneErr && <p style={{ fontSize: 11, color: '#EF4444', marginTop: 4 }}>{phoneErr}</p>}
           </div>
-          <button onClick={handleSaveInfo} style={{ padding: '10px 24px', backgroundColor: G, color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontFamily: '"DM Sans", sans-serif', cursor: 'pointer', alignSelf: 'flex-start' }}>Save Changes</button>
-        </div>
-      </div>
-
-      <div style={section}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16, paddingBottom: 10, borderBottom: '1px solid #F0EDE8' }}>
-          <Lock size={18} color={G} />
-          <h3 style={{ fontSize: 15, fontFamily: '"DM Sans", sans-serif', fontWeight: 700, color: '#1A1A1A', margin: 0 }}>Security & Password</h3>
-        </div>
-        
-        <p style={{ fontSize: 13, fontFamily: '"DM Sans", sans-serif', color: '#6B6B6B', marginBottom: 20 }}>
-          Manage your account security and update your password. We recommend using a unique password to protect your account.
-        </p>
-
-        {pwdErr && <p style={{ fontSize: 12, fontFamily: '"DM Sans", sans-serif', color: '#DC2626', marginBottom: 16, padding: '10px 14px', backgroundColor: '#FEE2E2', borderRadius: 8, border: '1px solid #FECACA' }}>{pwdErr}</p>}
-        
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {[
-            { key: 'current', label: 'Current Password', field: 'current', placeholder: '••••••••' },
-            { key: 'newPwd', label: 'New Password', field: 'newPwd', placeholder: 'Min. 6 characters' },
-            { key: 'confirm', label: 'Confirm New Password', field: 'confirm', placeholder: 'Repeat new password' },
-          ].map(({ key, label, field, placeholder }) => (
-            <div key={key}>
-              <label style={{ fontSize: 12, fontFamily: '"DM Sans", sans-serif', fontWeight: 700, color: '#6B6B6B', display: 'block', marginBottom: 6 }}>{label}</label>
-              <input 
-                type="password" 
-                style={inp} 
-                placeholder={placeholder}
-                value={pwd[field]} 
-                onChange={e => setPwd(f => ({ ...f, [field]: e.target.value }))} 
-                onFocus={e => e.target.style.borderColor = G}
-                onBlur={e => e.target.style.borderColor = '#D0CAC0'}
-              />
-            </div>
-          ))}
-          <button 
-            onClick={handleUpdatePassword} 
-            style={{ 
-              padding: '12px 24px', 
-              backgroundColor: G, 
-              color: '#fff', 
-              border: 'none', 
-              borderRadius: 10, 
-              fontWeight: 700, 
-              fontSize: 14,
-              fontFamily: '"DM Sans", sans-serif',
-              cursor: 'pointer', 
-              alignSelf: 'flex-start',
-              transition: 'all 0.2s',
-              boxShadow: '0 4px 12px rgba(26, 77, 46, 0.15)'
-            }}
-            onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-1px)'}
-            onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
-          >
-            Update Password
+          <button onClick={handleSaveInfo} disabled={saving}
+            style={{ padding: '10px 24px', backgroundColor: saving ? '#aaa' : G, color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, cursor: saving ? 'not-allowed' : 'pointer', alignSelf: 'flex-start', transition: 'background 0.2s' }}>
+            {saving ? 'Saving…' : 'Save Changes'}
           </button>
         </div>
       </div>
 
+      {/* Security & Password */}
       <div style={section}>
-        <h3 style={{ fontSize: 15, fontFamily: '"DM Sans", sans-serif', fontWeight: 700, color: '#1A1A1A', marginBottom: 16, paddingBottom: 10, borderBottom: '1px solid #F0EDE8' }}>Notifications</h3>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16, paddingBottom: 10, borderBottom: '1px solid #F0EDE8' }}>
+          <Lock size={18} color={G} />
+          <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1A1A1A', margin: 0 }}>Security & Password</h3>
+        </div>
+        <p style={{ fontSize: 13, color: '#6B6B6B', marginBottom: 20 }}>
+          Use a strong, unique password with uppercase, numbers and symbols.
+        </p>
+        {pwdErr && <p style={{ fontSize: 12, color: '#DC2626', marginBottom: 16, padding: '10px 14px', backgroundColor: '#FEE2E2', borderRadius: 8, border: '1px solid #FECACA' }}>{pwdErr}</p>}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div>
+            <label style={{ fontSize: 12, fontWeight: 700, color: '#6B6B6B', display: 'block', marginBottom: 6 }}>Current Password</label>
+            <input type="password" style={inp} placeholder="••••••••" value={pwd.current}
+              onChange={e => setPwd(f => ({ ...f, current: e.target.value }))}
+              onFocus={e => e.target.style.borderColor = G} onBlur={e => e.target.style.borderColor = '#D0CAC0'} />
+          </div>
+          <div>
+            <label style={{ fontSize: 12, fontWeight: 700, color: '#6B6B6B', display: 'block', marginBottom: 6 }}>New Password</label>
+            <input type="password" style={inp} placeholder="Min. 8 characters" value={pwd.newPwd}
+              onChange={e => setPwd(f => ({ ...f, newPwd: e.target.value }))}
+              onFocus={e => e.target.style.borderColor = G} onBlur={e => e.target.style.borderColor = '#D0CAC0'} />
+            <PasswordStrengthBar password={pwd.newPwd} />
+          </div>
+          <div>
+            <label style={{ fontSize: 12, fontWeight: 700, color: '#6B6B6B', display: 'block', marginBottom: 6 }}>Confirm New Password</label>
+            <input type="password" style={{ ...inp, borderColor: pwd.confirm && pwd.confirm !== pwd.newPwd ? '#EF4444' : '#D0CAC0' }}
+              placeholder="Repeat new password" value={pwd.confirm}
+              onChange={e => setPwd(f => ({ ...f, confirm: e.target.value }))}
+              onFocus={e => e.target.style.borderColor = G} onBlur={e => e.target.style.borderColor = '#D0CAC0'} />
+            {pwd.confirm && pwd.confirm !== pwd.newPwd && <p style={{ fontSize: 11, color: '#EF4444', marginTop: 4 }}>Passwords do not match</p>}
+          </div>
+          <Button 
+            onClick={handleUpdatePassword}
+            loading={saving}
+          >
+            Update Password
+          </Button>
+        </div>
+      </div>
+
+      {/* Notifications */}
+      <div style={section}>
+        <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1A1A1A', marginBottom: 16, paddingBottom: 10, borderBottom: '1px solid #F0EDE8' }}>Notifications</h3>
         {[
           { key: 'orders', label: 'Order Updates', desc: 'Get notified when your order status changes' },
           { key: 'quotes', label: 'Quote Updates', desc: 'Receive updates on your custom quotes' },
@@ -740,8 +847,8 @@ function SettingsTab({ user, updateUser, showToast, logout }) {
         ].map(({ key, label, desc }) => (
           <div key={key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid #F0EDE8' }}>
             <div>
-              <p style={{ fontSize: 14, fontFamily: '"DM Sans", sans-serif', fontWeight: 600, color: '#1A1A1A', marginBottom: 2 }}>{label}</p>
-              <p style={{ fontSize: 12, fontFamily: '"DM Sans", sans-serif', color: '#6B6B6B' }}>{desc}</p>
+              <p style={{ fontSize: 14, fontWeight: 600, color: '#1A1A1A', marginBottom: 2 }}>{label}</p>
+              <p style={{ fontSize: 12, color: '#6B6B6B' }}>{desc}</p>
             </div>
             <button onClick={() => handleToggleNotif(key)} style={{ width: 44, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer', backgroundColor: notifs[key] ? G : '#D0CAC0', position: 'relative', transition: 'background 0.2s' }}>
               <span style={{ position: 'absolute', top: 2, left: notifs[key] ? 22 : 2, width: 20, height: 20, borderRadius: '50%', backgroundColor: '#fff', transition: 'left 0.2s', boxShadow: '0 1px 4px rgba(0,0,0,0.2)' }} />
@@ -750,22 +857,160 @@ function SettingsTab({ user, updateUser, showToast, logout }) {
         ))}
       </div>
 
+      {/* Danger Zone */}
       <div style={{ ...section, borderColor: '#FECACA' }}>
-        <h3 style={{ fontSize: 15, fontFamily: '"DM Sans", sans-serif', fontWeight: 700, color: '#DC2626', marginBottom: 8 }}>Danger Zone</h3>
-        <p style={{ fontSize: 13, fontFamily: '"DM Sans", sans-serif', color: '#6B6B6B', marginBottom: 16 }}>Once you delete your account, there is no going back. All your data will be permanently removed.</p>
-        <button onClick={handleDeleteAccount} style={{ padding: '10px 20px', border: '1.5px solid #DC2626', color: '#DC2626', backgroundColor: 'transparent', borderRadius: 8, fontWeight: 700, fontFamily: '"DM Sans", sans-serif', cursor: 'pointer' }}>Delete My Account</button>
+        <h3 style={{ fontSize: 15, fontWeight: 700, color: '#DC2626', marginBottom: 8 }}>Danger Zone</h3>
+        <p style={{ fontSize: 13, color: '#6B6B6B', marginBottom: 16 }}>Once you delete your account, there is no going back. All your data will be permanently removed.</p>
+        <button onClick={() => setDeleteConfirmOpen(true)} style={{ padding: '10px 20px', border: '1.5px solid #DC2626', color: '#DC2626', backgroundColor: 'transparent', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}>
+          Delete My Account
+        </button>
       </div>
 
       {deleteConfirmOpen && (
         <Modal title="Delete Account" onClose={() => setDeleteConfirmOpen(false)}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <p style={{ color: '#1A1A1A', fontFamily: '"DM Sans", sans-serif' }}>Please confirm that you want to permanently delete your account. This action cannot be undone.</p>
+            <div style={{ padding: '14px', backgroundColor: '#FEF2F2', borderRadius: 8, border: '1px solid #FECACA' }}>
+              <p style={{ fontSize: 14, color: '#DC2626', fontWeight: 700, marginBottom: 4 }}>⚠️ This action is permanent</p>
+              <p style={{ fontSize: 13, color: '#991B1B' }}>Your account, orders, quotes and all data will be deleted immediately. This cannot be undone.</p>
+            </div>
             <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
-              <button onClick={() => setDeleteConfirmOpen(false)} style={{ padding: '10px 18px', backgroundColor: '#F3F4F6', border: '1px solid #D0CAC0', borderRadius: 8, color: '#374151', cursor: 'pointer', fontFamily: '"DM Sans", sans-serif' }}>Cancel</button>
-              <button onClick={confirmDeleteAccount} style={{ padding: '10px 18px', backgroundColor: '#DC2626', border: 'none', borderRadius: 8, color: '#fff', cursor: 'pointer', fontFamily: '"DM Sans", sans-serif' }}>Delete Account</button>
+              <button onClick={() => setDeleteConfirmOpen(false)} style={{ padding: '10px 18px', backgroundColor: '#F3F4F6', border: '1px solid #D0CAC0', borderRadius: 8, color: '#374151', cursor: 'pointer' }}>Cancel</button>
+              <button onClick={confirmDeleteAccount} style={{ padding: '10px 18px', backgroundColor: '#DC2626', border: 'none', borderRadius: 8, color: '#fff', cursor: 'pointer', fontWeight: 700 }}>Yes, Delete Forever</button>
             </div>
           </div>
         </Modal>
+      )}
+    </div>
+  );
+}
+
+// --- NOTIFICATIONS TAB ---
+function NotificationsTab() {
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const { showToast } = useToast();
+
+  const fetchNotifications = async () => {
+    try {
+      const data = await api.get('/notifications');
+      setNotifications(data.notifications || []);
+    } catch (e) {
+      showToast('Failed to load notifications', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
+
+  const handleMarkRead = async (id) => {
+    try {
+      await api.put(`/notifications/${id}/read`);
+      setNotifications(prev => prev.map(n => n._id === id ? { ...n, isRead: true } : n));
+    } catch (e) { showToast('Failed to mark as read', 'error'); }
+  };
+
+  const handleDismiss = async (id) => {
+    try {
+      await api.delete(`/notifications/${id}`);
+      setNotifications(prev => prev.filter(n => n._id !== id));
+      showToast('Notification dismissed', 'success');
+    } catch (e) { showToast('Failed to dismiss notification', 'error'); }
+  };
+
+  const handleMarkAllRead = async () => {
+    try {
+      await api.put('/notifications/read-all');
+      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+      showToast('All marked as read', 'success');
+    } catch (e) { showToast('Action failed', 'error'); }
+  };
+
+  if (loading) return <div style={{ padding: 40, textAlign: 'center' }}><Bell size={32} style={{ color: '#ccc', animation: 'pulse 2s infinite' }} /></div>;
+
+  return (
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+        <h2 style={{ fontSize: 22, fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 700, color: '#1A1A1A' }}>Notifications</h2>
+        {notifications.some(n => !n.isRead) && (
+          <button onClick={handleMarkAllRead} style={{ background: 'none', border: 'none', color: G, fontWeight: 700, fontSize: 13, cursor: 'pointer', textDecoration: 'underline' }}>
+            Mark all as read
+          </button>
+        )}
+      </div>
+
+      {notifications.length === 0 ? (
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+          style={{ textAlign: 'center', padding: '60px 24px', backgroundColor: BG, borderRadius: 16, border: '1px dashed #D0CAC0' }}>
+          <Bell size={48} style={{ color: '#D0CAC0', marginBottom: 16 }} />
+          <p style={{ fontSize: 16, fontWeight: 600, color: '#1A1A1A', marginBottom: 4 }}>All caught up!</p>
+          <p style={{ fontSize: 13, color: '#6B6B6B' }}>You don't have any notifications at the moment.</p>
+        </motion.div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <AnimatePresence initial={false}>
+            {notifications.map((n) => (
+              <motion.div 
+                key={n._id}
+                layout
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 10, transition: { duration: 0.2 } }}
+                style={{ 
+                  padding: '16px 20px', 
+                  borderRadius: 12, 
+                  border: '1px solid #E2DDD6', 
+                  backgroundColor: n.isRead ? '#fff' : 'rgba(26, 77, 46, 0.03)',
+                  display: 'flex',
+                  gap: 16,
+                  transition: 'all 0.2s',
+                  position: 'relative'
+                }}
+              >
+                <div style={{ 
+                  width: 40, height: 40, borderRadius: 10, 
+                  backgroundColor: n.isRead ? '#f3f4f6' : `${G}15`, 
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 
+                }}>
+                  {n.type === 'order_status' && <Package size={18} color={n.isRead ? '#888' : G} />}
+                  {n.type === 'quote_update' && <FileText size={18} color={n.isRead ? '#888' : G} />}
+                  {n.type === 'message_reply' && <Info size={18} color={n.isRead ? '#888' : G} />}
+                  {n.type === 'system' && <Bell size={18} color={n.isRead ? '#888' : G} />}
+                </div>
+                <div style={{ flex: 1, pr: 30 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
+                    <h4 style={{ fontSize: 14, fontWeight: 700, color: '#1A1A1A', margin: 0 }}>{n.title}</h4>
+                    <span style={{ fontSize: 11, color: '#888' }}>{new Date(n.createdAt).toLocaleDateString()}</span>
+                  </div>
+                  <p style={{ fontSize: 13, color: '#4B5563', margin: '0 0 12px', lineHeight: 1.5 }}>{n.message}</p>
+                  <div style={{ display: 'flex', gap: 12 }}>
+                    {n.link && (
+                      <Link to={n.link} style={{ fontSize: 12, fontWeight: 700, color: G, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <Eye size={12} /> View Details
+                      </Link>
+                    )}
+                    {!n.isRead && (
+                      <button onClick={() => handleMarkRead(n._id)} style={{ background: 'none', border: 'none', color: '#6B7280', fontSize: 12, fontWeight: 600, cursor: 'pointer', padding: 0 }}>
+                        Mark as read
+                      </button>
+                    )}
+                  </div>
+                </div>
+                <button 
+                  onClick={() => handleDismiss(n._id)}
+                  style={{ position: 'absolute', top: 16, right: 16, background: 'none', border: 'none', color: '#D1D5DB', cursor: 'pointer', padding: 4, borderRadius: 6, transition: 'all 0.2s' }}
+                  onMouseEnter={e => { e.currentTarget.style.color = '#EF4444'; e.currentTarget.style.backgroundColor = '#FEE2E2'; }}
+                  onMouseLeave={e => { e.currentTarget.style.color = '#D1D5DB'; e.currentTarget.style.backgroundColor = 'transparent'; }}
+                >
+                  <Trash2 size={14} />
+                </button>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
       )}
     </div>
   );
@@ -776,6 +1021,7 @@ const TABS = [
   { id: 'overview', label: 'Overview', icon: User },
   { id: 'orders', label: 'My Orders', icon: Package },
   { id: 'quotes', label: 'My Quotes', icon: FileText },
+  { id: 'notifications', label: 'Notifications', icon: Bell },
   { id: 'designs', label: 'Saved Designs', icon: Layout },
   { id: 'addresses', label: 'Addresses', icon: MapPin },
   { id: 'settings', label: 'Settings', icon: Settings },
@@ -897,8 +1143,9 @@ export default function Profile() {
           {/* Main Content */}
           <div style={{ flex: 1, minWidth: 0, backgroundColor: '#fff', borderRadius: 14, border: '1px solid #E2DDD6', padding: isMobile ? '24px 16px' : '32px', minHeight: 600 }}>
             {activeTab === 'overview' && <OverviewTab user={user} setTab={setActiveTab} updateUser={updateUser} showToast={showToast} />}
-            {activeTab === 'orders' && <OrdersTab orders={user?.orders} />}
-            {activeTab === 'quotes' && <QuotesTab quotes={user?.quotes || []} />}
+            {activeTab === 'orders' && <OrdersTab />}
+            {activeTab === 'quotes' && <QuotesTab />}
+            {activeTab === 'notifications' && <NotificationsTab />}
             {activeTab === 'designs' && <DesignsTab designs={user?.savedDesigns || []} saveDesign={saveDesign} deleteDesign={deleteDesign} showToast={showToast} navigate={navigate} />}
             {activeTab === 'addresses' && <AddressesTab addresses={user?.addresses || []} addAddress={addAddress} updateAddress={updateAddress} deleteAddress={deleteAddress} showToast={showToast} />}
             {activeTab === 'settings' && <SettingsTab user={user} updateUser={updateUser} showToast={showToast} logout={logout} />}

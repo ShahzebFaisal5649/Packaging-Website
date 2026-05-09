@@ -8,11 +8,11 @@ const ACCENT = '#C8860A';
 const BG = '#F5F2ED';
 
 const FAQS = [
-  { q: 'What is the minimum order quantity (MOQ)?', a: 'Our standard MOQ is 100 units for most custom boxes. However, for fully rigid luxury boxes, the MOQ starts at 250 units to ensure manufacturing efficiency.' },
-  { q: 'Can I get a physical sample before bulk ordering?', a: 'Yes! We offer a physical prototyping service. You can request a full-color printed sample of your exact box design for a flat fee, which is credited towards your bulk order if you proceed.' },
-  { q: 'What is your standard turnaround time?', a: 'Our standard production time is 8-10 business days after digital proof approval. We also offer rush production (5-7 days) for an additional fee depending on the complexity of the box.' },
-  { q: 'Do you ship internationally?', a: 'Absolutely. We ship to over 50 countries globally. Shipping rates and delivery times vary by destination and order volume, which will be calculated at checkout.' },
-  { q: 'Are your materials eco-friendly?', a: 'Yes. We offer FSC-certified corrugated board, recycled kraft, and soy-based inks. Our eco-friendly options are 100% recyclable and biodegradable.' },
+  { q: 'What is the minimum order quantity (MOQ)?', a: 'Our minimums vary by box style but typically start as low as 10-25 units for digital printing, making it easy for small businesses to test new designs. For bulk offset printing, MOQs usually start at 100-250 units.' },
+  { q: 'Can I get a physical sample before bulk ordering?', a: 'Yes! We offer physical prototyping services for a nominal fee. You can receive a full-color printed sample of your exact box design to verify dimensions and print quality before committing to full production.' },
+  { q: 'What is your standard turnaround time?', a: 'Our standard production time is 8-10 business days after digital proof approval. We also offer priority rush options (5-7 days) for urgent brand launches.' },
+  { q: 'Do you ship internationally?', a: 'We ship globally to over 50 countries. All international shipments are fully tracked. Delivery times and costs vary by region and will be provided during the quoting process.' },
+  { q: 'Are your materials eco-friendly?', a: 'Sustainability is at our core. We offer FSC-certified corrugated board, 100% recycled kraft paper, and use soy-based or water-based inks that are fully biodegradable.' },
 ];
 
 const inputStyle = {
@@ -22,7 +22,7 @@ const inputStyle = {
   backgroundColor: '#fff', transition: 'border-color 0.2s', boxSizing: 'border-box',
 };
 
-const Field = ({ name, label, type = 'text', required, isTextarea, value, onChange }) => (
+const Field = ({ name, label, type = 'text', required, isTextarea, value, onChange, error }) => (
   <div style={{ flex: 1 }}>
     <label style={{ display: 'block', fontSize: 13, fontFamily: '"DM Sans", sans-serif', fontWeight: 600, color: '#333', marginBottom: 7 }}>
       {label} {required && <span style={{ color: ACCENT }}>*</span>}
@@ -30,18 +30,19 @@ const Field = ({ name, label, type = 'text', required, isTextarea, value, onChan
     {isTextarea ? (
       <textarea
         name={name} required={required} value={value} onChange={onChange}
-        style={{ ...inputStyle, height: 130, resize: 'none' }}
-        onFocus={e => e.target.style.borderColor = G}
-        onBlur={e => e.target.style.borderColor = '#E0DBD3'}
+        style={{ ...inputStyle, height: 130, resize: 'none', borderColor: error ? '#DC2626' : '#E0DBD3' }}
+        onFocus={e => e.target.style.borderColor = error ? '#DC2626' : G}
+        onBlur={e => e.target.style.borderColor = error ? '#DC2626' : '#E0DBD3'}
       />
     ) : (
       <input
         type={type} name={name} required={required} value={value} onChange={onChange}
-        style={inputStyle}
-        onFocus={e => e.target.style.borderColor = G}
-        onBlur={e => e.target.style.borderColor = '#E0DBD3'}
+        style={{ ...inputStyle, borderColor: error ? '#DC2626' : '#E0DBD3' }}
+        onFocus={e => e.target.style.borderColor = error ? '#DC2626' : G}
+        onBlur={e => e.target.style.borderColor = error ? '#DC2626' : '#E0DBD3'}
       />
     )}
+    {error && <p style={{ color: '#DC2626', fontSize: 11, marginTop: 4, marginBottom: 0 }}>{error}</p>}
   </div>
 );
 
@@ -49,14 +50,28 @@ export default function Contact() {
   const [formData, setFormData] = useState({ name: '', email: '', company: '', phone: '', subject: '', message: '' });
   const [status, setStatus] = useState('idle'); // 'idle', 'loading', 'success', 'error'
   const [errorMsg, setErrorMsg] = useState('');
+  const [phoneError, setPhoneError] = useState('');
   const [activeFaq, setActiveFaq] = useState(null);
 
   const handleChange = (e) => {
+    if (e.target.name === 'phone') setPhoneError('');
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const validatePhone = (phone) => {
+    if (!phone) return true; // Optional field in the form
+    const phoneRegex = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im;
+    return phoneRegex.test(phone);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (formData.phone && !validatePhone(formData.phone)) {
+      setPhoneError('Please enter a valid phone number format');
+      return;
+    }
+
     setStatus('loading');
     try {
       const res = await api.post('/content/contact', formData);
@@ -132,7 +147,7 @@ export default function Contact() {
                 </div>
                 <div style={{ display: 'flex', gap: 20, marginBottom: 20 }} className="form-row">
                   <Field name="email" type="email" label="Email Address" required value={formData.email} onChange={handleChange} />
-                  <Field name="phone" type="tel" label="Phone Number" value={formData.phone} onChange={handleChange} />
+                  <Field name="phone" type="tel" label="Phone Number" value={formData.phone} onChange={handleChange} error={phoneError} />
                 </div>
                 <div style={{ marginBottom: 20 }}>
                   <Field name="subject" label="Subject / Project Type" required value={formData.subject} onChange={handleChange} />

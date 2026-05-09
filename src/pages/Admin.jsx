@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import api from '../services/api';
+import Button from '../components/Button';
 import {
   LayoutDashboard, ShoppingBag, Users, BarChart2, FileText,
   LogOut, TrendingUp, TrendingDown, Edit, Trash2, X, Download,
@@ -11,7 +12,7 @@ import {
   Eye, Mail, Phone, Calendar,
   Shield, Ban, Star, ArrowUpRight,
   Package, Building, Upload, Menu, Plus, MapPin,
-  CheckCircle, Truck, ChevronDown,
+  CheckCircle, Truck, ChevronDown, Filter, Layers
 } from 'lucide-react';
 
 const G = '#1A4D2E';
@@ -99,20 +100,16 @@ function Modal({ onClose, title, children, wide }) {
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ position: 'fixed', inset: 0, zIndex: 100000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
       <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(15, 23, 42, 0.75)', backdropFilter: 'blur(8px)' }} onClick={onClose} />
       <motion.div 
-        initial={{ scale: 0.95, opacity: 0, y: 20 }}
-        animate={{ scale: 1, opacity: 1, y: 0 }}
-        style={{ 
-          position: 'relative', backgroundColor: '#fff', borderRadius: 24, padding: 32, 
-          width: `min(100%,${wide ? '840px' : '580px'})`, zIndex: 100001, 
-          maxHeight: 'min(90vh, 900px)', overflowY: 'auto', 
-          boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
-          border: '1px solid #E2E8F0'
-        }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 }}>
-          <h3 style={{ fontSize: 22, fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#0F172A', margin: 0 }}>{title}</h3>
-          <button onClick={onClose} style={{ background: '#F1F5F9', border: 'none', cursor: 'pointer', color: '#64748B', padding: 8, borderRadius: 12, transition: 'all 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = '#E2E8F0'} onMouseLeave={e => e.currentTarget.style.background = '#F1F5F9'}><X size={20} /></button>
+        initial={{ scale: 0.95, opacity: 0 }} 
+        animate={{ scale: 1, opacity: 1 }} 
+        exit={{ scale: 0.95, opacity: 0 }}
+        style={{ position: 'relative', background: '#fff', borderRadius: 20, width: '100%', maxWidth: wide ? 1000 : 540, maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', border: '1px solid #E2E8F0' }}
+      >
+        <div style={{ position: 'sticky', top: 0, background: '#fff', padding: '20px 24px', borderBottom: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 10 }}>
+          <h2 style={{ fontSize: 20, fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: G, margin: 0 }}>{title}</h2>
+          <button onClick={onClose} style={{ background: '#F1F5F9', border: 'none', width: 32, height: 32, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#64748B' }}><X size={18} /></button>
         </div>
-        {children}
+        <div style={{ padding: 24 }}>{children}</div>
       </motion.div>
     </motion.div>
   );
@@ -296,29 +293,20 @@ function DashboardSection() {
 
   useEffect(() => {
     let cancelled = false;
-    async function load() {
-      setLoading(true);
-      try {
-        const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('Request timeout')), 10000));
-        const [s, o] = await Promise.race([
-          Promise.all([api.get('/admin/stats'), api.get('/admin/orders')]),
-          timeout
-        ]);
-        if (!cancelled) {
-          setStats(s);
-          setRecentOrders((o.orders || []).slice(0, 6));
-        }
-      } catch (err) {
-        if (!cancelled) {
-          console.warn('Admin stats load failed:', err.message);
-          setStats({ totalUsers: 0, totalOrders: 0, revenue: 0, pending: 0, newThisWeek: 0 });
-          setRecentOrders([]);
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
-    load();
+    setLoading(true);
+
+    const withTimeout = (p, ms) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))]);
+
+    // Load stats and orders independently so one slow call doesn't block the other
+    withTimeout(api.get('/admin/stats'), 15000)
+      .then(s => { if (!cancelled) setStats(s); })
+      .catch(err => { if (!cancelled) { console.warn('Stats load failed:', err.message); setStats({ totalUsers: 0, totalOrders: 0, revenue: 0, pending: 0, newThisWeek: 0 }); } });
+
+    withTimeout(api.get('/admin/orders'), 15000)
+      .then(o => { if (!cancelled) setRecentOrders((o.orders || []).slice(0, 6)); })
+      .catch(() => { if (!cancelled) setRecentOrders([]); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+
     return () => { cancelled = true; };
   }, [refreshKey]);
 
@@ -413,6 +401,7 @@ function ProductsSection() {
   const [editForm, setEditForm] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [activeTab, setActiveTab] = useState('all'); // 'all', 'featured'
 
   const emptyForm = { name: '', slug: '', cat: '', description: '', price: '', img: '', featured: false, boxType: '', material: '', finish: '', dimL: '', dimW: '', dimH: '', minQty: '', addons: [], customIndustry: '' };
   // Helper: parse stored dims string like "10×8×4 in" into parts
@@ -586,15 +575,23 @@ function ProductsSection() {
     }
   };
 
-  const filtered = products.filter(p =>
-    p.name.toLowerCase().includes(search.toLowerCase()) ||
-    (p.cat || '').toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = products.filter(p => {
+    const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase()) || (p.cat || '').toLowerCase().includes(search.toLowerCase());
+    if (activeTab === 'featured') return matchesSearch && p.featured;
+    return matchesSearch;
+  });
 
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
-        <h2 style={{ fontSize: 22, fontFamily: 'Outfit,sans-serif', fontWeight: 700 }}>Products Management</h2>
+        <div style={{ display: 'flex', gap: 24, borderBottom: '1px solid #E2DDD6', paddingBottom: 0 }}>
+          {['all', 'featured'].map(tab => (
+            <button key={tab} onClick={() => setActiveTab(tab)}
+              style={{ padding: '12px 4px', background: 'none', border: 'none', borderBottom: `2px solid ${activeTab === tab ? G : 'transparent'}`, color: activeTab === tab ? G : '#64748B', fontWeight: 700, fontSize: 15, cursor: 'pointer', textTransform: 'capitalize', transition: 'all 0.2s' }}>
+              {tab === 'all' ? 'All Products' : 'Featured'} ({tab === 'all' ? products.length : products.filter(p => p.featured).length})
+            </button>
+          ))}
+        </div>
         <button onClick={() => setEditForm(emptyForm)}
           style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: '#fff', background: G, border: 'none', borderRadius: 8, padding: '9px 18px', cursor: 'pointer' }}>
           <Plus size={14} /> Add Product
@@ -1020,6 +1017,95 @@ function IndustriesSection() {
 }
 
 // ── Orders ────────────────────────────────────────────────────────────────────
+// ── Map Component ────────────────────────────────────────────────────────────
+function CustomerMap({ orders, selectedOrder, mode, onModeChange }) {
+  const markers = (mode === 'All' ? orders : (selectedOrder ? [selectedOrder] : []))
+    .filter(o => o.userLocation?.lat && o.userLocation?.lng)
+    .map(o => ({
+      id: o._id,
+      position: [o.userLocation.lat, o.userLocation.lng],
+      name: o.userName,
+      orderId: o.id || o.orderId,
+      address: o.fullAddress || o.address,
+      status: o.status,
+    }));
+
+  const getPinColor = (status) => {
+    switch (status) {
+      case 'Processing': return '#EAB308'; // Yellow
+      case 'Shipped': return '#3B82F6';    // Blue
+      case 'Delivered': return '#22C55E';  // Green
+      case 'Cancelled': return '#EF4444';  // Red
+      default: return '#94A3B8';
+    }
+  };
+
+  function MapFocus() {
+    const map = useMap();
+    useEffect(() => {
+      if (selectedOrder?.userLocation?.lat && mode === 'Selected') {
+        map.setView([selectedOrder.userLocation.lat, selectedOrder.userLocation.lng], 13);
+      } else if (mode === 'All' && markers.length > 0) {
+        const bounds = L.latLngBounds(markers.map(m => m.position));
+        map.fitBounds(bounds, { padding: [50, 50] });
+      }
+    }, [selectedOrder, mode, map]);
+    return null;
+  }
+
+  return (
+    <div style={{ position: 'relative', borderRadius: 20, overflow: 'hidden', border: '1px solid #E2E8F0', height: 440, background: '#F8FAFC', marginBottom: 24 }}>
+      <div style={{ position: 'absolute', top: 16, right: 16, zIndex: 1000, display: 'flex', background: '#fff', borderRadius: 10, padding: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', border: '1px solid #E2E8F0' }}>
+        <button 
+          onClick={() => onModeChange('All')}
+          style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: mode === 'All' ? G : 'transparent', color: mode === 'All' ? '#fff' : '#64748B', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, transition: 'all 0.2s' }}
+        >
+          <Layers size={14} /> All Markets
+        </button>
+        <button 
+          onClick={() => onModeChange('Selected')}
+          disabled={!selectedOrder}
+          style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: mode === 'Selected' ? G : 'transparent', color: mode === 'Selected' ? '#fff' : (selectedOrder ? '#64748B' : '#CBD5E1'), fontSize: 12, fontWeight: 700, cursor: selectedOrder ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', gap: 8, transition: 'all 0.2s' }}
+        >
+          <MapPin size={14} /> Focus Selection
+        </button>
+      </div>
+
+      <MapContainer center={[39.8283, -98.5795]} zoom={4} zoomControl={false} style={{ height: '100%', width: '100%', zIndex: 1 }}>
+        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+        <ZoomControl position="bottomright" />
+        <MapFocus />
+        
+        <MarkerClusterGroup>
+          {markers.map(m => (
+            <Marker 
+              key={m.id} 
+              position={m.position}
+              icon={L.divIcon({
+                className: 'custom-pin',
+                html: `<div style="background: ${getPinColor(m.status)}; width: 14px; height: 14px; border-radius: 50%; border: 2.5px solid white; box-shadow: 0 3px 6px rgba(0,0,0,0.2);"></div>`,
+                iconSize: [14, 14],
+                iconAnchor: [7, 7]
+              })}
+            >
+              <Popup>
+                <div style={{ minWidth: 180, padding: 2 }}>
+                  <p style={{ margin: '0 0 6px', fontWeight: 800, color: G, fontSize: 14 }}>{m.name}</p>
+                  <p style={{ margin: '0 0 10px', fontSize: 11, color: '#64748B', fontFamily: 'monospace' }}>ID: {m.orderId}</p>
+                  <div style={{ marginBottom: 12 }}><Badge status={m.status} /></div>
+                  <div style={{ fontSize: 12, color: '#334155', borderTop: '1px solid #F1F5F9', paddingTop: 8, lineHeight: 1.4 }}>
+                    <MapPin size={10} style={{ marginRight: 4, opacity: 0.5 }} /> {m.address}
+                  </div>
+                </div>
+              </Popup>
+            </Marker>
+          ))}
+        </MarkerClusterGroup>
+      </MapContainer>
+    </div>
+  );
+}
+
 function OrdersSection() {
   const { showToast } = useToast();
   const [orders, setOrders] = useState([]);
@@ -1028,6 +1114,7 @@ function OrdersSection() {
   const [filter, setFilter] = useState('All');
   const [selected, setSelected] = useState(null);
   const [editTracking, setEditTracking] = useState('');
+  const [mapMode, setMapMode] = useState('All');
 
   async function load() {
     setLoading(true);
@@ -1070,45 +1157,91 @@ function OrdersSection() {
   }, []);
 
   const handleStatusChange = async (order, status) => {
+    const current = order.status;
+    const allowed = {
+      'Processing': ['Shipped', 'Cancelled'],
+      'Shipped': ['Delivered'],
+      'Delivered': [],
+      'Cancelled': []
+    };
+
+    if (status !== current && !allowed[current].includes(status)) {
+      showToast(`Invalid transition: Cannot move from ${current} to ${status}.`, 'error');
+      return;
+    }
+
     if (status === 'Shipped' && !order.tracking && !editTracking) {
-      showToast('Please add a tracking number before marking as Shipped.', 'warning');
+      showToast('Please enter a tracking number before marking as Shipped.', 'warning');
       setSelected(order);
       return;
     }
+
+    // Optimistic Update
+    const previousOrders = [...orders];
+    setOrders(prev => prev.map(o => o._id === order._id ? { ...o, status } : o));
+    if (selected?._id === order._id) setSelected(prev => ({ ...prev, status }));
+
     try {
       if (order.userId && order._id) {
-        await api.put(`/admin/orders/${order.userId}/${order._id}`, { status });
+        await api.put(`/admin/orders/${order.userId}/${order._id}`, { 
+          status,
+          tracking: status === 'Shipped' ? editTracking : undefined 
+        });
       }
-      if (selected?._id === order._id) setSelected(prev => ({ ...prev, status }));
-      showToast('Order status updated', 'success');
-      load();
-    } catch (e) { showToast(e.message, 'error'); }
+      showToast('Status updated and tracking email sent.', 'success');
+      // No need to call full load() if we updated state correctly
+    } catch (e) { 
+      // Rollback on error
+      setOrders(previousOrders);
+      if (selected?._id === order._id) setSelected(order);
+      showToast(e.message, 'error'); 
+    }
   };
 
   const handleSaveTracking = async () => {
     if (!selected) return;
+    const previousOrders = [...orders];
+    const updatedTracking = editTracking;
+
+    // Optimistic Update
+    setOrders(prev => prev.map(o => o._id === selected._id ? { ...o, tracking: updatedTracking } : o));
+    setSelected(prev => ({ ...prev, tracking: updatedTracking }));
+
     try {
       if (selected.userId && selected._id) {
-        await api.put(`/admin/orders/${selected.userId}/${selected._id}`, { tracking: editTracking });
+        await api.put(`/admin/orders/${selected.userId}/${selected._id}`, { tracking: updatedTracking });
       }
-      setSelected(prev => ({ ...prev, tracking: editTracking }));
       showToast('Tracking updated', 'success');
-      load();
-    } catch (e) { showToast(e.message, 'error'); }
+    } catch (e) {
+      // Rollback
+      setOrders(previousOrders);
+      setSelected(selected);
+      showToast(e.message, 'error');
+    }
   };
 
   const exportCSV = () => {
     const rows = [['Order ID', 'Customer', 'Email', 'Product', 'Qty', 'Status', 'Total', 'Date']];
-    orders.forEach(o => rows.push([o.id || o.orderId, o.userName, o.userEmail, o.product, o.qty, o.status, o.total, o.date || '']));
+    orders.forEach(o => {
+      const qty = (o.items && Array.isArray(o.items)) ? o.items.reduce((s, it) => s + (it?.quantity || it?.qty || 1), 0) : o.qty || 0;
+      rows.push([o.id || o.orderId, o.userName, o.userEmail, o.product || (o.items && o.items[0]?.name) || '', qty, o.status, o.total, o.createdAt ? new Date(o.createdAt).toLocaleDateString() : '']);
+    });
     const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
     const a = document.createElement('a'); a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv); a.download = 'orders.csv'; a.click();
   };
 
   const filtered = orders.filter(o => {
-    const matchSearch = !search || [o.id, o.orderId, o.userName, o.userEmail, o.product].some(v => v && String(v).toLowerCase().includes(search.toLowerCase()));
+    const matchSearch = !search || [o.id, o.orderId, o.userName, o.userEmail, o.product, o.fullAddress].some(v => v && String(v).toLowerCase().includes(search.toLowerCase()));
     const matchFilter = filter === 'All' || o.status === filter;
-    return matchSearch && matchFilter;
+    const matchMapMode = mapMode === 'All' || (selected && o._id === selected._id);
+    return matchSearch && matchFilter && matchMapMode;
   });
+
+  const handleViewOrder = (order) => {
+    setSelected(order);
+    setEditTracking(order.tracking || '');
+    setMapMode('Selected');
+  };
 
   return (
     <div>
@@ -1119,6 +1252,13 @@ function OrdersSection() {
           <button onClick={exportCSV} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: '#fff', background: G, border: 'none', borderRadius: 8, padding: '7px 16px', cursor: 'pointer' }}><Download size={13} /> Export CSV</button>
         </div>
       </div>
+
+      <CustomerMap 
+        orders={orders} 
+        selectedOrder={selected} 
+        mode={mapMode} 
+        onModeChange={setMapMode} 
+      />
 
       <div style={{ display: 'flex', gap: 12, marginBottom: 18, flexWrap: 'wrap', alignItems: 'center' }}>
         <div style={{ position: 'relative', flex: 1, minWidth: 220 }}>
@@ -1161,7 +1301,7 @@ function OrdersSection() {
                       <div style={{ fontSize: 11, color: '#888' }}>{o.userEmail}</div>
                     </td>
                     <td style={{ padding: '12px 14px', fontSize: 12, color: '#555' }}>
-                      {(o.items && o.items.length > 0) ? (
+                      {(o.items && Array.isArray(o.items) && o.items.length > 0) ? (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                           <span style={{ fontWeight: 600, color: '#333' }}>{o.items[0].name}</span>
                           {o.items.length > 1 && <span style={{ fontSize: 10, color: '#999' }}>+{o.items.length - 1} items</span>}
@@ -1170,19 +1310,25 @@ function OrdersSection() {
                         o.product || 'Custom Design'
                       )}
                     </td>
-                    <td style={{ padding: '12px 14px', fontSize: 12, color: '#555' }}>{o.qty}</td>
+                    <td style={{ padding: '12px 14px', fontSize: 12, color: '#555' }}>{(o.items && Array.isArray(o.items)) ? o.items.reduce((s, it) => s + (it?.quantity || it?.qty || 1), 0) : o.qty || 0}</td>
                     <td style={{ padding: '12px 14px' }}><Badge status={o.status} /></td>
                     <td style={{ padding: '12px 14px', fontSize: 13, fontWeight: 700 }}>${(+o.total || 0).toFixed(2)}</td>
-                    <td style={{ padding: '12px 14px', fontSize: 11, color: '#888', whiteSpace: 'nowrap' }}>{o.date || '—'}</td>
+                    <td style={{ padding: '12px 14px', fontSize: 11, color: '#888', whiteSpace: 'nowrap' }}>{o.createdAt ? new Date(o.createdAt).toLocaleDateString() : '—'}</td>
                     <td style={{ padding: '12px 14px' }}>
                       <div style={{ display: 'flex', gap: 6 }}>
-                        <button onClick={() => { setSelected(o); setEditTracking(o.tracking || ''); }}
+                        <button onClick={() => handleViewOrder(o)}
                           style={{ padding: '5px 10px', borderRadius: 6, border: `1px solid ${G}`, color: G, background: 'none', fontSize: 11, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
                           <Eye size={11} /> View
                         </button>
                         <select value={o.status} onChange={e => handleStatusChange(o, e.target.value)}
-                          style={{ padding: '5px 8px', borderRadius: 6, border: '1px solid #E2DDD6', fontSize: 11, fontWeight: 700, cursor: 'pointer', color: '#555' }}>
-                          {['Processing', 'Shipped', 'Delivered', 'Cancelled'].map(s => <option key={s} value={s}>{s}</option>)}
+                          disabled={['Delivered', 'Cancelled'].includes(o.status)}
+                          style={{ padding: '5px 8px', borderRadius: 6, border: '1px solid #E2DDD6', fontSize: 11, fontWeight: 700, cursor: (o.status === 'Delivered' || o.status === 'Cancelled') ? 'default' : 'pointer', color: '#555', opacity: (o.status === 'Delivered' || o.status === 'Cancelled') ? 0.7 : 1 }}>
+                          {['Processing', 'Shipped', 'Delivered', 'Cancelled'].map(s => {
+                            const allowed = { 'Processing': ['Shipped', 'Cancelled'], 'Shipped': ['Delivered'], 'Delivered': [], 'Cancelled': [] };
+                            const isNext = (allowed[o.status] || []).includes(s);
+                            const isCurrent = o.status === s;
+                            return <option key={s} value={s} disabled={!isNext && !isCurrent}>{s}</option>;
+                          })}
                         </select>
                       </div>
                     </td>
@@ -1201,13 +1347,16 @@ function OrdersSection() {
               { label: 'Order ID', value: selected.id || selected.orderId, break: true },
               { label: 'Customer', value: selected.userName },
               { label: 'Email', value: selected.userEmail, break: true },
-              { label: 'Product', value: (selected.items && selected.items.length > 0) ? selected.items.map(i => i.name).join(', ') : selected.product },
-              { label: 'Quantity', value: `${selected.qty} units` },
+              { label: 'Product', value: (selected.items && Array.isArray(selected.items) && selected.items.length > 0) ? selected.items.map(i => i.name).join(', ') : selected.product },
+              { label: 'Quantity', value: `${(selected.items && Array.isArray(selected.items)) ? selected.items.reduce((s, it) => s + (it?.quantity || it?.qty || 1), 0) : selected.qty || 0} units` },
               { label: 'Total', value: `$${(+selected.total || 0).toFixed(2)}` },
-              { label: 'Date', value: selected.date || '—' },
-              { label: 'Address', value: selected.address || '—' },
+              { label: 'Processing Date', value: selected.createdAt ? new Date(selected.createdAt).toLocaleDateString() : '—' },
+              selected.shippedDate && { label: 'Shipped On', value: new Date(selected.shippedDate).toLocaleDateString() },
+              selected.deliveredDate && { label: 'Delivered On', value: new Date(selected.deliveredDate).toLocaleDateString() },
+              selected.cancelledDate && { label: 'Cancelled On', value: new Date(selected.cancelledDate).toLocaleDateString() },
+              { label: 'Address', value: selected.address || selected.fullAddress || '—' },
               { label: 'Status', value: <Badge status={selected.status} /> },
-            ].map((item) => (
+            ].filter(Boolean).map((item) => (
               <div key={item.label} style={{ background: BG, borderRadius: 10, padding: '12px 14px', wordBreak: item.break ? 'break-all' : 'normal' }}>
                 <p style={{ fontSize: 10, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 4px' }}>{item.label}</p>
                 <div style={{ fontSize: 13, fontWeight: 600, color: '#1A1A1A' }}>{item.value}</div>
@@ -1262,14 +1411,52 @@ function OrdersSection() {
 
           <div>
             <label style={{ fontSize: 11, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 8 }}>Update Status</label>
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              {['Processing', 'Shipped', 'Delivered', 'Cancelled'].map(s => (
-                <button key={s} onClick={() => handleStatusChange(selected, s)}
-                  style={{ padding: '8px 16px', borderRadius: 8, border: `1.5px solid ${selected.status === s ? G : '#E2DDD6'}`, background: selected.status === s ? G : '#fff', color: selected.status === s ? '#fff' : '#555', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
-                  {s}
-                </button>
-              ))}
-            </div>
+            {['Delivered', 'Cancelled'].includes(selected.status) ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', background: '#F8FAFC', borderRadius: 12, border: '1px solid #E2E8F0' }}>
+                <Badge status={selected.status} />
+                <span style={{ fontSize: 13, color: '#64748B', fontWeight: 500 }}>This order is {selected.status.toLowerCase()} and cannot be modified.</span>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                {['Processing', 'Shipped', 'Delivered', 'Cancelled'].map(s => {
+                  const current = selected.status;
+                  const allowed = {
+                    'Processing': ['Shipped', 'Cancelled'],
+                    'Shipped': ['Delivered'],
+                    'Delivered': [],
+                    'Cancelled': []
+                  };
+                  const isNext = (allowed[current] || []).includes(s);
+                  const isCurrent = current === s;
+                  
+                  return (
+                    <button 
+                      key={s} 
+                      disabled={!isNext && !isCurrent}
+                      onClick={() => handleStatusChange(selected, s)}
+                      style={{ 
+                        padding: '8px 16px', 
+                        borderRadius: 8, 
+                        border: `1.5px solid ${isCurrent ? G : (isNext ? '#E2DDD6' : '#F1F5F9')}`, 
+                        background: isCurrent ? G : '#fff', 
+                        color: isCurrent ? '#fff' : (isNext ? '#555' : '#CBD5E1'), 
+                        fontSize: 12, 
+                        fontWeight: 700, 
+                        cursor: isNext ? 'pointer' : 'default',
+                        opacity: (isNext || isCurrent) ? 1 : 0.6
+                      }}
+                    >
+                      {s}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+            {selected.status === 'Processing' && !editTracking && (
+              <p style={{ fontSize: 11, color: '#C8860A', marginTop: 8, fontWeight: 600 }}>
+                💡 Tip: Add a tracking number before marking as Shipped.
+              </p>
+            )}
           </div>
         </Modal>
       )}
@@ -1285,27 +1472,8 @@ function UsersSection() {
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
-  const [showMap, setShowMap] = useState(false);
-  const [mapUser, setMapUser] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [activeTab, setActiveTab] = useState('all'); // 'all', 'users', or 'admins'
-
-  // Extract all addresses and login locations for the map
-  const allAddresses = (users || []).flatMap(u => {
-    const locs = (u.addresses || []).map(a => ({ 
-      user: u.name, 
-      full: `${a.street || ''}, ${a.city}, ${a.state} ${a.zip}, ${a.country}`,
-      type: 'Address'
-    }));
-    if (u.lastLocation && u.lastLocation.city) {
-      locs.push({
-        user: u.name,
-        full: `${u.lastLocation.city}, ${u.lastLocation.country}`,
-        type: 'Login'
-      });
-    }
-    return locs;
-  });
 
   const load = async (signal = { cancelled: false }) => {
     if (!signal.cancelled) setLoading(true);
@@ -1349,7 +1517,7 @@ function UsersSection() {
       return;
     }
     try {
-      if (user._id) await api.put(`/admin/users/${user._id}`, { role });
+      if (user._id) await api.put(`/admin/users/${user._id}/role`, { role });
       showToast('Role updated', 'success');
       load();
     } catch (e) { showToast(e.message, 'error'); }
@@ -1366,7 +1534,7 @@ function UsersSection() {
 
   const exportCSV = () => {
     const rows = [['Name', 'Email', 'Phone', 'Role', 'Orders', 'Loyalty Points', 'Joined']];
-    users.forEach(u => rows.push([u.name, u.email, u.phone || '', u.role, (u.orders || []).length, u.loyaltyPoints || 0, u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '']));
+    users.forEach(u => rows.push([u.name, u.email, u.phone || '', u.role, u.orderCount || 0, u.loyaltyPoints || 0, u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '']));
     const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
     const a = document.createElement('a'); a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv); a.download = 'users.csv'; a.click();
   };
@@ -1394,9 +1562,6 @@ function UsersSection() {
           ))}
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
-          <button onClick={() => setShowMap(true)} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: G, background: 'none', border: `1px solid ${G}`, borderRadius: 8, padding: '7px 14px', cursor: 'pointer' }}>
-            <MapPin size={13} /> Map
-          </button>
           <button onClick={() => setRefreshKey(k => k + 1)} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: G, background: 'none', border: `1px solid ${G}`, borderRadius: 8, padding: '7px 14px', cursor: 'pointer' }}>
             <RefreshCw size={13} />
           </button>
@@ -1405,46 +1570,6 @@ function UsersSection() {
           </button>
         </div>
       </div>
-
-      {showMap && (
-        <Modal onClose={() => { setShowMap(false); setMapAddress(null); }} title="Customer Distribution Map" wide>
-          <p style={{ fontSize: 13, color: '#666', marginBottom: 16 }}>Showing {allAddresses.length} saved addresses. Click an address below to focus the map.</p>
-          <div style={{ height: 450, borderRadius: 12, overflow: 'hidden', border: '1px solid #E2DDD6', position: 'relative' }}>
-            {allAddresses.length > 0 ? (
-              <iframe
-                title="Customer Map"
-                src={`https://www.google.com/maps?q=${encodeURIComponent((mapAddress || allAddresses[0]?.full)?.replace(/,\s*United States$/i, ''))}&t=&z=${mapAddress ? 14 : 4}&ie=UTF8&iwloc=B&output=embed`}
-                width="100%" height="100%" style={{ border: 0 }}
-              />
-            ) : (
-              <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8f8f8', color: '#aaa' }}>
-                No customer locations found
-              </div>
-            )}
-            <div style={{ position: 'absolute', bottom: 16, right: 16, background: '#fff', padding: '10px 16px', borderRadius: 8, boxShadow: '0 4px 12px rgba(0,0,0,0.1)', fontSize: 11, color: '#666', maxWidth: 200 }}>
-              Showing {allAddresses.length} customer locations.
-            </div>
-          </div>
-          <div style={{ marginTop: 16, maxHeight: 150, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 4 }}>
-              {allAddresses.map((a, i) => (
-                <div key={i} 
-                  onClick={() => setMapAddress(a.full)}
-                  style={{ 
-                    fontSize: 11, padding: '8px 12px', background: mapAddress === a.full ? `${G}10` : '#f8f8f8', 
-                    borderRadius: 6, display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                    cursor: 'pointer', border: `1px solid ${mapAddress === a.full ? G : 'transparent'}`,
-                    transition: 'all 0.2s'
-                  }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ padding: '2px 6px', borderRadius: 4, background: a.type === 'Login' ? '#DBEAFE' : '#D1FAE5', color: a.type === 'Login' ? '#1E40AF' : '#065F46', fontSize: 9, fontWeight: 800 }}>{a.type}</span>
-                    <span style={{ fontWeight: 700 }}>{a.user}</span>
-                  </div>
-                  <span style={{ color: '#666' }}>{a.full}</span>
-                </div>
-              ))}
-          </div>
-        </Modal>
-      )}
 
       <div style={{ position: 'relative', marginBottom: 16 }}>
         <Search size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#aaa' }} />
@@ -1511,7 +1636,7 @@ function UsersSection() {
                         <RoleBadge role={u.role} />
                       </div>
                     </td>
-                    <td style={{ padding: '12px 14px', fontSize: 13, fontWeight: 600, color: '#1A1A1A' }}>{(u.orders || []).length}</td>
+                    <td style={{ padding: '12px 14px', fontSize: 13, fontWeight: 600, color: '#1A1A1A' }}>{u.orderCount || 0}</td>
                     <td style={{ padding: '12px 14px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Star size={12} color={ACCENT} style={{ fill: ACCENT }} /><span style={{ fontSize: 13, fontWeight: 600 }}>{u.loyaltyPoints || 0}</span></div>
                     </td>
@@ -1521,10 +1646,6 @@ function UsersSection() {
                         <button onClick={() => setSelected(u)}
                           style={{ padding: '5px 10px', borderRadius: 6, border: `1px solid ${G}`, color: G, background: 'none', fontSize: 11, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
                           <Eye size={11} /> View
-                        </button>
-                        <button onClick={() => setMapUser(u)}
-                          style={{ padding: '5px 10px', borderRadius: 6, border: '1px solid #E2DDD6', color: '#555', background: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
-                          <MapPin size={11} color={ACCENT} />
                         </button>
                         {u.role !== 'super_admin' && (
                           <button onClick={() => setDeleteConfirm(u)}
@@ -1550,7 +1671,7 @@ function UsersSection() {
               { icon: <Phone size={14} />, label: 'Phone', value: selected.phone || '—' },
               { icon: <Shield size={14} />, label: 'Role', value: selected.role },
               { icon: <Star size={14} />, label: 'Loyalty Points', value: selected.loyaltyPoints || 0 },
-              { icon: <ShoppingBag size={14} />, label: 'Orders', value: (selected.orders || []).length },
+              { icon: <ShoppingBag size={14} />, label: 'Orders', value: selected.orderCount || 0 },
               { icon: <Calendar size={14} />, label: 'Member Since', value: selected.createdAt ? new Date(selected.createdAt).toLocaleDateString() : '—' },
             ].map(({ icon, label, value }) => (
               <div key={label} style={{ background: BG, borderRadius: 10, padding: '12px 14px', display: 'flex', alignItems: 'flex-start', gap: 10 }}>
@@ -1607,43 +1728,6 @@ function UsersSection() {
               <button onClick={() => setDeleteConfirm(null)} style={{ padding: '10px 24px', background: '#fff', border: '1px solid #E2DDD6', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>Cancel</button>
               <button onClick={() => handleDelete(deleteConfirm)} style={{ padding: '10px 24px', background: '#DC2626', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>Delete User</button>
             </div>
-          </div>
-        </Modal>
-      )}
-
-      {mapUser && (
-        <Modal onClose={() => setMapUser(null)} title={`Location — ${mapUser.name}`}>
-          <div style={{ padding: '4px 0' }}>
-            {mapUser.addresses && mapUser.addresses.length > 0 ? (
-              <>
-                <div style={{ marginBottom: 16, padding: '12px 14px', background: BG, borderRadius: 10 }}>
-                  <p style={{ fontSize: 13, fontWeight: 700, color: G, margin: '0 0 4px' }}>Saved Shipping Address</p>
-                  <p style={{ fontSize: 12, color: '#555', margin: 0 }}>
-                    {mapUser.addresses[0].street ? mapUser.addresses[0].street + ', ' : ''}
-                    {mapUser.addresses[0].city}, {mapUser.addresses[0].state || ''} {mapUser.addresses[0].zip || ''}
-                    {mapUser.addresses[0].country ? ', ' + mapUser.addresses[0].country : ''}
-                  </p>
-                </div>
-                <div style={{ height: 400, borderRadius: 12, overflow: 'hidden', border: '1px solid #E2DDD6' }}>
-                  <iframe 
-                    width="100%" height="100%" frameBorder="0" style={{ border: 0 }}
-                    src={`https://www.google.com/maps?q=${encodeURIComponent(
-                      (mapUser.addresses[0].street ? mapUser.addresses[0].street + ' ' : '') + 
-                      mapUser.addresses[0].city + ' ' + 
-                      (mapUser.addresses[0].state || '') + ' ' + 
-                      (mapUser.addresses[0].country || '')
-                    )}&t=&z=14&ie=UTF8&iwloc=B&output=embed`}
-                    allowFullScreen>
-                  </iframe>
-                </div>
-              </>
-            ) : (
-              <div style={{ padding: 60, textAlign: 'center', background: BG, borderRadius: 12 }}>
-                <MapPin size={32} color="#aaa" style={{ marginBottom: 12 }} />
-                <p style={{ fontSize: 14, fontWeight: 600, color: '#666' }}>No saved addresses found for this user.</p>
-                <p style={{ fontSize: 12, color: '#999', marginTop: 4 }}>Locations are only shown for users with saved shipping details.</p>
-              </div>
-            )}
           </div>
         </Modal>
       )}
@@ -1772,7 +1856,7 @@ function QuotesSection() {
             <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
               {['Reviewing', 'Quoted', 'Accepted', 'Rejected'].map(s => (
                 <button key={s} onClick={() => handleUpdateQuote(selected, { status: s, quotedPrice: priceInput })}
-                  style={{ flex: 1, minWidth: 80, padding: '9px', background: s === 'Quoted' ? G : '#fff', color: s === 'Quoted' ? '#fff' : '#555', border: `1.5px solid ${s === 'Quoted' ? G : '#E2DDD6'}`, borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+                  style={{ flex: 1, minWidth: 80, padding: '9px', background: selected.status === s ? G : '#fff', color: selected.status === s ? '#fff' : '#555', border: `1.5px solid ${selected.status === s ? G : '#E2DDD6'}`, borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
                   {s}
                 </button>
               ))}
@@ -1830,6 +1914,7 @@ function MessagesSection() {
 
   const handleSendReply = async () => {
     if (!replyText.trim()) return showToast('Please enter a reply', 'error');
+    if (!window.confirm(`Are you sure you want to send this reply to ${replyingTo.email}?`)) return;
     setIsSendingReply(true);
     try {
       await api.post(`/admin/messages/${replyingTo._id}/reply`, { replyMessage: replyText });

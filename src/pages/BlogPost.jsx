@@ -65,7 +65,7 @@ export default function BlogPost() {
   return (
     <div style={{ backgroundColor: BG, minHeight: '100vh', paddingBottom: 120 }}>
       {/* Hero Section */}
-      <section style={{ position: 'relative', height: '60vh', minHeight: 450, overflow: 'hidden' }}>
+      <section style={{ position: 'relative', height: 500, overflow: 'hidden' }}>
         <motion.img 
           initial={{ scale: 1.1 }} 
           animate={{ scale: 1 }} 
@@ -113,7 +113,7 @@ export default function BlogPost() {
             <div 
               style={{ 
                 fontSize: 18, lineHeight: 1.9, color: '#333', fontFamily: '"DM Sans", sans-serif',
-                display: 'flex', flexDirection: 'column', gap: 28
+                display: 'flex', flexDirection: 'column', gap: 28, textAlign: 'justify'
               }}
               className="blog-content-html"
               dangerouslySetInnerHTML={{ __html: post.content || '<p>Content coming soon...</p>' }}
@@ -121,38 +121,10 @@ export default function BlogPost() {
 
             <hr style={{ margin: '60px 0', border: 'none', borderTop: '1px solid #E8E4DC' }} />
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 24 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <p style={{ fontWeight: 700, color: G, margin: 0 }}>Share this article:</p>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  {[
-                    { icon: <FacebookIcon size={18} />, color: '#1877F2' },
-                    { icon: <TwitterIcon size={18} />, color: '#1DA1F2' },
-                    { icon: <LinkedinIcon size={18} />, color: '#0A66C2' },
-                  ].map((s, i) => (
-                    <button key={i} style={{ 
-                      width: 40, height: 40, borderRadius: '50%', border: '1px solid #E8E4DC', 
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', 
-                      backgroundColor: '#fff', color: s.color, cursor: 'pointer', transition: 'all 0.2s'
-                    }} onMouseEnter={e => e.currentTarget.style.backgroundColor = '#f9f9f9'} onMouseLeave={e => e.currentTarget.style.backgroundColor = '#fff'}>
-                      {s.icon}
-                    </button>
-                  ))}
-                  <button style={{ 
-                    width: 40, height: 40, borderRadius: '50%', border: '1px solid #E8E4DC', 
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', 
-                    backgroundColor: '#fff', color: '#666', cursor: 'pointer'
-                  }}>
-                    <Share2 size={18} />
-                  </button>
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                {['Packaging', 'Branding', 'Design', 'Marketing'].map(tag => (
-                  <span key={tag} style={{ backgroundColor: '#F5F2ED', padding: '6px 16px', borderRadius: 100, fontSize: 13, color: '#666', fontWeight: 600 }}>#{tag}</span>
-                ))}
-              </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
+              {['Packaging', 'Branding', 'Design', 'Marketing'].map(tag => (
+                <span key={tag} style={{ backgroundColor: '#F5F2ED', padding: '6px 16px', borderRadius: 100, fontSize: 13, color: '#666', fontWeight: 600 }}>#{tag}</span>
+              ))}
             </div>
           </div>
 

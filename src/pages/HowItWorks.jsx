@@ -56,9 +56,6 @@ export default function HowItWorks() {
               </p>
               <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
                 <Link to="/custom-box" style={{ padding: '18px 40px', background: ACCENT, color: '#fff', borderRadius: 12, fontWeight: 700, textDecoration: 'none', boxShadow: `0 20px 40px rgba(200,134,10,0.3)` }}>Start Designing</Link>
-                <button onClick={() => window.scrollTo({ top: 900, behavior: 'smooth' })} style={{ padding: '18px 40px', background: 'rgba(255,255,255,0.1)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 12, fontWeight: 700, cursor: 'pointer', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', gap: 10 }}>
-                   <Play size={16} fill="white" /> Watch Process
-                </button>
               </div>
             </motion.div>
           </div>
@@ -159,24 +156,6 @@ export default function HowItWorks() {
         </div>
       </section>
 
-      {/* FAQ Mini */}
-      <section style={{ padding: '80px 24px 120px' }}>
-        <div className="max-w-4xl mx-auto">
-           <h3 style={{ fontSize: 28, fontWeight: 800, color: G, marginBottom: 40, textAlign: 'center' }}>Frequently Asked Questions</h3>
-           <div style={{ display: 'grid', gap: 16 }}>
-              {[
-                { q: "What is the minimum order quantity?", a: "Our minimums vary by box style but typically start as low as 10-25 units for digital printing, making it easy for small businesses to test new designs." },
-                { q: "Can I get a physical sample before full production?", a: "Yes! We offer physical sample prototypes for a nominal fee, which is often credited back to your full production order." },
-                { q: "Do you offer international shipping?", a: "We ship globally. Delivery times and costs vary by region, but we always provide fully tracked shipping options." }
-              ].map((faq, i) => (
-                <div key={i} style={{ background: '#F8F6F2', borderRadius: 16, padding: '24px 32px', border: '1px solid #EAE6E1' }}>
-                   <h4 style={{ fontSize: 16, fontWeight: 800, color: G, marginBottom: 10, display: 'flex', gap: 12 }}><Info size={18} color={ACCENT} /> {faq.q}</h4>
-                   <p style={{ fontSize: 14, color: '#666', lineHeight: 1.6, paddingLeft: 30 }}>{faq.a}</p>
-                </div>
-              ))}
-           </div>
-        </div>
-      </section>
 
       <CTABanner wave={false} />
 

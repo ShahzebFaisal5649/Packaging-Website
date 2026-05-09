@@ -49,15 +49,34 @@ function PaymentForm({ clientSecret, amount, checkoutItems }) {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [cardReady, setCardReady] = useState(false);
+  const [addressMode, setAddressMode] = useState('manual');
   const [form, setForm] = useState({
     name: user?.name || '',
     email: user?.email || '',
     address: '',
     city: '',
     zip: '',
+    state: '',
   });
 
   const handleChange = (e) => setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+
+  const handleAddressModeChange = (e) => {
+    const val = e.target.value;
+    setAddressMode(val);
+    if (val !== 'manual' && user?.addresses?.[parseInt(val)]) {
+      const addr = user.addresses[parseInt(val)];
+      setForm(prev => ({
+        ...prev,
+        address: addr.street || '',
+        city: addr.city || '',
+        zip: addr.zip || '',
+        state: addr.state || '',
+      }));
+    } else {
+      setForm(prev => ({ ...prev, address: '', city: '', zip: '', state: '' }));
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -89,6 +108,20 @@ function PaymentForm({ clientSecret, amount, checkoutItems }) {
       }
 
       if (paymentIntent?.status === 'succeeded') {
+        if (user && addressMode === 'manual' && form.address && form.city) {
+          try {
+            await api.post('/users/addresses', {
+              label: 'Saved from Checkout',
+              street: form.address,
+              city: form.city,
+              zip: form.zip,
+              state: form.state || '',
+              country: 'US',
+              isDefault: user.addresses?.length === 0
+            });
+          } catch(e) { console.warn("Failed to save address", e); }
+        }
+
         // Save order to MongoDB
         try {
           const orderData = {
@@ -100,6 +133,7 @@ function PaymentForm({ clientSecret, amount, checkoutItems }) {
               line1: form.address,
               city: form.city,
               postal_code: form.zip,
+              state: form.state || '',
             },
             paymentIntentId: paymentIntent.id,
           };
@@ -153,7 +187,17 @@ function PaymentForm({ clientSecret, amount, checkoutItems }) {
         </div>
       </div>
       <div style={{ marginBottom: 14 }}>
-        <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#555', marginBottom: 6 }}>Shipping Address</label>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+          <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#555' }}>Shipping Address</label>
+          {user?.addresses?.length > 0 && (
+            <select value={addressMode} onChange={handleAddressModeChange} style={{ fontSize: 11, padding: '2px 6px', borderRadius: 4, border: '1px solid #E0DBD3', outline: 'none' }}>
+              <option value="manual">Enter Manually</option>
+              {user.addresses.map((a, i) => (
+                <option key={i} value={i}>{a.label ? `${a.label} - ` : ''}{a.street}</option>
+              ))}
+            </select>
+          )}
+        </div>
         <input name="address" value={form.address} onChange={handleChange} placeholder="123 Main Street" style={{ ...inp, marginBottom: 10 }} onFocus={e => e.target.style.borderColor = G} onBlur={e => e.target.style.borderColor = '#E0DBD3'} />
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10 }}>
           <input name="city" value={form.city} onChange={handleChange} placeholder="City" style={inp} onFocus={e => e.target.style.borderColor = G} onBlur={e => e.target.style.borderColor = '#E0DBD3'} />

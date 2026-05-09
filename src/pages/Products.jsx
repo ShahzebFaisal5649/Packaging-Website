@@ -31,49 +31,137 @@ const CATEGORY_IMGS = {
   default: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=600&q=80',
 };
 
-const SidebarContent = ({ search, setSearch, activeCategory, setActiveCategory, allCategories, setSidebarOpen, ACCENT }) => (
-  <>
-    <div style={{ position: 'relative', marginBottom: 28 }}>
-      <Search size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#9A9080' }} />
-      <input
-        type="text"
-        placeholder="Search products..."
-        value={search}
-        onChange={e => setSearch(e.target.value)}
-        style={{ width: '100%', padding: '10px 12px 10px 34px', border: '1.5px solid #D8D3CB', borderRadius: 8, fontSize: 13, color: '#1A1A1A', backgroundColor: '#fff', outline: 'none', boxSizing: 'border-box' }}
-      />
-    </div>
+const SidebarContent = ({ 
+  search, setSearch, 
+  activeCategory, setActiveCategory, 
+  activeBoxType, setActiveBoxType,
+  activeMaterial, setActiveMaterial,
+  activePriceRange, setActivePriceRange,
+  allCategories, allBoxTypes, allMaterials,
+  setSidebarOpen, ACCENT, G 
+}) => {
+  const priceRanges = [
+    { label: 'All Prices', value: 'all' },
+    { label: 'Under $1.00', value: '0-1' },
+    { label: '$1.00 - $2.00', value: '1-2' },
+    { label: '$2.00 - $5.00', value: '2-5' },
+    { label: 'Over $5.00', value: '5-up' },
+  ];
 
-    <p style={{ fontSize: 10, fontFamily: '"DM Mono", monospace', fontWeight: 500, color: '#9A9080', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 14 }}>Categories</p>
-    <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
-      {allCategories.map(cat => (
-        <li key={cat}>
-          <button
-            onClick={() => { setActiveCategory(cat); setSidebarOpen(false); }}
-            style={{
-              width: '100%',
-              textAlign: 'left',
-              padding: '9px 12px',
-              borderRadius: 8,
-              border: 'none',
-              cursor: 'pointer',
-              fontSize: 13,
-              fontWeight: activeCategory === cat ? 700 : 500,
-              fontFamily: '"DM Sans", sans-serif',
-              backgroundColor: activeCategory === cat ? `${ACCENT}18` : 'transparent',
-              color: activeCategory === cat ? ACCENT : '#6B6B6B',
-              transition: 'all 0.15s',
-            }}
-            onMouseEnter={e => { if (activeCategory !== cat) e.target.style.backgroundColor = '#F0EDE8'; }}
-            onMouseLeave={e => { if (activeCategory !== cat) e.target.style.backgroundColor = 'transparent'; }}
-          >
-            {cat}
-          </button>
-        </li>
-      ))}
-    </ul>
-  </>
-);
+  const filterSelectStyle = {
+    width: '100%',
+    padding: '10px 12px',
+    border: '1.5px solid #D8D3CB',
+    borderRadius: 8,
+    fontSize: 13,
+    color: '#1A1A1A',
+    backgroundColor: '#fff',
+    outline: 'none',
+    boxSizing: 'border-box',
+    marginBottom: 16,
+    cursor: 'pointer',
+    fontFamily: '"DM Sans", sans-serif'
+  };
+
+  const labelStyle = {
+    fontSize: 10,
+    fontFamily: '"DM Mono", monospace',
+    fontWeight: 600,
+    color: '#9A9080',
+    textTransform: 'uppercase',
+    letterSpacing: '0.1em',
+    marginBottom: 8,
+    display: 'block'
+  };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+      <div style={{ position: 'relative', marginBottom: 24 }}>
+        <Search size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#9A9080' }} />
+        <input
+          type="text"
+          placeholder="Search products..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          style={{ width: '100%', padding: '10px 12px 10px 34px', border: '1.5px solid #D8D3CB', borderRadius: 8, fontSize: 13, color: '#1A1A1A', backgroundColor: '#fff', outline: 'none', boxSizing: 'border-box' }}
+        />
+      </div>
+
+      <label style={labelStyle}>Category</label>
+      <select 
+        value={activeCategory} 
+        onChange={e => setActiveCategory(e.target.value)}
+        style={filterSelectStyle}
+      >
+        {allCategories.map(cat => (
+          <option key={cat} value={cat}>{cat}</option>
+        ))}
+      </select>
+
+      <label style={labelStyle}>Box Type</label>
+      <select 
+        value={activeBoxType} 
+        onChange={e => setActiveBoxType(e.target.value)}
+        style={filterSelectStyle}
+      >
+        <option value="All Types">All Types</option>
+        {allBoxTypes.map(type => (
+          <option key={type} value={type}>{type}</option>
+        ))}
+      </select>
+
+      <label style={labelStyle}>Material</label>
+      <select 
+        value={activeMaterial} 
+        onChange={e => setActiveMaterial(e.target.value)}
+        style={filterSelectStyle}
+      >
+        <option value="All Materials">All Materials</option>
+        {allMaterials.map(mat => (
+          <option key={mat} value={mat}>{mat}</option>
+        ))}
+      </select>
+
+      <label style={labelStyle}>Price Range</label>
+      <select 
+        value={activePriceRange} 
+        onChange={e => setActivePriceRange(e.target.value)}
+        style={filterSelectStyle}
+      >
+        {priceRanges.map(range => (
+          <option key={range.value} value={range.value}>{range.label}</option>
+        ))}
+      </select>
+
+      <button
+        onClick={() => {
+          setActiveCategory('All Products');
+          setActiveBoxType('All Types');
+          setActiveMaterial('All Materials');
+          setActivePriceRange('all');
+          setSearch('');
+        }}
+        style={{
+          marginTop: 8,
+          padding: '10px',
+          borderRadius: 8,
+          border: `1px solid ${G}33`,
+          background: 'transparent',
+          color: G,
+          fontSize: 12,
+          fontWeight: 700,
+          cursor: 'pointer',
+          fontFamily: '"DM Sans", sans-serif',
+          transition: 'all 0.2s'
+        }}
+        onMouseEnter={e => { e.target.style.background = `${G}08`; }}
+        onMouseLeave={e => { e.target.style.background = 'transparent'; }}
+      >
+        Reset All Filters
+      </button>
+    </div>
+  );
+};
 
 function ProductCard({ product }) {
 
@@ -157,7 +245,10 @@ function ProductCard({ product }) {
       <div style={{ padding: '14px 16px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
         <div>
           <h3 style={{ fontSize: 13, fontWeight: 700, color: '#1A1A1A', marginBottom: 2, fontFamily: '"DM Sans", sans-serif', lineHeight: 1.3 }}>{product.name}</h3>
-          <span style={{ fontSize: 9, fontFamily: '"DM Mono", monospace', fontWeight: 500, color: ACCENT, backgroundColor: `${ACCENT}15`, padding: '2px 6px', borderRadius: 3, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{product.boxType}</span>
+          <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 9, fontFamily: '"DM Mono", monospace', fontWeight: 500, color: ACCENT, backgroundColor: `${ACCENT}15`, padding: '2px 6px', borderRadius: 3, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{product.boxType}</span>
+            {product.material && <span style={{ fontSize: 9, fontFamily: '"DM Mono", monospace', fontWeight: 500, color: G, backgroundColor: `${G}15`, padding: '2px 6px', borderRadius: 3, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{product.material}</span>}
+          </div>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
@@ -200,6 +291,9 @@ function ProductCard({ product }) {
 
 export default function Products() {
   const [activeCategory, setActiveCategory] = useState('All Products');
+  const [activeBoxType, setActiveBoxType] = useState('All Types');
+  const [activeMaterial, setActiveMaterial] = useState('All Materials');
+  const [activePriceRange, setActivePriceRange] = useState('all');
   const [search, setSearch] = useState('');
   const [fetchedProducts, setFetchedProducts] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -236,15 +330,47 @@ export default function Products() {
 
   const productsList = fetchedProducts;
 
-  // Only show categories that actually have products in DB (plus "All Products")
-  const dynamicCategories = ['All Products', ...Array.from(new Set(productsList.map(p => p.cat).filter(Boolean))).sort()];
-  const allCategories = dynamicCategories;
+  const allCategories = ['All Products', ...Array.from(new Set(productsList.map(p => p.cat).filter(Boolean))).sort()];
+  const allBoxTypes = Array.from(new Set(productsList.map(p => p.boxType).filter(Boolean))).sort();
+  const allMaterials = Array.from(new Set(productsList.map(p => p.material).filter(Boolean))).sort();
 
   const filtered = productsList.filter(p => {
+    // Category match
     const matchCat = activeCategory === 'All Products' || p.cat === activeCategory;
-    const matchSearch = !search || p.name.toLowerCase().includes(search.toLowerCase()) || (p.description || p.desc || '').toLowerCase().includes(search.toLowerCase());
-    return matchCat && matchSearch;
+    
+    // Box Type match
+    const matchType = activeBoxType === 'All Types' || p.boxType === activeBoxType;
+    
+    // Material match
+    const matchMaterial = activeMaterial === 'All Materials' || p.material === activeMaterial;
+    
+    // Search match
+    const matchSearch = !search || 
+      p.name.toLowerCase().includes(search.toLowerCase()) || 
+      (p.description || p.desc || '').toLowerCase().includes(search.toLowerCase());
+
+    // Price match
+    let matchPrice = true;
+    if (activePriceRange !== 'all') {
+      const priceVal = parseFloat((p.price || '$0').replace(/[^0-9.]/g, ''));
+      if (activePriceRange === '0-1') matchPrice = priceVal < 1;
+      else if (activePriceRange === '1-2') matchPrice = priceVal >= 1 && priceVal <= 2;
+      else if (activePriceRange === '2-5') matchPrice = priceVal > 2 && priceVal <= 5;
+      else if (activePriceRange === '5-up') matchPrice = priceVal > 5;
+    }
+
+    return matchCat && matchType && matchMaterial && matchSearch && matchPrice;
   });
+
+  const sidebarProps = {
+    search, setSearch,
+    activeCategory, setActiveCategory,
+    activeBoxType, setActiveBoxType,
+    activeMaterial, setActiveMaterial,
+    activePriceRange, setActivePriceRange,
+    allCategories, allBoxTypes, allMaterials,
+    setSidebarOpen, ACCENT, G
+  };
 
   return (
     <div style={{ backgroundColor: BG, minHeight: '100vh' }}>
@@ -282,14 +408,14 @@ export default function Products() {
             style={{ position: 'absolute', top: 20, right: 16, background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}>
             <X size={20} color="#666" />
           </button>
-          <SidebarContent search={search} setSearch={setSearch} activeCategory={activeCategory} setActiveCategory={setActiveCategory} allCategories={allCategories} setSidebarOpen={setSidebarOpen} ACCENT={ACCENT} />
+          <SidebarContent {...sidebarProps} />
         </div>
 
         <div className="products-layout flex gap-10 md:flex-row flex-col">
 
           {/* Desktop Sidebar */}
           <div className="products-sidebar-desktop hidden md:block md:w-64 shrink-0 sticky top-28 self-start">
-            <SidebarContent search={search} setSearch={setSearch} activeCategory={activeCategory} setActiveCategory={setActiveCategory} allCategories={allCategories} setSidebarOpen={setSidebarOpen} ACCENT={ACCENT} />
+            <SidebarContent {...sidebarProps} />
           </div>
 
           {/* Grid */}
@@ -336,7 +462,7 @@ export default function Products() {
               <div className="rounded-3xl bg-white p-10 text-center text-sm text-[#6B6B6B] shadow-sm">
                 <Package size={48} className="mx-auto mb-4 text-[#D0CAC0]" />
                 <p className="font-semibold text-[#1A1A1A]">No products found</p>
-                <p className="mt-2">Try a different search or category.</p>
+                <p className="mt-2">Try a different search or filter combination.</p>
               </div>
             )}
           </div>

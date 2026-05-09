@@ -121,20 +121,23 @@ function Layout({ children }) {
 const AuthGuard = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
   const { showToast } = useToast();
+  const location = useLocation();
   useEffect(() => {
     if (!loading && !isAuthenticated) showToast('Please login to continue', 'warning');
   }, [loading, isAuthenticated, showToast]);
   if (loading) return null;
-  return isAuthenticated ? children : <Navigate to="/login" replace />;
+  return isAuthenticated ? children : <Navigate to="/login" state={{ from: location }} replace />;
 };
 
 const AdminGuard = ({ children }) => {
   const { user, loading } = useAuth();
   const { showToast } = useToast();
+  const location = useLocation();
   useEffect(() => {
     if (!loading && user && (user.role !== 'admin' && user.role !== 'super_admin')) showToast('Access denied', 'error');
   }, [loading, user, showToast]);
   if (loading) return null;
+  if (!user) return <Navigate to="/login" state={{ from: location }} replace />;
   return (user?.role === 'admin' || user?.role === 'super_admin') ? children : <Navigate to="/" replace />;
 };
 

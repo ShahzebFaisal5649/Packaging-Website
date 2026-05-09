@@ -4,6 +4,9 @@ const Product = require('../models/Product');
 const Industry = require('../models/Industry');
 const Subscriber = require('../models/Subscriber');
 const ContactMessage = require('../models/ContactMessage');
+const Order = require('../models/Order');
+const Quote = require('../models/Quote');
+const { sendNotification } = require('../utils/notifications');
 const { protect, adminOnly, superAdminOnly, SUPER_ADMIN_EMAIL } = require('../middleware/auth');
 const sendEmail = require('../utils/email');
 
@@ -17,8 +20,8 @@ router.get('/stats', async (req, res) => {
   try {
     const users = await User.find({ role: { $in: ['user'] } }).select('orders quotes loyaltyPoints createdAt');
     const totalUsers = users.length;
-    const allOrders = users.flatMap(u => u.orders || []);
-    const allQuotes = users.flatMap(u => u.quotes || []);
+    const allOrders = await Order.find();
+    const allQuotes = await Quote.find();
     const revenue = allOrders.reduce((s, o) => s + (parseFloat(o.total) || 0), 0);
     const pending = allOrders.filter(o => o.status === 'Processing').length;
     const newThisWeek = users.filter(u => {
@@ -34,8 +37,20 @@ router.get('/stats', async (req, res) => {
 // ── Users ────────────────────────────────────────────────────────────────────
 router.get('/users', async (req, res) => {
   try {
-    const users = await User.find().select('-password').sort({ createdAt: -1 });
-    res.json({ users });
+    // Single aggregation to count orders per user — avoids N+1 query
+    const [users, orderCounts] = await Promise.all([
+      User.find().select('-password').sort({ createdAt: -1 }).lean(),
+      Order.aggregate([
+        { $group: { _id: '$userId', count: { $sum: 1 } } }
+      ])
+    ]);
+    const countMap = {};
+    orderCounts.forEach(r => { countMap[String(r._id)] = r.count; });
+    const usersWithCounts = users.map(u => ({
+      ...u,
+      orderCount: countMap[String(u._id)] || 0
+    }));
+    res.json({ users: usersWithCounts });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -204,18 +219,13 @@ router.delete('/industries/:id', async (req, res) => {
 // ── Orders ───────────────────────────────────────────────────────────────────
 router.get('/orders', async (req, res) => {
   try {
-    const users = await User.find().select('name email role orders');
-    const orders = users.flatMap(u =>
-      (u.orders || []).map(o => ({
-        ...o.toObject(),
-        userId: u._id,
-        userName: u.name,
-        userEmail: u.email,
-        userRole: u.role,
-      }))
-    );
-    orders.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-    res.json({ orders });
+    const orders = await Order.find().sort({ createdAt: -1 });
+    const formattedOrders = orders.map(o => ({
+      ...o.toObject(),
+      id: o.orderId,
+      fullAddress: o.shippingAddress ? `${o.shippingAddress.line1 || ''}, ${o.shippingAddress.city || ''}` : null
+    }));
+    res.json({ orders: formattedOrders });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -224,23 +234,49 @@ router.get('/orders', async (req, res) => {
 router.put('/orders/:userId/:orderId', async (req, res) => {
   try {
     const { status, tracking } = req.body;
-    const user = await User.findById(req.params.userId);
-    if (!user) return res.status(404).json({ message: 'User not found' });
-    const order = user.orders.id(req.params.orderId);
+    
+    // Check if :orderId is a Mongo _id or an orderId string like ORD-...
+    const isObjectId = /^[0-9a-fA-F]{24}$/.test(req.params.orderId);
+    const order = isObjectId 
+      ? await Order.findById(req.params.orderId)
+      : await Order.findOne({ orderId: req.params.orderId });
+
     if (!order) return res.status(404).json({ message: 'Order not found' });
+
+    // ── Enforce Sequential Logic ──
+    const current = order.status;
+    const allowed = {
+      'Processing': ['Shipped', 'Cancelled'],
+      'Shipped': ['Delivered'],
+      'Delivered': [],
+      'Cancelled': []
+    };
+
+    if (status && status !== current) {
+      if (!allowed[current].includes(status)) {
+        return res.status(400).json({ 
+          message: `Invalid transition: Cannot move from ${current} to ${status}.` 
+        });
+      }
+    }
 
     // If trying to mark as Shipped, require a tracking number
     if (status === 'Shipped') {
       const trackingNumber = tracking || order.tracking;
       if (!trackingNumber || !trackingNumber.trim()) {
         return res.status(400).json({
-          message: 'Please save a tracking number before marking this order as Shipped.'
+          message: 'Please provide a tracking number before marking as Shipped.'
         });
       }
     }
 
     if (tracking !== undefined) order.tracking = tracking;
-    if (status) order.status = status;
+    if (status && order.status !== status) {
+      order.status = status;
+      if (status === 'Shipped') order.shippedDate = new Date();
+      if (status === 'Delivered') order.deliveredDate = new Date();
+      if (status === 'Cancelled') order.cancelledDate = new Date();
+    }
 
     // Send shipped email only once
     if (status === 'Shipped' && !order.shippedEmailSent) {
@@ -284,21 +320,35 @@ router.put('/orders/:userId/:orderId', async (req, res) => {
             </div>
           </div>
         `;
-
-        await sendEmail({
-          email: user.email,
-          subject: 'Your Order Has Been Shipped — Design Custom Box',
-          html: shippingEmail,
-        });
-        order.shippedEmailSent = true;
-        console.log(`✅ Shipped email sent to ${user.email}`);
+        const userEmail = order.userEmail || (await User.findById(order.userId))?.email;
+        if (userEmail) {
+          await sendEmail({
+            email: userEmail,
+            subject: `Your Order Has Been Shipped — ${order.orderId}`,
+            html: shippingEmail,
+          });
+          order.shippedEmailSent = true;
+          console.log(`✅ Shipped email sent to ${userEmail}`);
+        }
       } catch (emailErr) {
         console.error('❌ Shipped email failed:', emailErr.message);
         // Still save the order status even if email fails
       }
     }
 
-    await user.save();
+    await order.save();
+    
+    // Trigger notification if status changed
+    if (status) {
+      await sendNotification(
+        order.userId,
+        `Order ${order.orderId} Update`,
+        `Your order status has been updated to ${status}.`,
+        'order_status',
+        '/profile?tab=orders'
+      );
+    }
+
     res.json({ message: 'Order updated', order });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -308,12 +358,12 @@ router.put('/orders/:userId/:orderId', async (req, res) => {
 // ── Quotes ───────────────────────────────────────────────────────────────────
 router.get('/quotes', async (req, res) => {
   try {
-    const users = await User.find().select('name email quotes');
-    const quotes = users.flatMap(u =>
-      (u.quotes || []).map(q => ({ ...q.toObject(), userId: u._id, userName: u.name, userEmail: u.email }))
-    );
-    quotes.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-    res.json({ quotes });
+    const quotes = await Quote.find().sort({ createdAt: -1 });
+    const formattedQuotes = quotes.map(q => ({
+      ...q.toObject(),
+      id: q.quoteId
+    }));
+    res.json({ quotes: formattedQuotes });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -321,23 +371,37 @@ router.get('/quotes', async (req, res) => {
 
 router.put('/quotes/:userId/:quoteId', async (req, res) => {
   try {
-    const user = await User.findById(req.params.userId);
-    if (!user) return res.status(404).json({ message: 'User not found' });
-    const quote = user.quotes.id(req.params.quoteId);
+    const isObjectId = /^[0-9a-fA-F]{24}$/.test(req.params.quoteId);
+    const quote = isObjectId 
+      ? await Quote.findById(req.params.quoteId)
+      : await Quote.findOne({ quoteId: req.params.quoteId });
+
     if (!quote) return res.status(404).json({ message: 'Quote not found' });
     Object.assign(quote, req.body);
-    await user.save();
+    await quote.save();
+    
+    const userEmail = quote.userEmail || (await User.findById(quote.userId))?.email;
+    const userName = quote.userName || 'Customer';
 
     if (req.body.status || req.body.quotedPrice) {
+      // Trigger Notification
+      await sendNotification(
+        quote.userId,
+        `Quote ${quote.quoteId} Update`,
+        `Your quote status has been updated to ${quote.status}.`,
+        'quote_update',
+        '/profile?tab=quotes'
+      );
       try {
-        await sendEmail({
-          email: user.email,
-          subject: `Update on your Quote Request: ${quote.quoteId}`,
-          html: `
-            <div style="font-family:sans-serif;max-width:600px;margin:auto;padding:20px;border:1px solid #eee;border-radius:10px;">
-              <h2 style="color:#1A4D2E;">Quote Request Update</h2>
-              <p>Hello ${user.name},</p>
-              <p>Your quote request (<strong>${quote.quoteId}</strong>) has been updated.</p>
+        if (userEmail) {
+          await sendEmail({
+            email: userEmail,
+            subject: `Update on your Quote Request: ${quote.quoteId}`,
+            html: `
+              <div style="font-family:sans-serif;max-width:600px;margin:auto;padding:20px;border:1px solid #eee;border-radius:10px;">
+                <h2 style="color:#1A4D2E;">Quote Request Update</h2>
+                <p>Hello ${userName},</p>
+                <p>Your quote request (<strong>${quote.quoteId}</strong>) has been updated.</p>
               <ul>
                 <li><strong>Status:</strong> ${quote.status}</li>
                 <li><strong>Price:</strong> ${quote.quotedPrice || 'Pending'}</li>
@@ -346,6 +410,7 @@ router.put('/quotes/:userId/:quoteId', async (req, res) => {
             </div>
           `,
         });
+        }
       } catch (err) {
         console.error('Failed to send quote update email:', err);
       }
@@ -455,9 +520,9 @@ router.delete('/subscribers/:id', async (req, res) => {
 // ── Analytics ─────────────────────────────────────────────────────────────────
 router.get('/analytics', async (req, res) => {
   try {
-    const users = await User.find().select('orders createdAt addresses lastLocation role');
+    const users = await User.find().select('createdAt addresses lastLocation role');
     const regularUsers = users.filter(u => u.role === 'user');
-    const allOrders = regularUsers.flatMap(u => u.orders || []);
+    const allOrders = await Order.find();
 
     const statusCounts = ['Processing', 'Shipped', 'Delivered', 'Cancelled'].map(s => ({
       label: s, value: allOrders.filter(o => o.status === s).length,

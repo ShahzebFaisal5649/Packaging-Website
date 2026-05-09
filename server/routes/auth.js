@@ -136,7 +136,13 @@ router.post('/login', async (req, res) => {
 // GET /api/auth/me
 router.get('/me', protect, async (req, res) => {
   try {
-    const user = await User.findById(req.user._id).select('-password');
+    const user = await User.findById(req.user._id).select('-password').lean();
+    if (user) {
+      const Order = require('../models/Order');
+      const Quote = require('../models/Quote');
+      user.orders = await Order.find({ userId: user._id }).sort({ createdAt: -1 });
+      user.quotes = await Quote.find({ userId: user._id }).sort({ createdAt: -1 });
+    }
     res.json({ user });
   } catch (err) {
     if (isDbError(err)) return res.status(503).json({ message: 'Database unavailable', offline: true });

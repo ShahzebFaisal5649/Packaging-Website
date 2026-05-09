@@ -251,4 +251,4 @@ The project is pre-configured for Vercel via `vercel.json`.
 
 ---
 
-*Built with ❤️ for Design Custom Box*
+*Built with ❤️ for Design Custom Box from Nextstac*

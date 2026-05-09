@@ -87,7 +87,9 @@ const userSchema = new mongoose.Schema({
   savedDesigns: [savedDesignSchema],
   favorites: [String],
   notifications: {
-    orderUpdates: { type: Boolean, default: true },
+    orders: { type: Boolean, default: true },
+    quotes: { type: Boolean, default: true },
+    designs: { type: Boolean, default: true },
     promotions: { type: Boolean, default: false },
     newsletter: { type: Boolean, default: true },
   },

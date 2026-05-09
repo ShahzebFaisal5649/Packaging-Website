@@ -3,6 +3,7 @@ const Product = require('../models/Product');
 const Industry = require('../models/Industry');
 const Subscriber = require('../models/Subscriber');
 const ContactMessage = require('../models/ContactMessage');
+const Quote = require('../models/Quote');
 
 const router = express.Router();
 
@@ -113,13 +114,14 @@ router.post('/guest-quote', async (req, res) => {
         loyaltyPoints: 0,
       });
     }
-    const quote = {
+    const quote = await Quote.create({
       quoteId: `QT-${Date.now()}`,
+      userId: guestUser._id,
+      userName: guestUser.name,
+      userEmail: guestUser.email,
       ...quoteData,
-      createdAt: new Date(),
-    };
-    guestUser.quotes.push(quote);
-    await guestUser.save();
+    });
+
     res.status(201).json({ message: 'Sample request submitted successfully', quote });
   } catch (err) {
     res.status(500).json({ message: err.message || 'Could not submit sample request' });

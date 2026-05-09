@@ -27,8 +27,8 @@ function TrendingCard({ t }) {
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95 }}
       onClick={() => navigate('/custom-box', { state: t })}
       whileHover={{ y: -8, boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}

@@ -8,63 +8,7 @@ const G = '#1A4D2E';
 const ACCENT = '#C8860A';
 const BG = '#F5F2ED';
 
-export const POSTS = [
-  {
-    id: 1,
-    title: 'How Custom Packaging Boosts Brand Recognition',
-    excerpt: 'Discover how investing in custom packaging creates a lasting first impression that keeps customers coming back and sharing on social media.',
-    author: 'Sarah Mitchell',
-    date: 'Apr 12, 2025',
-    readTime: '5 min read',
-    category: 'Branding',
-    img: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=1200&q=80',
-    featured: true,
-  },
-  {
-    id: 3,
-    title: 'The Ultimate Guide to Box Styles for E-Commerce',
-    excerpt: 'Mailer boxes, shipping boxes, or rigid setup boxes? We break down which box type is right for your products and price point.',
-    author: 'Lisa Romero',
-    date: 'Mar 28, 2025',
-    readTime: '8 min read',
-    category: 'E-Commerce',
-    img: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&q=80',
-    featured: false,
-  },
-  {
-    id: 4,
-    title: 'Why Unboxing Experience Matters for Customer Retention',
-    excerpt: "Studies show 40% of consumers share unboxing content online. Here's how to design packaging that turns buyers into brand ambassadors.",
-    author: 'Mark Torres',
-    date: 'Mar 20, 2025',
-    readTime: '6 min read',
-    category: 'Marketing',
-    img: 'https://images.unsplash.com/photo-1553531384-cc64ac80f931?w=800&q=80',
-    featured: false,
-  },
-  {
-    id: 5,
-    title: 'Choosing the Right Material for Your Product Packaging',
-    excerpt: 'SBS board, corrugated flute, kraft, or rigid chipboard? A practical guide to matching your material to your product and budget.',
-    author: 'Anna Petrov',
-    date: 'Mar 15, 2025',
-    readTime: '6 min read',
-    category: 'Materials',
-    img: 'https://images.unsplash.com/photo-1544816155-12df9643f363?w=800&q=80',
-    featured: false,
-  },
-  {
-    id: 6,
-    title: 'Print Finishes Explained: Matte, Gloss, Soft-Touch & More',
-    excerpt: 'Not sure which lamination or finish to choose? We explain every option from spot UV to foil stamping with real-world examples.',
-    author: 'Sarah Mitchell',
-    date: 'Mar 8, 2025',
-    readTime: '5 min read',
-    category: 'Design',
-    img: 'https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?w=800&q=80',
-    featured: false,
-  },
-];
+import { POSTS } from '../data/blogData';
 
 const CATEGORIES = ['All', 'Branding', 'E-Commerce', 'Marketing', 'Materials', 'Design'];
 

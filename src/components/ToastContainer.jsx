@@ -1,55 +1,136 @@
 import { useToast } from '../context/ToastContext';
 import { X, CheckCircle, AlertCircle, Info, AlertTriangle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+
+const G = '#1A4D2E';
+const ACCENT = '#C8860A';
 
 export default function ToastContainer() {
   const { toasts, removeToast } = useToast();
 
   return (
-    <div className="fixed top-24 right-6 z-[9999] flex flex-col gap-2 pointer-events-none">
-      {toasts.map((toast) => (
-        <ToastItem key={toast.id} toast={toast} onRemove={() => removeToast(toast.id)} />
-      ))}
+    <div style={{
+      position: 'fixed',
+      top: 24,
+      right: 24,
+      zIndex: 100000,
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 12,
+      pointerEvents: 'none',
+      width: '100%',
+      maxWidth: 380,
+    }}>
+      <AnimatePresence>
+        {toasts.map((toast) => (
+          <ToastItem key={toast.id} toast={toast} onRemove={() => removeToast(toast.id)} />
+        ))}
+      </AnimatePresence>
     </div>
   );
 }
 
 function ToastItem({ toast, onRemove }) {
   const icons = {
-    success: <CheckCircle className="text-brand-success" size={20} />,
-    error: <AlertCircle className="text-red-500" size={20} />,
-    warning: <AlertTriangle className="text-amber-500" size={20} />,
-    info: <Info className="text-brand-primary" size={20} />
+    success: <CheckCircle style={{ color: '#10B981' }} size={20} />,
+    error: <AlertCircle style={{ color: '#EF4444' }} size={20} />,
+    warning: <AlertTriangle style={{ color: '#F59E0B' }} size={20} />,
+    info: <Info style={{ color: G }} size={20} />
+  };
+
+  const bgColors = {
+    success: 'rgba(240, 253, 244, 0.95)',
+    error: 'rgba(254, 242, 242, 0.95)',
+    warning: 'rgba(255, 251, 235, 0.95)',
+    info: 'rgba(240, 249, 255, 0.95)'
   };
 
   const borderColors = {
-    success: 'border-l-brand-success',
-    error: 'border-l-red-500',
-    warning: 'border-l-amber-500',
-    info: 'border-l-brand-primary'
-  };
-
-  const progressColors = {
-    success: 'bg-brand-success',
-    error: 'bg-red-500',
-    warning: 'bg-amber-500',
-    info: 'bg-brand-primary'
+    success: '#10B981',
+    error: '#EF4444',
+    warning: '#F59E0B',
+    info: G
   };
 
   return (
-    <div className={`pointer-events-auto w-80 bg-white shadow-card rounded-md border-l-4 ${borderColors[toast.type]} overflow-hidden animate-slide-in relative flex items-start p-4 pr-10`}>
-      <div className="flex-shrink-0 mr-3 mt-0.5">
+    <motion.div
+      layout
+      initial={{ opacity: 0, x: 50, scale: 0.9 }}
+      animate={{ opacity: 1, x: 0, scale: 1 }}
+      exit={{ opacity: 0, x: 20, scale: 0.95, transition: { duration: 0.2 } }}
+      whileHover={{ scale: 1.02 }}
+      style={{
+        pointerEvents: 'auto',
+        background: '#fff',
+        backdropFilter: 'blur(10px)',
+        boxShadow: '0 10px 30px rgba(0,0,0,0.12), 0 0 1px rgba(0,0,0,0.05)',
+        borderRadius: 14,
+        borderLeft: `4px solid ${borderColors[toast.type]}`,
+        padding: '16px 20px',
+        paddingRight: 48,
+        position: 'relative',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 14,
+        overflow: 'hidden',
+      }}
+    >
+      <div style={{ flexShrink: 0 }}>
         {icons[toast.type]}
       </div>
-      <p className="text-[14px] font-medium text-brand-textPrimary flex-1">{toast.message}</p>
+      <div style={{ flex: 1 }}>
+        <p style={{ 
+          margin: 0, 
+          fontSize: 14, 
+          fontWeight: 600, 
+          color: '#1A1A1A', 
+          lineHeight: 1.5,
+          fontFamily: 'Inter, sans-serif'
+        }}>
+          {toast.message}
+        </p>
+      </div>
       
       <button 
         onClick={onRemove}
-        className="absolute top-4 right-3 text-gray-400 hover:text-gray-600 transition-colors"
+        style={{
+          position: 'absolute',
+          top: '50%',
+          right: 12,
+          transform: 'translateY(-50%)',
+          background: 'none',
+          border: 'none',
+          color: '#9CA3AF',
+          cursor: 'pointer',
+          padding: 8,
+          borderRadius: 8,
+          transition: 'all 0.2s',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+        onMouseEnter={e => { e.currentTarget.style.color = '#4B5563'; e.currentTarget.style.background = '#F3F4F6'; }}
+        onMouseLeave={e => { e.currentTarget.style.color = '#9CA3AF'; e.currentTarget.style.background = 'none'; }}
       >
         <X size={16} />
       </button>
 
-      <div className={`absolute bottom-0 left-0 h-1 ${progressColors[toast.type]} animate-[shrink_3.5s_linear_forwards] w-full origin-left`}></div>
-    </div>
+      {/* Progress Bar */}
+      <motion.div
+        initial={{ scaleX: 1 }}
+        animate={{ scaleX: 0 }}
+        transition={{ duration: 3.5, ease: 'linear' }}
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: 3,
+          background: borderColors[toast.type],
+          transformOrigin: 'left',
+          opacity: 0.6,
+        }}
+      />
+    </motion.div>
   );
 }

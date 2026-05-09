@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { ChevronDown, Menu, X, ShoppingCart, User, LogOut, Settings, Package, UserCircle, Heart } from 'lucide-react';
+import { ChevronDown, Menu, X, ShoppingCart, User, LogOut, Settings, Package, UserCircle, Heart, Bell } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import api from '../services/api';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
 import { useFavourites } from '../context/FavouritesContext';
@@ -131,6 +132,8 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [mobileExpanded, setMobileExpanded] = useState({});
+  const [notifications, setNotifications] = useState([]);
+  const [notificationsDropdownOpen, setNotificationsDropdownOpen] = useState(false);
   const navRef = useRef(null);
 
   const width = useWindowWidth();
@@ -162,9 +165,40 @@ export default function Navbar() {
       setMobileMenuOpen(false);
       setActiveMenu(null);
       setMobileExpanded({});
+      setUserDropdownOpen(false);
+      setNotificationsDropdownOpen(false);
     }, 0);
     return () => window.clearTimeout(timer);
   }, [location.pathname]);
+
+  // Fetch Notifications
+  useEffect(() => {
+    if (isAuthenticated) {
+      api.get('/notifications')
+        .then(data => setNotifications(data.notifications || []))
+        .catch(err => console.error('Failed to load notifications:', err));
+    } else {
+      setNotifications([]);
+    }
+  }, [isAuthenticated]);
+
+  const unreadCount = notifications.filter(n => !n.isRead).length;
+
+  const handleMarkAllRead = async () => {
+    try {
+      await api.put('/notifications/read-all');
+      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+    } catch (e) { console.error('Failed to mark read', e); }
+  };
+
+  const handleDismissNotification = async (e, id) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      await api.delete(`/notifications/${id}`);
+      setNotifications(prev => prev.filter(n => n._id !== id));
+    } catch (e) { console.error('Failed to dismiss notification', e); }
+  };
 
   useEffect(() => {
     const handleClick = (e) => {
@@ -177,6 +211,7 @@ export default function Navbar() {
       if (e.key === 'Escape') {
         setActiveMenu(null);
         setUserDropdownOpen(false);
+        setNotificationsDropdownOpen(false);
         setMobileMenuOpen(false);
       }
     };
@@ -257,10 +292,10 @@ export default function Navbar() {
                 onMouseEnter={() => setActiveMenu('Products')}
                 onMouseLeave={() => setActiveMenu(null)}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                  <Link to="/products" style={linkStyle}
-                    onMouseEnter={e => e.target.style.color = ACCENT} onMouseLeave={e => e.target.style.color = '#fff'}
+                  <Link to="/products" 
+                    style={{ ...linkStyle, color: (location.pathname.startsWith('/products') || activeMenu === 'Products') ? ACCENT : '#fff' }}
                     onClick={() => setActiveMenu(null)}>Products</Link>
-                  <ChevronDown size={13} style={{ color: 'rgba(255,255,255,0.6)', transition: 'transform 0.2s', transform: activeMenu === 'Products' ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+                  <ChevronDown size={13} style={{ color: (location.pathname.startsWith('/products') || activeMenu === 'Products') ? ACCENT : 'rgba(255,255,255,0.6)', transition: 'transform 0.2s', transform: activeMenu === 'Products' ? 'rotate(180deg)' : 'rotate(0deg)' }} />
                 </div>
               </div>
 
@@ -268,18 +303,18 @@ export default function Navbar() {
                 onMouseEnter={() => setActiveMenu('Industries')}
                 onMouseLeave={() => setActiveMenu(null)}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                  <Link to="/industries" style={linkStyle}
-                    onMouseEnter={e => e.target.style.color = ACCENT} onMouseLeave={e => e.target.style.color = '#fff'}
+                  <Link to="/industries" 
+                    style={{ ...linkStyle, color: (location.pathname.startsWith('/industries') || activeMenu === 'Industries') ? ACCENT : '#fff' }}
                     onClick={() => setActiveMenu(null)}>Industries</Link>
-                  <ChevronDown size={13} style={{ color: 'rgba(255,255,255,0.6)', transition: 'transform 0.2s', transform: activeMenu === 'Industries' ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+                  <ChevronDown size={13} style={{ color: (location.pathname.startsWith('/industries') || activeMenu === 'Industries') ? ACCENT : 'rgba(255,255,255,0.6)', transition: 'transform 0.2s', transform: activeMenu === 'Industries' ? 'rotate(180deg)' : 'rotate(0deg)' }} />
                 </div>
               </div>
 
-              <Link to="/about" style={linkStyle} onMouseEnter={e => e.target.style.color = ACCENT} onMouseLeave={e => e.target.style.color = '#fff'}>About</Link>
-              <Link to="/how-it-works" style={linkStyle} onMouseEnter={e => e.target.style.color = ACCENT} onMouseLeave={e => e.target.style.color = '#fff'}>How It Works</Link>
-              <Link to="/success-stories" style={linkStyle} onMouseEnter={e => e.target.style.color = ACCENT} onMouseLeave={e => e.target.style.color = '#fff'}>Inspiration</Link>
-              <Link to="/blog" style={linkStyle} onMouseEnter={e => e.target.style.color = ACCENT} onMouseLeave={e => e.target.style.color = '#fff'}>Blog</Link>
-              <Link to="/contact-us" style={linkStyle} onMouseEnter={e => e.target.style.color = ACCENT} onMouseLeave={e => e.target.style.color = '#fff'}>Contact</Link>
+              <Link to="/about" style={{ ...linkStyle, color: location.pathname === '/about' ? ACCENT : '#fff' }} onMouseEnter={e => e.target.style.color = ACCENT} onMouseLeave={e => { if(location.pathname !== '/about') e.target.style.color = '#fff' }}>About</Link>
+              <Link to="/how-it-works" style={{ ...linkStyle, color: location.pathname === '/how-it-works' ? ACCENT : '#fff' }} onMouseEnter={e => e.target.style.color = ACCENT} onMouseLeave={e => { if(location.pathname !== '/how-it-works') e.target.style.color = '#fff' }}>How It Works</Link>
+              <Link to="/success-stories" style={{ ...linkStyle, color: location.pathname === '/success-stories' ? ACCENT : '#fff' }} onMouseEnter={e => e.target.style.color = ACCENT} onMouseLeave={e => { if(location.pathname !== '/success-stories') e.target.style.color = '#fff' }}>Inspiration</Link>
+              <Link to="/blog" style={{ ...linkStyle, color: location.pathname.startsWith('/blog') ? ACCENT : '#fff' }} onMouseEnter={e => e.target.style.color = ACCENT} onMouseLeave={e => { if(!location.pathname.startsWith('/blog')) e.target.style.color = '#fff' }}>Blog</Link>
+              <Link to="/contact-us" style={{ ...linkStyle, color: location.pathname === '/contact-us' ? ACCENT : '#fff' }} onMouseEnter={e => e.target.style.color = ACCENT} onMouseLeave={e => { if(location.pathname !== '/contact-us') e.target.style.color = '#fff' }}>Contact</Link>
             </nav>
           )}
 
@@ -305,6 +340,65 @@ export default function Navbar() {
                     <span style={{ position: 'absolute', top: -6, right: -6, width: 16, height: 16, background: ACCENT, color: '#fff', fontSize: 9, fontWeight: 700, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{cartCount}</span>
                   )}
                 </button>
+              )}
+
+              {isAuthenticated && !isAdmin && (
+                <div style={{ position: 'relative' }} onMouseEnter={() => setNotificationsDropdownOpen(true)} onMouseLeave={() => setNotificationsDropdownOpen(false)}>
+                  <Link to="/profile?tab=notifications" style={{ position: 'relative', color: 'rgba(255,255,255,0.8)', transition: 'color 0.15s' }}
+                    onMouseEnter={e => e.currentTarget.style.color = '#fff'} onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.8)'}>
+                    <Bell size={20} strokeWidth={1.5} />
+                    {unreadCount > 0 && (
+                      <span style={{ position: 'absolute', top: -6, right: -6, width: 16, height: 16, background: '#EF4444', color: '#fff', fontSize: 9, fontWeight: 700, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{unreadCount}</span>
+                    )}
+                  </Link>
+
+                  {/* Notification Dropdown */}
+                  <div style={{
+                    position: 'absolute', top: '100%', right: -40, marginTop: 12, width: 320, background: '#fff', borderRadius: 12,
+                    boxShadow: '0 12px 40px rgba(0,0,0,0.15)', border: '1px solid #eee', overflow: 'hidden',
+                    transition: 'all 0.15s', transformOrigin: 'top right',
+                    opacity: notificationsDropdownOpen ? 1 : 0, transform: notificationsDropdownOpen ? 'scale(1)' : 'scale(0.95)',
+                    visibility: notificationsDropdownOpen ? 'visible' : 'hidden', zIndex: 9999,
+                  }}>
+                    <div style={{ padding: '14px 16px', borderBottom: '1px solid #f5f5f5', background: '#fafafa', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: '#1A1A1A' }}>Notifications</span>
+                      {unreadCount > 0 && (
+                        <button onClick={handleMarkAllRead} style={{ fontSize: 11, color: G, background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>Mark all read</button>
+                      )}
+                    </div>
+                    <div style={{ maxHeight: 380, overflowY: 'auto', scrollbarWidth: 'thin' }}>
+                      {notifications.length === 0 ? (
+                        <div style={{ padding: 30, textAlign: 'center', color: '#888', fontSize: 13 }}>No notifications yet</div>
+                      ) : (
+                        notifications.slice(0, 15).map((n, i) => (
+                          <div key={i} style={{ position: 'relative' }}>
+                            <Link to={n.link || '/profile'} onClick={() => { setNotificationsDropdownOpen(false); if (!n.isRead) api.put(`/notifications/${n._id}/read`); }}
+                              style={{ display: 'block', padding: '14px 16px', borderBottom: '1px solid #f5f5f5', textDecoration: 'none', background: n.isRead ? '#fff' : 'rgba(26, 77, 46, 0.05)', transition: 'background 0.15s', paddingRight: 40 }}
+                              onMouseEnter={e => e.currentTarget.style.background = '#f9fafb'} onMouseLeave={e => e.currentTarget.style.background = n.isRead ? '#fff' : 'rgba(26, 77, 46, 0.05)'}>
+                              <p style={{ fontSize: 13, fontWeight: n.isRead ? 600 : 700, color: '#1A1A1A', margin: '0 0 4px', paddingRight: 10 }}>{n.title}</p>
+                              <p style={{ fontSize: 12, color: '#666', margin: '0 0 6px', lineHeight: 1.4 }}>{n.message}</p>
+                              <span style={{ fontSize: 10, color: '#aaa' }}>{new Date(n.createdAt).toLocaleDateString()}</span>
+                            </Link>
+                            <button 
+                              onClick={(e) => handleDismissNotification(e, n._id)}
+                              style={{ position: 'absolute', top: 14, right: 10, background: 'none', border: 'none', color: '#ccc', cursor: 'pointer', padding: 4, borderRadius: 4, transition: 'all 0.2s' }}
+                              onMouseEnter={e => { e.currentTarget.style.color = '#EF4444'; e.currentTarget.style.background = '#FEE2E2'; }}
+                              onMouseLeave={e => { e.currentTarget.style.color = '#ccc'; e.currentTarget.style.background = 'none'; }}
+                              title="Dismiss"
+                            >
+                              <X size={14} />
+                            </button>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                    {notifications.length > 5 && (
+                      <Link to="/profile?tab=notifications" onClick={() => setNotificationsDropdownOpen(false)} style={{ display: 'block', padding: 12, textAlign: 'center', background: '#fafafa', color: G, fontSize: 12, fontWeight: 700, textDecoration: 'none', borderTop: '1px solid #eee' }}>
+                        View All
+                      </Link>
+                    )}
+                  </div>
+                </div>
               )}
 
               <div style={{ position: 'relative' }} onMouseEnter={() => setUserDropdownOpen(true)} onMouseLeave={() => setUserDropdownOpen(false)}>

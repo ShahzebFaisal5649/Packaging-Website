@@ -97,7 +97,7 @@ const TRUST_ITEMS = [
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function CustomBox() {
   const { addToCart, toggleDrawer } = useCart();
-  const { user, isAuthenticated, updateUser, saveDesign: saveDesignApi } = useAuth();
+  const { user, isAuthenticated, updateUser, saveDesign: saveDesignApi, refreshUser } = useAuth();
   const { showToast } = useToast();
   const location = useLocation();
   const navigate = useNavigate();
@@ -120,7 +120,7 @@ export default function CustomBox() {
   const [dragOver, setDragOver] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
   const [sampleModal, setSampleModal] = useState(false);
-  const [sampleForm, setSampleForm] = useState({ name: '', email: '', phone: '', street: '', city: '', state: '', zip: '', country: 'US' });
+  const [sampleForm, setSampleForm] = useState({ name: '', email: '', phone: '', street: '', city: '', state: '', zip: '', country: 'US', addressMode: 'manual' });
   const [sampleSubmitting, setSampleSubmitting] = useState(false);
   // Canvas ref for thumbnail capture
   const canvasRef = useRef(null);
@@ -185,6 +185,21 @@ export default function CustomBox() {
       if (isAuthenticated) {
         // Logged-in user: save to their account
         await api.post('/users/quotes', quoteData);
+        // Save manual address if logged in
+        if (sampleForm.addressMode === 'manual' && sampleForm.street && sampleForm.city) {
+          try {
+            await api.post('/users/addresses', {
+              label: 'Saved from Sample Request',
+              street: sampleForm.street,
+              city: sampleForm.city,
+              state: sampleForm.state || '',
+              zip: sampleForm.zip,
+              country: sampleForm.country || 'US',
+              isDefault: user.addresses?.length === 0
+            });
+          } catch(e) { /* ignore */ }
+        }
+        await refreshUser?.();
       } else {
         // Guest: use public endpoint that creates/finds user in DB
         const API_URL = import.meta.env.VITE_API_URL || '/api';
@@ -204,7 +219,7 @@ export default function CustomBox() {
         }
       }
       setSampleModal(false);
-      setSampleForm({ name: user?.name || '', email: user?.email || '', phone: user?.phone || '', street: '', city: '', state: '', zip: '', country: 'US' });
+      setSampleForm({ name: user?.name || '', email: user?.email || '', phone: user?.phone || '', street: '', city: '', state: '', zip: '', country: 'US', addressMode: 'manual' });
       showToast('Sample request submitted! We\'ll contact you within 24 hours.', 'success');
     } catch (err) {
       showToast(err.message || 'Failed to submit request. Please try again.', 'error');
@@ -271,11 +286,25 @@ export default function CustomBox() {
     const newAddons = config.addons.includes(addon) ? config.addons.filter(a => a !== addon) : [...config.addons, addon];
     handleConfigChange('addons', newAddons);
   };
-  const handleAddToCart = () => {
+  const validateQuantity = () => {
     if (!config.quantity || config.quantity < 1) {
       showToast('Please select a valid quantity (min 1).', 'error');
-      return;
+      setActiveStep(2);
+      setTimeout(() => {
+        const qtySelect = document.getElementById('qty-select-field');
+        if (qtySelect) {
+          qtySelect.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          qtySelect.focus();
+          // Add a temporary animation class if desired, but focus is usually enough
+        }
+      }, 100);
+      return false;
     }
+    return true;
+  };
+
+  const handleAddToCart = () => {
+    if (!validateQuantity()) return;
     let cartImage = location.state?.productImage || 'https://images.unsplash.com/photo-1607083206968-13611e3d76db?q=80&w=400';
     if (canvasRef.current) {
       try { cartImage = canvasRef.current.toDataURL('image/jpeg', 0.5); } catch { /* canvas unavailable */ }
@@ -289,10 +318,7 @@ export default function CustomBox() {
   };
   // Fix 6: Same for Get Quote
   const handleGetQuote = () => {
-    if (!config.quantity || config.quantity < 1) {
-      showToast('Please select a valid quantity (min 1).', 'error');
-      return;
-    }
+    if (!validateQuantity()) return;
     const cartImage = location.state?.productImage
       || 'https://images.unsplash.com/photo-1607083206968-13611e3d76db?q=80&w=400';
     const finalConfig = { ...config, artworkUrl: artworkApplied ? artworkPreview : null };
@@ -471,15 +497,16 @@ export default function CustomBox() {
                       </div>
                     ))}
                   </div>
-                  <label style={{ fontSize: 11, fontWeight: 700, color: '#1A1A1A', display: 'block', marginBottom: 8 }}>Quantity <span style={{ color: '#DC2626' }}>*</span></label>
-                  <select value={config.quantity || ''} onChange={e => handleConfigChange('quantity', e.target.value ? parseInt(e.target.value) : '')}
-                    style={{ width: '100%', padding: '12px 14px', border: `1.5px solid ${!config.quantity ? '#DC2626' : '#E8E4DC'}`, borderRadius: 10, fontSize: 14, fontWeight: 700, outline: 'none', cursor: 'pointer', appearance: 'none', background: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 12px center / 16px, #fff` }}>
+                  <label htmlFor="qty-select-field" style={{ fontSize: 11, fontWeight: 700, color: '#1A1A1A', display: 'block', marginBottom: 8 }}>Quantity <span style={{ color: '#DC2626' }}>*</span></label>
+                  <select id="qty-select-field" value={config.quantity || ''} onChange={e => handleConfigChange('quantity', e.target.value ? parseInt(e.target.value) : '')}
+                    style={{ width: '100%', padding: '12px 14px', border: `1.5px solid ${!config.quantity ? '#DC2626' : '#E8E4DC'}`, borderRadius: 10, fontSize: 14, fontWeight: 700, outline: 'none', cursor: 'pointer', appearance: 'none', background: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 12px center / 16px, #fff`,
+                    boxShadow: !config.quantity ? '0 0 0 3px rgba(220,38,38,0.2)' : 'none', transition: 'box-shadow 0.2s, border-color 0.2s' }}>
                     <option value="">Select Quantity</option>
                     {[100, 250, 500, 1000, 2500, 5000].map(q => (
                       <option key={q} value={q}>{q.toLocaleString()} units{q >= 1000 ? ' — Volume Discount' : q >= 500 ? ' — 10% Off' : ''}</option>
                     ))}
                   </select>
-                  {!config.quantity && <p style={{ color: '#DC2626', fontSize: 10, fontWeight: 700, marginTop: 4 }}>* Quantity is required</p>}
+                  {!config.quantity && <p style={{ color: '#DC2626', fontSize: 11, fontWeight: 700, marginTop: 6 }}>⚠️ Please select a quantity to proceed</p>}
                   {config.quantity >= 500 && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10, padding: '8px 12px', background: '#D1FAE5', borderRadius: 8 }}>
                       <Star size={12} color="#059669" style={{ fill: '#059669' }} />
@@ -884,9 +911,31 @@ export default function CustomBox() {
               </div>
 
               <div style={{ borderTop: '1px solid #F0EDE8', paddingTop: 12 }}>
-                <p style={{ fontSize: 11, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <MapPin size={12} /> Delivery Address
-                </p>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                  <p style={{ fontSize: 11, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.08em', margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <MapPin size={12} /> Delivery Address
+                  </p>
+                  {user?.addresses?.length > 0 && (
+                    <select 
+                      value={sampleForm.addressMode} 
+                      onChange={e => {
+                        const val = e.target.value;
+                        if (val !== 'manual' && user.addresses[parseInt(val)]) {
+                          const addr = user.addresses[parseInt(val)];
+                          setSampleForm(f => ({ ...f, addressMode: val, street: addr.street || '', city: addr.city || '', state: addr.state || '', zip: addr.zip || '', country: addr.country || 'US' }));
+                        } else {
+                          setSampleForm(f => ({ ...f, addressMode: 'manual', street: '', city: '', state: '', zip: '', country: 'US' }));
+                        }
+                      }} 
+                      style={{ fontSize: 11, padding: '2px 6px', borderRadius: 4, border: '1px solid #E2DDD6', outline: 'none' }}
+                    >
+                      <option value="manual">Enter Manually</option>
+                      {user.addresses.map((a, i) => (
+                        <option key={i} value={i}>{a.label ? `${a.label} - ` : ''}{a.street}</option>
+                      ))}
+                    </select>
+                  )}
+                </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                   <div>
                     <label style={labelStyle}>Street Address *</label>
