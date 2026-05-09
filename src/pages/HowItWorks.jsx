@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ChevronRight, MessageSquare, Upload, Eye, Package, ShieldCheck, Zap, Award, Headphones, Box, ArrowRight, Play, Info, CheckCircle2 } from 'lucide-react';
+import { ChevronRight, MessageSquare, Upload, Eye, Package, ShieldCheck, Zap, Award, Headphones, Box, ArrowRight, CheckCircle2 } from 'lucide-react';
 import SectionLabel from '../components/SectionLabel';
 import CTABanner from '../components/CTABanner';
 

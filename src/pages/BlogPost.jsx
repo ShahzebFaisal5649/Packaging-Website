@@ -1,17 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Calendar, Clock, User, ArrowLeft, Share2, ArrowRight, Ban, AlertCircle } from 'lucide-react';
+import { Calendar, Clock, User, ArrowLeft, ArrowRight, AlertCircle } from 'lucide-react';
 import { POSTS } from '../data/blogData';
 
 const G = '#1A4D2E';
 const ACCENT = '#C8860A';
 const BG = '#F5F2ED';
-
-// Inline SVG Social Icons
-const FacebookIcon = ({ size = 18 }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>;
-const TwitterIcon = ({ size = 18 }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 4s-1 2.17-2.41 3.06c0 5.69-4.24 12.22-12.22 12.22-2.34 0-4.59-.69-6.5-1.99.31.04.62.06.94.06 1.94 0 3.72-.66 5.13-1.77-1.82-.03-3.35-1.24-3.88-2.89.25.04.51.06.77.06.38 0 .75-.05 1.1-.15-1.9-.38-3.32-2.05-3.32-4.06v-.05c.56.31 1.2.5 1.88.52-1.12-.74-1.85-2-1.85-3.42 0-.75.2-1.45.56-2.05 2.05 2.51 5.11 4.17 8.56 4.34-.07-.3-.11-.61-.11-.93 0-2.25 1.82-4.08 4.08-4.08 1.17 0 2.23.49 2.97 1.28.93-.18 1.8-.52 2.59-1-.31 1-.98 1.84-1.87 2.37.82-.1 1.61-.31 2.34-.64-.54.81-1.23 1.52-2.03 2.09z"/></svg>;
-const LinkedinIcon = ({ size = 18 }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>;
 
 export default function BlogPost() {
   const { id } = useParams();

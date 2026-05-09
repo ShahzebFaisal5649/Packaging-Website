@@ -85,6 +85,10 @@ function PaymentForm({ clientSecret, amount, checkoutItems }) {
       showToast('Please fill in your name and email', 'error');
       return;
     }
+    if (!form.address || form.address.length < 5) return showToast('Please enter a valid street address', 'error');
+    if (!form.city || form.city.length < 2) return showToast('Please enter a valid city', 'error');
+    if (form.zip && !/^[a-zA-Z0-9\s-]{3,10}$/.test(form.zip)) return showToast('Please enter a valid ZIP/Postal code', 'error');
+
     setLoading(true);
     try {
       const billingDetails = {
