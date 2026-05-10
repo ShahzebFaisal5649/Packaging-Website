@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
@@ -392,21 +392,34 @@ function DashboardSection() {
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
+    // Show cached stats immediately — no flicker to zero
+    const cached = sessionStorage.getItem('dcb_admin_stats');
+    if (cached) {
+      try { setStats(JSON.parse(cached)); } catch (e) {}
+    }
+
     let cancelled = false;
     setLoading(true);
 
-    const withTimeout = (p, ms) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))]);
+    const load = async () => {
+      try {
+        const [statsData, ordersData] = await Promise.all([
+          api.get('/admin/stats'),
+          api.get('/admin/orders?limit=6')
+        ]);
+        if (!cancelled) {
+          setStats(statsData);
+          setRecentOrders(ordersData.orders || []);
+          sessionStorage.setItem('dcb_admin_stats', JSON.stringify(statsData));
+        }
+      } catch (err) {
+        if (!cancelled) console.error('Dashboard load failed:', err);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
 
-    // Load stats and orders independently so one slow call doesn't block the other
-    withTimeout(api.get('/admin/stats'), 15000)
-      .then(s => { if (!cancelled) setStats(s); })
-      .catch(err => { if (!cancelled) { console.warn('Stats load failed:', err.message); setStats({ totalUsers: 0, totalOrders: 0, revenue: 0, pending: 0, newThisWeek: 0 }); } });
-
-    withTimeout(api.get('/admin/orders'), 15000)
-      .then(o => { if (!cancelled) setRecentOrders((o.orders || []).slice(0, 6)); })
-      .catch(() => { if (!cancelled) setRecentOrders([]); })
-      .finally(() => { if (!cancelled) setLoading(false); });
-
+    load();
     return () => { cancelled = true; };
   }, [refreshKey]);
 
@@ -504,6 +517,7 @@ function ProductsSection() {
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [activeTab, setActiveTab] = useState('all'); // 'all', 'featured'
+  const [showFeaturedOnly, setShowFeaturedOnly] = useState(false);
 
   const emptyForm = { name: '', slug: '', cat: '', description: '', price: '', img: '', featured: false, boxType: '', material: '', finish: '', dimL: '', dimW: '', dimH: '', minQty: '', addons: [], customIndustry: '' };
   // Helper: parse stored dims string like "10×8×4 in" into parts
@@ -594,16 +608,38 @@ function ProductsSection() {
   const autoSlug = (name) => name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
   const handleSave = async () => {
-    const productData = { ...editForm };
-    delete productData.id;
-    // Build dims string from individual fields
-    productData.dims = joinDims(editForm);
-    delete productData.dimL; delete productData.dimW; delete productData.dimH;
-    const industryName = editForm.cat === '__other' ? editForm.customIndustry?.trim() : editForm.cat;
-    if (!industryName) {
-      showToast('Please select or add an industry for this product.', 'warning');
+    // If editing existing product — never create a new industry
+    // If creating new product and '__new' selected — create industry
+    let finalCat = editForm.cat;
+    if (editForm.cat === '__new') {
+      if (!editForm.id) {
+        // New product — create industry
+        setIsSaving(true);
+        try {
+          const newInd = await api.post('/admin/industries', { name: editForm.customIndustry, slug: autoSlug(editForm.customIndustry) });
+          finalCat = newInd.industry?.name || editForm.customIndustry;
+          setIndustryOptions(prev => [...prev, { name: finalCat, slug: autoSlug(finalCat) }]);
+        } catch (e) {
+          showToast('Failed to create industry', 'error');
+          setIsSaving(false);
+          return;
+        }
+      } else {
+        showToast('Select an existing industry or create one separately from the Industries tab.', 'warning');
+        return;
+      }
+    }
+
+    if (!finalCat) {
+      showToast('Please select an industry.', 'warning');
       return;
     }
+
+    const productData = { ...editForm, cat: finalCat };
+    delete productData.id;
+    delete productData.customIndustry;
+    productData.dims = joinDims(editForm);
+    delete productData.dimL; delete productData.dimW; delete productData.dimH;
 
     if (!productData.slug) productData.slug = autoSlug(productData.name);
     
@@ -619,46 +655,17 @@ function ProductsSection() {
     }
 
     setIsSaving(true);
-    let finalIndustry = industryName;
-
     try {
-      const existingIndustry = industryOptions.find(i => i.name.toLowerCase() === industryName.toLowerCase());
-      if (!existingIndustry) {
-        const autoIndSlug = autoSlug(industryName);
-        if (industryOptions.some(i => i.slug === autoIndSlug)) {
-           setIsSaving(false);
-           return showToast(`An industry with a similar name already exists. Please pick a different name.`, 'error');
-        }
-        const newIndustry = await api.post('/admin/industries', {
-          name: industryName,
-          slug: autoIndSlug,
-          cat: '',
-          description: '',
-          img: '',
-          products: [],
-        });
-        finalIndustry = newIndustry.industry?.name || newIndustry.name || industryName;
-        setIndustryOptions(prev => [...prev, { name: finalIndustry, slug: autoIndSlug }]);
-        showToast(`Created new industry “${finalIndustry}”.`, 'success');
-      } else {
-        finalIndustry = existingIndustry.name;
-      }
-
-      const payload = { ...productData, cat: finalIndustry };
-      delete payload.customIndustry;
-
       if (editForm.id) {
-        const updated = await api.put(`/admin/products/${editForm.id}`, payload);
+        const updated = await api.put(`/admin/products/${editForm.id}`, productData);
         setProducts(prev => prev.map(p => p._id === editForm.id ? updated.product : p));
       } else {
-        const created = await api.post('/admin/products', payload);
+        const created = await api.post('/admin/products', productData);
         setProducts(prev => [created.product, ...prev]);
       }
       
       setEditForm(null); // Close immediately
-      // Background refetch
       loadProducts(false);
-      loadIndustryOptions();
     } catch (err) {
       console.error('Failed to save product:', err);
       showToast(err.message || 'Save failed', 'error');
@@ -684,8 +691,9 @@ function ProductsSection() {
 
   const filtered = products.filter(p => {
     const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase()) || (p.cat || '').toLowerCase().includes(search.toLowerCase());
+    const matchesFeatured = showFeaturedOnly ? p.featured === true : true;
     if (activeTab === 'featured') return matchesSearch && p.featured;
-    return matchesSearch;
+    return matchesSearch && matchesFeatured;
   });
 
   return (
@@ -699,10 +707,25 @@ function ProductsSection() {
             </button>
           ))}
         </div>
-        <button onClick={() => setEditForm(emptyForm)}
-          style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: '#fff', background: G, border: 'none', borderRadius: 8, padding: '9px 18px', cursor: 'pointer' }}>
-          <Plus size={14} /> Add Product
-        </button>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <button
+            onClick={() => setShowFeaturedOnly(f => !f)}
+            style={{
+              padding: '9px 16px', fontSize: 13, fontWeight: 700,
+              border: `1.5px solid ${G}`,
+              background: showFeaturedOnly ? G : '#fff',
+              color: showFeaturedOnly ? '#fff' : G,
+              borderRadius: 8, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6
+            }}
+          >
+            <Star size={13} fill={showFeaturedOnly ? '#fff' : 'none'} />
+            {showFeaturedOnly ? 'Showing Featured' : 'Show Featured Only'}
+          </button>
+          <button onClick={() => setEditForm(emptyForm)}
+            style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: '#fff', background: G, border: 'none', borderRadius: 8, padding: '9px 18px', cursor: 'pointer' }}>
+            <Plus size={14} /> Add Product
+          </button>
+        </div>
       </div>
 
       <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #E2DDD6', overflow: 'hidden' }}>
@@ -788,14 +811,24 @@ function ProductsSection() {
             </div>
             <div>
               <label style={{ fontSize: 11, fontWeight: 700, color: '#555', display: 'block', marginBottom: 4 }}>Industry *</label>
-              <select value={editForm.cat} onChange={e => setEditForm(f => ({ ...f, cat: e.target.value, customIndustry: '' }))} style={inputStyle}>
-                <option value="">— Select existing industry —</option>
-                {industryOptions.map(ind => <option key={ind._id || ind.name} value={ind.name}>{ind.name}</option>)}
-                <option value="__other">Add new industry…</option>
+              <select
+                value={editForm.cat === '__new' ? '__new' : editForm.cat}
+                onChange={e => setEditForm(f => ({ ...f, cat: e.target.value, customIndustry: '' }))}
+                style={{ width: '100%', padding: '10px 12px', border: '1.5px solid #E2DDD6', borderRadius: 8, fontSize: 13, background: '#fff', outline: 'none' }}
+              >
+                <option value="">— Select Industry —</option>
+                {industryOptions.map(i => (
+                  <option key={i._id} value={i.name}>{i.name}</option>
+                ))}
+                <option value="__new">+ Create New Industry</option>
               </select>
-              {editForm.cat === '__other' && (
-                <input value={editForm.customIndustry} onChange={e => setEditForm(f => ({ ...f, customIndustry: e.target.value }))}
-                  placeholder="Type a new industry name" style={{ ...inputStyle, marginTop: 10 }} />
+              {editForm.cat === '__new' && (
+                <input
+                  placeholder="New industry name"
+                  value={editForm.customIndustry || ''}
+                  onChange={e => setEditForm(f => ({ ...f, customIndustry: e.target.value }))}
+                  style={{ marginTop: 8, width: '100%', padding: '10px 12px', border: '1.5px solid #E2DDD6', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box' }}
+                />
               )}
             </div>
             <div>
@@ -909,6 +942,7 @@ function IndustriesSection() {
   const [editForm, setEditForm] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { showToast } = useToast();
 
   const emptyForm = { name: '', slug: '', cat: '', description: '', img: '', products: [] };
@@ -1146,6 +1180,10 @@ function OrdersSection() {
   const [filter, setFilter] = useState('All');
   const [selected, setSelected] = useState(null);
   const [editTracking, setEditTracking] = useState('');
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [updatingStatus, setUpdatingStatus] = useState(null); // holds the status string being updated
+  const [isSavingTracking, setIsSavingTracking] = useState(false);
+  const [trackingErr, setTrackingErr] = useState('');
 
   async function load() {
     setLoading(true);
@@ -1207,6 +1245,7 @@ function OrdersSection() {
       return;
     }
 
+    setUpdatingStatus(status);
     // Optimistic Update
     const previousOrders = [...orders];
     setOrders(prev => prev.map(o => o._id === order._id ? { ...o, status } : o));
@@ -1219,35 +1258,45 @@ function OrdersSection() {
           tracking: status === 'Shipped' ? editTracking : undefined 
         });
       }
-      showToast('Status updated and tracking email sent.', 'success');
+      showToast('Status updated.', 'success');
       // No need to call full load() if we updated state correctly
     } catch (e) { 
       // Rollback on error
       setOrders(previousOrders);
       if (selected?._id === order._id) setSelected(order);
       showToast(e.message, 'error'); 
+    } finally {
+      setUpdatingStatus(null);
     }
   };
 
   const handleSaveTracking = async () => {
     if (!selected) return;
-    const previousOrders = [...orders];
-    const updatedTracking = editTracking;
+    const trimmed = editTracking.trim();
 
-    // Optimistic Update
-    setOrders(prev => prev.map(o => o._id === selected._id ? { ...o, tracking: updatedTracking } : o));
-    setSelected(prev => ({ ...prev, tracking: updatedTracking }));
+    // Validate: 8–30 alphanumeric characters
+    if (trimmed && !/^[A-Z0-9]{8,30}$/i.test(trimmed)) {
+      setTrackingErr('Tracking number must be 8–30 alphanumeric characters only (e.g. 1Z999AA10123456784)');
+      return;
+    }
+    setTrackingErr('');
+    setIsSavingTracking(true);
+
+    const previousOrders = [...orders];
+    setOrders(prev => prev.map(o => o._id === selected._id ? { ...o, tracking: trimmed } : o));
+    setSelected(prev => ({ ...prev, tracking: trimmed }));
 
     try {
       if (selected.userId && selected._id) {
-        await api.put(`/admin/orders/${selected.userId}/${selected._id}`, { tracking: updatedTracking });
+        await api.put(`/admin/orders/${selected.userId}/${selected._id}`, { tracking: trimmed });
       }
-      showToast('Tracking updated', 'success');
+      showToast('Tracking number saved.', 'success');
     } catch (e) {
-      // Rollback
       setOrders(previousOrders);
       setSelected(selected);
       showToast(e.message, 'error');
+    } finally {
+      setIsSavingTracking(false);
     }
   };
 
@@ -1345,8 +1394,8 @@ function OrdersSection() {
                           <Eye size={11} /> View
                         </button>
                         <select value={o.status} onChange={e => handleStatusChange(o, e.target.value)}
-                          disabled={['Delivered', 'Cancelled'].includes(o.status)}
-                          style={{ padding: '5px 8px', borderRadius: 6, border: '1px solid #E2DDD6', fontSize: 11, fontWeight: 700, cursor: (o.status === 'Delivered' || o.status === 'Cancelled') ? 'default' : 'pointer', color: '#555', opacity: (o.status === 'Delivered' || o.status === 'Cancelled') ? 0.7 : 1 }}>
+                          disabled={isUpdating || ['Delivered', 'Cancelled'].includes(o.status)}
+                          style={{ padding: '5px 8px', borderRadius: 6, border: '1px solid #E2DDD6', fontSize: 11, fontWeight: 700, cursor: (isUpdating || o.status === 'Delivered' || o.status === 'Cancelled') ? 'default' : 'pointer', color: '#555', opacity: (isUpdating || o.status === 'Delivered' || o.status === 'Cancelled') ? 0.7 : 1 }}>
                           {['Processing', 'Shipped', 'Delivered', 'Cancelled'].map(s => {
                             const allowed = { 'Processing': ['Shipped', 'Cancelled'], 'Shipped': ['Delivered'], 'Delivered': [], 'Cancelled': [] };
                             const isNext = (allowed[o.status] || []).includes(s);
@@ -1374,10 +1423,10 @@ function OrdersSection() {
               { label: 'Product', value: (selected.items && Array.isArray(selected.items) && selected.items.length > 0) ? selected.items.map(i => i.name).join(', ') : selected.product },
               { label: 'Quantity', value: `${(selected.items && Array.isArray(selected.items)) ? selected.items.reduce((s, it) => s + (it?.quantity || it?.qty || 1), 0) : selected.qty || 0} units` },
               { label: 'Total', value: `$${(+selected.total || 0).toFixed(2)}` },
-              { label: 'Processing Date', value: selected.statusDates?.Processing ? new Date(selected.statusDates.Processing).toLocaleDateString() : (selected.createdAt ? new Date(selected.createdAt).toLocaleDateString() : '—') },
-              selected.statusDates?.Shipped && { label: 'Shipped On', value: new Date(selected.statusDates.Shipped).toLocaleDateString() },
-              selected.statusDates?.Delivered && { label: 'Delivered On', value: new Date(selected.statusDates.Delivered).toLocaleDateString() },
-              selected.statusDates?.Cancelled && { label: 'Cancelled On', value: new Date(selected.statusDates.Cancelled).toLocaleDateString() },
+              { label: 'Processing Date', value: selected.statusDates?.processing ? new Date(selected.statusDates.processing).toLocaleDateString() : (selected.createdAt ? new Date(selected.createdAt).toLocaleDateString() : '—') },
+              selected.statusDates?.shipped && { label: 'Shipped On', value: new Date(selected.statusDates.shipped).toLocaleDateString() },
+              selected.statusDates?.delivered && { label: 'Delivered On', value: new Date(selected.statusDates.delivered).toLocaleDateString() },
+              selected.statusDates?.cancelled && { label: 'Cancelled On', value: new Date(selected.statusDates.cancelled).toLocaleDateString() },
               { label: 'Address', value: selected.address || selected.fullAddress || '—' },
               { label: 'Status', value: <Badge status={selected.status} /> },
             ].filter(Boolean).map((item) => (
@@ -1411,10 +1460,29 @@ function OrdersSection() {
           <div style={{ marginBottom: 16 }}>
             <label style={{ fontSize: 11, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 6 }}>Tracking Number</label>
             <div style={{ display: 'flex', gap: 8 }}>
-              <input value={editTracking} onChange={e => setEditTracking(e.target.value)} placeholder="e.g. UPS1234567890"
-                style={{ flex: 1, padding: '10px 12px', border: '1.5px solid #E2DDD6', borderRadius: 8, fontSize: 13, outline: 'none' }} />
-              <button onClick={handleSaveTracking} style={{ padding: '10px 18px', background: G, color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Save</button>
+              <input
+                value={editTracking}
+                onChange={e => { setEditTracking(e.target.value); setTrackingErr(''); }}
+                placeholder="e.g. 1Z999AA10123456784"
+                style={{ flex: 1, padding: '10px 12px', border: `1.5px solid ${trackingErr ? '#EF4444' : '#E2DDD6'}`, borderRadius: 8, fontSize: 13, outline: 'none' }}
+              />
+              <button
+                onClick={handleSaveTracking}
+                disabled={isSavingTracking}
+                style={{
+                  padding: '10px 18px',
+                  background: isSavingTracking ? '#9CA3AF' : G,
+                  color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700,
+                  cursor: isSavingTracking ? 'not-allowed' : 'pointer',
+                  display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap'
+                }}
+              >
+                {isSavingTracking
+                  ? <><RefreshCw size={12} style={{ animation: 'spin 1s linear infinite' }} /> Saving…</>
+                  : 'Save'}
+              </button>
             </div>
+            {trackingErr && <p style={{ fontSize: 11, color: '#EF4444', marginTop: 4 }}>{trackingErr}</p>}
           </div>
 
           {/* Customer Location Info */}
@@ -1448,23 +1516,27 @@ function OrdersSection() {
                   const isCurrent = current === s;
                   
                   return (
-                    <button 
-                      key={s} 
-                      disabled={!isNext && !isCurrent}
+                    <button
+                      key={s}
+                      disabled={(!isNext && !isCurrent) || updatingStatus !== null}
                       onClick={() => handleStatusChange(selected, s)}
-                      style={{ 
-                        padding: '8px 16px', 
-                        borderRadius: 8, 
-                        border: `1.5px solid ${isCurrent ? G : (isNext ? '#E2DDD6' : '#F1F5F9')}`, 
-                        background: isCurrent ? G : '#fff', 
-                        color: isCurrent ? '#fff' : (isNext ? '#555' : '#CBD5E1'), 
-                        fontSize: 12, 
-                        fontWeight: 700, 
-                        cursor: isNext ? 'pointer' : 'default',
-                        opacity: (isNext || isCurrent) ? 1 : 0.6
+                      style={{
+                        padding: '8px 16px',
+                        borderRadius: 8,
+                        border: `1.5px solid ${isCurrent ? G : (isNext ? '#E2DDD6' : '#F1F5F9')}`,
+                        background: isCurrent ? G : '#fff',
+                        color: isCurrent ? '#fff' : (isNext ? '#555' : '#CBD5E1'),
+                        fontSize: 12,
+                        fontWeight: 700,
+                        cursor: (isNext && !updatingStatus) ? 'pointer' : 'default',
+                        opacity: (!isNext && !isCurrent) || (updatingStatus && updatingStatus !== s) ? 0.5 : 1,
+                        display: 'flex', alignItems: 'center', gap: 6,
+                        transition: 'all 0.2s'
                       }}
                     >
-                      {s}
+                      {updatingStatus === s
+                        ? <><RefreshCw size={12} style={{ animation: 'spin 1s linear infinite' }} /> Updating…</>
+                        : s}
                     </button>
                   );
                 })}
@@ -1530,15 +1602,23 @@ function UsersSection() {
   };
 
   const handleRoleChange = async (user, role) => {
+    // Block self-demotion
     if (user._id === currentUser?._id && user.role === 'super_admin' && role !== 'super_admin') {
       showToast('Super Admin cannot demote themselves for security reasons.', 'warning');
       return;
     }
+    // Block assigning super_admin to anyone else
+    if (role === 'super_admin') {
+      showToast('The Super Admin role cannot be assigned. There can only be one Super Admin.', 'error');
+      return;
+    }
     try {
       if (user._id) await api.put(`/admin/users/${user._id}/role`, { role });
-      showToast('Role updated', 'success');
+      showToast('Role updated successfully.', 'success');
       load();
-    } catch (e) { showToast(e.message, 'error'); }
+    } catch (e) {
+      showToast(e.message, 'error');
+    }
   };
 
   const handleLoyalty = async (user, points) => {
@@ -1564,7 +1644,7 @@ function UsersSection() {
     return matchesSearch && (u.role === 'user' || !u.role);
   });
 
-  const [mapAddress, setMapAddress] = useState(null);
+
 
   return (
     <div>
@@ -1763,6 +1843,7 @@ function QuotesSection() {
   const [selected, setSelected] = useState(null);
   const [priceInput, setPriceInput] = useState('');
   const [refreshKey, setRefreshKey] = useState(0);
+  const [quoteBusy, setQuoteBusy] = useState(false);
 
   const loadQuotes = async (signal = { cancelled: false }) => {
     if (!signal.cancelled) setLoading(true);
@@ -1793,13 +1874,21 @@ function QuotesSection() {
     return () => { signal.cancelled = true; clearInterval(interval); };
   }, [refreshKey]);
 
-  const handleUpdateQuote = async (q, updates) => {
+  const handleQuoteStatus = async (quoteId, status, price) => {
+    setQuoteBusy(true);
     try {
-      if (q.userId && q._id) await api.put(`/admin/quotes/${q.userId}/${q._id}`, updates);
-      setSelected(null);
-      showToast('Quote updated', 'success');
-      loadQuotes();
-    } catch (e) { showToast(e.message, 'error'); }
+      await api.put(`/admin/quotes/${quoteId}`, { status, quotedPrice: price });
+      // Optimistically update local state immediately
+      setQuotes(prev => prev.map(q => q._id === quoteId ? { ...q, status, quotedPrice: price } : q));
+      if (selected?._id === quoteId) {
+        setSelected(prev => ({ ...prev, status, quotedPrice: price }));
+      }
+      showToast(`Status updated to ${status}`, 'success');
+    } catch (e) {
+      showToast(e.message || 'Update failed', 'error');
+    } finally {
+      setQuoteBusy(false);
+    }
   };
 
   return (
@@ -1875,8 +1964,26 @@ function QuotesSection() {
               style={{ width: '100%', padding: '10px 12px', border: '1.5px solid #E2DDD6', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box', marginBottom: 16 }} />
             <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
               {['Reviewing', 'Quoted', 'Accepted', 'Rejected'].map(s => (
-                <button key={s} onClick={() => handleUpdateQuote(selected, { status: s, quotedPrice: priceInput })}
-                  style={{ flex: 1, minWidth: 80, padding: '9px', background: selected.status === s ? G : '#fff', color: selected.status === s ? '#fff' : '#555', border: `1.5px solid ${selected.status === s ? G : '#E2DDD6'}`, borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+                <button
+                  key={s}
+                  disabled={quoteBusy}
+                  onClick={() => handleQuoteStatus(selected._id, s, priceInput)}
+                  style={{
+                    flex: 1,
+                    padding: '10px 0',
+                    borderRadius: 8,
+                    border: `1.5px solid ${selected.status === s ? G : '#E2DDD6'}`,
+                    background: selected.status === s ? G : '#fff',
+                    color: selected.status === s ? '#fff' : '#555',
+                    fontSize: 12, fontWeight: 700,
+                    cursor: quoteBusy ? 'not-allowed' : 'pointer',
+                    opacity: quoteBusy ? 0.6 : 1,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6
+                  }}
+                >
+                  {quoteBusy && selected.status !== s
+                    ? <RefreshCw size={12} style={{ animation: 'spin 1s linear infinite' }} />
+                    : null}
                   {s}
                 </button>
               ))}
@@ -2065,10 +2172,7 @@ function MessagesSection() {
             {selected.status !== 'Replied' && (
               <button onClick={() => setReplyingTo(selected)} style={{ flex: 1, padding: '10px', background: G, color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}>Write Reply</button>
             )}
-            <a href={`mailto:${selected.email}?subject=Re: ${encodeURIComponent(selected.subject || '')}`}
-              style={{ flex: 1, padding: '10px', background: '#333', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-              <Mail size={14} /> Mail Client
-            </a>
+
             <button onClick={() => handleDelete(selected._id)} style={{ padding: '10px 16px', background: '#FEE2E2', color: '#DC2626', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}><Trash2 size={14} /></button>
           </div>
         </Modal>
@@ -2258,33 +2362,28 @@ function AnalyticsSection() {
           </div>
         </div>
 
-        {/* Global Customer Map */}
         <div style={{ background: '#fff', borderRadius: 20, border: '1px solid #E2E8F0', padding: 28, boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)' }}>
-          <h3 style={{ fontSize: 18, fontWeight: 800, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 10, color: '#1E293B' }}>
-            <MapPin size={20} color="#3B82F6" /> Market Presence
+          <h3 style={{ fontSize: 18, fontWeight: 800, marginBottom: 6, color: '#1E293B', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <MapPin size={18} color="#3B82F6" /> Customer Reach
           </h3>
-          <p style={{ fontSize: 13, color: '#64748B', marginBottom: 20 }}>Geospatial density of your customer base.</p>
-          <div style={{ height: 220, borderRadius: 16, overflow: 'hidden', border: '1px solid #E2E8F0', position: 'relative' }}>
-            {data.locations && data.locations.length > 0 ? (
-              <iframe
-                title="Global Distribution Map"
-                src={`https://www.google.com/maps?q=${encodeURIComponent(data.locations.map(l => l.city).join('|'))}&t=&z=3&ie=UTF8&iwloc=&output=embed`}
-                width="100%" height="100%" style={{ border: 0 }}
-                loading="lazy"
-              />
-            ) : (
-              <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F8FAFC', color: '#94A3B8', fontSize: 13 }}>
-                <div style={{ textAlign: 'center' }}>
-                  <MapPin size={24} style={{ marginBottom: 8, opacity: 0.5 }} />
-                  <p>Awaiting Market Data...</p>
-                </div>
+          <p style={{ fontSize: 13, color: '#64748B', marginBottom: 20 }}>Top active markets by region.</p>
+          {(() => {
+            const cityMap = {};
+            (data.locations || []).forEach(l => {
+              if (l.city) cityMap[l.city] = (cityMap[l.city] || 0) + 1;
+            });
+            const topCities = Object.entries(cityMap).sort((a, b) => b[1] - a[1]).slice(0, 8);
+            return topCities.length ? topCities.map(([city, count]) => (
+              <div key={city} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #F1F5F9', fontSize: 13 }}>
+                <span style={{ fontWeight: 600, color: '#1E293B' }}>{city}</span>
+                <span style={{ color: '#3B82F6', fontWeight: 700, background: 'rgba(59,130,246,0.08)', padding: '2px 10px', borderRadius: 100 }}>{count} Active</span>
               </div>
-            )}
-          </div>
-          <div style={{ marginTop: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: 12, fontWeight: 800, color: '#3B82F6', background: 'rgba(59, 130, 246, 0.1)', padding: '4px 10px', borderRadius: 100 }}>{data.locations?.length || 0} Markets</span>
-            <span style={{ fontSize: 12, color: '#64748B', fontWeight: 500 }}>Live Feed</span>
-          </div>
+            )) : (
+              <div style={{ textAlign: 'center', color: '#94A3B8', padding: '24px 0', fontSize: 13 }}>
+                <MapPin size={24} style={{ marginBottom: 8, opacity: 0.4 }} /><br />No location data yet
+              </div>
+            );
+          })()}
         </div>
 
         {/* Average Order Value */}
@@ -2319,7 +2418,9 @@ const SECTION_MAP = {
 export default function Admin() {
   const { user, logout } = useAuth();
   const { showToast } = useToast();
-  const [activeSection, setActiveSection] = useState('dashboard');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeSection = searchParams.get('tab') || 'dashboard';
+  const setActiveSection = (val) => setSearchParams({ tab: val });
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {

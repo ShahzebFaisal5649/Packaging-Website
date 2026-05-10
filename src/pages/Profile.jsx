@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import { User, Package, FileText, Layout, MapPin, Settings, LogOut, ChevronLeft, X, Edit, Trash2, Plus, Bell, CheckCircle, Info, AlertCircle, Eye, RefreshCw } from 'lucide-react';
+import { User, Package, FileText, Layout, MapPin, Settings, LogOut, ChevronLeft, X, Edit, Trash2, Plus, Bell, CheckCircle, Info, AlertCircle, Eye, RefreshCw, Lock, Camera, Copy, ExternalLink, Menu } from 'lucide-react';
 import api from '../services/api';
 import Button from '../components/Button';
 
@@ -41,65 +41,155 @@ function Modal({ onClose, title, children }) {
 }
 
 // --- OVERVIEW TAB ---
-function OverviewTab({ user, setTab, updateUser, showToast }) {
+function OverviewTab({ user, setTab, updateUser, showToast, isMobile }) {
   const loyaltyPoints = user?.loyaltyPoints || 0;
   const TIERS = [
-    { name: 'Bronze',   min: 0,    next: 'Silver',   max: 350  },
-    { name: 'Silver',   min: 350,  next: 'Gold',      max: 750  },
-    { name: 'Gold',     min: 750,  next: 'Platinum',  max: 1500 },
-    { name: 'Platinum', min: 1500, next: 'Diamond',   max: 3000 },
-    { name: 'Diamond',  min: 3000, next: null,        max: 3000 },
+    { name: 'Bronze',   threshold: 0,    bonus: 'Welcome' },
+    { name: 'Silver',   threshold: 350,  bonus: '10 free boxes' },
+    { name: 'Gold',     threshold: 750,  bonus: '20 free boxes' },
+    { name: 'Platinum', threshold: 1500, bonus: '30 free boxes' },
+    { name: 'Diamond',  threshold: 3000, bonus: '50 free boxes' },
   ];
-  const currentTier = [...TIERS].reverse().find(t => loyaltyPoints >= t.min) || TIERS[0];
-  const { name: tier, next: nextTier, min: tierMin, max: tierMax } = currentTier;
-  const needed = nextTier ? tierMax - loyaltyPoints : 0;
-  const progress = nextTier ? Math.min(((loyaltyPoints - tierMin) / (tierMax - tierMin)) * 100, 100) : 100;
-
-
+  const currentTierIndex = [...TIERS].reverse().findIndex(t => loyaltyPoints >= t.threshold);
+  const tierIndex = currentTierIndex === -1 ? 0 : TIERS.length - 1 - currentTierIndex;
+  const currentTier = TIERS[tierIndex];
+  const nextTier = TIERS[tierIndex + 1];
+  
+  const { name: tier } = currentTier;
+  const needed = nextTier ? nextTier.threshold - loyaltyPoints : 0;
+  const progress = nextTier ? Math.min((loyaltyPoints / nextTier.threshold) * 100, 100) : 100;
 
   const stats = [
     { label: 'Total Orders', value: user?.orders?.length || 0 },
-    { label: 'Pending', value: user?.orders?.filter(o => o.status === 'Processing').length || 0 },
+    { label: 'Pending', value: user?.orders?.filter(o => o.status === 'Processing')?.length || 0 },
     { label: 'Saved Designs', value: user?.savedDesigns?.length || 0 },
     { label: 'Loyalty Points', value: loyaltyPoints },
   ];
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 }}>
-        <h2 style={{ fontSize: 22, fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 700, color: '#1A1A1A' }}>Account Overview</h2>
-      </div>
+      <h2 style={{ fontSize: 22, fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 700, color: '#1A1A1A', marginBottom: 24 }}>
+        Account Overview
+      </h2>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 16, marginBottom: 28 }}>
-        {stats.map((s, i) => (
-          <div key={i} style={{ backgroundColor: BG, borderRadius: 12, padding: '18px 16px', border: '1px solid #E2DDD6' }}>
-            <p style={{ fontSize: 11, fontWeight: 700, color: '#6B6B6B', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>{s.label}</p>
-            <p style={{ fontSize: 28, fontFamily: '"DM Mono", monospace', fontWeight: 500, color: '#1A1A1A' }}>{s.value}</p>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: isMobile ? '1fr' : '260px 1fr',
+        gap: 24,
+        alignItems: 'start'
+      }}>
+
+        {/* LEFT COLUMN — Identity card */}
+        <div style={{ background: '#fff', borderRadius: 16, padding: 28, border: '1px solid #E2DDD6', textAlign: 'center' }}>
+          {/* Avatar */}
+          <div style={{
+            width: 80, height: 80, borderRadius: '50%',
+            background: G, color: '#fff',
+            fontSize: 32, fontWeight: 700,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            margin: '0 auto 14px'
+          }}>
+            {user?.name?.[0]?.toUpperCase() || 'U'}
           </div>
-        ))}
-      </div>
 
-      <div style={{ backgroundColor: '#fff', border: '1px solid #E2DDD6', borderRadius: 12, padding: '20px 24px', marginBottom: 24 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 12 }}>
-          <div>
-            <p style={{ fontSize: 11, fontWeight: 700, color: '#6B6B6B', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>Loyalty Tier</p>
-            <h3 style={{ fontSize: 20, fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 700, color: ACCENT }}>{tier} Member</h3>
+          <h3 style={{ fontSize: 18, fontWeight: 700, color: '#1A1A1A', marginBottom: 4 }}>{user?.name || 'User'}</h3>
+          <p style={{ fontSize: 13, color: '#888', marginBottom: 16 }}>{user?.email}</p>
+
+          {/* Tier badge */}
+          <span style={{
+            display: 'inline-block',
+            fontSize: 12, fontWeight: 700,
+            background: ACCENT + '22', color: ACCENT,
+            padding: '4px 14px', borderRadius: 100, marginBottom: 14
+          }}>
+            {tier} Member
+          </span>
+
+          {/* Loyalty progress bar */}
+          <div style={{ height: 6, background: '#E2DDD6', borderRadius: 6, overflow: 'hidden', marginBottom: 6 }}>
+            <div style={{
+              height: '100%',
+              width: `${Math.min(progress, 100)}%`,
+              background: ACCENT,
+              borderRadius: 6,
+              transition: 'width 1s ease'
+            }} />
           </div>
-          <span style={{ fontSize: 13, fontWeight: 700, color: '#1A1A1A' }}>{loyaltyPoints} pts</span>
+          <p style={{ fontSize: 11, color: '#888', marginBottom: 14 }}>
+            {loyaltyPoints} pts
+            {nextTier ? ` · ${needed} more to ${nextTier.name}` : ' · Maximum tier reached'}
+          </p>
+
+          {/* Member since */}
+          <p style={{ fontSize: 11, color: '#aaa', marginBottom: 20 }}>
+            Member since {user?.createdAt
+              ? new Date(user.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+              : 'N/A'}
+          </p>
+
+          {/* Action buttons */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <button
+              onClick={() => setTab('orders')}
+              style={{ padding: '10px 0', background: G, color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer', width: '100%' }}
+            >
+              View Order History
+            </button>
+            <button
+              onClick={() => setTab('settings')}
+              style={{ padding: '10px 0', background: '#fff', color: G, border: `1.5px solid ${G}`, borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer', width: '100%' }}
+            >
+              Edit Profile
+            </button>
+          </div>
         </div>
-        <div style={{ height: 8, backgroundColor: '#E2DDD6', borderRadius: 8, overflow: 'hidden', marginBottom: 8 }}>
-          <div style={{ height: '100%', width: `${Math.min(progress, 100)}%`, backgroundColor: ACCENT, borderRadius: 8, transition: 'width 1s ease' }} />
+
+        {/* RIGHT COLUMN — Stats + recent orders */}
+        <div>
+          {/* Stat cards row */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)',
+            gap: 12,
+            marginBottom: 20
+          }}>
+            {stats.map((s, i) => (
+              <div key={i} style={{
+                background: '#fff', borderRadius: 12,
+                padding: '16px 14px', border: '1px solid #E2DDD6', textAlign: 'center'
+              }}>
+                <p style={{ fontSize: 10, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>{s.label}</p>
+                <p style={{ fontSize: 26, fontWeight: 700, color: '#1A1A1A', fontFamily: '"DM Mono", monospace', margin: 0 }}>{s.value}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Recent orders */}
+          <div style={{ background: '#fff', borderRadius: 12, padding: '20px 20px', border: '1px solid #E2DDD6' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, paddingBottom: 10, borderBottom: '1px solid #F0EDE8' }}>
+              <h3 style={{ fontSize: 14, fontWeight: 700, color: '#1A1A1A', margin: 0 }}>Recent Orders</h3>
+              <button onClick={() => setTab('orders')} style={{ fontSize: 12, color: ACCENT, fontWeight: 700, background: 'none', border: 'none', cursor: 'pointer' }}>
+                View All
+              </button>
+            </div>
+            {(user?.orders || []).length === 0 ? (
+              <p style={{ fontSize: 13, color: '#888', textAlign: 'center', padding: '20px 0' }}>No orders yet</p>
+            ) : (
+              (user?.orders || []).slice(0, 3).map((o, i) => (
+                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: (user.orders.slice(0, 3).length > 1 && i < user.orders.slice(0, 3).length - 1) ? '1px solid #F5F2ED' : 'none' }}>
+                  <div>
+                    <p style={{ fontSize: 13, fontWeight: 600, color: '#1A1A1A', margin: 0 }}>{o.orderId || o.product || 'Order'}</p>
+                    <p style={{ fontSize: 11, color: '#888', margin: '2px 0 0' }}>
+                      {o.createdAt ? new Date(o.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : ''}
+                    </p>
+                  </div>
+                  <Badge status={o.status || 'Processing'} />
+                </div>
+              ))
+            )}
+          </div>
         </div>
-        {nextTier && <p style={{ fontSize: 12, color: '#6B6B6B' }}>{needed} more points to reach {nextTier}</p>}
       </div>
-
-      <div style={{ display: 'flex', gap: 12 }}>
-        <button onClick={() => setTab('orders')} style={{ padding: '10px 20px', backgroundColor: G, color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
-          View Order History
-        </button>
-      </div>
-
-
     </div>
   );
 }
@@ -107,7 +197,7 @@ function OverviewTab({ user, setTab, updateUser, showToast }) {
 // --- ORDERS TAB ---
 function OrdersTab({ orders, loading }) {
   const [selectedOrder, setSelectedOrder] = useState(null);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isMobile, setIsMobile] = useState(false);
 
   const displayOrders = orders?.length ? orders.map(o => ({
     ...o,
@@ -118,6 +208,7 @@ function OrdersTab({ orders, loading }) {
   })) : [];
 
   useEffect(() => {
+    setIsMobile(window.innerWidth < 768);
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
@@ -231,7 +322,7 @@ function OrdersTab({ orders, loading }) {
 // --- QUOTES TAB ---
 function QuotesTab({ quotes, loading }) {
   const [selectedQuote, setSelectedQuote] = useState(null);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isMobile, setIsMobile] = useState(false);
 
   const displayQuotes = quotes?.length ? quotes.map(q => ({
     ...q,
@@ -240,6 +331,7 @@ function QuotesTab({ quotes, loading }) {
   })) : [];
 
   useEffect(() => {
+    setIsMobile(window.innerWidth < 768);
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
@@ -613,6 +705,7 @@ function SettingsTab({ user, updateUser, showToast, logout }) {
   const [phoneErr, setPhoneErr] = useState('');
   const [pwd, setPwd] = useState({ current: '', newPwd: '', confirm: '' });
   const [pwdErr, setPwdErr] = useState('');
+  const [pwdSaving, setPwdSaving] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [notifs, setNotifs] = useState({
@@ -658,12 +751,15 @@ function SettingsTab({ user, updateUser, showToast, logout }) {
       return;
     }
     setPwdErr('');
+    setPwdSaving(true);
     try {
       await api.put('/users/password', { currentPassword: pwd.current, newPassword: pwd.newPwd });
       showToast('Password updated successfully!', 'success');
       setPwd({ current: '', newPwd: '', confirm: '' });
     } catch (err) {
       setPwdErr(err.message || 'Current password is incorrect');
+    } finally {
+      setPwdSaving(false);
     }
   };
 
@@ -771,9 +867,10 @@ function SettingsTab({ user, updateUser, showToast, logout }) {
           </div>
           <Button 
             onClick={handleUpdatePassword}
-            loading={saving}
+            loading={pwdSaving}
+            style={{ alignSelf: 'flex-start' }}
           >
-            {saving ? 'Updating...' : 'Update Password'}
+            {pwdSaving ? 'Updating…' : 'Update Password'}
           </Button>
         </div>
       </div>
@@ -831,151 +928,94 @@ function NotificationsTab() {
   const [loading, setLoading] = useState(true);
   const { showToast } = useToast();
 
-  const fetchNotifications = async () => {
-    try {
-      const data = await api.get('/notifications');
-      setNotifications(data.notifications || []);
-    } catch (e) {
-      showToast('Failed to load notifications', 'error');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchNotifications();
+    let cancelled = false;
+    api.get('/notifications')
+      .then(data => { if (!cancelled) setNotifications(data.notifications || []); })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
   }, []);
 
-  const handleMarkRead = async (id) => {
-    try {
-      await api.put(`/notifications/${id}/read`);
-      setNotifications(prev => prev.map(n => n._id === id ? { ...n, isRead: true } : n));
-    } catch (e) { showToast('Failed to mark as read', 'error'); }
-  };
-
-  const handleDismiss = async (id) => {
-    try {
-      await api.delete(`/notifications/${id}`);
-      setNotifications(prev => prev.filter(n => n._id !== id));
-      showToast('Notification dismissed', 'success');
-    } catch (e) { showToast('Failed to dismiss notification', 'error'); }
-  };
-
   const handleMarkAllRead = async () => {
-    try {
-      await api.put('/notifications/read-all');
-      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
-      showToast('All marked as read', 'success');
-    } catch (e) { showToast('Action failed', 'error'); }
+    await api.put('/notifications/read-all').catch(() => {});
+    setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
   };
 
   const handleClearAll = async () => {
-    try {
-      await api.delete('/notifications/all');
-      setNotifications([]);
-      showToast('All notifications cleared', 'success');
-    } catch (e) { showToast('Action failed', 'error'); }
+    await api.delete('/notifications/all').catch(() => {});
+    setNotifications([]);
+    showToast('All notifications cleared.', 'success');
   };
 
-  if (loading) return <div style={{ padding: 40, textAlign: 'center' }}><Bell size={32} style={{ color: '#ccc', animation: 'pulse 2s infinite' }} /></div>;
+  const handleDismiss = async (id) => {
+    await api.delete(`/notifications/${id}`).catch(() => {});
+    setNotifications(prev => prev.filter(n => n._id !== id));
+  };
+
+  const handleMarkRead = async (id) => {
+    await api.put(`/notifications/${id}/read`).catch(() => {});
+    setNotifications(prev => prev.map(n => n._id === id ? { ...n, isRead: true } : n));
+  };
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
-        <h2 style={{ fontSize: 22, fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 700, color: '#1A1A1A' }}>Notifications</h2>
-        <div style={{ display: 'flex', gap: 16 }}>
-          {notifications.some(n => !n.isRead) && (
-            <button onClick={handleMarkAllRead} style={{ background: 'none', border: 'none', color: G, fontWeight: 700, fontSize: 13, cursor: 'pointer', textDecoration: 'underline' }}>
-              Mark all as read
-            </button>
-          )}
-          {notifications.length > 0 && (
-            <button onClick={handleClearAll} style={{ background: 'none', border: 'none', color: '#DC2626', fontWeight: 700, fontSize: 13, cursor: 'pointer', textDecoration: 'underline' }}>
-              Clear All
-            </button>
-          )}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+        <h2 style={{ fontSize: 22, fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 700, color: '#1A1A1A' }}>
+          Notifications
+        </h2>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button onClick={handleMarkAllRead} style={{ fontSize: 12, fontWeight: 600, color: G, background: 'none', border: `1px solid ${G}`, borderRadius: 8, padding: '6px 12px', cursor: 'pointer' }}>
+            Mark All Read
+          </button>
+          <button onClick={handleClearAll} style={{ fontSize: 12, fontWeight: 600, color: '#EF4444', background: 'none', border: '1px solid #EF4444', borderRadius: 8, padding: '6px 12px', cursor: 'pointer' }}>
+            Clear All
+          </button>
         </div>
       </div>
 
-      {notifications.length === 0 ? (
-        <motion.div 
-          initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-          style={{ textAlign: 'center', padding: '60px 24px', backgroundColor: BG, borderRadius: 16, border: '1px dashed #D0CAC0' }}>
-          <Bell size={48} style={{ color: '#D0CAC0', marginBottom: 16 }} />
-          <p style={{ fontSize: 16, fontWeight: 600, color: '#1A1A1A', marginBottom: 4 }}>All caught up!</p>
-          <p style={{ fontSize: 13, color: '#6B6B6B' }}>You don't have any notifications at the moment.</p>
-        </motion.div>
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: 40 }}><RefreshCw size={24} style={{ animation: 'spin 1s linear infinite', color: '#aaa' }} /></div>
+      ) : notifications.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '60px 24px', color: '#888' }}>
+          <Bell size={32} style={{ marginBottom: 12, opacity: 0.3 }} />
+          <p style={{ fontSize: 15, fontWeight: 600 }}>No notifications</p>
+          <p style={{ fontSize: 13 }}>You are all caught up!</p>
+        </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <AnimatePresence initial={false}>
-            {notifications.map((n) => (
-              <motion.div 
-                key={n._id}
-                layout
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 10, transition: { duration: 0.2 } }}
-                style={{ 
-                  padding: '16px 20px', 
-                  borderRadius: 12, 
-                  border: '1px solid #E2DDD6', 
-                  backgroundColor: n.isRead ? '#fff' : 'rgba(26, 77, 46, 0.03)',
-                  display: 'flex',
-                  gap: 16,
-                  transition: 'all 0.2s',
-                  position: 'relative'
-                }}
-              >
-                <div style={{ 
-                  width: 40, height: 40, borderRadius: 10, 
-                  backgroundColor: n.isRead ? '#f3f4f6' : `${G}15`, 
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 
-                }}>
-                  {n.type === 'order_status' && <Package size={18} color={n.isRead ? '#888' : G} />}
-                  {n.type === 'quote_update' && <FileText size={18} color={n.isRead ? '#888' : G} />}
-                  {n.type === 'message_reply' && <Info size={18} color={n.isRead ? '#888' : G} />}
-                  {n.type === 'system' && <Bell size={18} color={n.isRead ? '#888' : G} />}
-                </div>
-                <div style={{ flex: 1, pr: 30 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
-                    <h4 style={{ fontSize: 14, fontWeight: 700, color: '#1A1A1A', margin: 0 }}>{n.title}</h4>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                      <span style={{ fontSize: 11, color: '#888' }}>{new Date(n.createdAt).toLocaleDateString()}</span>
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); handleDismiss(n._id); }} 
-                        style={{ background: 'none', border: 'none', color: '#9CA3AF', cursor: 'pointer', fontSize: 18, padding: '0 4px', lineHeight: 1, transition: 'color 0.2s' }}
-                        onMouseEnter={e => e.target.style.color = '#DC2626'}
-                        onMouseLeave={e => e.target.style.color = '#9CA3AF'}
-                      >
-                        &times;
-                      </button>
-                    </div>
-                  </div>
-                  <p style={{ fontSize: 13, color: '#4B5563', margin: '0 0 12px', lineHeight: 1.5 }}>{n.message}</p>
-                  <div style={{ display: 'flex', gap: 12 }}>
-                    {n.link && (
-                      <Link to={n.link} style={{ fontSize: 12, fontWeight: 700, color: G, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <Eye size={12} /> View Details
-                      </Link>
-                    )}
-                    {!n.isRead && (
-                      <button onClick={() => handleMarkRead(n._id)} style={{ background: 'none', border: 'none', color: '#6B7280', fontSize: 12, fontWeight: 600, cursor: 'pointer', padding: 0 }}>
-                        Mark as read
-                      </button>
-                    )}
-                  </div>
-                </div>
-                <button 
-                  onClick={() => handleDismiss(n._id)}
-                  style={{ position: 'absolute', top: 16, right: 16, background: 'none', border: 'none', color: '#D1D5DB', cursor: 'pointer', padding: 4, borderRadius: 6, transition: 'all 0.2s' }}
-                  onMouseEnter={e => { e.currentTarget.style.color = '#EF4444'; e.currentTarget.style.backgroundColor = '#FEE2E2'; }}
-                  onMouseLeave={e => { e.currentTarget.style.color = '#D1D5DB'; e.currentTarget.style.backgroundColor = 'transparent'; }}
-                >
-                  <Trash2 size={14} />
+        <div style={{
+          maxHeight: notifications.length > 10 ? 520 : 'none',
+          overflowY: notifications.length > 10 ? 'auto' : 'visible',
+          display: 'flex', flexDirection: 'column', gap: 10
+        }}>
+          {notifications.map(n => (
+            <div key={n._id} style={{
+              display: 'flex', alignItems: 'flex-start', gap: 14,
+              padding: '14px 16px',
+              background: n.isRead ? '#FAFAF9' : '#FFF8EE',
+              border: `1px solid ${n.isRead ? '#E2DDD6' : '#F0C87A'}`,
+              borderRadius: 10,
+              position: 'relative'
+            }}>
+              <div style={{ flex: 1 }}>
+                <p style={{ fontSize: 13, fontWeight: n.isRead ? 500 : 700, color: '#1A1A1A', margin: 0, marginBottom: 2 }}>{n.title}</p>
+                <p style={{ fontSize: 12, color: '#6B6B6B', margin: 0, marginBottom: 4 }}>{n.message}</p>
+                <p style={{ fontSize: 11, color: '#aaa', margin: 0 }}>
+                  {new Date(n.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })}
+                </p>
+              </div>
+              <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                {!n.isRead && (
+                  <button onClick={() => handleMarkRead(n._id)} style={{ fontSize: 11, color: G, background: 'none', border: `1px solid ${G}`, borderRadius: 6, padding: '3px 8px', cursor: 'pointer', fontWeight: 600 }}>
+                    Read
+                  </button>
+                )}
+                <button onClick={() => handleDismiss(n._id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#aaa', padding: 4, display: 'flex', alignItems: 'center' }}>
+                  <X size={14} />
                 </button>
-              </motion.div>
-            ))}
-          </AnimatePresence>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>
@@ -999,8 +1039,10 @@ export default function Profile() {
   const location = useLocation();
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
-  const [activeTab, setActiveTab] = useState(() => location.state?.tab || 'overview');
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get('tab') || location.state?.tab || 'overview';
+  const setActiveTab = (val) => setSearchParams({ tab: val });
+  const [isMobile, setIsMobile] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [orders, setOrders] = useState([]);
   const [quotes, setQuotes] = useState([]);
@@ -1024,9 +1066,18 @@ export default function Profile() {
     };
     fetchOrders();
     fetchQuotes();
+
+    // Real-time polling
+    const interval = setInterval(() => {
+      fetchOrders();
+      fetchQuotes();
+    }, 10000);
+
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
+    setIsMobile(window.innerWidth < 768);
     const handler = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener('resize', handler);
     return () => window.removeEventListener('resize', handler);
@@ -1131,7 +1182,7 @@ export default function Profile() {
 
           {/* Main Content */}
           <div style={{ flex: 1, minWidth: 0, backgroundColor: '#fff', borderRadius: 14, border: '1px solid #E2DDD6', padding: isMobile ? '24px 16px' : '32px', minHeight: 600 }}>
-            {activeTab === 'overview' && <OverviewTab user={{ ...user, orders, quotes }} setTab={setActiveTab} updateUser={updateUser} showToast={showToast} />}
+            {activeTab === 'overview' && <OverviewTab user={{ ...user, orders, quotes }} setTab={setActiveTab} updateUser={updateUser} showToast={showToast} isMobile={isMobile} />}
             {activeTab === 'orders' && <OrdersTab orders={orders} loading={ordersLoading} />}
             {activeTab === 'quotes' && <QuotesTab quotes={quotes} loading={quotesLoading} />}
             {activeTab === 'notifications' && <NotificationsTab />}

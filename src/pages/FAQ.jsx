@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ChevronDown, Search, MessageSquare, Phone, Mail } from 'lucide-react';
 
 const categories = [
@@ -45,6 +45,11 @@ export default function FAQ() {
   const [activeCat, setActiveCat] = useState('all');
   const [openIndex, setOpenIndex] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
+  
+  // Reset open accordion whenever filter or search changes
+  useEffect(() => {
+    setOpenIndex(null);
+  }, [activeCat, searchQuery]);
 
   const filteredFaqs = faqs.filter(faq => {
     const matchesCat = activeCat === 'all' || faq.cat === activeCat;

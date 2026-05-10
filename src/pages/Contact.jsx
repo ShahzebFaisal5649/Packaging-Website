@@ -157,10 +157,10 @@ export default function Contact() {
                   type="submit"
                   loading={status === 'loading'}
                   variant="primary"
-                  style={{ width: '100%', padding: '18px', borderRadius: 12, backgroundColor: status === 'success' ? '#059669' : G }}
+                  style={{ width: '100%', padding: '18px', borderRadius: 12, backgroundColor: status === 'success' ? '#10B981' : G }}
                   icon={status === 'success' ? CheckCircle : Send}
                 >
-                  {status === 'loading' ? 'Sending...' : status === 'success' ? 'Message Sent' : 'Send Message'}
+                  {status === 'loading' ? 'Sending…' : status === 'success' ? 'Message Sent!' : 'Send Message'}
                 </Button>
 
                 {status === 'error' && (

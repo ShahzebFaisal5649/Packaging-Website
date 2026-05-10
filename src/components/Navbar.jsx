@@ -239,7 +239,9 @@ export default function Navbar() {
   }, [mobileMenuOpen]);
 
   const linkStyle = (path) => {
-    const isActive = path === '/' ? location.pathname === '/' : location.pathname.startsWith(path);
+    const isActive = path === '/' 
+      ? location.pathname === '/' 
+      : location.pathname === path || (path !== '/' && location.pathname.startsWith(path + '/'));
     return {
       fontSize: 14,
       fontWeight: 600,

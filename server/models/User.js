@@ -103,6 +103,7 @@ const userSchema = new mongoose.Schema({
     lat: Number,
     lng: Number,
   },
+  lastLoginAt: { type: Date, default: null },
   createdAt: { type: Date, default: Date.now },
 });
 

@@ -12,23 +12,36 @@ const sendEmail = require('../utils/email');
 
 const router = express.Router();
 
+let _statsCache = null;
+let _statsCacheAt = 0;
+
 // All admin routes require auth + admin/super_admin role
 router.use(protect, adminOnly);
 
 // ── Stats ────────────────────────────────────────────────────────────────────
 router.get('/stats', async (req, res) => {
+  // Return cache if fresh (30 seconds)
+  if (_statsCache && Date.now() - _statsCacheAt < 30000) {
+    return res.json(_statsCache);
+  }
   try {
     const users = await User.find({ role: { $in: ['user'] } }).select('orders quotes loyaltyPoints createdAt');
-    const totalUsers = users.length;
     const allOrders = await Order.find();
     const allQuotes = await Quote.find();
     const revenue = allOrders.reduce((s, o) => s + (parseFloat(o.total) || 0), 0);
     const pending = allOrders.filter(o => o.status === 'Processing').length;
-    const newThisWeek = users.filter(u => {
-      const d = new Date(u.createdAt);
-      return (Date.now() - d) < 7 * 24 * 60 * 60 * 1000;
-    }).length;
-    res.json({ totalUsers, totalOrders: allOrders.length, totalQuotes: allQuotes.length, revenue, pending, newThisWeek });
+    const newThisWeek = users.filter(u => (Date.now() - new Date(u.createdAt)) < 7 * 24 * 60 * 60 * 1000).length;
+    const result = {
+      totalUsers: users.length,
+      totalOrders: allOrders.length,
+      totalQuotes: allQuotes.length,
+      revenue,
+      pending,
+      newThisWeek
+    };
+    _statsCache = result;
+    _statsCacheAt = Date.now();
+    res.json(result);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -91,6 +104,9 @@ router.put('/users/:id', async (req, res) => {
 router.put('/users/:id/role', superAdminOnly, async (req, res) => {
   try {
     const { role } = req.body;
+    if (role === 'super_admin') {
+      return res.status(403).json({ message: 'The Super Admin role cannot be assigned.' });
+    }
     if (!['user', 'admin'].includes(role)) {
       return res.status(400).json({ message: 'Invalid role. Must be "user" or "admin".' });
     }
@@ -276,7 +292,10 @@ router.put('/orders/:userId/:orderId', async (req, res) => {
       const oldStatus = order.status;
       order.status = status;
       if (!order.statusDates) order.statusDates = {};
-      order.statusDates[status.toLowerCase()] = new Date();
+      const statusKey = status.toLowerCase();
+      order.statusDates[statusKey] = new Date();
+      // Also update top level processingDate for backward compatibility if needed
+      if (status === 'Processing') order.processingDate = new Date();
 
       // Auto-calculate loyalty points when marked as Delivered
       if (status === 'Delivered' && oldStatus !== 'Delivered') {
@@ -385,6 +404,46 @@ router.get('/quotes', async (req, res) => {
   }
 });
 
+router.put('/quotes/:quoteId', async (req, res) => {
+  try {
+    const isObjectId = /^[0-9a-fA-F]{24}$/.test(req.params.quoteId);
+    const quote = isObjectId 
+      ? await Quote.findById(req.params.quoteId)
+      : await Quote.findOne({ quoteId: req.params.quoteId });
+
+    if (!quote) return res.status(404).json({ message: 'Quote not found' });
+    Object.assign(quote, req.body);
+    await quote.save();
+    
+    // Sync standalone quote to embedded User doc
+    if (quote.userId) {
+      const quoteQuery = isObjectId ? { 'quotes._id': req.params.quoteId } : { 'quotes.quoteId': req.params.quoteId };
+      await User.findOneAndUpdate(
+        { _id: quote.userId, ...quoteQuery },
+        { $set: {
+          'quotes.$.status': quote.status,
+          'quotes.$.quotedPrice': quote.quotedPrice
+        }}
+      );
+
+      // Trigger Notification
+      if (req.body.status || req.body.quotedPrice) {
+        await sendNotification(
+          quote.userId,
+          `Quote ${quote.quoteId} Update`,
+          `Your quote status has been updated to ${quote.status}.`,
+          'quote_update',
+          '/profile?tab=quotes'
+        );
+      }
+    }
+    
+    res.json({ message: 'Quote updated', quote });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 router.put('/quotes/:userId/:quoteId', async (req, res) => {
   try {
     const isObjectId = /^[0-9a-fA-F]{24}$/.test(req.params.quoteId);
@@ -475,44 +534,68 @@ router.put('/contact-messages/:id', async (req, res) => {
 router.post('/messages/:id/reply', async (req, res) => {
   try {
     const { replyMessage } = req.body;
-    if (!replyMessage || !replyMessage.trim()) {
-      return res.status(400).json({ message: 'Reply message cannot be empty.' });
+    if (!replyMessage?.trim()) {
+      return res.status(400).json({ message: 'Reply cannot be empty.' });
     }
     const message = await ContactMessage.findById(req.params.id);
     if (!message) return res.status(404).json({ message: 'Message not found' });
 
-    await sendEmail({
-      email: message.email,
-      subject: `Reply to your message – Design Custom Box`,
-      html: `
-        <div style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;max-width:600px;margin:0 auto;border:1px solid #e2ddd6;border-radius:16px;overflow:hidden;background:#ffffff;">
-          <div style="background-color:#1A4D2E;padding:30px;text-align:center;">
-            <h1 style="color:#ffffff;margin:0;font-size:24px;font-weight:800;">Design Custom <span style="color:#C8860A;">Box</span></h1>
-          </div>
-          <div style="padding:40px;color:#1a1a1a;">
-            <h2 style="font-size:20px;font-weight:700;margin:0 0 8px 0;">Re: ${message.subject}</h2>
-            <p style="color:#6b6b6b;margin:0 0 24px 0;">Hi ${message.name},</p>
-            <div style="padding:20px;background:#f8f5f0;border-left:4px solid #C8860A;border-radius:0 8px 8px 0;margin-bottom:24px;">
-              <p style="white-space:pre-wrap;margin:0;font-size:15px;line-height:1.7;">${replyMessage}</p>
+    // Send email — wrapped separately so failure doesn't block the response
+    let emailSent = false;
+    try {
+      await sendEmail({
+        email: message.email,
+        subject: `Reply to your message – Design Custom Box`,
+        html: `
+          <div style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;max-width:600px;margin:0 auto;border:1px solid #e2ddd6;border-radius:16px;overflow:hidden;background:#ffffff;">
+            <div style="background-color:#1A4D2E;padding:30px;text-align:center;">
+              <h1 style="color:#ffffff;margin:0;font-size:24px;font-weight:800;">Design Custom <span style="color:#C8860A;">Box</span></h1>
             </div>
-            <p style="color:#6b6b6b;font-size:14px;">Best regards,<br/><strong style="color:#1A4D2E;">The Design Custom Box Team</strong></p>
-            <hr style="border:none;border-top:1px solid #f0ede8;margin:28px 0;" />
-            <p style="color:#9a9080;font-size:12px;">Your original message:</p>
-            <blockquote style="color:#9a9080;font-size:13px;border-left:2px solid #ddd;margin:0;padding-left:12px;white-space:pre-wrap;">${message.message}</blockquote>
-            <div style="margin-top:32px;text-align:center;font-size:12px;color:#9a9080;">
-              <p style="margin:0;">© ${new Date().getFullYear()} Design Custom Box · Designcustombox@gmail.com · (913) 228-2682</p>
+            <div style="padding:40px;color:#1a1a1a;">
+              <h2 style="font-size:20px;font-weight:700;margin:0 0 8px 0;">Re: ${message.subject}</h2>
+              <p style="color:#6b6b6b;margin:0 0 24px 0;">Hi ${message.name},</p>
+              <div style="padding:20px;background:#f8f5f0;border-left:4px solid #C8860A;border-radius:0 8px 8px 0;margin-bottom:24px;">
+                <p style="white-space:pre-wrap;margin:0;font-size:15px;line-height:1.7;">${replyMessage}</p>
+              </div>
+              <p style="color:#6b6b6b;font-size:14px;">Best regards,<br/><strong style="color:#1A4D2E;">The Design Custom Box Team</strong></p>
+              <hr style="border:none;border-top:1px solid #f0ede8;margin:28px 0;" />
+              <p style="color:#9a9080;font-size:12px;">Your original message:</p>
+              <blockquote style="color:#9a9080;font-size:13px;border-left:4px solid #ddd;margin:0;padding-left:12px;white-space:pre-wrap;">${message.message}</blockquote>
             </div>
           </div>
-        </div>
-      `,
-    });
+        `,
+      });
+      emailSent = true;
+    } catch (emailErr) {
+      console.error('Reply email error:', emailErr.message);
+      // Continue — still mark as replied and send notification
+    }
+
+    // Send in-app notification if user has an account with this email
+    try {
+      const user = await User.findOne({ email: message.email });
+      if (user) {
+        await sendNotification(
+          user._id,
+          'Reply to your message',
+          `We have replied to your message: "${message.subject}"`,
+          'message_reply',
+          '/profile?tab=notifications'
+        );
+      }
+    } catch (notifErr) {
+      console.error('Notification error:', notifErr.message);
+    }
 
     message.status = 'Replied';
     await message.save();
-    res.json({ message: 'Reply sent successfully', contactMessage: message });
+    res.json({
+      message: emailSent ? 'Reply sent successfully' : 'Reply saved (email delivery pending)',
+      contactMessage: message
+    });
   } catch (err) {
-    console.error('Reply email error:', err);
-    res.status(500).json({ message: 'Failed to send reply. Please try again.' });
+    console.error('Reply route error:', err);
+    res.status(500).json({ message: 'Failed to send reply.' });
   }
 });
 
@@ -581,19 +664,24 @@ router.get('/analytics', async (req, res) => {
     }
 
     const locations = [];
+    const toTitleCase = (str) =>
+      str.trim().toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+    
     users.forEach(u => {
       if (u.addresses?.length) {
         u.addresses.forEach(addr => {
-          if (addr.city) locations.push({ city: addr.city, country: addr.country || 'US', type: 'User' });
+          if (addr.city) {
+            locations.push({ city: toTitleCase(addr.city), country: addr.country || 'PK', type: 'User' });
+          }
         });
       }
       if (u.lastLocation?.city) {
-        locations.push({ city: u.lastLocation.city, country: u.lastLocation.country || 'US', type: 'Login' });
+        locations.push({ city: toTitleCase(u.lastLocation.city), country: u.lastLocation.country || 'PK', type: 'Login' });
       }
     });
     allOrders.forEach(o => {
       if (o.shippingAddress?.city) {
-        locations.push({ city: o.shippingAddress.city, country: 'US', type: 'Order' });
+        locations.push({ city: toTitleCase(o.shippingAddress.city), country: 'PK', type: 'Order' });
       }
     });
 

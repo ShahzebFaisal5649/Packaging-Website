@@ -1,5 +1,7 @@
-require('dotenv').config();
-require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') });
+if (!process.env.VERCEL) {
+  require('dotenv').config();
+  require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') });
+}
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -23,7 +25,7 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 // Log critical env vars at startup for easier debugging
-const requiredEnvVars = ['MONGODB_URI', 'JWT_SECRET', 'EMAIL_USER', 'EMAIL_PASS'];
+const requiredEnvVars = ['MONGODB_URI', 'JWT_SECRET', 'RESEND_API_KEY'];
 requiredEnvVars.forEach(v => {
   if (!process.env[v]) console.warn(`⚠️  Missing env var: ${v}`);
 });
@@ -149,33 +151,7 @@ app.get('/api/health', async (req, res) => {
   res.json({ status: 'ok', db: dbStatus, time: new Date().toISOString() });
 });
 
-// Register contact route directly for compatibility
-const ContactMessage = require('./models/ContactMessage');
-app.post('/api/contact', requireDb, async (req, res) => {
-  try {
-    const { name, email, phone, companyName, subject, projectDetails, message } = req.body;
-    const finalMessage = projectDetails || message;
-
-    if (!name || !email || !subject || !finalMessage) {
-      return res.status(400).json({ message: 'Name, email, subject, and message are required.' });
-    }
-
-    const contact = await ContactMessage.create({
-      name,
-      email,
-      phone: phone || '',
-      company: companyName || req.body.company || '',
-      subject,
-      message: finalMessage,
-      interests: req.body.interests || [],
-    });
-
-    res.status(201).json({ success: true, message: 'Message sent successfully', contact });
-  } catch (err) {
-    console.error('Contact error:', err);
-    res.status(500).json({ message: 'Could not submit: ' + err.message });
-  }
-});
+// app.post('/api/contact', ...) is now handled by /api/content/contact in contentRoutes.js
 
 app.use((req, res) => res.status(404).json({ message: 'Route not found' }));
 

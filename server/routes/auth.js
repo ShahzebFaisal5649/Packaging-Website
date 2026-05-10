@@ -49,6 +49,27 @@ router.post('/register', async (req, res) => {
       loyaltyPoints: 150,
     });
 
+    // Send Welcome Email
+    await sendEmail({
+      email: user.email,
+      subject: "Welcome to Design Custom Box! 🎁",
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+          <h2 style="color: #1A4D2E;">Welcome, ${user.name}!</h2>
+          <p>Thank you for joining Design Custom Box. We're excited to help you create stunning custom packaging for your brand.</p>
+          <div style="background: #F5F2ED; padding: 15px; borderRadius: 8px;">
+            <p><strong>Exclusive Offer:</strong> As a welcome gift, we've added <strong>150 Loyalty Points</strong> to your account!</p>
+          </div>
+          <p>You can now save custom designs, track orders, and request quotes instantly.</p>
+          <div style="text-align: center; margin-top: 30px;">
+            <a href="${process.env.CLIENT_URL || 'http://localhost:3000'}/profile" style="background: #1A4D2E; color: #fff; padding: 12px 24px; text-decoration: none; borderRadius: 6px; fontWeight: bold;">Go to Dashboard</a>
+          </div>
+          <hr />
+          <p style="font-size: 12px; color: #888;">Design Custom Box Team</p>
+        </div>
+      `
+    });
+
     res.status(201).json({
       token: generateToken(user._id),
       user: user.toSafeObject(),
@@ -86,6 +107,8 @@ router.post('/google', async (req, res) => {
       if (token) user.googleToken = token;
     }
 
+    user.lastLoginAt = new Date();
+
     if (location) {
       user.lastLocation = {
         city: location.city,
@@ -93,8 +116,8 @@ router.post('/google', async (req, res) => {
         lat: location.lat,
         lng: location.lng
       };
-      await user.save();
     }
+    await user.save();
 
     res.json({
       token: generateToken(user._id),
@@ -118,6 +141,8 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
+    user.lastLoginAt = new Date();
+
     if (location) {
       user.lastLocation = {
         city: location.city,
@@ -125,8 +150,8 @@ router.post('/login', async (req, res) => {
         lat: location.lat,
         lng: location.lng
       };
-      await user.save();
     }
+    await user.save();
 
     res.json({
       token: generateToken(user._id),

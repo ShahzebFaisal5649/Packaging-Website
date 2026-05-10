@@ -13,6 +13,9 @@ export default {
           textPrimary: '#1A1A1A',
           textSecondary: '#666666',
           success: '#8A9A8A',
+          navy: '#1A4D2E',
+          teal: '#C8860A',
+          coral: '#E09515',
         },
       },
       fontFamily: {

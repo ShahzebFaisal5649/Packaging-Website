@@ -4,6 +4,7 @@ const Industry = require('../models/Industry');
 const Subscriber = require('../models/Subscriber');
 const ContactMessage = require('../models/ContactMessage');
 const Quote = require('../models/Quote');
+const sendEmail = require('../utils/sendEmail');
 
 const router = express.Router();
 
@@ -11,6 +12,15 @@ const router = express.Router();
 router.get('/products', async (req, res) => {
   try {
     const products = await Product.find().sort({ createdAt: -1 });
+    res.json({ products });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+router.get('/featured-products', async (req, res) => {
+  try {
+    const products = await Product.find({ featured: true }).sort({ createdAt: -1 });
     res.json({ products });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -83,6 +93,35 @@ router.post('/contact', async (req, res) => {
       interests: Array.isArray(interests) ? interests : [],
     });
 
+    // Send notification to Admin
+    await sendEmail({
+      email: "designcustombox@gmail.com",
+      subject: `New Contact Submission: ${subject}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 20px;">
+          <h2>New Contact Inquiry</h2>
+          <p><strong>From:</strong> ${name} (${email})</p>
+          <p><strong>Phone:</strong> ${phone || 'N/A'}</p>
+          <p><strong>Subject:</strong> ${subject}</p>
+          <p><strong>Message:</strong></p>
+          <div style="background: #f4f4f4; padding: 15px; border-radius: 5px;">${message}</div>
+        </div>
+      `
+    });
+
+    // Send auto-reply to User
+    await sendEmail({
+      email: email,
+      subject: "We've Received Your Message - Design Custom Box",
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 20px;">
+          <h3>Hello ${name},</h3>
+          <p>Thank you for reaching out to Design Custom Box. We've received your message regarding "${subject}" and our team will get back to you as soon as possible.</p>
+          <p>Best Regards,<br/>The Design Custom Box Team</p>
+        </div>
+      `
+    });
+
     res.status(201).json({ message: 'Message received! We\'ll be in touch soon.', contact });
   } catch (err) {
     console.error('Contact error:', err);
@@ -120,6 +159,19 @@ router.post('/guest-quote', async (req, res) => {
       userName: guestUser.name,
       userEmail: guestUser.email,
       ...quoteData,
+    });
+
+    // Send Quote Confirmation Email
+    await sendEmail({
+      email: guestUser.email,
+      subject: "Your Sample Request Received - Design Custom Box",
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 20px;">
+          <h3>Hello ${name},</h3>
+          <p>Thank you for your sample request (ID: ${quote.quoteId}). We're reviewing your specifications and will provide you with a quote shortly.</p>
+          <p>Best Regards,<br/>The Design Custom Box Team</p>
+        </div>
+      `
     });
 
     res.status(201).json({ message: 'Sample request submitted successfully', quote });

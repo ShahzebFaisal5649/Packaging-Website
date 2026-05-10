@@ -3,6 +3,9 @@ const User = require('../models/User');
 const Order = require('../models/Order');
 const Quote = require('../models/Quote');
 const { protect } = require('../middleware/auth');
+const sendEmail = require('../utils/email');
+const Notification = require('../models/Notification');
+const { sendNotification } = require('../utils/notifications');
 
 const router = express.Router();
 
@@ -192,11 +195,63 @@ router.post('/orders', protect, async (req, res) => {
     });
 
     // ── Loyalty Points Logic ──────────────────────────────────────────────────
-    const pointsEarned = Math.floor((order.total || 0) / 10); // 1 point per $10
-    user.loyaltyPoints = (user.loyaltyPoints || 0) + pointsEarned;
+    const orderQty = items.reduce((sum, i) => sum + (parseInt(i.quantity || i.qty) || 1), 0);
+    const totalUserOrders = await Order.countDocuments({ userId: req.user._id });
+
+    let pointsEarned = 0;
+    if (orderQty >= 500)                          pointsEarned = 200;
+    else if (orderQty >= 100 && totalUserOrders >= 10) pointsEarned = 100;
+    else if (orderQty >= 100)                     pointsEarned = 80;
+    else if (orderQty >= 50)                      pointsEarned = 75;
+    else                                           pointsEarned = 50; // qty < 50
+
+    const oldPoints = user.loyaltyPoints || 0;
+    user.loyaltyPoints = oldPoints + pointsEarned;
     await user.save();
 
-    res.json({ order, pointsEarned, newPoints: user.loyaltyPoints, message: 'Order created successfully' });
+    // Check and send tier upgrade notifications
+    const TIERS = [
+      { name: 'Silver',   threshold: 350,  bonus: '10 free boxes' },
+      { name: 'Gold',     threshold: 750,  bonus: '20 free boxes' },
+      { name: 'Platinum', threshold: 1500, bonus: '30 free boxes' },
+      { name: 'Diamond',  threshold: 3000, bonus: '50 free boxes' },
+    ];
+    for (const tier of TIERS) {
+      if (oldPoints < tier.threshold && user.loyaltyPoints >= tier.threshold) {
+        await sendNotification(
+          req.user._id,
+          `You reached ${tier.name} tier!`,
+          `Congratulations! You have unlocked ${tier.bonus} as a ${tier.name} member.`,
+          'system',
+          '/profile?tab=overview'
+        );
+        break; // Only notify for highest tier crossed
+      }
+    }
+
+    // Send Confirmation Email
+    const itemSummary = items.map(it => `<li>${it.name} (x${it.quantity || it.qty}) - $${it.price}</li>`).join('');
+    await sendEmail({
+      email: user.email,
+      subject: "Your Custom Box Order Confirmed 🎉",
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+          <h2 style="color: #1A4D2E;">Order Confirmed!</h2>
+          <p>Hi ${user.name},</p>
+          <p>Thank you for your order! We are excited to start working on your custom packaging.</p>
+          <div style="background: #F5F2ED; padding: 15px; borderRadius: 8px;">
+            <h3 style="margin-top: 0;">Order ID: ${order.orderId}</h3>
+            <ul>${itemSummary}</ul>
+            <p><strong>Total: $${order.total}</strong></p>
+          </div>
+          <p>We will notify you once your order has been shipped.</p>
+          <hr />
+          <p style="font-size: 12px; color: #888;">Design Custom Box Team</p>
+        </div>
+      `
+    });
+
+    res.json({ order, pointsEarned, newPoints: user.loyaltyPoints, message: `Order placed! +${pointsEarned} loyalty points earned.` });
   } catch (err) {
     console.error('Order creation error:', err);
     res.status(500).json({ message: err.message });
@@ -224,6 +279,26 @@ router.post('/quotes', protect, async (req, res) => {
       userName: user.name,
       userEmail: user.email,
       ...req.body,
+    });
+
+    // Send Quote Confirmation Email
+    await sendEmail({
+      email: user.email,
+      subject: "We've Received Your Quote Request 📄",
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+          <h2 style="color: #1A4D2E;">Quote Request Received</h2>
+          <p>Hi ${user.name},</p>
+          <p>We've received your request for a custom box quote (ID: ${quote.quoteId}). Our specialists are reviewing your specifications and will get back to you within 24 hours.</p>
+          <div style="background: #F5F2ED; padding: 15px; borderRadius: 8px;">
+            <p><strong>Box Type:</strong> ${req.body.boxType || 'N/A'}</p>
+            <p><strong>Quantity:</strong> ${req.body.quantity || 'N/A'}</p>
+          </div>
+          <p>If you have any immediate questions, feel free to reply to this email.</p>
+          <hr />
+          <p style="font-size: 12px; color: #888;">Design Custom Box Team</p>
+        </div>
+      `
     });
 
     res.json({ quote, message: 'Quote submitted successfully' });
@@ -258,6 +333,7 @@ router.delete('/account', protect, async (req, res) => {
     await Promise.all([
       Order.deleteMany({ userId }),
       Quote.deleteMany({ userId }),
+      Notification.deleteMany({ userId }),
       User.findByIdAndDelete(userId),
     ]);
 
