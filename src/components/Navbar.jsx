@@ -132,7 +132,6 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [mobileExpanded, setMobileExpanded] = useState({});
-  const [notifications, setNotifications] = useState([]);
   const [notificationsDropdownOpen, setNotificationsDropdownOpen] = useState(false);
   const navRef = useRef(null);
 
@@ -141,7 +140,7 @@ export default function Navbar() {
 
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, logout, clearNotifications, markAllNotificationsRead } = useAuth();
   const { cartCount, toggleDrawer } = useCart();
   const { showToast } = useToast();
   const { count: favCount } = useFavourites();
@@ -171,40 +170,19 @@ export default function Navbar() {
     return () => window.clearTimeout(timer);
   }, [location.pathname]);
 
-  // Fetch Notifications
-  useEffect(() => {
-    const fetchNotifs = () => {
-      if (isAuthenticated) {
-        api.get('/notifications')
-          .then(data => setNotifications(data.notifications || []))
-          .catch(err => console.error('Failed to load notifications:', err));
-      } else {
-        setNotifications([]);
-      }
-    };
-    
-    fetchNotifs();
-    
-    // Listen for clear all event from Admin panel or other components
-    const handleSync = () => setNotifications([]);
-    window.addEventListener('notifications-cleared', handleSync);
-    
-    return () => window.removeEventListener('notifications-cleared', handleSync);
-  }, [isAuthenticated]);
-
+  const notifications = user?.notifications || [];
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
   const handleMarkAllRead = async () => {
     try {
-      await api.put('/notifications/read-all');
-      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+      await api.put('/users/notifications/read-all');
+      // No need to set local state if we rely on global user, but let's update if AuthContext doesn't auto-refresh
     } catch (e) { console.error('Failed to mark read', e); }
   };
 
   const handleClearAll = async () => {
     try {
-      await api.delete('/notifications/all');
-      setNotifications([]);
+      await clearNotifications();
     } catch (e) { console.error('Failed to clear notifications', e); }
   };
 
@@ -249,8 +227,8 @@ export default function Navbar() {
   }, [mobileMenuOpen]);
 
   const linkStyle = (path) => {
-    const isActive = path === '/' 
-      ? location.pathname === '/' 
+    const isActive = path === '/'
+      ? location.pathname === '/'
       : location.pathname === path || (path !== '/' && location.pathname.startsWith(path + '/'));
     return {
       fontSize: 14,
@@ -315,7 +293,7 @@ export default function Navbar() {
                 onMouseEnter={() => setActiveMenu('Products')}
                 onMouseLeave={() => setActiveMenu(null)}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                  <Link to="/products" 
+                  <Link to="/products"
                     style={linkStyle('/products')}
                     onClick={() => setActiveMenu(null)}>Products</Link>
                   <ChevronDown size={13} style={{ color: (location.pathname.startsWith('/products') || activeMenu === 'Products') ? ACCENT : 'rgba(255,255,255,0.6)', transition: 'transform 0.2s', transform: activeMenu === 'Products' ? 'rotate(180deg)' : 'rotate(0deg)' }} />
@@ -326,7 +304,7 @@ export default function Navbar() {
                 onMouseEnter={() => setActiveMenu('Industries')}
                 onMouseLeave={() => setActiveMenu(null)}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                  <Link to="/industries" 
+                  <Link to="/industries"
                     style={linkStyle('/industries')}
                     onClick={() => setActiveMenu(null)}>Industries</Link>
                   <ChevronDown size={13} style={{ color: (location.pathname.startsWith('/industries') || activeMenu === 'Industries') ? ACCENT : 'rgba(255,255,255,0.6)', transition: 'transform 0.2s', transform: activeMenu === 'Industries' ? 'rotate(180deg)' : 'rotate(0deg)' }} />
@@ -385,14 +363,14 @@ export default function Navbar() {
                   }}>
                     <div style={{ padding: '14px 16px', borderBottom: '1px solid #f5f5f5', background: '#fafafa', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                       <span style={{ fontSize: 13, fontWeight: 700, color: '#1A1A1A' }}>Notifications</span>
-                        <div style={{ display: 'flex', gap: 12 }}>
-                          {unreadCount > 0 && (
-                            <button onClick={handleMarkAllRead} style={{ fontSize: 11, color: G, background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>Mark all read</button>
-                          )}
-                          {notifications.length > 0 && (
-                            <button onClick={handleClearAll} style={{ fontSize: 11, color: '#EF4444', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>Clear all</button>
-                          )}
-                        </div>
+                      <div style={{ display: 'flex', gap: 12 }}>
+                        {unreadCount > 0 && (
+                          <button onClick={handleMarkAllRead} style={{ fontSize: 11, color: G, background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>Mark all read</button>
+                        )}
+                        {notifications.length > 0 && (
+                          <button onClick={handleClearAll} style={{ fontSize: 11, color: '#EF4444', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>Clear all</button>
+                        )}
+                      </div>
                     </div>
                     <div style={{ maxHeight: 380, overflowY: 'auto', scrollbarWidth: 'thin' }}>
                       {notifications.length === 0 ? (
@@ -400,14 +378,14 @@ export default function Navbar() {
                       ) : (
                         notifications.slice(0, 15).map((n, i) => (
                           <div key={i} style={{ position: 'relative' }}>
-                            <Link to={n.link || '/profile'} onClick={() => { setNotificationsDropdownOpen(false); if (!n.isRead) api.put(`/notifications/${n._id}/read`); }}
+                            <Link to={n.link || '/profile'} onClick={() => { setNotificationsDropdownOpen(false); if (!n.isRead) api.put(`/users/notifications/${n._id}/read`); }}
                               style={{ display: 'block', padding: '14px 16px', borderBottom: '1px solid #f5f5f5', textDecoration: 'none', background: n.isRead ? '#fff' : 'rgba(26, 77, 46, 0.05)', transition: 'background 0.15s', paddingRight: 40 }}
                               onMouseEnter={e => e.currentTarget.style.background = '#f9fafb'} onMouseLeave={e => e.currentTarget.style.background = n.isRead ? '#fff' : 'rgba(26, 77, 46, 0.05)'}>
                               <p style={{ fontSize: 13, fontWeight: n.isRead ? 600 : 700, color: '#1A1A1A', margin: '0 0 4px', paddingRight: 10 }}>{n.title}</p>
                               <p style={{ fontSize: 12, color: '#666', margin: '0 0 6px', lineHeight: 1.4 }}>{n.message}</p>
                               <span style={{ fontSize: 10, color: '#aaa' }}>{new Date(n.createdAt).toLocaleDateString()}</span>
                             </Link>
-                            <button 
+                            <button
                               onClick={(e) => handleDismissNotification(e, n._id)}
                               style={{ position: 'absolute', top: 14, right: 10, background: 'none', border: 'none', color: '#ccc', cursor: 'pointer', padding: 4, borderRadius: 4, transition: 'all 0.2s' }}
                               onMouseEnter={e => { e.currentTarget.style.color = '#EF4444'; e.currentTarget.style.background = '#FEE2E2'; }}
@@ -604,17 +582,17 @@ export default function Navbar() {
             <button
               onClick={() => setMobileMenuOpen(false)}
               aria-label="Close menu"
-              style={{ 
-                background: 'rgba(26,77,46,0.08)', 
-                border: 'none', 
-                color: '#1A4D2E', 
-                cursor: 'pointer', 
-                borderRadius: '50%', 
-                width: 44, 
-                height: 44, 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center', 
+              style={{
+                background: 'rgba(26,77,46,0.08)',
+                border: 'none',
+                color: '#1A4D2E',
+                cursor: 'pointer',
+                borderRadius: '50%',
+                width: 44,
+                height: 44,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
                 transition: 'all 0.2s',
                 boxShadow: '0 4px 12px rgba(26,77,46,0.08)'
               }}
@@ -628,7 +606,7 @@ export default function Navbar() {
           <nav style={{ padding: '8px 24px 0' }}>
             {/* Expandable: Products & Industries */}
             {[
-              { to: '/products',   label: 'Products',   key: 'Products',   items: [...productCategories.col1,  ...productCategories.col2]  },
+              { to: '/products', label: 'Products', key: 'Products', items: [...productCategories.col1, ...productCategories.col2] },
               { to: '/industries', label: 'Industries', key: 'Industries', items: [...industryCategories.col1, ...industryCategories.col2] },
             ].map(item => (
               <div key={item.key} style={{ borderBottom: '1px solid rgba(26,77,46,0.1)' }}>
@@ -661,11 +639,11 @@ export default function Navbar() {
 
             {/* Simple links */}
             {[
-              { to: '/about',           label: 'About' },
-              { to: '/how-it-works',    label: 'How It Works' },
+              { to: '/about', label: 'About' },
+              { to: '/how-it-works', label: 'How It Works' },
               { to: '/success-stories', label: 'Inspiration' },
-              { to: '/blog',            label: 'Blog' },
-              { to: '/contact-us',      label: 'Contact' },
+              { to: '/blog', label: 'Blog' },
+              { to: '/contact-us', label: 'Contact' },
               ...(isAdmin ? [] : [{ to: '/favourites', label: favCount > 0 ? `Favourites (${favCount})` : 'Favourites' }]),
             ].map(item => (
               <Link key={item.to} to={item.to}
@@ -728,4 +706,4 @@ export default function Navbar() {
       )}
     </>
   );
-}
+} 

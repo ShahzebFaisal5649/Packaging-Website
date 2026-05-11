@@ -10,4 +10,6 @@ const industrySchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
+// Index already created by unique: true
+
 module.exports = mongoose.model('Industry', industrySchema);

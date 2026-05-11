@@ -5,6 +5,7 @@ if (!process.env.VERCEL) {
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const compression = require('compression');
 const User = require('./models/User');
 
 const authRoutes = require('./routes/auth');
@@ -17,6 +18,7 @@ const notificationRoutes = require('./routes/notifications');
 
 const app = express();
 
+app.use(compression());
 app.use(cors({
   origin: [
     'http://localhost:5173',

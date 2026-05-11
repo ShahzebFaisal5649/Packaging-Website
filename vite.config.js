@@ -6,11 +6,22 @@ export default defineConfig({
   server: {
     port: 3000,
     proxy: {
-      // Proxy /api/* to the Express backend in local dev
       '/api': {
         target: 'http://localhost:5000',
         changeOrigin: true,
         secure: false,
+      },
+    },
+  },
+  build: {
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-ui': ['lucide-react', 'framer-motion'],
+          'vendor-three': ['three', '@react-three/fiber', '@react-three/drei'],
+        },
       },
     },
   },

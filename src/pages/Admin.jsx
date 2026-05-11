@@ -13,7 +13,7 @@ import {
   Shield, Ban, Star, ArrowUpRight,
   Package, Building, Upload, Menu, Plus, MapPin,
   CheckCircle, Truck, ChevronDown, Filter, Layers,
-  Bell, BellRing
+  Bell, BellRing, Settings
 } from 'lucide-react';
 
 const G = '#1A4D2E';
@@ -53,28 +53,65 @@ class SectionErrorBoundary extends React.Component {
 }
 
 const STATUS_COLORS = {
-  Delivered:  { bg: '#DCFCE7', text: '#15803D', icon: <CheckCircle size={12} /> },
+  Delivered: { bg: '#DCFCE7', text: '#15803D', icon: <CheckCircle size={12} /> },
   Processing: { bg: '#DBEAFE', text: '#1D4ED8', icon: <RefreshCw size={12} className="spin" /> },
-  Shipped:    { bg: '#FEF3C7', text: '#B45309', icon: <Truck size={12} /> },
-  Cancelled:  { bg: '#FEE2E2', text: '#B91C1C', icon: <X size={12} /> },
-  Quoted:     { bg: '#F0FDF4', text: '#16A34A', icon: <FileText size={12} /> },
-  Reviewing:  { bg: '#F5F3FF', text: '#6D28D9', icon: <Eye size={12} /> },
-  New:        { bg: '#EFF6FF', text: '#2563EB', icon: <Star size={12} /> },
-  Pending:    { bg: '#FAF5FF', text: '#7E22CE', icon: <Clock size={12} /> },
+  Shipped: { bg: '#FEF3C7', text: '#B45309', icon: <Truck size={12} /> },
+  Cancelled: { bg: '#FEE2E2', text: '#B91C1C', icon: <X size={12} /> },
+  Quoted: { bg: '#F0FDF4', text: '#16A34A', icon: <FileText size={12} /> },
+  Reviewing: { bg: '#F5F3FF', text: '#6D28D9', icon: <Eye size={12} /> },
+  New: { bg: '#EFF6FF', text: '#2563EB', icon: <Star size={12} /> },
+  Pending: { bg: '#FAF5FF', text: '#7E22CE', icon: <Clock size={12} /> },
 };
 function Badge({ status }) {
   const s = STATUS_COLORS[status] || { bg: '#F1F5F9', text: '#475569', icon: null };
   return (
-    <span style={{ 
-      backgroundColor: s.bg, color: s.text, 
-      padding: '5px 12px', borderRadius: 100, 
-      fontSize: 11, fontWeight: 700, 
+    <span style={{
+      backgroundColor: s.bg, color: s.text,
+      padding: '5px 12px', borderRadius: 100,
+      fontSize: 11, fontWeight: 700,
       display: 'inline-flex', alignItems: 'center', gap: 6,
       letterSpacing: '0.02em',
       boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.02)'
     }}>
       {s.icon} {status}
     </span>
+  );
+}
+
+function Pagination({ total, limit, current, onChange }) {
+  const pages = Math.ceil(total / limit);
+  if (pages <= 1) return null;
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 24, padding: '10px 0' }}>
+      <button 
+        disabled={current === 1} 
+        onClick={() => onChange(current - 1)}
+        style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid #E2E8F0', background: '#fff', cursor: current === 1 ? 'not-allowed' : 'pointer', opacity: current === 1 ? 0.5 : 1, fontSize: 13, fontWeight: 700 }}
+      >
+        Prev
+      </button>
+      {[...Array(pages)].map((_, i) => (
+        <button 
+          key={i} 
+          onClick={() => onChange(i + 1)}
+          style={{ 
+            width: 36, height: 36, borderRadius: 8, border: 'none', 
+            background: current === i + 1 ? G : 'transparent', 
+            color: current === i + 1 ? '#fff' : '#64748B',
+            fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s'
+          }}
+        >
+          {i + 1}
+        </button>
+      ))}
+      <button 
+        disabled={current === pages} 
+        onClick={() => onChange(current + 1)}
+        style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid #E2E8F0', background: '#fff', cursor: current === pages ? 'not-allowed' : 'pointer', opacity: current === pages ? 0.5 : 1, fontSize: 13, fontWeight: 700 }}
+      >
+        Next
+      </button>
+    </div>
   );
 }
 
@@ -100,9 +137,9 @@ function Modal({ onClose, title, children, wide }) {
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ position: 'fixed', inset: 0, zIndex: 100000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
       <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(15, 23, 42, 0.75)', backdropFilter: 'blur(8px)' }} onClick={onClose} />
-      <motion.div 
-        initial={{ scale: 0.95, opacity: 0 }} 
-        animate={{ scale: 1, opacity: 1 }} 
+      <motion.div
+        initial={{ scale: 0.95, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.95, opacity: 0 }}
         style={{ position: 'relative', background: '#fff', borderRadius: 20, width: '100%', maxWidth: wide ? 1000 : 540, maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', border: '1px solid #E2E8F0' }}
       >
@@ -228,7 +265,7 @@ function BarChart({ data, color = '#3B82F6', label }) {
         {data.map((d, i) => (
           <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, height: '100%', justifyContent: 'flex-end' }}>
             <div style={{ width: '100%', height: `${Math.max((d.value / max) * 90, 4)}%`, background: `linear-gradient(to top, ${color}, ${color}CC)`, borderRadius: '8px 8px 4px 4px', position: 'relative', transition: 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)' }}>
-               <div style={{ position: 'absolute', top: -24, left: '50%', transform: 'translateX(-50%)', fontSize: 11, fontWeight: 800, color: '#0F172A' }}>{d.value}</div>
+              <div style={{ position: 'absolute', top: -24, left: '50%', transform: 'translateX(-50%)', fontSize: 11, fontWeight: 800, color: '#0F172A' }}>{d.value}</div>
             </div>
             <span style={{ fontSize: 11, color: '#94A3B8', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%', textAlign: 'center' }}>{d.label}</span>
           </div>
@@ -269,7 +306,7 @@ function ImageUploader({ value, onChange, label = 'Product Image' }) {
         canvas.height = height;
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0, width, height);
-        
+
         const dataUrl = canvas.toDataURL('image/webp', 0.8);
         onChange(dataUrl);
       };
@@ -352,16 +389,16 @@ function AddonsInput({ value = [], onChange }) {
 
 // ── Sidebar nav ───────────────────────────────────────────────────────────────
 const NAV_ITEMS = [
-  { key: 'dashboard',   label: 'Command Center', icon: LayoutDashboard },
-  { key: 'orders',      label: 'Order Pipeline', icon: ShoppingBag },
-  { key: 'quotes',      label: 'Sample Quotes', icon: FileText },
-  { key: 'users',       label: 'Customer Base', icon: Users },
-  { key: 'products',    label: 'Product Catalog', icon: Package },
-  { key: 'industries',  label: 'Industry Hub', icon: Building },
-  { key: 'messages',    label: 'Inquiries', icon: Mail },
-  { key: 'loyalty',     label: 'Loyalty Logic', icon: Star },
-  { key: 'analytics',   label: 'Analytics', icon: BarChart2 },
-  { key: 'settings',    label: 'Global Settings', icon: Settings },
+  { key: 'dashboard', label: 'Command Center', icon: LayoutDashboard },
+  { key: 'orders', label: 'Order Pipeline', icon: ShoppingBag },
+  { key: 'quotes', label: 'Sample Quotes', icon: FileText },
+  { key: 'users', label: 'Customer Base', icon: Users },
+  { key: 'products', label: 'Product Catalog', icon: Package },
+  { key: 'industries', label: 'Industry Hub', icon: Building },
+  { key: 'messages', label: 'Inquiries', icon: Mail },
+  { key: 'loyalty', label: 'Loyalty Logic', icon: Star },
+  { key: 'analytics', label: 'Analytics', icon: BarChart2 },
+  { key: 'settings', label: 'Global Settings', icon: Settings },
 ];
 
 // ── KPI card ──────────────────────────────────────────────────────────────────
@@ -382,7 +419,7 @@ function KpiCard({ label, value, sub, icon: Icon, trend, up, accent }) {
           </div>
         )}
       </div>
-      <div style={{ fontSize: 32, fontWeight: 800, color: '#1E293B', fontFamily: 'Outfit,sans-serif', lineHeight: 1, letterSpacing: '-0.02em' }}>{value}</div>
+      <div style={{ fontSize: 32, fontWeight: 800, color: '#1E293B', fontFamily: 'Outfit,sans-serif', lineHeight: 1, letterSpacing: '-0.02em' }}>{value || 0}</div>
       <div style={{ fontSize: 14, color: '#64748B', marginTop: 8, fontWeight: 500 }}>{label}</div>
       {sub && <div style={{ fontSize: 12, color: color, fontWeight: 600, marginTop: 6, display: 'flex', alignItems: 'center', gap: 4 }}>{sub}</div>}
     </div>
@@ -395,12 +432,15 @@ function DashboardSection() {
   const [recentOrders, setRecentOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const limit = 10;
 
   useEffect(() => {
     // Show cached stats immediately — no flicker to zero
     const cached = sessionStorage.getItem('dcb_admin_stats');
     if (cached) {
-      try { setStats(JSON.parse(cached)); } catch (e) {}
+      try { setStats(JSON.parse(cached)); } catch (e) { }
     }
 
     let cancelled = false;
@@ -427,6 +467,12 @@ function DashboardSection() {
     load();
     return () => { cancelled = true; };
   }, [refreshKey]);
+
+  const filteredOrders = recentOrders.filter(o => {
+    return !search || [o.id, o.orderId, o.userName, o.userEmail].some(v => v && String(v).toLowerCase().includes(search.toLowerCase()));
+  });
+
+  const paginatedOrders = filteredOrders.slice((page - 1) * limit, page * limit);
 
   if (loading) return <div style={{ padding: 40, textAlign: 'center', color: '#888' }}><RefreshCw size={24} style={{ animation: 'spin 1s linear infinite' }} /></div>;
 
@@ -461,16 +507,23 @@ function DashboardSection() {
       </div>
 
       <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.5 }} style={{ background: '#fff', borderRadius: 20, border: '1px solid #E2E8F0', overflow: 'hidden', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)' }}>
-        <div style={{ padding: '24px', borderBottom: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ padding: '24px', borderBottom: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
           <h3 style={{ fontSize: 18, fontWeight: 800, margin: 0, display: 'flex', alignItems: 'center', gap: 10, color: '#0F172A' }}>
             <div style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(59, 130, 246, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#3B82F6' }}>
               <ShoppingBag size={18} />
             </div>
             Recent Transactions
           </h3>
-          <button style={{ background: 'rgba(59, 130, 246, 0.05)', border: 'none', color: '#3B82F6', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 100 }}>
-            Inspect All <ArrowUpRight size={14} />
-          </button>
+          <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+            <div style={{ position: 'relative', width: 220 }}>
+              <Search size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#aaa' }} />
+              <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search orders…" 
+                style={{ width: '100%', paddingLeft: 36, paddingRight: 12, paddingTop: 8, paddingBottom: 8, border: '1px solid #E2E8F0', borderRadius: 100, fontSize: 12, outline: 'none' }} />
+            </div>
+            <button style={{ background: 'rgba(59, 130, 246, 0.05)', border: 'none', color: '#3B82F6', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 100 }}>
+              Inspect All <ArrowUpRight size={14} />
+            </button>
+          </div>
         </div>
         <div className="responsive-table-container">
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -482,28 +535,39 @@ function DashboardSection() {
               </tr>
             </thead>
             <tbody>
-              {recentOrders.length === 0 ? (
+              {paginatedOrders.length === 0 ? (
                 <tr><td colSpan={5} style={{ padding: 24, textAlign: 'center', color: '#aaa', fontSize: 13 }}>No orders yet</td></tr>
-              ) : recentOrders.map((o, i) => (
-                <tr key={i} style={{ borderTop: '1px solid #F0EDE8' }}>
-                  <td style={{ padding: '13px 16px', fontSize: 13, fontWeight: 700, color: G }}>{o.id || o.orderId}</td>
-                  <td style={{ padding: '13px 16px', fontSize: 13, color: '#1A1A1A' }}>{o.userName}</td>
-                  <td style={{ padding: '13px 16px', fontSize: 12, color: '#666' }}>
-                    {(o.items && o.items.length > 0) ? (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                        <span style={{ fontWeight: 600, color: '#333' }}>{o.items[0].name}</span>
-                        {o.items.length > 1 && <span style={{ fontSize: 10, color: '#999' }}>+{o.items.length - 1} more items</span>}
-                      </div>
-                    ) : (
-                      o.product || 'Custom Design'
-                    )}
-                  </td>
-                  <td style={{ padding: '13px 16px' }}><Badge status={o.status} /></td>
-                  <td style={{ padding: '13px 16px', fontSize: 13, fontWeight: 700 }}>${(+o.total || 0).toFixed(2)}</td>
-                </tr>
-              ))}
+              ) : paginatedOrders.map((o, i) => {
+                if (!o) return null;
+                return (
+                  <tr key={i} style={{ borderTop: '1px solid #F0EDE8' }}>
+                    <td style={{ padding: '13px 16px', fontSize: 13, fontWeight: 700, color: G }}>{o.id || o.orderId || '—'}</td>
+                    <td style={{ padding: '13px 16px', fontSize: 13, color: '#1A1A1A' }}>{o.userName || 'Guest'}</td>
+                    <td style={{ padding: '13px 16px', fontSize: 12, color: '#666' }}>
+                      {(o.items && o.items.length > 0) ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                          <span style={{ fontWeight: 600, color: '#333' }}>{o.items[0]?.name || 'Product'}</span>
+                          {o.items.length > 1 && <span style={{ fontSize: 10, color: '#999' }}>+{o.items.length - 1} more items</span>}
+                        </div>
+                      ) : (
+                        o.product || 'Custom Design'
+                      )}
+                    </td>
+                    <td style={{ padding: '13px 16px' }}><Badge status={o.status} /></td>
+                    <td style={{ padding: '13px 16px', fontSize: 13, fontWeight: 700 }}>${(+o.total || 0).toFixed(2)}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
+        </div>
+        <div style={{ padding: '0 24px 24px' }}>
+          <Pagination 
+            total={filteredOrders.length} 
+            limit={limit} 
+            current={page} 
+            onChange={setPage} 
+          />
         </div>
       </motion.div>
     </motion.div>
@@ -523,6 +587,8 @@ function ProductsSection() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [activeTab, setActiveTab] = useState('all'); // 'all', 'featured'
   const [showFeaturedOnly, setShowFeaturedOnly] = useState(false);
+  const [page, setPage] = useState(1);
+  const limit = 10;
 
   const emptyForm = { name: '', slug: '', cat: '', description: '', price: '', img: '', featured: false, boxType: '', material: '', finish: '', dimL: '', dimW: '', dimH: '', minQty: '', addons: [], customIndustry: '' };
   // Helper: parse stored dims string like "10×8×4 in" into parts
@@ -647,7 +713,7 @@ function ProductsSection() {
     delete productData.dimL; delete productData.dimW; delete productData.dimH;
 
     if (!productData.slug) productData.slug = autoSlug(productData.name);
-    
+
     // Prevent duplicate slugs on the frontend
     if (editForm.id) {
       if (products.some(p => p._id !== editForm.id && p.slug === productData.slug)) {
@@ -668,7 +734,7 @@ function ProductsSection() {
         const created = await api.post('/admin/products', productData);
         setProducts(prev => [created.product, ...prev]);
       }
-      
+
       setEditForm(null); // Close immediately
       loadProducts(false);
     } catch (err) {
@@ -700,6 +766,8 @@ function ProductsSection() {
     if (activeTab === 'featured') return matchesSearch && p.featured;
     return matchesSearch && matchesFeatured;
   });
+
+  const paginated = filtered.slice((page - 1) * limit, page * limit);
 
   return (
     <div>
@@ -754,9 +822,9 @@ function ProductsSection() {
             <tbody>
               {loading ? (
                 <tr><td colSpan={6} style={{ padding: 32, textAlign: 'center' }}><RefreshCw size={20} style={{ animation: 'spin 1s linear infinite', color: '#aaa' }} /></td></tr>
-              ) : filtered.length === 0 ? (
+              ) : paginated.length === 0 ? (
                 <tr><td colSpan={6} style={{ padding: 32, textAlign: 'center', color: '#aaa' }}>No products found</td></tr>
-              ) : filtered.map((p) => (
+              ) : paginated.map((p) => (
                 <tr key={p._id} style={{ borderTop: '1px solid #F0EDE8' }}
                   onMouseEnter={e => e.currentTarget.style.background = '#FAFAF9'}
                   onMouseLeave={e => e.currentTarget.style.background = '#fff'}>
@@ -795,6 +863,13 @@ function ProductsSection() {
           </table>
         </div>
       </div>
+
+      <Pagination 
+        total={filtered.length} 
+        limit={limit} 
+        current={page} 
+        onChange={setPage} 
+      />
 
       {/* Edit/Add Modal */}
       {editForm && (
@@ -875,7 +950,7 @@ function ProductsSection() {
             <div style={{ gridColumn: '1 / -1' }}>
               <label style={{ fontSize: 11, fontWeight: 700, color: '#555', display: 'block', marginBottom: 8 }}>Dimensions (inches)</label>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
-                {[['dimL','Length (L)'],['dimW','Width (W)'],['dimH','Height (H)']].map(([key,lbl]) => (
+                {[['dimL', 'Length (L)'], ['dimW', 'Width (W)'], ['dimH', 'Height (H)']].map(([key, lbl]) => (
                   <div key={key}>
                     <label style={{ fontSize: 10, fontWeight: 600, color: '#888', display: 'block', marginBottom: 4 }}>{lbl}</label>
                     <div style={{ position: 'relative' }}>
@@ -944,6 +1019,8 @@ function IndustriesSection() {
   const [industries, setIndustries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const limit = 10;
   const [editForm, setEditForm] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -1050,6 +1127,8 @@ function IndustriesSection() {
     (i.cat || '').toLowerCase().includes(search.toLowerCase())
   );
 
+  const paginated = filtered.slice((page - 1) * limit, page * limit);
+
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
@@ -1081,9 +1160,9 @@ function IndustriesSection() {
             <tbody>
               {loading ? (
                 <tr><td colSpan={4} style={{ padding: 32, textAlign: 'center' }}><RefreshCw size={20} style={{ animation: 'spin 1s linear infinite', color: '#aaa' }} /></td></tr>
-              ) : filtered.length === 0 ? (
+              ) : paginated.length === 0 ? (
                 <tr><td colSpan={4} style={{ padding: 32, textAlign: 'center', color: '#aaa' }}>No industries found</td></tr>
-              ) : filtered.map((ind) => (
+              ) : paginated.map((ind) => (
                 <tr key={ind._id} style={{ borderTop: '1px solid #F0EDE8' }}
                   onMouseEnter={e => e.currentTarget.style.background = '#FAFAF9'}
                   onMouseLeave={e => e.currentTarget.style.background = '#fff'}>
@@ -1118,6 +1197,13 @@ function IndustriesSection() {
           </table>
         </div>
       </div>
+
+      <Pagination 
+        total={filtered.length} 
+        limit={limit} 
+        current={page} 
+        onChange={setPage} 
+      />
 
       {editForm && (
         <Modal onClose={() => setEditForm(null)} title={editForm.id ? 'Edit Industry' : 'Add New Industry'} wide>
@@ -1183,6 +1269,8 @@ function OrdersSection() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('All');
+  const [page, setPage] = useState(1);
+  const limit = 10;
   const [selected, setSelected] = useState(null);
   const [editTracking, setEditTracking] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
@@ -1216,7 +1304,7 @@ function OrdersSection() {
       }
     }
     loadOrders();
-    
+
     // Polling setup
     const interval = setInterval(async () => {
       try {
@@ -1226,7 +1314,7 @@ function OrdersSection() {
         // silently fail for polling
       }
     }, 15000);
-    
+
     return () => { cancelled = true; clearInterval(interval); };
   }, []);
 
@@ -1258,18 +1346,18 @@ function OrdersSection() {
 
     try {
       if (order.userId && order._id) {
-        await api.put(`/admin/orders/${order.userId}/${order._id}`, { 
+        await api.put(`/admin/orders/${order.userId}/${order._id}`, {
           status,
-          tracking: status === 'Shipped' ? editTracking : undefined 
+          tracking: status === 'Shipped' ? editTracking : undefined
         });
       }
       showToast('Status updated.', 'success');
       // No need to call full load() if we updated state correctly
-    } catch (e) { 
+    } catch (e) {
       // Rollback on error
       setOrders(previousOrders);
       if (selected?._id === order._id) setSelected(order);
-      showToast(e.message, 'error'); 
+      showToast(e.message, 'error');
     } finally {
       setUpdatingStatus(null);
     }
@@ -1321,6 +1409,8 @@ function OrdersSection() {
     return matchSearch && matchFilter;
   });
 
+  const paginated = filtered.slice((page - 1) * limit, page * limit);
+
   const handleViewOrder = (order) => {
     setSelected(order);
     setEditTracking(order.tracking || '');
@@ -1367,9 +1457,9 @@ function OrdersSection() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.length === 0 ? (
+                {paginated.length === 0 ? (
                   <tr><td colSpan={8} style={{ padding: 32, textAlign: 'center', color: '#aaa' }}>No orders found</td></tr>
-                ) : filtered.map((o, i) => (
+                ) : paginated.map((o, i) => (
                   <tr key={i} style={{ borderTop: '1px solid #F0EDE8', transition: 'background 0.1s' }}
                     onMouseEnter={e => e.currentTarget.style.background = '#FAFAF9'}
                     onMouseLeave={e => e.currentTarget.style.background = '#fff'}>
@@ -1407,16 +1497,23 @@ function OrdersSection() {
                             const isCurrent = o.status === s;
                             return <option key={s} value={s} disabled={!isNext && !isCurrent}>{s}</option>;
                           })}
-                        </select>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+                </select>
+              </div>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+)}
+</div>
+
+<Pagination 
+total={filtered.length} 
+limit={limit} 
+current={page} 
+onChange={setPage} 
+/>
 
       {selected && (
         <Modal onClose={() => setSelected(null)} title={`Order ${selected.id || selected.orderId}`} wide>
@@ -1449,8 +1546,8 @@ function OrdersSection() {
                 {selected.items.map((it, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', background: '#FAFAF9', borderRadius: 10, border: '1px solid #F0EDE8' }}>
                     <div style={{ width: 40, height: 40, borderRadius: 6, background: '#fff', overflow: 'hidden', flexShrink: 0, border: '1px solid #eee' }}>
-                       <img src={it.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                         onError={e => e.target.src = 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=100'} />
+                      <img src={it.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        onError={e => e.target.src = 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=100'} />
                     </div>
                     <div style={{ flex: 1 }}>
                       <p style={{ fontSize: 13, fontWeight: 700, margin: 0, color: '#1A1A1A' }}>{it.name}</p>
@@ -1519,7 +1616,7 @@ function OrdersSection() {
                   };
                   const isNext = (allowed[current] || []).includes(s);
                   const isCurrent = current === s;
-                  
+
                   return (
                     <button
                       key={s}
@@ -1569,6 +1666,8 @@ function UsersSection() {
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [activeTab, setActiveTab] = useState('all'); // 'all', 'users', or 'admins'
+  const [page, setPage] = useState(1);
+  const limit = 10;
 
   const load = async (signal = { cancelled: false }) => {
     if (!signal.cancelled) setLoading(true);
@@ -1585,7 +1684,7 @@ function UsersSection() {
   useEffect(() => {
     let signal = { cancelled: false };
     load(signal);
-    
+
     // Polling setup for "real-time" sync
     const interval = setInterval(async () => {
       try {
@@ -1593,7 +1692,7 @@ function UsersSection() {
         if (!signal.cancelled) setUsers(data.users || []);
       } catch (e) { }
     }, 10000); // 10s sync
-    
+
     return () => { signal.cancelled = true; clearInterval(interval); };
   }, [refreshKey]);
 
@@ -1645,9 +1744,12 @@ function UsersSection() {
   const filtered = users.filter(u => {
     const matchesSearch = !search || [u.name, u.email, u.phone].some(v => v && String(v).toLowerCase().includes(search.toLowerCase()));
     if (activeTab === 'all') return matchesSearch;
+    if (activeTab === 'users') return matchesSearch && (u.role === 'user' || !u.role);
     if (activeTab === 'admins') return matchesSearch && (u.role === 'admin' || u.role === 'super_admin');
-    return matchesSearch && (u.role === 'user' || !u.role);
+    return matchesSearch;
   });
+
+  const paginated = filtered.slice((page - 1) * limit, page * limit);
 
 
 
@@ -1659,7 +1761,7 @@ function UsersSection() {
             <button key={tab} onClick={() => setActiveTab(tab)}
               style={{ padding: '12px 4px', background: 'none', border: 'none', borderBottom: `2px solid ${activeTab === tab ? G : 'transparent'}`, color: activeTab === tab ? G : '#64748B', fontWeight: 700, fontSize: 15, cursor: 'pointer', textTransform: 'capitalize', transition: 'all 0.2s' }}>
               {tab === 'all' ? 'All Users' : tab} (
-                {tab === 'all' ? users.length : (tab === 'users' ? users.filter(u => u.role === 'user' || !u.role).length : users.filter(u => u.role === 'admin' || u.role === 'super_admin').length)}
+              {tab === 'all' ? users.length : (tab === 'users' ? users.filter(u => u.role === 'user' || !u.role).length : users.filter(u => u.role === 'admin' || u.role === 'super_admin').length)}
               )
             </button>
           ))}
@@ -1694,9 +1796,9 @@ function UsersSection() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.length === 0 ? (
-                  <tr><td colSpan={7} style={{ padding: 32, textAlign: 'center', color: '#aaa' }}>No users found</td></tr>
-                ) : filtered.map((u, i) => (
+                {paginated.length === 0 ? (
+                  <tr><td colSpan={8} style={{ padding: 32, textAlign: 'center', color: '#aaa' }}>No users found</td></tr>
+                ) : paginated.map((u, i) => (
                   <tr key={i} style={{ borderTop: '1px solid #F0EDE8' }}
                     onMouseEnter={e => e.currentTarget.style.background = '#FAFAF9'}
                     onMouseLeave={e => e.currentTarget.style.background = '#fff'}>
@@ -1717,13 +1819,13 @@ function UsersSection() {
                     <td style={{ padding: '12px 14px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         <div style={{ position: 'relative' }}>
-                          <select 
-                            value={u.role || 'user'} 
+                          <select
+                            value={u.role || 'user'}
                             disabled={u.role === 'super_admin' && currentUser?.role !== 'super_admin'}
                             onChange={e => handleRoleChange(u, e.target.value)}
-                            style={{ 
-                              padding: '5px 28px 5px 12px', borderRadius: 100, border: '1px solid #E2DDD6', 
-                              fontSize: 11, fontWeight: 700, cursor: (u.role === 'super_admin' && currentUser?.role !== 'super_admin') ? 'not-allowed' : 'pointer', 
+                            style={{
+                              padding: '5px 28px 5px 12px', borderRadius: 100, border: '1px solid #E2DDD6',
+                              fontSize: 11, fontWeight: 700, cursor: (u.role === 'super_admin' && currentUser?.role !== 'super_admin') ? 'not-allowed' : 'pointer',
                               appearance: 'none',
                               background: (u.role === 'admin' || u.role === 'super_admin') ? `${G}15` : '#F8FAFC',
                               color: (u.role === 'admin' || u.role === 'super_admin') ? G : '#64748B',
@@ -1853,6 +1955,9 @@ function QuotesSection() {
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
   const [priceInput, setPriceInput] = useState('');
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const limit = 10;
   const [refreshKey, setRefreshKey] = useState(0);
   const [quoteBusy, setQuoteBusy] = useState(false);
 
@@ -1871,7 +1976,7 @@ function QuotesSection() {
   useEffect(() => {
     let signal = { cancelled: false };
     Promise.resolve().then(() => loadQuotes(signal));
-    
+
     // Polling setup
     const interval = setInterval(async () => {
       try {
@@ -1881,9 +1986,16 @@ function QuotesSection() {
         // silently fail for polling
       }
     }, 15000);
-    
+
     return () => { signal.cancelled = true; clearInterval(interval); };
   }, [refreshKey]);
+
+  const filtered = quotes.filter(q => {
+    return !search || 
+      [q.quoteId, q.userName, q.userEmail, q.productName, q.boxType].some(v => v && String(v).toLowerCase().includes(search.toLowerCase()));
+  });
+
+  const paginated = filtered.slice((page - 1) * limit, page * limit);
 
   const handleQuoteStatus = async (quoteId, status, price) => {
     setQuoteBusy(true);
@@ -1904,9 +2016,18 @@ function QuotesSection() {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
         <h2 style={{ fontSize: 22, fontFamily: 'Outfit,sans-serif', fontWeight: 700 }}>Quote & Sample Requests</h2>
-        <button onClick={() => setRefreshKey(k => k + 1)} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: G, background: 'none', border: `1px solid ${G}`, borderRadius: 8, padding: '7px 14px', cursor: 'pointer' }}><RefreshCw size={13} /> Refresh</button>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <div style={{ position: 'relative', width: 260 }}>
+            <Search size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#aaa' }} />
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search ID, Name, Product…"
+              style={{ width: '100%', paddingLeft: 36, paddingRight: 12, paddingTop: 8, paddingBottom: 8, border: '1px solid #E2DDD6', borderRadius: 8, fontSize: 13, outline: 'none' }} />
+          </div>
+          <button onClick={() => setRefreshKey(k => k + 1)} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: G, background: 'none', border: `1px solid ${G}`, borderRadius: 8, padding: '7px 14px', cursor: 'pointer' }}>
+            <RefreshCw size={13} /> Refresh
+          </button>
+        </div>
       </div>
       <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #E2DDD6', overflow: 'hidden' }}>
         {loading ? (
@@ -1922,9 +2043,9 @@ function QuotesSection() {
                 </tr>
               </thead>
               <tbody>
-                {quotes.length === 0 ? (
+                {paginated.length === 0 ? (
                   <tr><td colSpan={9} style={{ padding: 32, textAlign: 'center', color: '#aaa' }}>No quote or sample requests yet</td></tr>
-                ) : quotes.map((q, i) => (
+                ) : paginated.map((q, i) => (
                   <tr key={i} style={{ borderTop: '1px solid #F0EDE8' }}
                     onMouseEnter={e => e.currentTarget.style.background = '#FAFAF9'}
                     onMouseLeave={e => e.currentTarget.style.background = '#fff'}>
@@ -1956,6 +2077,13 @@ function QuotesSection() {
           </div>
         )}
       </div>
+
+      <Pagination 
+        total={filtered.length} 
+        limit={limit} 
+        current={page} 
+        onChange={setPage} 
+      />
 
       {selected && (
         <Modal onClose={() => setSelected(null)} title={`Reply — ${selected.quoteId || selected.id}`}>
@@ -2017,6 +2145,8 @@ function MessagesSection() {
   const [replyText, setReplyText] = useState('');
   const [isSendingReply, setIsSendingReply] = useState(false);
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const limit = 10;
 
   useEffect(() => {
     let cancelled = false;
@@ -2025,7 +2155,7 @@ function MessagesSection() {
       .then(data => { if (!cancelled) setMessages(data.messages || []); })
       .catch(() => { if (!cancelled) showToast('Failed to load messages', 'error'); })
       .finally(() => { if (!cancelled) setLoading(false); });
-      
+
     // Polling setup
     const interval = setInterval(async () => {
       try {
@@ -2035,7 +2165,7 @@ function MessagesSection() {
         // silently fail for polling
       }
     }, 15000);
-    
+
     return () => { cancelled = true; clearInterval(interval); };
   }, []);
 
@@ -2086,6 +2216,7 @@ function MessagesSection() {
   };
 
   const filtered = messages.filter(m => !search || [m.name, m.email, m.subject].some(v => v && v.toLowerCase().includes(search.toLowerCase())));
+  const paginated = filtered.slice((page - 1) * limit, page * limit);
   const newCount = messages.filter(m => m.status === 'New').length;
 
   return (
@@ -2114,9 +2245,9 @@ function MessagesSection() {
               </tr>
             </thead>
             <tbody>
-              {filtered.length === 0 ? (
-                <tr><td colSpan={6} style={{ padding: 32, textAlign: 'center', color: '#aaa' }}>{loading ? 'Loading messages…' : 'No messages yet. They will appear here when users submit the contact form.'}</td></tr>
-              ) : filtered.map((m, i) => (
+              {paginated.length === 0 ? (
+                <tr><td colSpan={6} style={{ padding: 32, textAlign: 'center', color: '#aaa' }}>{loading ? 'Loading messages…' : 'No messages yet.'}</td></tr>
+              ) : paginated.map((m, i) => (
                 <tr key={m._id || i} style={{ borderTop: '1px solid #F0EDE8' }}
                   onMouseEnter={e => e.currentTarget.style.background = '#FAFAF9'}
                   onMouseLeave={e => e.currentTarget.style.background = '#fff'}>
@@ -2149,6 +2280,13 @@ function MessagesSection() {
           </table>
         </div>
       </div>
+
+      <Pagination 
+        total={filtered.length} 
+        limit={limit} 
+        current={page} 
+        onChange={setPage} 
+      />
 
       {selected && (
         <Modal onClose={() => setSelected(null)} title={`Message from ${selected.name}`} wide>
@@ -2192,18 +2330,18 @@ function MessagesSection() {
       {replyingTo && (
         <Modal onClose={() => setReplyingTo(null)} title={`Reply to ${replyingTo.name}`}>
           <div style={{ marginBottom: 16 }}>
-             <p style={{ fontSize: 12, color: '#666', marginBottom: 12 }}>Replying to: <strong>{replyingTo.subject}</strong></p>
-             <textarea 
-               value={replyText} 
-               onChange={e => setReplyText(e.target.value)}
-               placeholder="Write your response here..."
-               style={{ width: '100%', minHeight: 180, padding: 14, borderRadius: 10, border: '1.5px solid #E2DDD6', fontSize: 14, outline: 'none', boxSizing: 'border-box' }}
-             />
+            <p style={{ fontSize: 12, color: '#666', marginBottom: 12 }}>Replying to: <strong>{replyingTo.subject}</strong></p>
+            <textarea
+              value={replyText}
+              onChange={e => setReplyText(e.target.value)}
+              placeholder="Write your response here..."
+              style={{ width: '100%', minHeight: 180, padding: 14, borderRadius: 10, border: '1.5px solid #E2DDD6', fontSize: 14, outline: 'none', boxSizing: 'border-box' }}
+            />
           </div>
           <div style={{ display: 'flex', gap: 10 }}>
             <button onClick={() => setReplyingTo(null)} style={{ flex: 1, padding: '12px', background: '#fff', border: '1px solid #E2DDD6', borderRadius: 8, fontWeight: 700 }}>Cancel</button>
-            <button 
-              onClick={handleSendReply} 
+            <button
+              onClick={handleSendReply}
               disabled={isSendingReply}
               style={{ flex: 1, padding: '12px', background: G, color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, cursor: isSendingReply ? 'not-allowed' : 'pointer', opacity: isSendingReply ? 0.7 : 1 }}>
               {isSendingReply ? 'Sending...' : 'Send Reply'}
@@ -2323,7 +2461,7 @@ function AnalyticsSection() {
       <h2 style={{ fontSize: 22, fontFamily: 'Outfit,sans-serif', fontWeight: 700, marginBottom: 24 }}>Advanced Analytics</h2>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: 24, marginBottom: 32 }}>
-        
+
         {/* Revenue Chart */}
         <div style={{ background: '#fff', borderRadius: 20, border: '1px solid #E2E8F0', padding: 28, boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)' }}>
           <h3 style={{ fontSize: 18, fontWeight: 800, marginBottom: 24, display: 'flex', alignItems: 'center', gap: 10, color: '#1E293B' }}>
@@ -2349,7 +2487,7 @@ function AnalyticsSection() {
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24, marginBottom: 32 }}>
-        
+
         {/* Order Status Distribution */}
         <div style={{ background: '#fff', borderRadius: 20, border: '1px solid #E2E8F0', padding: 28, boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)' }}>
           <h3 style={{ fontSize: 18, fontWeight: 800, marginBottom: 24, color: '#1E293B' }}>Fulfillment Pulse</h3>
@@ -2361,9 +2499,9 @@ function AnalyticsSection() {
                   <span style={{ fontWeight: 800, color: '#1E293B' }}>{s.value}</span>
                 </div>
                 <div style={{ height: 10, background: '#F1F5F9', borderRadius: 100, overflow: 'hidden' }}>
-                  <motion.div 
+                  <motion.div
                     initial={{ width: 0 }}
-                    animate={{ width: `${Math.min(100, (s.value / (data.statusCounts.reduce((a,b)=>a+b.value, 0) || 1)) * 100)}%` }}
+                    animate={{ width: `${Math.min(100, (s.value / (data.statusCounts.reduce((a, b) => a + b.value, 0) || 1)) * 100)}%` }}
                     transition={{ duration: 1, delay: i * 0.1 }}
                     style={{ height: '100%', background: s.label === 'Delivered' ? '#10B981' : (s.label === 'Cancelled' ? '#EF4444' : '#3B82F6'), borderRadius: 100 }}
                   />
@@ -2381,7 +2519,7 @@ function AnalyticsSection() {
           {(() => {
             const cityMap = {};
             (data.locations || []).forEach(l => {
-              if (l.city) cityMap[l.city] = (cityMap[l.city] || 0) + 1;
+              if (l && l.city) cityMap[l.city] = (cityMap[l.city] || 0) + 1;
             });
             const topCities = Object.entries(cityMap).sort((a, b) => b[1] - a[1]).slice(0, 8);
             return topCities.length ? topCities.map(([city, count]) => (
@@ -2399,13 +2537,13 @@ function AnalyticsSection() {
 
         {/* Average Order Value */}
         <div style={{ background: 'linear-gradient(135deg, #0F172A, #1E293B)', borderRadius: 20, padding: 28, display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'center', color: '#fff', boxShadow: '0 10px 25px -5px rgba(15, 23, 42, 0.2)' }}>
-             <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', margin: 0, fontWeight: 600 }}>Avg. Transaction Value</p>
-             <h4 style={{ fontSize: 44, fontWeight: 900, color: '#fff', fontFamily: 'Outfit,sans-serif', margin: '12px 0', letterSpacing: '-0.03em' }}>
-               ${((data.monthRevenue?.reduce((a,b)=>a+b.value, 0) || 0) / (data.statusCounts?.reduce((a,b)=>a+b.value, 0) || 1)).toFixed(2)}
-             </h4>
-             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', background: 'rgba(16, 185, 129, 0.2)', color: '#34D399', borderRadius: 100, fontSize: 12, fontWeight: 700, alignSelf: 'center' }}>
-               <TrendingUp size={14} /> +8.4%
-             </div>
+          <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', margin: 0, fontWeight: 600 }}>Avg. Transaction Value</p>
+          <h4 style={{ fontSize: 44, fontWeight: 900, color: '#fff', fontFamily: 'Outfit,sans-serif', margin: '12px 0', letterSpacing: '-0.03em' }}>
+            ${((data.monthRevenue?.reduce((a, b) => a + b.value, 0) || 0) / (data.statusCounts?.reduce((a, b) => a + b.value, 0) || 1)).toFixed(2)}
+          </h4>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', background: 'rgba(16, 185, 129, 0.2)', color: '#34D399', borderRadius: 100, fontSize: 12, fontWeight: 700, alignSelf: 'center' }}>
+            <TrendingUp size={14} /> +8.4%
+          </div>
         </div>
 
       </div>
@@ -2415,52 +2553,102 @@ function AnalyticsSection() {
 // ── Loyalty Logic ─────────────────────────────────────────────────────────────
 function LoyaltySection() {
   const { showToast } = useToast();
+  const [settings, setSettings] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const data = await api.get('/admin/settings');
+        setSettings(data.settings);
+      } catch (e) {
+        showToast('Failed to load loyalty settings', 'error');
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, []);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await api.put('/admin/settings', settings);
+      showToast('Loyalty settings updated', 'success');
+    } catch (e) {
+      showToast('Update failed', 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) return <div style={{ padding: 40, textAlign: 'center' }}><RefreshCw size={24} className="spin" color={G} /></div>;
+
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
-      <div style={{ marginBottom: 36 }}>
-        <h2 style={{ fontSize: 28, fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#0F172A', margin: 0 }}>Loyalty Logic</h2>
-        <p style={{ fontSize: 14, color: '#64748B', marginTop: 4 }}>Configure global rewards, point multipliers, and tier thresholds.</p>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+      <div style={{ marginBottom: 36, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+        <div>
+          <h2 style={{ fontSize: 28, fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#0F172A', margin: 0 }}>Loyalty Management</h2>
+          <p style={{ fontSize: 14, color: '#64748B', marginTop: 4 }}>Configure how users earn and spend points.</p>
+        </div>
+        <button onClick={handleSave} disabled={saving}
+          style={{ padding: '12px 24px', background: G, color: '#fff', border: 'none', borderRadius: 12, fontWeight: 700, cursor: saving ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
+          {saving ? <RefreshCw size={16} className="spin" /> : <CheckCircle size={16} />} Save Loyalty Logic
+        </button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24 }}>
-        <div style={{ background: '#fff', padding: 24, borderRadius: 20, border: '1px solid #E2E8F0' }}>
-          <h3 style={{ fontSize: 16, fontWeight: 800, marginBottom: 20, display: 'flex', alignItems: 'center', gap: 10 }}>
-            <Star size={18} color={ACCENT} /> Point Multipliers
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: 24 }}>
+        <div style={{ background: '#fff', padding: 28, borderRadius: 24, border: '1px solid #E2E8F0' }}>
+          <h3 style={{ fontSize: 16, fontWeight: 800, color: '#0F172A', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 10 }}>
+            <Star size={18} color={ACCENT} /> Earning Logic
           </h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            {[
-              { label: 'Base Multiplier', value: '1.0x', desc: 'Points per dollar spent' },
-              { label: 'First Order Bonus', value: '50 pts', desc: 'Points for new customers' },
-              { label: 'Referral Bonus', value: '100 pts', desc: 'Points per successful referral' },
-            ].map((item, i) => (
-              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', background: '#F8FAFC', borderRadius: 12 }}>
-                <div>
-                  <p style={{ fontSize: 13, fontWeight: 700, color: '#1E293B', margin: 0 }}>{item.label}</p>
-                  <p style={{ fontSize: 11, color: '#64748B', margin: 0 }}>{item.desc}</p>
-                </div>
-                <button onClick={() => showToast('Global loyalty settings are currently managed in the config.', 'info')} style={{ background: '#fff', border: '1px solid #E2E8F0', padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>{item.value}</button>
-              </div>
-            ))}
+          
+          <div style={{ marginBottom: 24 }}>
+            <label style={{ fontSize: 11, fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: 8 }}>Points per $1 Spent</label>
+            <input type="number" value={settings.loyaltySettings?.pointsPerDollar || 1} 
+              onChange={e => setSettings({ ...settings, loyaltySettings: { ...settings.loyaltySettings, pointsPerDollar: parseFloat(e.target.value) } })}
+              style={{ width: '100%', padding: '12px 16px', border: '1.5px solid #E2E8F0', borderRadius: 12, fontSize: 14, outline: 'none' }} />
+          </div>
+
+          <div style={{ marginBottom: 24 }}>
+            <label style={{ fontSize: 11, fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: 8 }}>Point Value (in Currency Units)</label>
+            <p style={{ fontSize: 11, color: '#888', marginBottom: 8 }}>e.g. 0.01 means 100 points = $1.00</p>
+            <input type="number" step="0.001" value={settings.loyaltySettings?.pointValueInCurrency || 0.01} 
+              onChange={e => setSettings({ ...settings, loyaltySettings: { ...settings.loyaltySettings, pointValueInCurrency: parseFloat(e.target.value) } })}
+              style={{ width: '100%', padding: '12px 16px', border: '1.5px solid #E2E8F0', borderRadius: 12, fontSize: 14, outline: 'none' }} />
           </div>
         </div>
 
-        <div style={{ background: '#fff', padding: 24, borderRadius: 20, border: '1px solid #E2E8F0' }}>
-          <h3 style={{ fontSize: 16, fontWeight: 800, marginBottom: 20, display: 'flex', alignItems: 'center', gap: 10 }}>
-            <Package size={18} color={G} /> Tier Thresholds
+        <div style={{ background: '#fff', padding: 28, borderRadius: 24, border: '1px solid #E2E8F0' }}>
+          <h3 style={{ fontSize: 16, fontWeight: 800, color: '#0F172A', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 10 }}>
+            <TrendingUp size={18} color={G} /> Role Multipliers
           </h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {[
-              { name: 'Silver', points: 350, color: '#94A3B8' },
-              { name: 'Gold', points: 750, color: '#F59E0B' },
-              { name: 'Platinum', points: 1500, color: '#3B82F6' },
-              { name: 'Diamond', points: 3000, color: '#8B5CF6' },
-            ].map((tier, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', border: `1.5px solid ${tier.color}20`, background: `${tier.color}05`, borderRadius: 12 }}>
-                <div style={{ width: 10, height: 10, borderRadius: '50%', background: tier.color }} />
-                <span style={{ fontSize: 14, fontWeight: 700, color: '#1E293B', flex: 1 }}>{tier.name}</span>
-                <span style={{ fontSize: 13, fontWeight: 800, color: tier.color }}>{tier.points} PTS</span>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {(settings.loyaltySettings?.multipliers || []).map((m, idx) => (
+              <div key={idx} style={{ padding: '16px', background: '#F8FAFC', borderRadius: 16, border: '1px solid #E2E8F0' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                  <span style={{ fontSize: 12, fontWeight: 800, color: G, textTransform: 'uppercase' }}>{m.role}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <input type="number" step="0.1" value={m.multiplier} 
+                      onChange={e => {
+                        const newMults = [...settings.loyaltySettings.multipliers];
+                        newMults[idx].multiplier = parseFloat(e.target.value);
+                        setSettings({ ...settings, loyaltySettings: { ...settings.loyaltySettings, multipliers: newMults } });
+                      }}
+                      style={{ width: 60, padding: '4px 8px', border: '1px solid #E2E8F0', borderRadius: 6, fontSize: 12, fontWeight: 700, textAlign: 'center' }} />
+                    <span style={{ fontSize: 12, fontWeight: 700, color: '#64748B' }}>x</span>
+                  </div>
+                </div>
+                <p style={{ fontSize: 11, color: '#64748B', margin: 0 }}>This role earns {m.multiplier}x the base points per dollar.</p>
               </div>
             ))}
+            
+            <button type="button" onClick={() => showToast('Role-based logic is tied to platform tiers.', 'info')}
+              style={{ padding: '12px', background: 'transparent', border: `1.5px dashed #CBD5E1`, borderRadius: 12, color: '#64748B', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+              + Add Custom Multiplier
+            </button>
           </div>
         </div>
       </div>
@@ -2471,31 +2659,122 @@ function LoyaltySection() {
 // ── Global Settings ───────────────────────────────────────────────────────────
 function GlobalSettingsSection() {
   const { showToast } = useToast();
+  const [settings, setSettings] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const data = await api.get('/admin/settings');
+        setSettings(data.settings);
+      } catch (e) {
+        showToast('Failed to load settings', 'error');
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, []);
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      await api.put('/admin/settings', settings);
+      showToast('Settings updated successfully', 'success');
+    } catch (e) {
+      showToast('Update failed: ' + e.message, 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) return <div style={{ padding: 40, textAlign: 'center' }}><RefreshCw size={24} className="spin" color={G} /></div>;
+
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
       <div style={{ marginBottom: 36 }}>
         <h2 style={{ fontSize: 28, fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#0F172A', margin: 0 }}>Global Settings</h2>
-        <p style={{ fontSize: 14, color: '#64748B', marginTop: 4 }}>System configuration and platform preferences.</p>
+        <p style={{ fontSize: 14, color: '#64748B', marginTop: 4 }}>Site configuration and platform-wide variables.</p>
       </div>
-      <div style={{ background: '#fff', padding: 40, borderRadius: 24, border: '1px solid #E2E8F0', textAlign: 'center' }}>
-        <Settings size={48} color="#64748B" style={{ marginBottom: 20, opacity: 0.5 }} />
-        <h3 style={{ fontSize: 18, fontWeight: 800, color: '#0F172A', margin: '0 0 8px' }}>Environment Configuration</h3>
-        <p style={{ fontSize: 14, color: '#64748B', maxWidth: 400, margin: '0 auto 24px' }}>Most system settings are currently managed via environment variables for maximum security.</p>
-        <button onClick={() => showToast('Settings saved to local storage.', 'success')} style={{ background: G, color: '#fff', border: 'none', padding: '12px 24px', borderRadius: 12, fontWeight: 700, cursor: 'pointer' }}>Save Changes</button>
-      </div>
+
+      <form onSubmit={handleSave} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
+        <div style={{ background: '#fff', padding: 32, borderRadius: 24, border: '1px solid #E2E8F0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
+          <h3 style={{ fontSize: 16, fontWeight: 800, color: '#0F172A', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 10 }}><Settings size={18} /> General Config</h3>
+          
+          <div style={{ marginBottom: 20 }}>
+            <label style={{ fontSize: 11, fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: 8 }}>Site Name</label>
+            <input value={settings.siteName || ''} onChange={e => setSettings({ ...settings, siteName: e.target.value })}
+              style={{ width: '100%', padding: '12px 16px', border: '1.5px solid #E2E8F0', borderRadius: 12, fontSize: 14, outline: 'none' }} />
+          </div>
+
+          <div style={{ marginBottom: 20 }}>
+            <label style={{ fontSize: 11, fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: 8 }}>Support Email</label>
+            <input value={settings.contactEmail || ''} onChange={e => setSettings({ ...settings, contactEmail: e.target.value })}
+              style={{ width: '100%', padding: '12px 16px', border: '1.5px solid #E2E8F0', borderRadius: 12, fontSize: 14, outline: 'none' }} />
+          </div>
+
+          <div style={{ display: 'flex', gap: 20 }}>
+            <div style={{ flex: 1 }}>
+              <label style={{ fontSize: 11, fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: 8 }}>Currency</label>
+              <input value={settings.currency || ''} onChange={e => setSettings({ ...settings, currency: e.target.value })}
+                style={{ width: '100%', padding: '12px 16px', border: '1.5px solid #E2E8F0', borderRadius: 12, fontSize: 14, outline: 'none' }} />
+            </div>
+            <div style={{ flex: 1 }}>
+              <label style={{ fontSize: 11, fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: 8 }}>Tax Rate (%)</label>
+              <input type="number" value={settings.taxRate || 0} onChange={e => setSettings({ ...settings, taxRate: parseFloat(e.target.value) })}
+                style={{ width: '100%', padding: '12px 16px', border: '1.5px solid #E2E8F0', borderRadius: 12, fontSize: 14, outline: 'none' }} />
+            </div>
+          </div>
+
+          <div style={{ marginTop: 24, padding: '16px', background: settings.maintenanceMode ? '#FEF2F2' : '#F0FDF4', borderRadius: 12, border: `1px solid ${settings.maintenanceMode ? '#FECACA' : '#BBF7D0'}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div>
+              <p style={{ fontSize: 13, fontWeight: 700, color: settings.maintenanceMode ? '#991B1B' : '#166534', margin: 0 }}>Maintenance Mode</p>
+              <p style={{ fontSize: 11, color: settings.maintenanceMode ? '#B91C1C' : '#15803D', margin: 0 }}>Prevent users from placing orders</p>
+            </div>
+            <button type="button" onClick={() => setSettings({ ...settings, maintenanceMode: !settings.maintenanceMode })}
+              style={{ width: 48, height: 24, borderRadius: 100, background: settings.maintenanceMode ? '#EF4444' : '#E2E8F0', border: 'none', position: 'relative', cursor: 'pointer', transition: 'all 0.3s' }}>
+              <div style={{ position: 'absolute', top: 2, left: settings.maintenanceMode ? 26 : 2, width: 20, height: 20, borderRadius: '50%', background: '#fff', transition: 'all 0.3s' }} />
+            </button>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
+          <div style={{ background: '#fff', padding: 32, borderRadius: 24, border: '1px solid #E2E8F0' }}>
+            <h3 style={{ fontSize: 16, fontWeight: 800, color: '#0F172A', marginBottom: 24 }}>Social Media Links</h3>
+            {['facebook', 'instagram', 'twitter', 'linkedin'].map(social => (
+              <div key={social} style={{ marginBottom: 16 }}>
+                <label style={{ fontSize: 11, fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: 8 }}>{social}</label>
+                <input value={settings.socialLinks?.[social] || ''} onChange={e => setSettings({ ...settings, socialLinks: { ...settings.socialLinks, [social]: e.target.value } })}
+                  placeholder={`https://${social}.com/...`}
+                  style={{ width: '100%', padding: '12px 16px', border: '1.5px solid #E2E8F0', borderRadius: 12, fontSize: 14, outline: 'none' }} />
+              </div>
+            ))}
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <button type="submit" disabled={saving}
+              style={{ padding: '16px 48px', background: G, color: '#fff', border: 'none', borderRadius: 12, fontWeight: 700, fontSize: 15, cursor: saving ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 10, boxShadow: `0 8px 16px ${G}40` }}>
+              {saving ? <RefreshCw size={18} className="spin" /> : <CheckCircle size={18} />}
+              Save Changes
+            </button>
+          </div>
+        </div>
+      </form>
     </motion.div>
   );
 }
 
 // ── Main Admin Page ───────────────────────────────────────────────────────────
-const SECTION_MAP = { 
-  dashboard: DashboardSection, 
-  orders: OrdersSection, 
-  users: UsersSection, 
-  products: ProductsSection, 
-  industries: IndustriesSection, 
-  quotes: QuotesSection, 
-  messages: MessagesSection, 
+const SECTION_MAP = {
+  dashboard: DashboardSection,
+  orders: OrdersSection,
+  users: UsersSection,
+  products: ProductsSection,
+  industries: IndustriesSection,
+  quotes: QuotesSection,
+  messages: MessagesSection,
   loyalty: LoyaltySection,
   analytics: AnalyticsSection,
   settings: GlobalSettingsSection
@@ -2537,9 +2816,9 @@ export default function Admin() {
   return (
     <div style={{ minHeight: '100vh', background: '#F8FAFC', display: 'flex' }}>
       {/* Mobile Menu Button - Floating Fab */}
-      <button 
+      <button
         onClick={() => setSidebarOpen(true)}
-        style={{ 
+        style={{
           position: 'fixed', bottom: 24, right: 24, zIndex: 999,
           width: 56, height: 56, borderRadius: '50%', background: G, color: '#fff',
           border: 'none', boxShadow: '0 8px 24px rgba(26,77,46,0.3)',
@@ -2572,15 +2851,15 @@ export default function Admin() {
               <LayoutDashboard size={24} color="#fff" />
             </div>
             <div>
-              <h1 style={{ fontSize: 18, fontWeight: 900, color: '#fff', margin: 0, letterSpacing: '-0.02em' }}>NOVAPACK</h1>
+              <h1 style={{ fontSize: 18, fontWeight: 900, color: '#fff', margin: 0, letterSpacing: '-0.02em' }}>DESIGNCUSTOMBOX</h1>
               <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontWeight: 700, margin: 0, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Command Center</p>
             </div>
           </div>
 
           <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', padding: '10px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', transition: 'all 0.2s' }}
             onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'} onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.03)'}>
-             <ArrowUpRight size={14} color={ACCENT} />
-             <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.7)' }}>View Live Store</span>
+            <ArrowUpRight size={14} color={ACCENT} />
+            <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.7)' }}>View Live Store</span>
           </Link>
         </div>
 

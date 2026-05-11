@@ -83,15 +83,22 @@ class ErrorBoundary extends Component {
   }
 }
 
-class LeafletErrorBoundary extends Component {
+class AdminErrorBoundary extends Component {
   constructor(props) { super(props); this.state = { hasError: false }; }
   static getDerivedStateFromError() { return { hasError: true }; }
   render() {
     if (this.state.hasError) return (
-      <div style={{ padding: 40, textAlign: 'center', background: '#F8FAFC', borderRadius: 20, border: '1px solid #E2E8F0', margin: 20 }}>
-        <h2 style={{ color: '#1A4D2E', marginBottom: 12 }}>Map Loading Issue</h2>
-        <p style={{ color: '#64748B', fontSize: 14 }}>The interactive map failed to initialize. You can still manage all other administrative features.</p>
-        <button onClick={() => window.location.reload()} style={{ marginTop: 20, padding: '10px 24px', background: '#1A4D2E', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer' }}>Reload</button>
+      <div style={{ padding: 60, textAlign: 'center', background: '#F8FAFC', borderRadius: 24, border: '1px solid #E2E8F0', margin: 40, boxShadow: '0 10px 30px rgba(0,0,0,0.05)' }}>
+        <div style={{ width: 64, height: 64, background: '#FEE2E2', color: '#DC2626', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
+          <Ban size={32} />
+        </div>
+        <h2 style={{ color: '#0F172A', marginBottom: 12, fontSize: 24, fontWeight: 800 }}>Admin Interface Error</h2>
+        <p style={{ color: '#64748B', fontSize: 16, maxWidth: 450, margin: '0 auto' }}>
+          The administrative interface encountered an unexpected error. Please try reloading the dashboard or contact technical support.
+        </p>
+        <button onClick={() => window.location.reload()} style={{ marginTop: 24, padding: '12px 32px', background: '#1A4D2E', color: '#fff', border: 'none', borderRadius: 12, fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}>
+          Reload Dashboard
+        </button>
       </div>
     );
     return this.props.children;
@@ -209,7 +216,7 @@ export default function App() {
                           <Route path="/reset-password" element={<ForgotPassword />} />
                           <Route path="/checkout" element={<Checkout />} />
                           <Route path="/profile" element={<AuthGuard><Profile /></AuthGuard>} />
-                          <Route path="/admin" element={<AdminGuard><LeafletErrorBoundary><Admin /></LeafletErrorBoundary></AdminGuard>} />
+                          <Route path="/admin" element={<AdminGuard><AdminErrorBoundary><Admin /></AdminErrorBoundary></AdminGuard>} />
                           <Route path="*" element={
                             <div className="py-32 text-center">
                               <h1 className="text-6xl font-display font-bold text-brand-textPrimary">404</h1>

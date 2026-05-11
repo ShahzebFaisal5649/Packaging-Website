@@ -690,4 +690,35 @@ router.get('/analytics', async (req, res) => {
 
 // ── End of Routes ────────────────────────────────────────────────────────────
 
+// ── Global Settings ──────────────────────────────────────────────────────────
+const GlobalSettings = require('../models/GlobalSettings');
+
+router.get('/settings', async (req, res) => {
+  try {
+    let settings = await GlobalSettings.findOne();
+    if (!settings) {
+      settings = await GlobalSettings.create({});
+    }
+    res.json({ settings });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+router.put('/settings', async (req, res) => {
+  try {
+    let settings = await GlobalSettings.findOne();
+    if (!settings) {
+      settings = new GlobalSettings(req.body);
+    } else {
+      Object.assign(settings, req.body);
+      settings.updatedAt = Date.now();
+    }
+    await settings.save();
+    res.json({ settings });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 module.exports = router;

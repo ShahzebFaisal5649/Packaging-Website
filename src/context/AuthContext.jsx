@@ -165,12 +165,33 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const clearNotifications = async () => {
+    try {
+      await api.delete('/users/notifications/all');
+      setUser(prev => ({ ...prev, notifications: [] }));
+      localStorage.setItem(CACHE_KEY, JSON.stringify({ ...user, notifications: [] }));
+    } catch (err) {
+      console.warn('clearNotifications failed:', err);
+    }
+  };
+
+  const markAllNotificationsRead = async () => {
+    try {
+      await api.put('/users/notifications/read-all');
+      const updatedNotifs = user.notifications.map(n => ({ ...n, isRead: true }));
+      setUser(prev => ({ ...prev, notifications: updatedNotifs }));
+      localStorage.setItem(CACHE_KEY, JSON.stringify({ ...user, notifications: updatedNotifs }));
+    } catch (err) {
+      console.warn('markAllNotificationsRead failed:', err);
+    }
+  };
+
   const value = {
     user, isAuthenticated: !!user, loading,
     login, register, logout, googleLogin, refreshUser, updateUser,
     addAddress, updateAddress, deleteAddress,
     saveDesign, deleteDesign,
-    toggleFavorite,
+    toggleFavorite, clearNotifications, markAllNotificationsRead,
   };
 
   return (

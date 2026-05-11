@@ -374,4 +374,31 @@ router.delete('/notifications/all', protect, async (req, res) => {
   }
 });
 
+// PUT /api/users/notifications/read-all — mark all as read
+router.put('/notifications/read-all', protect, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    user.notifications.forEach(n => (n.isRead = true));
+    await user.save();
+    res.json({ message: 'All notifications marked as read', user: user.toSafeObject() });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// PUT /api/users/notifications/:id/read — mark one as read
+router.put('/notifications/:id/read', protect, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    const notif = user.notifications.id(req.params.id);
+    if (!notif) return res.status(404).json({ message: 'Notification not found' });
+    notif.isRead = true;
+    await user.save();
+    res.json({ message: 'Notification marked as read', user: user.toSafeObject() });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 module.exports = router;

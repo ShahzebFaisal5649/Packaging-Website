@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import { User, Package, FileText, Layout, MapPin, Settings, LogOut, ChevronLeft, X, Edit, Trash2, Plus, Bell, CheckCircle, Info, AlertCircle, Eye, RefreshCw, Lock, Camera, Copy, ExternalLink, Menu } from 'lucide-react';
+import { User, Package, FileText, Layout, MapPin, Settings, LogOut, ChevronLeft, X, Edit, Trash2, Plus, Bell, CheckCircle, Info, AlertCircle, Eye, RefreshCw, Lock, Camera, Copy, ExternalLink, Menu, Ruler, Search } from 'lucide-react';
 import api from '../services/api';
 import Button from '../components/Button';
 
@@ -471,37 +471,56 @@ function DesignsTab({ designs, saveDesign, deleteDesign, showToast, navigate }) 
           <button onClick={() => navigate('/custom-box')} style={{ padding: '10px 20px', backgroundColor: G, color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}>Create Your First Design</button>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 24 }}>
-          {designs.map((d, i) => (
-            <div key={i} style={{ border: '1px solid #E2DDD6', borderRadius: 12, overflow: 'hidden', backgroundColor: '#fff' }}>
-              <div style={{ height: 140, backgroundColor: BG, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-                {d.thumbnail ? (
-                  <img src={d.thumbnail} alt={d.name || 'Design'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+          gap: '1.25rem',
+          marginTop: '1rem'
+        }}>
+          {designs.map((design, i) => (
+            <div key={design._id || i} style={{
+              background: '#fff',
+              borderRadius: 12,
+              border: '1px solid #e8e3da',
+              overflow: 'hidden',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+              transition: 'box-shadow 0.2s',
+              cursor: 'pointer'
+            }}
+            onMouseEnter={e => e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.12)'}
+            onMouseLeave={e => e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.06)'}
+            >
+              {/* Preview thumbnail area */}
+              <div style={{ background: '#F5F2ED', height: 140, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                {design.thumbnail ? (
+                  <img src={design.thumbnail} alt={design.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 ) : (
-                  <Package size={48} style={{ color: '#D0CAC0' }} />
+                  <div style={{ fontSize: 48 }}>📦</div>
                 )}
               </div>
-              <div style={{ padding: '14px 14px' }}>
-                <h4 style={{ fontWeight: 700, fontSize: 14, marginBottom: 4, color: '#1A1A1A' }}>{d.name || 'Untitled Design'}</h4>
-                <p style={{ fontSize: 12, color: '#6B6B6B', marginBottom: 4 }}>{d.boxType || d.style || 'Custom Box'}</p>
-                  <p style={{ fontSize: 11, color: '#9A9080', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <Ruler size={10} /> {d.l}×{d.w}×{d.h} {d.unit || 'in'} · {d.material || ''}
-                  </p>
-                {d.finish && (
-                  <p style={{ fontSize: 11, color: ACCENT, marginBottom: 10, fontWeight: 600 }}>{d.finish}{d.addons?.length > 0 ? ` + ${d.addons.length} add-on${d.addons.length > 1 ? 's' : ''}` : ''}</p>
-                )}
-                {!d.l && <div style={{ marginBottom: 10 }} />}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6 }}>
-                  <button
-                    onClick={() => navigate('/custom-box', { state: { ...d, _savedDesign: true } })}
-                    style={{ padding: '7px 0', backgroundColor: G, color: '#fff', border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
-                  >Edit</button>
-                  <button onClick={() => handleDuplicate(d)} style={{ padding: '7px 0', backgroundColor: 'transparent', border: '1px solid #D0CAC0', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3 }} disabled={saving}>
-                    <Copy size={11} /> Copy
-                  </button>
-                  <button onClick={() => handleDelete(d, i)} style={{ padding: '7px 0', backgroundColor: confirmDelete === i ? '#DC2626' : 'transparent', color: confirmDelete === i ? '#fff' : '#DC2626', border: '1px solid #DC2626', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
-                    {confirmDelete === i ? 'Confirm' : 'Delete'}
-                  </button>
+              {/* Card body */}
+              <div style={{ padding: '1rem' }}>
+                <div style={{ fontWeight: 600, fontSize: 15, color: '#1A4D2E', marginBottom: 4, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {design.name || 'Untitled Design'}
+                </div>
+                <div style={{ fontSize: 12, color: '#888', marginBottom: 8 }}>
+                  {design.boxType || design.style || 'Custom Box'} · {design.material || 'Standard'}
+                </div>
+                <div style={{ fontSize: 12, color: '#666', marginBottom: 12 }}>
+                  {design.l || design.dimensions?.length}×{design.w || design.dimensions?.width}×{design.h || design.dimensions?.height} {design.unit || 'cm'} &nbsp;·&nbsp; Qty: {design.quantity || 100}
+                </div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button onClick={() => navigate('/custom-box', { state: { ...design, _savedDesign: true } })} style={{
+                    flex: 1, padding: '7px 0', background: '#1A4D2E', color: '#fff',
+                    border: 'none', borderRadius: 7, fontSize: 13, cursor: 'pointer', fontWeight: 500
+                  }}>Restore</button>
+                  <button onClick={() => handleDelete(design, i)} style={{
+                    padding: '7px 12px', background: '#fff', color: '#E24B4A',
+                    border: confirmDelete === i ? 'none' : '1px solid #E24B4A', 
+                    backgroundColor: confirmDelete === i ? '#E24B4A' : '#fff',
+                    color: confirmDelete === i ? '#fff' : '#E24B4A',
+                    borderRadius: 7, fontSize: 13, cursor: 'pointer'
+                  }}>{confirmDelete === i ? 'Confirm' : 'Delete'}</button>
                 </div>
               </div>
             </div>
@@ -924,6 +943,9 @@ function SettingsTab({ user, updateUser, showToast, logout }) {
 function NotificationsTab() {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const limit = 5; // Smaller limit for profile notifications
   const { showToast } = useToast();
 
   useEffect(() => {
@@ -956,6 +978,14 @@ function NotificationsTab() {
     setNotifications(prev => prev.map(n => n._id === id ? { ...n, isRead: true } : n));
   };
 
+  const filtered = notifications.filter(n => 
+    !search || 
+    (n.title || '').toLowerCase().includes(search.toLowerCase()) || 
+    (n.message || '').toLowerCase().includes(search.toLowerCase())
+  );
+
+  const paginated = filtered.slice((page - 1) * limit, page * limit);
+
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
@@ -972,6 +1002,12 @@ function NotificationsTab() {
         </div>
       </div>
 
+      <div style={{ position: 'relative', marginBottom: 20 }}>
+        <Search size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#aaa' }} />
+        <input value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} placeholder="Search notifications…" 
+          style={{ width: '100%', paddingLeft: 36, paddingRight: 12, paddingTop: 10, paddingBottom: 10, border: '1px solid #E2DDD6', borderRadius: 10, fontSize: 13, outline: 'none' }} />
+      </div>
+
       {loading ? (
         <div style={{ textAlign: 'center', padding: 40 }}><RefreshCw size={24} style={{ animation: 'spin 1s linear infinite', color: '#aaa' }} /></div>
       ) : notifications.length === 0 ? (
@@ -981,12 +1017,8 @@ function NotificationsTab() {
           <p style={{ fontSize: 13 }}>You are all caught up!</p>
         </div>
       ) : (
-        <div style={{
-          maxHeight: notifications.length > 10 ? 520 : 'none',
-          overflowY: notifications.length > 10 ? 'auto' : 'visible',
-          display: 'flex', flexDirection: 'column', gap: 10
-        }}>
-          {notifications.map(n => (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {paginated.map(n => (
             <div key={n._id} style={{
               display: 'flex', alignItems: 'flex-start', gap: 14,
               padding: '14px 16px',

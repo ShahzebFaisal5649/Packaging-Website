@@ -11,8 +11,15 @@ const router = express.Router();
 // Public content endpoints
 router.get('/products', async (req, res) => {
   try {
-    const products = await Product.find().sort({ createdAt: -1 });
-    res.json({ products });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
+
+    const [products, total] = await Promise.all([
+      Product.find().sort({ createdAt: -1 }).skip(skip).limit(limit),
+      Product.countDocuments()
+    ]);
+    res.json({ products, total, page, totalPages: Math.ceil(total / limit) });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -40,8 +47,15 @@ router.get('/products/:id', async (req, res) => {
 
 router.get('/industries', async (req, res) => {
   try {
-    const industries = await Industry.find().sort({ createdAt: -1 });
-    res.json({ industries });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
+
+    const [industries, total] = await Promise.all([
+      Industry.find().sort({ createdAt: -1 }).skip(skip).limit(limit),
+      Industry.countDocuments()
+    ]);
+    res.json({ industries, total, page, totalPages: Math.ceil(total / limit) });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

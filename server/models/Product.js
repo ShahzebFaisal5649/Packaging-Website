@@ -21,4 +21,6 @@ const productSchema = new mongoose.Schema({
   featured: { type: Boolean, default: false },
 }, { timestamps: true });
 
+productSchema.index({ cat: 1 });
+
 module.exports = mongoose.model('Product', productSchema);

@@ -105,13 +105,12 @@ export default function CustomBox() {
 
   const [activeStep, setActiveStep] = useState(1);
   const [config, setConfig] = useState({
-    boxType: 'Mailer Box',
-    l: '8', w: '6', h: '3', unit: 'in', quantity: '',
     material: 'Corrugated E-Flute',
     print: 'Outside Only', colorMode: 'CMYK Full Color', finish: 'Matte Lam',
     addons: [],
-    customQuantity: '',
   });
+  const [useCustomQty, setUseCustomQty] = useState(false);
+  const [customQty, setCustomQty] = useState('');
   const [designName, setDesignName] = useState('');
   const [isPricePulsing, setIsPricePulsing] = useState(false);
   const [prefilledName, setPrefilledName] = useState(null);
@@ -517,30 +516,65 @@ export default function CustomBox() {
                       </div>
                     ))}
                   </div>
-                  <label htmlFor="qty-select-field" style={{ fontSize: 11, fontWeight: 700, color: '#1A1A1A', display: 'block', marginBottom: 8 }}>Quantity <span style={{ color: '#DC2626' }}>*</span></label>
-                  <select id="qty-select-field" value={config.quantity || ''} onChange={e => handleConfigChange('quantity', e.target.value ? parseInt(e.target.value) : '')}
-                    style={{ width: '100%', padding: '12px 14px', border: `1.5px solid ${!config.quantity ? '#DC2626' : '#E8E4DC'}`, borderRadius: 10, fontSize: 14, fontWeight: 700, outline: 'none', cursor: 'pointer', appearance: 'none', background: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 12px center / 16px, #fff`,
-                    boxShadow: !config.quantity ? '0 0 0 3px rgba(220,38,38,0.2)' : 'none', transition: 'box-shadow 0.2s, border-color 0.2s' }}>
-                    <option value="">Select Quantity</option>
+                  <label style={{ fontSize: 11, fontWeight: 700, color: '#1A1A1A', display: 'block', marginBottom: 8 }}>Select Quantity <span style={{ color: '#DC2626' }}>*</span></label>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 12 }}>
                     {[100, 250, 500, 1000, 2500, 5000].map(q => (
-                      <option key={q} value={q}>{q.toLocaleString()} units{q >= 1000 ? ' — Volume Discount' : q >= 500 ? ' — 10% Off' : ''}</option>
+                      <button key={q} 
+                        onClick={() => {
+                          setUseCustomQty(false);
+                          setCustomQty('');
+                          handleConfigChange('quantity', q);
+                        }}
+                        style={{
+                          padding: '10px 4px', fontSize: 12, fontWeight: 700,
+                          borderRadius: 8, border: `1.5px solid ${!useCustomQty && config.quantity === q ? G : '#E8E4DC'}`,
+                          background: !useCustomQty && config.quantity === q ? G : '#fff',
+                          color: !useCustomQty && config.quantity === q ? '#fff' : '#444',
+                          cursor: 'pointer', transition: 'all 0.15s'
+                        }}
+                      >
+                        {q.toLocaleString()}
+                      </button>
                     ))}
-                    <option value="custom">Custom Quantity...</option>
-                  </select>
-                  {config.quantity === 'custom' && (
-                    <div style={{ marginTop: 10 }}>
-                      <label style={{ fontSize: 10, fontWeight: 700, color: '#888', textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Enter Units</label>
-                      <input 
-                        type="number" 
-                        min="1"
-                        placeholder="e.g. 750"
-                        value={config.customQuantity}
-                        onChange={e => handleConfigChange('customQuantity', e.target.value)}
-                        style={{ width: '100%', padding: '10px 14px', border: '1.5px solid #E8E4DC', borderRadius: 8, fontSize: 14, fontWeight: 700, outline: 'none' }}
+                  </div>
+
+                  <div style={{ marginTop: 12 }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 14, color: '#1A1A1A', fontWeight: 600 }}>
+                      <input
+                        type="checkbox"
+                        checked={useCustomQty}
+                        onChange={e => {
+                          const checked = e.target.checked;
+                          setUseCustomQty(checked);
+                          if (!checked) {
+                            setCustomQty('');
+                            handleConfigChange('quantity', 100); // Default to first preset if unchecked
+                          }
+                        }}
                       />
-                    </div>
-                  )}
-                  {!config.quantity && <p style={{ color: '#DC2626', fontSize: 11, fontWeight: 700, marginTop: 6 }}>⚠️ Please select a quantity to proceed</p>}
+                      Enter custom quantity
+                    </label>
+                    {useCustomQty && (
+                      <input
+                        type="number"
+                        min={1}
+                        placeholder="e.g. 750"
+                        value={customQty}
+                        onChange={e => {
+                          const val = e.target.value;
+                          setCustomQty(val);
+                          handleConfigChange('quantity', parseInt(val) || 0);
+                        }}
+                        style={{
+                          marginTop: 8, width: '100%', padding: '9px 14px',
+                          border: `1.5px solid ${G}`, borderRadius: 8,
+                          fontSize: 14, outline: 'none', fontWeight: 700
+                        }}
+                      />
+                    )}
+                  </div>
+
+                  {!config.quantity && !useCustomQty && <p style={{ color: '#DC2626', fontSize: 11, fontWeight: 700, marginTop: 6 }}>⚠️ Please select a quantity to proceed</p>}
                   {config.quantity >= 500 && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10, padding: '8px 12px', background: '#D1FAE5', borderRadius: 8 }}>
                       <Star size={12} color="#059669" style={{ fill: '#059669' }} />

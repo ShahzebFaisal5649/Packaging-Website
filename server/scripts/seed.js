@@ -6,162 +6,58 @@ const Industry = require('../models/Industry');
 
 dotenv.config({ path: path.join(__dirname, '../.env') });
 
-const PRODUCTS = [
-  {
-    name: 'Custom Mailer Box',
-    slug: 'custom-mailer-box',
-    cat: 'Shipping',
-    description: 'Durable, stylish, and perfect for e-commerce unboxing. Made from sustainable corrugated board.',
-    price: '$0.85',
-    img: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=800&q=80',
-    boxType: 'Mailer Box',
-    material: 'E-Flute Corrugated',
-    finish: 'Matte Lamination',
-    dims: '10x8x4 in',
-    minQty: '100',
-    addons: ['Inside Printing', 'Tear Strip', 'Spot UV'],
-    suggestedDimensions: { l: 10, w: 8, h: 4 }
-  },
-  {
-    name: 'Luxury Rigid Box',
-    slug: 'luxury-rigid-box',
-    cat: 'Luxury',
-    description: 'High-end structural packaging for premium brands. Ideal for jewelry, tech, and gifts.',
-    price: '$3.50',
-    img: 'https://images.unsplash.com/photo-1544816155-12df9643f363?w=800&q=80',
-    boxType: 'Rigid Box',
-    material: '1200gsm Chipboard',
-    finish: 'Soft-Touch Matte',
-    dims: '8x8x3 in',
-    minQty: '50',
-    addons: ['Magnetic Closure', 'Gold Foil', 'Custom Insert'],
-    suggestedDimensions: { l: 8, w: 8, h: 3 }
-  },
-  {
-    name: 'Eco Kraft Box',
-    slug: 'eco-kraft-box',
-    cat: 'Sustainable',
-    description: '100% recycled and biodegradable. Perfect for natural and organic product lines.',
-    price: '$0.65',
-    img: 'https://images.unsplash.com/photo-1619468579487-430c4d90f93b?w=800&q=80',
-    boxType: 'Kraft Box',
-    material: 'Brown Kraft Paper',
-    finish: 'Uncoated',
-    dims: '6x6x6 in',
-    minQty: '100',
-    addons: ['Soy Inks', 'Recycled Sticker', 'Hemp String'],
-    suggestedDimensions: { l: 6, w: 6, h: 6 }
-  },
-  {
-    name: 'Cosmetic Display Box',
-    slug: 'cosmetic-display-box',
-    cat: 'Retail',
-    description: 'Vibrant, eye-catching packaging designed for retail shelves. High-resolution printing.',
-    price: '$1.10',
-    img: 'https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?w=800&q=80',
-    boxType: 'Tuck End Box',
-    material: '18pt Cardstock',
-    finish: 'Gloss Lamination',
-    dims: '4x4x6 in',
-    minQty: '250',
-    addons: ['Window Patching', 'Embossing', 'Metallic Ink'],
-    suggestedDimensions: { l: 4, w: 4, h: 6 }
-  },
-  {
-    name: 'Food Grade Cake Box',
-    slug: 'food-grade-cake-box',
-    cat: 'Bakery',
-    description: 'FSC-certified, food-safe material. Keeps pastries fresh and protected during transport.',
-    price: '$0.75',
-    img: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800&q=80',
-    boxType: 'Gable Box',
-    material: 'Silesia Board',
-    finish: 'Varnish',
-    dims: '12x12x6 in',
-    minQty: '200',
-    addons: ['Handle Hole', 'Greaseproof Coating', 'Transparent Lid'],
-    suggestedDimensions: { l: 12, w: 12, h: 6 }
-  },
-  {
-    name: 'Standard Shipping Box',
-    slug: 'standard-shipping-box',
-    cat: 'Logistics',
-    description: 'Heavy-duty corrugated boxes for safe bulk transport and storage.',
-    price: '$0.45',
-    img: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&q=80',
-    boxType: 'RSC Shipping Box',
-    material: 'Double Wall Corrugated',
-    finish: 'None',
-    dims: '24x18x18 in',
-    minQty: '50',
-    addons: ['Printed Logo', 'Warning Labels', 'Fragile Stamp'],
-    suggestedDimensions: { l: 24, w: 18, h: 18 }
-  }
+const industries = [
+  { name: 'Food & Beverage', slug: 'food-beverage', description: 'Custom packaging for food brands, bakeries, restaurants, and beverage companies. FDA-compliant materials available.', image: 'https://images.unsplash.com/photo-1516738901171-8eb4fc13bd20?w=800&q=80', featured: true },
+  { name: 'Cosmetics & Beauty', slug: 'cosmetics-beauty', description: 'Luxury packaging for skincare, makeup, and wellness brands. Premium finishes and sustainable options.', image: 'https://images.unsplash.com/photo-1512496011212-721d0b3275cd?w=800&q=80', featured: true },
+  { name: 'E-Commerce', slug: 'ecommerce', description: 'Durable, branded shipping boxes for online retailers. Custom inserts, void fill, and unboxing experiences.', image: 'https://images.unsplash.com/photo-1566576721346-d4a3b4eaad55?w=800&q=80', featured: true },
+  { name: 'Apparel & Fashion', slug: 'apparel-fashion', description: 'Custom boxes, bags, and tissue wrapping for clothing, shoes, and accessories brands.', image: 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=800&q=80', featured: false },
+  { name: 'Electronics', slug: 'electronics', description: 'ESD-safe, protective packaging for gadgets, components, and consumer electronics.', image: 'https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?w=800&q=80', featured: false },
+  { name: 'Cannabis & CBD', slug: 'cannabis-cbd', description: 'Child-resistant, compliant packaging for cannabis and CBD products with custom branding.', image: 'https://images.unsplash.com/photo-1536638317175-32449e1484f5?w=800&q=80', featured: false },
+  { name: 'Pharmaceuticals', slug: 'pharmaceuticals', description: 'Tamper-evident, GMP-compliant pharmaceutical packaging for medicines and supplements.', image: 'https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=800&q=80', featured: false },
+  { name: 'Luxury Goods', slug: 'luxury-goods', description: 'High-end rigid boxes, magnetic closures, and premium finishes for luxury products.', image: 'https://images.unsplash.com/photo-1547991270-d1624f38edb6?w=800&q=80', featured: true },
+  { name: 'Subscription Boxes', slug: 'subscription-boxes', description: 'Eye-catching monthly subscription boxes designed to delight customers on every delivery.', image: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=800&q=80', featured: false },
+  { name: 'Retail & POS', slug: 'retail-pos', description: 'Shelf-ready retail packaging, display boxes, and point-of-sale units for brick-and-mortar.', image: 'https://images.unsplash.com/photo-1534452203293-494d7ddbf7e0?w=800&q=80', featured: false },
+  { name: 'Healthcare', slug: 'healthcare', description: 'Sterile, medical-grade packaging for healthcare devices, kits, and personal protective equipment.', image: 'https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?w=800&q=80', featured: false },
+  { name: 'Toys & Games', slug: 'toys-games', description: 'Bright, durable packaging for toys, board games, and hobby products. Safe, child-friendly materials.', image: 'https://images.unsplash.com/photo-1531651008558-ed1758b27ef6?w=800&q=80', featured: false },
+  { name: 'Pet Products', slug: 'pet-products', description: 'Fun, sturdy packaging for pet food, treats, and accessories. Available in eco-friendly options.', image: 'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?w=800&q=80', featured: false },
+  { name: 'Automotive', slug: 'automotive', description: 'Heavy-duty industrial packaging for auto parts, accessories, and aftermarket products.', image: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=800&q=80', featured: false },
+  { name: 'Gift & Specialty', slug: 'gift-specialty', description: 'Beautiful gift boxes, hamper packaging, and ribbon-ready specialty boxes for every occasion.', image: 'https://images.unsplash.com/photo-1513201099705-a9746e1e201f?w=800&q=80', featured: true }
 ];
 
-const INDUSTRIES = [
-  {
-    name: 'Cosmetics & Beauty',
-    slug: 'cosmetics-beauty',
-    cat: 'Luxury',
-    description: 'Elegance meets protection. Our cosmetic boxes are designed to mirror the quality of your beauty products.',
-    img: 'https://images.unsplash.com/photo-1612817288484-6f916006741a?w=800&q=80',
-    products: [
-      { name: 'Lipstick Box', img: 'https://images.unsplash.com/photo-1586776977607-310e9c725c37?w=400&q=80' },
-      { name: 'Skincare Kit', img: 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400&q=80' }
-    ]
-  },
-  {
-    name: 'E-commerce & Retail',
-    slug: 'ecommerce-retail',
-    cat: 'E-commerce',
-    description: 'Make unboxing an experience. Custom mailers and retail boxes that build brand loyalty.',
-    img: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=800&q=80',
-    products: [
-      { name: 'Custom Mailer', img: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=400&q=80' },
-      { name: 'Shopping Bag', img: 'https://images.unsplash.com/photo-1544816155-12df9643f363?w=400&q=80' }
-    ]
-  },
-  {
-    name: 'Food & Beverage',
-    slug: 'food-beverage',
-    cat: 'Food-Safe',
-    description: 'Safe, sustainable, and savory. Packaging that preserves taste and presents quality.',
-    img: 'https://images.unsplash.com/photo-1512485800893-b08ec1ea59b1?w=800&q=80',
-    products: [
-      { name: 'Bakery Box', img: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&q=80' },
-      { name: 'Beverage Carrier', img: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&q=80' }
-    ]
-  }
+const products = [
+  { name: 'Classic Mailer Box', slug: 'classic-mailer-box', category: 'Mailer Boxes', description: 'The most popular choice for e-commerce brands. Self-locking, no glue needed, ultra-clean unboxing.', price: 1.20, boxType: 'Mailer Box', material: 'E-Flute Corrugated', finish: 'Matte Lamination', dimensions: { length: '20-40', width: '15-30', height: '5-20' }, minOrderQty: 50, addons: ['Custom Insert', 'Tissue Paper', 'Sticker Sheet'], featured: true, image: 'https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=800&q=80' },
+  { name: 'Rigid Gift Box', slug: 'rigid-gift-box', category: 'Rigid Boxes', description: 'Premium rigid box with magnetic closure. Perfect for luxury goods, gifts, and high-end retail.', price: 3.80, boxType: 'Rigid Box', material: 'Grey Board 2mm', finish: 'Gloss UV Coating', dimensions: { length: '15-35', width: '10-25', height: '5-15' }, minOrderQty: 25, addons: ['Magnetic Closure', 'Ribbon Pull', 'Foam Insert'], featured: true, image: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=800&q=80' },
+  { name: 'Kraft Tuck Box', slug: 'kraft-tuck-box', category: 'Folding Cartons', description: 'Eco-friendly kraft tuck-end box. Ideal for bakeries, food, candles, and soap brands.', price: 0.65, boxType: 'Tuck End Box', material: 'Kraft Paper 350gsm', finish: 'Uncoated Natural', dimensions: { length: '5-25', width: '5-20', height: '3-15' }, minOrderQty: 100, addons: ['Window Cutout', 'Spot UV', 'Embossing'], featured: false, image: 'https://images.unsplash.com/photo-1512418490979-92798cedec81?w=800&q=80' },
+  { name: 'Cosmetic Sleeve Box', slug: 'cosmetic-sleeve-box', category: 'Sleeve Boxes', description: 'Two-piece slide-out sleeve box with a premium feel. Popular for skincare sets and cosmetics.', price: 2.10, boxType: 'Sleeve Box', material: 'Coated Artboard 400gsm', finish: 'Soft Touch Lamination', dimensions: { length: '10-30', width: '8-20', height: '3-12' }, minOrderQty: 50, addons: ['Hot Foil Stamping', 'Embossing', 'Ribbon'], featured: true, image: 'https://images.unsplash.com/photo-1612817288484-6f916006741a?w=800&q=80' },
+  { name: 'Corrugated Shipping Box', slug: 'corrugated-shipping-box', category: 'Shipping Boxes', description: 'Heavy-duty corrugated RSC box for safe shipping. BCT-tested for stacking strength.', price: 0.95, boxType: 'RSC Shipping Box', material: 'B-Flute Corrugated', finish: 'Uncoated', dimensions: { length: '20-60', width: '15-50', height: '10-40' }, minOrderQty: 50, addons: ['Fragile Label', 'Custom Interior Print', 'Handles'], featured: false, image: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=800&q=80' },
+  { name: 'Window Display Box', slug: 'window-display-box', category: 'Retail Boxes', description: 'Folding carton with clear PET window. Perfect for retail shelf display of food, toys, and cosmetics.', price: 1.45, boxType: 'Window Box', material: 'SBS Artboard 350gsm', finish: 'Gloss Lamination', dimensions: { length: '8-28', width: '6-22', height: '4-18' }, minOrderQty: 100, addons: ['PET Window', 'Hanger Tab', 'Spot UV'], featured: false, image: 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=800&q=80' },
+  { name: 'Luxury Drawer Box', slug: 'luxury-drawer-box', category: 'Rigid Boxes', description: 'Elegant rigid drawer box with linen texture. The gold standard for jewelry, watches, and perfumes.', price: 5.50, boxType: 'Drawer Box', material: 'Linen-Wrapped Rigid', finish: 'Linen Texture + Foil', dimensions: { length: '8-25', width: '6-20', height: '3-10' }, minOrderQty: 25, addons: ['Gold Foil', 'Velvet Insert', 'Logo Deboss'], featured: true, image: 'https://images.unsplash.com/photo-1584305323448-299e84123875?w=800&q=80' },
+  { name: 'Gable Top Box', slug: 'gable-top-box', category: 'Specialty Boxes', description: 'Charming gable box with built-in handle. A favourite for party favours, bakeries, and gift packaging.', price: 0.85, boxType: 'Gable Box', material: 'SBS Artboard 300gsm', finish: 'Matte Lamination', dimensions: { length: '10-25', width: '8-18', height: '12-28' }, minOrderQty: 100, addons: ['Window', 'Custom Tag', 'Tissue Paper'], featured: false, image: 'https://images.unsplash.com/photo-1601924994987-69e26d50dc26?w=800&q=80' },
+  { name: 'Pizza Kraft Box', slug: 'pizza-kraft-box', category: 'Food Boxes', description: 'Grease-resistant kraft pizza box with full-colour lid print. FDA-compliant food-safe lining.', price: 0.75, boxType: 'Pizza Box', material: 'Kraft Corrugated', finish: 'Food-Safe Coating', dimensions: { length: '20-45', width: '20-45', height: '4-8' }, minOrderQty: 100, addons: ['Logo Print', 'QR Code', 'Recycled Material'], featured: false, image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800&q=80' },
+  { name: 'Subscription Mystery Box', slug: 'subscription-mystery-box', category: 'Mailer Boxes', description: 'Thick, premium mailer box with interior full-colour print. Designed for memorable unboxing moments.', price: 2.40, boxType: 'Mailer Box', material: 'B-Flute Corrugated', finish: 'Matte + Spot UV', dimensions: { length: '25-45', width: '20-35', height: '10-25' }, minOrderQty: 50, addons: ['Interior Print', 'Perforated Tear Strip', 'QR Code'], featured: true, image: 'https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=800&q=80' },
+  { name: 'Hang Tag Box', slug: 'hang-tag-box', category: 'Retail Boxes', description: 'Header card box with Euro-slot hang tag. Ready for peg hooks in retail and pharmacy chains.', price: 0.90, boxType: 'Header Box', material: 'Coated Artboard 350gsm', finish: 'Gloss Lamination', dimensions: { length: '6-20', width: '4-15', height: '2-10' }, minOrderQty: 200, addons: ['Euro Slot', 'Barcode Panel', 'Tear Strip'], featured: false, image: 'https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=800&q=80' },
+  { name: 'Cannabis Compliance Box', slug: 'cannabis-compliance-box', category: 'Specialty Boxes', description: 'Child-resistant, tamper-evident packaging for cannabis flower, edibles, and CBD products.', price: 1.80, boxType: 'CR Tuck Box', material: 'SBS Artboard 400gsm', finish: 'Soft Touch + Spot UV', dimensions: { length: '6-18', width: '4-12', height: '2-8' }, minOrderQty: 100, addons: ['Child Lock', 'Tamper Seal', 'Lab Results Panel'], featured: false, image: 'https://images.unsplash.com/photo-1619671762722-19bc306c527f?w=800&q=80' },
+  { name: 'Eco Kraft Mailer', slug: 'eco-kraft-mailer', category: 'Mailer Boxes', description: '100% recycled content corrugated mailer. FSC-certified and fully compostable. Zero plastic used.', price: 1.05, boxType: 'Eco Mailer', material: '100% Recycled Corrugated', finish: 'Uncoated Kraft', dimensions: { length: '15-40', width: '12-30', height: '4-18' }, minOrderQty: 50, addons: ['Compostable Label', 'Soy Ink Print', 'Seed Paper Insert'], featured: true, image: 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=800&q=80' },
+  { name: 'Apparel Tissue Wrap Box', slug: 'apparel-tissue-box', category: 'Apparel Boxes', description: 'Flat-pack collapsible box for clothing and apparel. Comes with branded tissue paper and sticker seal.', price: 1.60, boxType: 'Collapsible Box', material: 'Coated Grey Board', finish: 'Matte Lamination', dimensions: { length: '20-50', width: '15-40', height: '3-10' }, minOrderQty: 50, addons: ['Tissue Paper', 'Logo Sticker', 'Ribbon'], featured: false, image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80' },
+  { name: 'Rigid Neck Box', slug: 'rigid-neck-box', category: 'Rigid Boxes', description: 'Two-piece rigid neck and shoulder box. Popular for premium electronics, candles, and spirits.', price: 4.20, boxType: 'Neck Box', material: 'Grey Board 2.5mm', finish: 'Gloss UV + Foil', dimensions: { length: '10-30', width: '8-25', height: '5-18' }, minOrderQty: 25, addons: ['Foil Stamping', 'Foam Insert', 'Magnetic Closure'], featured: true, image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80' }
 ];
 
 async function seed() {
   try {
     console.log('Connecting to MongoDB...');
     await mongoose.connect(process.env.MONGODB_URI);
-    console.log('Connected.');
-
-    // Clear existing
     console.log('Clearing old data...');
-    await Product.deleteMany({});
     await Industry.deleteMany({});
-
-    // Seed Products
-    console.log('Seeding Products...');
-    await Product.insertMany(PRODUCTS);
-    console.log(`Seeded ${PRODUCTS.length} products.`);
-
-    // Seed Industries
-    console.log('Seeding Industries...');
-    await Industry.insertMany(INDUSTRIES);
-    console.log(`Seeded ${INDUSTRIES.length} industries.`);
-
-    console.log('Seeding complete!');
+    await Product.deleteMany({});
+    console.log('Seeding industries...');
+    await Industry.insertMany(industries);
+    console.log('Seeding products...');
+    await Product.insertMany(products);
+    console.log('✅ Seeded 15 industries and 15 products');
     process.exit(0);
   } catch (err) {
     console.error('Seeding failed:', err);
     process.exit(1);
   }
 }
-
 seed();
