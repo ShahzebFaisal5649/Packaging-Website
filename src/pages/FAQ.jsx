@@ -93,7 +93,7 @@ export default function FAQ() {
               <div className="flex flex-col gap-2">
                 <button 
                   onClick={() => setActiveCat('all')}
-                  className={`px-6 py-4 rounded-xl text-left font-black text-sm transition-all ${activeCat === 'all' ? 'bg-brand-teal text-white shadow-xl shadow-brand-teal/20' : 'text-gray-400 hover:bg-gray-50 hover:text-brand-navy'}`}
+                  className={`px-6 py-4 rounded-xl text-left font-black text-sm transition-all border-2 ${activeCat === 'all' ? 'bg-brand-coral text-white border-brand-coral shadow-xl shadow-brand-coral/20' : 'bg-transparent border-transparent text-gray-400 hover:bg-gray-50 hover:text-brand-navy'}`}
                 >
                   All Questions
                 </button>
@@ -101,7 +101,7 @@ export default function FAQ() {
                   <button 
                     key={cat.id}
                     onClick={() => setActiveCat(cat.id)}
-                    className={`px-6 py-4 rounded-xl text-left font-black text-sm transition-all ${activeCat === cat.id ? 'bg-brand-teal text-white shadow-xl shadow-brand-teal/20' : 'text-gray-400 hover:bg-gray-50 hover:text-brand-navy'}`}
+                    className={`px-6 py-4 rounded-xl text-left font-black text-sm transition-all border-2 ${activeCat === cat.id ? 'bg-brand-coral text-white border-brand-coral shadow-xl shadow-brand-coral/20' : 'bg-transparent border-transparent text-gray-400 hover:bg-gray-50 hover:text-brand-navy'}`}
                   >
                     {cat.name}
                   </button>

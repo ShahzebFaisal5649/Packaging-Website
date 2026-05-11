@@ -57,14 +57,32 @@ function IndustryCard({ product }) {
       }}
     >
       {/* Image */}
-      <div style={{ position: 'relative', aspectRatio: '4/3', overflow: 'hidden', backgroundColor: '#F0EDE8' }}>
-        <img
-          src={product.img}
-          alt={product.name}
-          style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.6s ease', transform: hovered ? 'scale(1.07)' : 'scale(1)' }}
-          loading="lazy"
-          onError={e => { e.target.src = 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=600&q=80'; }}
-        />
+      <div style={{ height: 220, width: '100%', overflow: 'hidden', borderRadius: '12px 12px 0 0', background: '#F1EDE6', position: 'relative' }}>
+        {product.img && product.img.trim() !== '' ? (
+          <img
+            src={product.img}
+            alt={product.name}
+            style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.6s ease', transform: hovered ? 'scale(1.07)' : 'scale(1)' }}
+            loading="lazy"
+            onError={e => {
+              e.target.style.display = 'none';
+              e.target.nextSibling.style.display = 'flex';
+            }}
+          />
+        ) : null}
+        {/* Fallback shown when no image or image fails */}
+        <div style={{
+          display: (product.img && product.img.trim() !== '') ? 'none' : 'flex',
+          alignItems: 'center', justifyContent: 'center',
+          width: '100%', height: '100%',
+          background: 'linear-gradient(135deg, #E8F0EC 0%, #F5F2EC 100%)',
+          flexDirection: 'column', gap: 8,
+          transition: 'transform 0.6s ease', transform: hovered ? 'scale(1.07)' : 'scale(1)'
+        }}>
+          <Package size={40} color="#C8860A" strokeWidth={1.5} />
+          <span style={{ fontSize: 12, color: '#888', fontWeight: 600 }}>{product.name}</span>
+        </div>
+        
         <div style={{ position: 'absolute', top: 10, left: 10, backgroundColor: G, color: '#fff', fontSize: 9, fontFamily: '"DM Mono", monospace', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.07em', padding: '4px 8px', borderRadius: 4 }}>
           {product.cat}
         </div>

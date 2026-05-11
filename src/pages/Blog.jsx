@@ -12,12 +12,25 @@ import { POSTS } from '../data/blogData';
 
 const CATEGORIES = ['All', 'Branding', 'E-Commerce', 'Marketing', 'Materials', 'Design'];
 
+function useWindowWidth() {
+  const [width, setWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
+  useEffect(() => {
+    const handleResize = () => setWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  return width;
+}
+
 export default function Blog() {
   const [activeCategory, setActiveCategory] = useState('All');
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState('idle');
   const [statusMsg, setStatusMsg] = useState('');
   const [focus, setFocus] = useState(false);
+  const width = useWindowWidth();
+  const isMobile = width < 900;
+  const isDesktop = width >= 1024;
   const navigate = useNavigate();
 
   const handleSubscribe = async (e) => {
@@ -45,18 +58,33 @@ export default function Blog() {
 
   const filtered = activeCategory === 'All' ? POSTS : POSTS.filter(p => p.category === activeCategory);
   const featured = filtered.find(p => p.featured) || filtered[0];
-  const rest = filtered.filter(p => p.id !== featured?.id);
+  
+  // FIXED: show cards even if only 1 post exists in category
+  const rest = filtered.length === 1 
+    ? filtered 
+    : filtered.filter(p => p.id !== featured?.id);
 
   return (
     <div style={{ backgroundColor: BG, minHeight: '100vh', overflowX: 'hidden' }}>
 
       {/* Hero — Featured Post */}
-      <section style={{ backgroundColor: G, position: 'relative' }}>
+      <section style={{ backgroundColor: G, position: 'relative', overflow: 'hidden' }}>
         {featured ? (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }} className="hero-split">
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+            height: isMobile ? 'auto' : 520,
+            minHeight: isMobile ? 320 : 520,
+          }} className="hero-split">
             <motion.div
               initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }}
-              style={{ padding: '120px 80px 120px 10%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}
+              style={{ 
+                padding: isMobile ? '48px 24px' : '80px 10%', 
+                display: 'flex', 
+                flexDirection: 'column', 
+                justifyContent: 'center',
+                overflow: 'hidden'
+              }}
               className="hero-content-padding"
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
@@ -86,13 +114,22 @@ export default function Blog() {
                 Read Article <ArrowRight size={16} />
               </motion.button>
             </motion.div>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }}
-              style={{ position: 'relative', minHeight: 400, overflow: 'hidden' }}>
-              <motion.img initial={{ scale: 1.1 }} animate={{ scale: 1 }} transition={{ duration: 1.5, ease: 'easeOut' }}
-                src={featured.img} alt={featured.title}
-                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+            <div style={{ position: 'relative', height: '100%', overflow: 'hidden' }}>
+              <img 
+                key={featured.id}
+                src={featured.img || 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=1200&q=80'} 
+                alt={featured.title}
+                style={{ 
+                  width: '100%', 
+                  height: '100%', 
+                  objectFit: 'cover', 
+                  objectPosition: 'center',
+                  display: 'block',
+                  animation: 'heroFadeIn 0.4s ease'
+                }} 
+              />
               <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, #1A4D2E -5%, transparent 30%)' }} className="hero-gradient-overlay" />
-            </motion.div>
+            </div>
           </div>
         ) : (
           <div style={{ padding: '120px 24px', textAlign: 'center' }}>

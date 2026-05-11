@@ -18,7 +18,13 @@ const notificationRoutes = require('./routes/notifications');
 const app = express();
 
 app.use(cors({
-  origin: ['http://localhost:5173', 'https://novapack-custom-box.vercel.app', process.env.FRONTEND_URL].filter(Boolean),
+  origin: [
+    'http://localhost:5173',
+    'https://novapack-custom-box.vercel.app',
+    'https://designcustombox.com',
+    'https://www.designcustombox.com',
+    process.env.FRONTEND_URL
+  ].filter(Boolean),
   credentials: true
 }));
 app.use(express.json({ limit: '50mb' }));

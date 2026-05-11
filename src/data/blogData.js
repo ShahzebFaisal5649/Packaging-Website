@@ -146,6 +146,53 @@ export const POSTS = [
       <h2>Embossing and Debossing</h2>
       <p>Embossing creates a raised pattern on the surface of the box, while debossing creates a recessed one. These tactile elements add depth and dimension to your packaging, making it stand out on the shelf and feel more engaging to the customer.</p>
     `
+  },
+  {
+    id: 7,
+    title: "How to Choose the Right Box Size for Your Online Store",
+    excerpt: "Oversized packaging wastes money. Undersized packaging damages products. Here's how to find the perfect fit for every SKU.",
+    category: "E-Commerce",
+    featured: false,
+    author: "Ava Collins",
+    date: "Apr 14, 2025",
+    readTime: "4 min read",
+    img: "https://images.unsplash.com/photo-1600132806608-231446b2e7af?w=800&q=80",
+    content: `
+      <h2>Why Box Size Matters for E-Commerce</h2>
+      <p>Shipping carriers charge by dimensional weight, not just actual weight. A box that is too large increases your DIM weight charges significantly — often doubling or tripling your shipping cost on lightweight products.</p>
+      <h2>The 2-Inch Rule</h2>
+      <p>A good starting point is to leave no more than 2 inches of space on any side of your product after packaging. This minimizes void fill, reduces box size, and keeps DIM weight low without risking product damage.</p>
+      <h2>Standard Sizes That Work for 80% of Products</h2>
+      <ul>
+        <li><strong>6×4×4 in</strong> — Small accessories, cosmetics, single items</li>
+        <li><strong>12×9×4 in</strong> — Apparel, books, flat products</li>
+        <li><strong>18×12×8 in</strong> — Multi-item orders, footwear</li>
+        <li><strong>24×18×18 in</strong> — Bulk orders, subscription boxes</li>
+      </ul>
+      <h2>Custom Sizing — When It Pays Off</h2>
+      <p>If you ship more than 500 units per month of a consistent SKU, custom-sized boxes almost always pay for themselves within 3 months through reduced shipping costs alone. Contact us for a custom dimension quote.</p>
+    `
+  },
+  {
+    id: 8,
+    title: "Sustainable Packaging for Food-Safe Brands",
+    excerpt: "Meeting FDA food-contact regulations while staying eco-friendly is easier than you think.",
+    category: "Materials",
+    featured: false,
+    author: "Daniel Park",
+    date: "Apr 28, 2025",
+    readTime: "5 min read",
+    img: "https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&q=80",
+    content: `
+      <h2>What Makes Packaging "Food-Safe"?</h2>
+      <p>Food-safe packaging must meet FDA 21 CFR (Code of Federal Regulations) requirements. This means the materials used must not transfer harmful substances to food at levels that would be injurious to health.</p>
+      <h2>Kraft Paper vs Bleached Board</h2>
+      <p>Unbleached kraft paper is the most natural option but has a rougher surface. SBS (Solid Bleached Sulfate) board offers a bright white surface ideal for printing but requires food-safe coatings to be truly compliant.</p>
+      <h2>Coatings Matter</h2>
+      <p>Clay coating and PE (polyethylene) lamination are common barriers. Water-based coatings are now preferred over solvent-based for both safety and environmental reasons. Always ask your supplier for a food-safe compliance certificate.</p>
+      <h2>Recyclability</h2>
+      <p>Most food-safe kraft and SBS packaging is curbside recyclable as long as it is not heavily contaminated with food residue. Wax-coated boxes are generally not recyclable — opt for clay-coated alternatives when recyclability is important to your brand.</p>
+    `
   }
 ];
 

@@ -112,6 +112,7 @@ function PaymentForm({ clientSecret, amount, checkoutItems }) {
       }
 
       if (paymentIntent?.status === 'succeeded') {
+        // Auto-save manual address to profile
         if (user && addressMode === 'manual' && form.address && form.city) {
           try {
             await api.post('/users/addresses', {
@@ -121,9 +122,10 @@ function PaymentForm({ clientSecret, amount, checkoutItems }) {
               zip: form.zip,
               state: form.state || '',
               country: 'US',
-              isDefault: user.addresses?.length === 0
+              isDefault: !user.addresses || user.addresses.length === 0
             });
-          } catch(e) { console.warn("Failed to save address", e); }
+            await refreshUser(); // refresh user to include the new address
+          } catch(e) { console.warn("Failed to auto-save address", e); }
         }
 
         // Save order to MongoDB
@@ -142,7 +144,7 @@ function PaymentForm({ clientSecret, amount, checkoutItems }) {
             paymentIntentId: paymentIntent.id,
           };
           await api.post('/users/orders', orderData);
-          await refreshUser(); // pull fresh DB data
+          await refreshUser(); // pull fresh DB data (loyalty points, etc)
         } catch (saveErr) {
           console.error('Order save error:', saveErr);
           // Payment already succeeded — don't block the user
@@ -193,13 +195,32 @@ function PaymentForm({ clientSecret, amount, checkoutItems }) {
       <div style={{ marginBottom: 14 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
           <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#555' }}>Shipping Address</label>
-          {user?.addresses?.length > 0 && (
-            <select value={addressMode} onChange={handleAddressModeChange} style={{ fontSize: 11, padding: '2px 6px', borderRadius: 4, border: '1px solid #E0DBD3', outline: 'none' }}>
-              <option value="manual">Enter Manually</option>
-              {user.addresses.map((a, i) => (
-                <option key={i} value={i}>{a.label ? `${a.label} - ` : ''}{a.street}</option>
-              ))}
-            </select>
+          {user && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: 11, color: '#888' }}>Deliver to:</span>
+              <select 
+                value={addressMode} 
+                onChange={handleAddressModeChange} 
+                style={{ 
+                  fontSize: 12, 
+                  padding: '4px 8px', 
+                  borderRadius: 6, 
+                  border: `1.5px solid ${G}`, 
+                  outline: 'none',
+                  backgroundColor: '#fff',
+                  fontWeight: 600,
+                  color: G,
+                  cursor: 'pointer'
+                }}
+              >
+                <option value="manual">Custom / New Address</option>
+                {user.addresses && user.addresses.map((a, i) => (
+                  <option key={i} value={i}>
+                    {a.label || 'Saved Address'} ({a.street})
+                  </option>
+                ))}
+              </select>
+            </div>
           )}
         </div>
         <input name="address" value={form.address} onChange={handleChange} placeholder="123 Main Street" style={{ ...inp, marginBottom: 10 }} onFocus={e => e.target.style.borderColor = G} onBlur={e => e.target.style.borderColor = '#E0DBD3'} />

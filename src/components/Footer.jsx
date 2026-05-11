@@ -5,7 +5,7 @@ import { useToast } from '../context/ToastContext';
 import logo from '../assets/logo.png';
 import api from '../services/api';
 
-import { FaFacebook, FaXTwitter, FaInstagram, FaLinkedin } from 'react-icons/fa6';
+import { FaFacebook, FaXTwitter } from 'react-icons/fa6';
 
 const ACCENT = '#C8860A';
 
@@ -81,7 +81,7 @@ export default function Footer() {
 
       {/* Middle Footer — Grid */}
       <div style={{ maxWidth: 1400, margin: '0 auto', padding: '80px 24px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 40 }} className="footer-grid">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 40 }} className="footer-grid">
           
           {/* Brand Col */}
           <div style={{ gridColumn: 'span 2' }} className="brand-col">
@@ -98,8 +98,6 @@ export default function Footer() {
               {[
                 { Icon: FaFacebook, href: 'https://facebook.com/designcustombox' },
                 { Icon: FaXTwitter, href: 'https://twitter.com/designcustombox' },
-                { Icon: FaInstagram, href: 'https://instagram.com/designcustombox' },
-                { Icon: FaLinkedin, href: 'https://linkedin.com/company/designcustombox' },
               ].map((s, i) => (
                 <a key={i} href={s.href} target="_blank" rel="noreferrer" style={{ 
                   width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.05)', 
@@ -147,17 +145,6 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Legal */}
-          <div className="links-col">
-            <h4 style={{ fontSize: 11, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 24 }}>Legal</h4>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <FooterLink to="/terms">Terms of Service</FooterLink>
-              <FooterLink to="/privacy">Privacy Policy</FooterLink>
-              <FooterLink to="/terms">Shipping Policy</FooterLink>
-              <FooterLink to="/terms">Refund Policy</FooterLink>
-              <FooterLink to="/privacy">Cookie Policy</FooterLink>
-            </ul>
-          </div>
 
         </div>
       </div>
