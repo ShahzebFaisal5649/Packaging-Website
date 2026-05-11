@@ -26,8 +26,13 @@ app.use(express.urlencoded({ extended: true }));
 
 // Log critical env vars at startup for easier debugging
 const requiredEnvVars = ['MONGODB_URI', 'JWT_SECRET', 'RESEND_API_KEY'];
+console.log(`[BOOT] Environment: ${process.env.VERCEL ? 'Vercel' : 'Local'}`);
 requiredEnvVars.forEach(v => {
-  if (!process.env[v]) console.warn(`⚠️  Missing env var: ${v}`);
+  if (!process.env[v]) {
+    console.warn(`⚠️  Missing env var: ${v}`);
+  } else {
+    console.log(`✅ Found env var: ${v} (${process.env[v].substring(0, 5)}...)`);
+  }
 });
 
 // ── MongoDB connection (cached for serverless) ─────────────────────────────
