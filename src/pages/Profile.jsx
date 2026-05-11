@@ -341,7 +341,7 @@ function QuotesTab({ quotes, loading }) {
 
   return (
     <div>
-      <h2 style={{ fontSize: 22, fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 700, color: '#1A1A1A', marginBottom: 24 }}>My Quotes</h2>
+      <h2 style={{ fontSize: 22, fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 700, color: '#1A1A1A', marginBottom: 24 }}>My Sample Quotes</h2>
       {displayQuotes.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '48px', backgroundColor: BG, borderRadius: 12, border: '1px dashed #D0CAC0' }}>
           <FileText size={48} style={{ color: '#D0CAC0', margin: '0 auto 12px' }} />
@@ -471,7 +471,7 @@ function DesignsTab({ designs, saveDesign, deleteDesign, showToast, navigate }) 
           <button onClick={() => navigate('/custom-box')} style={{ padding: '10px 20px', backgroundColor: G, color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}>Create Your First Design</button>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 20 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 24 }}>
           {designs.map((d, i) => (
             <div key={i} style={{ border: '1px solid #E2DDD6', borderRadius: 12, overflow: 'hidden', backgroundColor: '#fff' }}>
               <div style={{ height: 140, backgroundColor: BG, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
@@ -484,11 +484,9 @@ function DesignsTab({ designs, saveDesign, deleteDesign, showToast, navigate }) 
               <div style={{ padding: '14px 14px' }}>
                 <h4 style={{ fontWeight: 700, fontSize: 14, marginBottom: 4, color: '#1A1A1A' }}>{d.name || 'Untitled Design'}</h4>
                 <p style={{ fontSize: 12, color: '#6B6B6B', marginBottom: 4 }}>{d.boxType || d.style || 'Custom Box'}</p>
-                {d.l && d.w && d.h && (
-                  <p style={{ fontSize: 11, color: '#9A9080', marginBottom: 4 }}>
-                    {d.l}×{d.w}×{d.h} {d.unit || 'in'} · {d.material || ''}
+                  <p style={{ fontSize: 11, color: '#9A9080', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <Ruler size={10} /> {d.l}×{d.w}×{d.h} {d.unit || 'in'} · {d.material || ''}
                   </p>
-                )}
                 {d.finish && (
                   <p style={{ fontSize: 11, color: ACCENT, marginBottom: 10, fontWeight: 600 }}>{d.finish}{d.addons?.length > 0 ? ` + ${d.addons.length} add-on${d.addons.length > 1 ? 's' : ''}` : ''}</p>
                 )}
@@ -1026,7 +1024,7 @@ function NotificationsTab() {
 const TABS = [
   { id: 'overview', label: 'Overview', icon: User },
   { id: 'orders', label: 'My Orders', icon: Package },
-  { id: 'quotes', label: 'My Quotes', icon: FileText },
+  { id: 'quotes', label: 'My Sample Quotes', icon: FileText },
   { id: 'notifications', label: 'Notifications', icon: Bell },
   { id: 'designs', label: 'Saved Designs', icon: Layout },
   { id: 'addresses', label: 'Addresses', icon: MapPin },

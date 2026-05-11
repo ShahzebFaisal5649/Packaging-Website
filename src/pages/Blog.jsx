@@ -73,8 +73,9 @@ export default function Blog() {
           <div style={{ 
             display: 'grid', 
             gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
-            height: isMobile ? 'auto' : 520,
-            minHeight: isMobile ? 320 : 520,
+            height: 'auto',
+            minHeight: isMobile ? 400 : 600,
+            paddingBottom: isMobile ? 40 : 0,
           }} className="hero-split">
             <motion.div
               initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }}

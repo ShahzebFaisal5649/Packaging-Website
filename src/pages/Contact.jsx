@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Phone, MapPin, Send, CheckCircle, Plus } from 'lucide-react';
 import api from '../services/api';
 import Button from '../components/Button';
+import { useToast } from '../context/ToastContext';
 
 const G = '#1A4D2E';
 const ACCENT = '#C8860A';
@@ -53,6 +54,7 @@ export default function Contact() {
   const [errorMsg, setErrorMsg] = useState('');
   const [phoneError, setPhoneError] = useState('');
   const [activeFaq, setActiveFaq] = useState(null);
+  const { showToast } = useToast();
 
   const handleChange = (e) => {
     if (e.target.name === 'phone') setPhoneError('');
@@ -73,6 +75,7 @@ export default function Contact() {
     try {
       const res = await api.post('/content/contact', formData);
       setStatus('success');
+      showToast('Message Sent! We will contact you soon.', 'success');
       setFormData({ name: '', email: '', company: '', phone: '', subject: '', message: '' });
       setTimeout(() => setStatus('idle'), 5000);
     } catch (err) {

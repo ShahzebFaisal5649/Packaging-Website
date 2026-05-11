@@ -173,13 +173,23 @@ export default function Navbar() {
 
   // Fetch Notifications
   useEffect(() => {
-    if (isAuthenticated) {
-      api.get('/notifications')
-        .then(data => setNotifications(data.notifications || []))
-        .catch(err => console.error('Failed to load notifications:', err));
-    } else {
-      setNotifications([]);
-    }
+    const fetchNotifs = () => {
+      if (isAuthenticated) {
+        api.get('/notifications')
+          .then(data => setNotifications(data.notifications || []))
+          .catch(err => console.error('Failed to load notifications:', err));
+      } else {
+        setNotifications([]);
+      }
+    };
+    
+    fetchNotifs();
+    
+    // Listen for clear all event from Admin panel or other components
+    const handleSync = () => setNotifications([]);
+    window.addEventListener('notifications-cleared', handleSync);
+    
+    return () => window.removeEventListener('notifications-cleared', handleSync);
   }, [isAuthenticated]);
 
   const unreadCount = notifications.filter(n => !n.isRead).length;

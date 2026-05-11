@@ -313,10 +313,10 @@ router.put('/orders/:userId/:orderId', async (req, res) => {
       }
     }
 
-    // Send shipped email only once
-    if (status === 'Shipped' && !order.shippedEmailSent) {
+    // Send status change email
+    if (status && status !== current) {
       try {
-        const shippingEmail = `
+        const statusHtml = `
           <div style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;max-width:600px;margin:0 auto;border:1px solid #e2ddd6;border-radius:16px;overflow:hidden;background:#ffffff;">
             <div style="background-color:#1A4D2E;padding:30px;text-align:center;">
               <h1 style="color:#ffffff;margin:0;font-size:24px;font-weight:800;letter-spacing:-0.5px;">
@@ -325,33 +325,32 @@ router.put('/orders/:userId/:orderId', async (req, res) => {
             </div>
             <div style="padding:40px;color:#1a1a1a;">
               <div style="text-align:center;margin-bottom:32px;">
-                <div style="width:64px;height:64px;background:#d1fae5;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin-bottom:16px;">
-                  <span style="color:#059669;font-size:28px;">📦</span>
+                <div style="width:64px;height:64px;background:#f8f5f0;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin-bottom:16px;border:1px solid #e2ddd6;">
+                  <span style="font-size:28px;">${status === 'Delivered' ? '✅' : status === 'Shipped' ? '📦' : status === 'Cancelled' ? '❌' : '⚙️'}</span>
                 </div>
-                <h2 style="font-size:24px;font-weight:800;margin:0 0 8px 0;">Your Order Has Been Shipped!</h2>
-                <p style="color:#6b6b6b;font-size:16px;margin:0;">Great news! Your order is on its way.</p>
+                <h2 style="font-size:24px;font-weight:800;margin:0 0 8px 0;">Order Status Updated</h2>
+                <p style="color:#6b6b6b;font-size:16px;margin:0;">Your order <strong>${order.orderId}</strong> is now <strong>${status}</strong>.</p>
               </div>
               <div style="background:#f8f5f0;border-radius:12px;padding:24px;margin-bottom:28px;">
                 <h3 style="font-size:14px;font-weight:700;color:#1A4D2E;text-transform:uppercase;letter-spacing:0.1em;margin:0 0 16px 0;">Order Details</h3>
                 <table style="width:100%;border-collapse:collapse;font-size:14px;">
                   <tr><td style="padding:6px 0;color:#6b6b6b;">Order ID</td><td style="padding:6px 0;font-weight:600;text-align:right;">${order.orderId}</td></tr>
-                  <tr><td style="padding:6px 0;color:#6b6b6b;">Tracking Number</td><td style="padding:6px 0;font-weight:700;color:#C8860A;text-align:right;">${order.tracking}</td></tr>
-                  <tr><td style="padding:6px 0;color:#6b6b6b;">Status</td><td style="padding:6px 0;font-weight:600;color:#059669;text-align:right;">Shipped ✓</td></tr>
-                  ${order.shippingAddress?.line1 ? `<tr><td style="padding:6px 0;color:#6b6b6b;">Shipping To</td><td style="padding:6px 0;font-weight:600;text-align:right;">${order.shippingAddress.line1}, ${order.shippingAddress.city}</td></tr>` : ''}
+                  <tr><td style="padding:6px 0;color:#6b6b6b;">New Status</td><td style="padding:6px 0;font-weight:700;color:${status === 'Cancelled' ? '#EF4444' : '#C8860A'};text-align:right;">${status}</td></tr>
+                  ${order.tracking ? `<tr><td style="padding:6px 0;color:#6b6b6b;">Tracking Number</td><td style="padding:6px 0;font-weight:600;text-align:right;">${order.tracking}</td></tr>` : ''}
                 </table>
               </div>
-              <p style="font-size:15px;color:#6b6b6b;line-height:1.6;margin-bottom:28px;">
-                Use your tracking number to track your delivery status. If you have any questions, our team is here to help.
+              <p style="font-size:15px;color:#6b6b6b;line-height:1.6;margin-bottom:28px;text-align:center;">
+                ${status === 'Shipped' ? 'Your package is on its way! You can track it using the number provided.' : 
+                  status === 'Delivered' ? 'Your package has been delivered. We hope you love your custom boxes!' :
+                  status === 'Cancelled' ? 'Your order has been cancelled. If this was a mistake, please contact support.' :
+                  'We are currently processing your order.'}
               </p>
               <div style="text-align:center;">
-                <p style="font-size:14px;color:#9a9080;margin:0;">Questions? Contact us at</p>
-                <a href="mailto:Designcustombox@gmail.com" style="color:#1A4D2E;font-weight:700;text-decoration:none;">Designcustombox@gmail.com</a>
-                <span style="color:#9a9080;"> · </span>
-                <a href="tel:+19132282682" style="color:#1A4D2E;font-weight:700;text-decoration:none;">(913) 228-2682</a>
+                <a href="${process.env.FRONTEND_URL || 'https://designcustombox.com'}/profile?tab=orders" style="display:inline-block;padding:14px 28px;background:#1A4D2E;color:#ffffff;text-decoration:none;border-radius:10px;font-weight:700;font-size:14px;">View Order History</a>
               </div>
-              <div style="margin-top:40px;padding-top:20px;border-top:1px solid #f0ede8;text-align:center;font-size:12px;color:#9a9080;">
-                <p style="margin:0;">© ${new Date().getFullYear()} Design Custom Box. All rights reserved.</p>
-              </div>
+            </div>
+            <div style="background:#f8f5f0;padding:20px;text-align:center;font-size:12px;color:#9a9080;border-top:1px solid #e2ddd6;">
+              <p style="margin:0;">Questions? <a href="mailto:Designcustombox@gmail.com" style="color:#1A4D2E;text-decoration:none;font-weight:600;">Contact Support</a></p>
             </div>
           </div>
         `;
@@ -359,15 +358,13 @@ router.put('/orders/:userId/:orderId', async (req, res) => {
         if (userEmail) {
           await sendEmail({
             email: userEmail,
-            subject: `Your Order Has Been Shipped — ${order.orderId}`,
-            html: shippingEmail,
+            subject: `Order Update: ${order.orderId} is now ${status}`,
+            html: statusHtml,
           });
-          order.shippedEmailSent = true;
-          console.log(`✅ Shipped email sent to ${userEmail}`);
+          console.log(`✅ Status email sent to ${userEmail} for status ${status}`);
         }
       } catch (emailErr) {
-        console.error('❌ Shipped email failed:', emailErr.message);
-        // Still save the order status even if email fails
+        console.error('❌ Status email failed:', emailErr.message);
       }
     }
 

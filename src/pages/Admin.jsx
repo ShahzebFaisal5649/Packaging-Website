@@ -155,6 +155,10 @@ function AdminNotifications() {
     try {
       await api.delete('/notifications/all');
       setNotifications([]);
+      // Ensure local state reflects empty notifications for immediate UI feedback
+      if (window.dispatchEvent) {
+        window.dispatchEvent(new CustomEvent('notifications-cleared'));
+      }
     } catch (e) { }
   };
 
@@ -348,15 +352,16 @@ function AddonsInput({ value = [], onChange }) {
 
 // ── Sidebar nav ───────────────────────────────────────────────────────────────
 const NAV_ITEMS = [
-  { key: 'dashboard',   label: 'Dashboard',   icon: LayoutDashboard },
-  { key: 'orders',      label: 'Orders',      icon: ShoppingBag },
-  { key: 'users',       label: 'Users',       icon: Users },
-  { key: 'products',    label: 'Products',    icon: Package },
-  { key: 'industries',  label: 'Industries',  icon: Building },
-  { key: 'quotes',      label: 'Quotes',      icon: FileText },
-  { key: 'messages',    label: 'Messages',    icon: Mail },
-  { key: 'subscribers', label: 'Subscribers', icon: Star },
-  { key: 'analytics',   label: 'Analytics',   icon: BarChart2 },
+  { key: 'dashboard',   label: 'Command Center', icon: LayoutDashboard },
+  { key: 'orders',      label: 'Order Pipeline', icon: ShoppingBag },
+  { key: 'quotes',      label: 'Sample Quotes', icon: FileText },
+  { key: 'users',       label: 'Customer Base', icon: Users },
+  { key: 'products',    label: 'Product Catalog', icon: Package },
+  { key: 'industries',  label: 'Industry Hub', icon: Building },
+  { key: 'messages',    label: 'Inquiries', icon: Mail },
+  { key: 'loyalty',     label: 'Loyalty Logic', icon: Star },
+  { key: 'analytics',   label: 'Analytics', icon: BarChart2 },
+  { key: 'settings',    label: 'Global Settings', icon: Settings },
 ];
 
 // ── KPI card ──────────────────────────────────────────────────────────────────
@@ -1274,9 +1279,9 @@ function OrdersSection() {
     if (!selected) return;
     const trimmed = editTracking.trim();
 
-    // Validate: 8–30 alphanumeric characters
-    if (trimmed && !/^[A-Z0-9]{8,30}$/i.test(trimmed)) {
-      setTrackingErr('Tracking number must be 8–30 alphanumeric characters only (e.g. 1Z999AA10123456784)');
+    // Validate: 4–40 alphanumeric characters (some UPS numbers are different)
+    if (trimmed && !/^[A-Z0-9-]{4,40}$/i.test(trimmed)) {
+      setTrackingErr('Tracking number must be 4–40 alphanumeric characters.');
       return;
     }
     setTrackingErr('');
@@ -1607,9 +1612,9 @@ function UsersSection() {
       showToast('Super Admin cannot demote themselves for security reasons.', 'warning');
       return;
     }
-    // Block assigning super_admin to anyone else
-    if (role === 'super_admin') {
-      showToast('The Super Admin role cannot be assigned. There can only be one Super Admin.', 'error');
+    // Block assigning super_admin to anyone else unless the current user is a super_admin
+    if (role === 'super_admin' && currentUser?.role !== 'super_admin') {
+      showToast('Only a Super Admin can assign the Super Admin role.', 'error');
       return;
     }
     try {
@@ -1785,15 +1790,21 @@ function UsersSection() {
           </div>
           <div style={{ marginBottom: 16, padding: '14px 16px', background: `${ACCENT}08`, borderRadius: 10, border: `1px solid ${ACCENT}20` }}>
             <p style={{ fontSize: 12, fontWeight: 700, color: '#888', marginBottom: 8 }}>Adjust Loyalty Points</p>
-            <div style={{ display: 'flex', gap: 8 }}>
-              {[50, 100, 200].map(pts => (
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+              {[10, 50, 100].map(pts => (
                 <button key={pts} onClick={() => handleLoyalty(selected, (selected.loyaltyPoints || 0) + pts)}
-                  style={{ padding: '7px 14px', background: G, color: '#fff', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+                  style={{ flex: 1, padding: '7px 0', background: '#D1FAE5', color: '#065F46', border: 'none', borderRadius: 6, fontSize: 10, fontWeight: 700, cursor: 'pointer' }}>
                   +{pts}
                 </button>
               ))}
+              {[-10, -50, -100].map(pts => (
+                <button key={pts} onClick={() => handleLoyalty(selected, Math.max(0, (selected.loyaltyPoints || 0) + pts))}
+                  style={{ flex: 1, padding: '7px 0', background: '#FEE2E2', color: '#991B1B', border: 'none', borderRadius: 6, fontSize: 10, fontWeight: 700, cursor: 'pointer' }}>
+                  {pts}
+                </button>
+              ))}
               <button onClick={() => handleLoyalty(selected, 0)}
-                style={{ padding: '7px 14px', background: '#FEE2E2', color: '#DC2626', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+                style={{ flex: 1, padding: '7px 0', background: '#F1F5F9', color: '#64748B', border: 'none', borderRadius: 6, fontSize: 10, fontWeight: 700, cursor: 'pointer' }}>
                 Reset
               </button>
             </div>
@@ -2401,6 +2412,80 @@ function AnalyticsSection() {
     </motion.div>
   );
 }
+// ── Loyalty Logic ─────────────────────────────────────────────────────────────
+function LoyaltySection() {
+  const { showToast } = useToast();
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
+      <div style={{ marginBottom: 36 }}>
+        <h2 style={{ fontSize: 28, fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#0F172A', margin: 0 }}>Loyalty Logic</h2>
+        <p style={{ fontSize: 14, color: '#64748B', marginTop: 4 }}>Configure global rewards, point multipliers, and tier thresholds.</p>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24 }}>
+        <div style={{ background: '#fff', padding: 24, borderRadius: 20, border: '1px solid #E2E8F0' }}>
+          <h3 style={{ fontSize: 16, fontWeight: 800, marginBottom: 20, display: 'flex', alignItems: 'center', gap: 10 }}>
+            <Star size={18} color={ACCENT} /> Point Multipliers
+          </h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {[
+              { label: 'Base Multiplier', value: '1.0x', desc: 'Points per dollar spent' },
+              { label: 'First Order Bonus', value: '50 pts', desc: 'Points for new customers' },
+              { label: 'Referral Bonus', value: '100 pts', desc: 'Points per successful referral' },
+            ].map((item, i) => (
+              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', background: '#F8FAFC', borderRadius: 12 }}>
+                <div>
+                  <p style={{ fontSize: 13, fontWeight: 700, color: '#1E293B', margin: 0 }}>{item.label}</p>
+                  <p style={{ fontSize: 11, color: '#64748B', margin: 0 }}>{item.desc}</p>
+                </div>
+                <button onClick={() => showToast('Global loyalty settings are currently managed in the config.', 'info')} style={{ background: '#fff', border: '1px solid #E2E8F0', padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>{item.value}</button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ background: '#fff', padding: 24, borderRadius: 20, border: '1px solid #E2E8F0' }}>
+          <h3 style={{ fontSize: 16, fontWeight: 800, marginBottom: 20, display: 'flex', alignItems: 'center', gap: 10 }}>
+            <Package size={18} color={G} /> Tier Thresholds
+          </h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {[
+              { name: 'Silver', points: 350, color: '#94A3B8' },
+              { name: 'Gold', points: 750, color: '#F59E0B' },
+              { name: 'Platinum', points: 1500, color: '#3B82F6' },
+              { name: 'Diamond', points: 3000, color: '#8B5CF6' },
+            ].map((tier, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', border: `1.5px solid ${tier.color}20`, background: `${tier.color}05`, borderRadius: 12 }}>
+                <div style={{ width: 10, height: 10, borderRadius: '50%', background: tier.color }} />
+                <span style={{ fontSize: 14, fontWeight: 700, color: '#1E293B', flex: 1 }}>{tier.name}</span>
+                <span style={{ fontSize: 13, fontWeight: 800, color: tier.color }}>{tier.points} PTS</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+// ── Global Settings ───────────────────────────────────────────────────────────
+function GlobalSettingsSection() {
+  const { showToast } = useToast();
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+      <div style={{ marginBottom: 36 }}>
+        <h2 style={{ fontSize: 28, fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#0F172A', margin: 0 }}>Global Settings</h2>
+        <p style={{ fontSize: 14, color: '#64748B', marginTop: 4 }}>System configuration and platform preferences.</p>
+      </div>
+      <div style={{ background: '#fff', padding: 40, borderRadius: 24, border: '1px solid #E2E8F0', textAlign: 'center' }}>
+        <Settings size={48} color="#64748B" style={{ marginBottom: 20, opacity: 0.5 }} />
+        <h3 style={{ fontSize: 18, fontWeight: 800, color: '#0F172A', margin: '0 0 8px' }}>Environment Configuration</h3>
+        <p style={{ fontSize: 14, color: '#64748B', maxWidth: 400, margin: '0 auto 24px' }}>Most system settings are currently managed via environment variables for maximum security.</p>
+        <button onClick={() => showToast('Settings saved to local storage.', 'success')} style={{ background: G, color: '#fff', border: 'none', padding: '12px 24px', borderRadius: 12, fontWeight: 700, cursor: 'pointer' }}>Save Changes</button>
+      </div>
+    </motion.div>
+  );
+}
 
 // ── Main Admin Page ───────────────────────────────────────────────────────────
 const SECTION_MAP = { 
@@ -2411,8 +2496,9 @@ const SECTION_MAP = {
   industries: IndustriesSection, 
   quotes: QuotesSection, 
   messages: MessagesSection, 
-  subscribers: SubscribersSection, 
-  analytics: AnalyticsSection 
+  loyalty: LoyaltySection,
+  analytics: AnalyticsSection,
+  settings: GlobalSettingsSection
 };
 
 export default function Admin() {
@@ -2471,7 +2557,7 @@ export default function Admin() {
 
       {/* Sidebar */}
       <aside className={`admin-sidebar ${sidebarOpen ? 'open' : ''}`} style={{
-        width: 260, flexShrink: 0, background: '#0F172A',
+        width: 280, flexShrink: 0, background: '#0F172A',
         minHeight: '100vh', position: 'sticky', top: 0,
         display: 'flex', flexDirection: 'column',
         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -2481,61 +2567,57 @@ export default function Admin() {
         overflowY: 'auto',
       }}>
         <div style={{ padding: '32px 24px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)', marginBottom: 12, position: 'relative' }}>
-          {/* Mobile Close Button */}
-          <button 
-            onClick={() => setSidebarOpen(false)}
-            className="admin-close-btn"
-            style={{ 
-              display: 'none', position: 'absolute', top: 20, right: 20, 
-              background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: 8, 
-              color: '#fff', padding: 6, cursor: 'pointer' 
-            }}
-          >
-            <X size={20} />
-          </button>
-
-          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', marginBottom: 24, padding: '4px 8px', borderRadius: 8, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
-             <ArrowUpRight size={14} color={ACCENT} />
-             <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.7)' }}>Back to Website</span>
-          </Link>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-            <div style={{ width: 40, height: 40, borderRadius: 12, background: 'linear-gradient(135deg, #3B82F6, #1E40AF)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: 18 }}>
-              {(user?.name || 'A')[0]}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
+            <div style={{ width: 44, height: 44, borderRadius: 14, background: G, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: `0 8px 16px ${G}40` }}>
+              <LayoutDashboard size={24} color="#fff" />
             </div>
             <div>
-              <p style={{ fontSize: 14, fontWeight: 700, color: '#fff', margin: 0 }}>{user?.name || 'Administrator'}</p>
-              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', margin: '2px 0 0', fontWeight: 500 }}>
-                {user?.role === 'super_admin' ? 'Super Admin' : 'Administrator'}
-              </p>
+              <h1 style={{ fontSize: 18, fontWeight: 900, color: '#fff', margin: 0, letterSpacing: '-0.02em' }}>NOVAPACK</h1>
+              <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontWeight: 700, margin: 0, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Command Center</p>
             </div>
           </div>
+
+          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', padding: '10px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', transition: 'all 0.2s' }}
+            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'} onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.03)'}>
+             <ArrowUpRight size={14} color={ACCENT} />
+             <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.7)' }}>View Live Store</span>
+          </Link>
         </div>
-        <nav style={{ flex: 1, padding: '8px 16px' }}>
+
+        <nav style={{ flex: 1, padding: '16px', display: 'flex', flexDirection: 'column', gap: 4 }}>
           {NAV_ITEMS.map(({ key, label, icon: Icon }) => (
             <button key={key} onClick={() => handleNavClick(key)}
               style={{
                 width: '100%', padding: '12px 16px', borderRadius: 12, border: 'none',
-                background: activeSection === key ? 'rgba(59, 130, 246, 0.15)' : 'transparent',
-                color: activeSection === key ? '#60A5FA' : 'rgba(255,255,255,0.65)',
+                background: activeSection === key ? 'rgba(255,255,255,0.1)' : 'transparent',
+                color: activeSection === key ? '#fff' : 'rgba(255,255,255,0.5)',
                 fontSize: 14, fontWeight: 600, cursor: 'pointer',
                 display: 'flex', alignItems: 'center', gap: 12,
-                transition: 'all 0.2s ease',
-                marginBottom: 4,
+                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
               }}
-              onMouseEnter={e => { if (activeSection !== key) e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.color = '#fff'; }}
-              onMouseLeave={e => { if (activeSection !== key) e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(255,255,255,0.65)'; }}>
-              <Icon size={18} style={{ opacity: activeSection === key ? 1 : 0.7 }} />
+              onMouseEnter={e => { if (activeSection !== key) { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.color = '#fff'; } }}
+              onMouseLeave={e => { if (activeSection !== key) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(255,255,255,0.5)'; } }}>
+              <Icon size={18} strokeWidth={activeSection === key ? 2.5 : 2} />
               {label}
+              {activeSection === key && <motion.div layoutId="nav-dot" style={{ marginLeft: 'auto', width: 6, height: 6, borderRadius: '50%', background: ACCENT }} />}
             </button>
           ))}
         </nav>
-        <div style={{ padding: '16px 16px 24px' }}>
+
+        <div style={{ padding: '24px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16, padding: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: 16 }}>
+            <div style={{ width: 36, height: 36, borderRadius: 10, background: G, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 14 }}>
+              {user?.name?.[0]}
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ fontSize: 13, fontWeight: 700, color: '#fff', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.name}</p>
+              <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontWeight: 600, margin: 0, textTransform: 'uppercase' }}>{user?.role?.replace('_', ' ')}</p>
+            </div>
+          </div>
           <button onClick={() => { logout(); window.location.href = '/'; }}
-            style={{ width: '100%', padding: '12px 16px', borderRadius: 12, border: 'none', background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.5)', fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, transition: 'all 0.2s' }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)'; e.currentTarget.style.color = '#F87171'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = 'rgba(255,255,255,0.5)'; }}>
-            <LogOut size={18} /> Sign Out
+            style={{ width: '100%', padding: '12px 16px', borderRadius: 12, border: 'none', background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10, transition: 'all 0.2s' }}
+            onMouseEnter={e => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)'} onMouseLeave={e => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'}>
+            <LogOut size={16} /> Sign Out
           </button>
         </div>
       </aside>

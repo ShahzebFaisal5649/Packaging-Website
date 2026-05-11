@@ -110,6 +110,7 @@ export default function CustomBox() {
     material: 'Corrugated E-Flute',
     print: 'Outside Only', colorMode: 'CMYK Full Color', finish: 'Matte Lam',
     addons: [],
+    customQuantity: '',
   });
   const [designName, setDesignName] = useState('');
   const [isPricePulsing, setIsPricePulsing] = useState(false);
@@ -237,7 +238,7 @@ export default function CustomBox() {
       }
       setSampleModal(false);
       setSampleForm({ name: user?.name || '', email: user?.email || '', phone: user?.phone || '', street: '', city: '', state: '', zip: '', country: 'US', addressMode: 'manual' });
-      showToast('Sample request submitted! We\'ll contact you within 24 hours.', 'success');
+      showToast('Message Sent! We\'ll contact you within 24 hours.', 'success');
     } catch (err) {
       showToast(err.message || 'Failed to submit request. Please try again.', 'error');
     }
@@ -287,12 +288,13 @@ export default function CustomBox() {
   // Pricing
   const area = parseFloat(config.l) * parseFloat(config.w);
   const sizeMultiplier = area > 100 ? 1.5 : (area > 50 ? 1.2 : 1);
-  const qtyDiscount = config.quantity >= 1000 ? 0.8 : (config.quantity >= 500 ? 0.9 : 1);
+  const activeQty = config.quantity === 'custom' ? (parseInt(config.customQuantity) || 0) : (parseInt(config.quantity) || 0);
+  const qtyDiscount = activeQty >= 1000 ? 0.8 : (activeQty >= 500 ? 0.9 : 1);
   const addonCost = config.addons.length * 0.15;
   const basePrice = config.material === 'Rigid Chipboard' ? 2.4 : (config.material === 'SBS Board' ? 1.6 : 1.2);
   const unitPrice = (basePrice * sizeMultiplier * qtyDiscount) + addonCost;
-  const totalPrice = unitPrice * config.quantity;
-  const savings = config.quantity >= 500 ? ((basePrice * sizeMultiplier * 1 + addonCost) - unitPrice) * config.quantity : 0;
+  const totalPrice = unitPrice * activeQty;
+  const savings = activeQty >= 500 ? ((basePrice * sizeMultiplier * 1 + addonCost) - unitPrice) * activeQty : 0;
 
   const handleConfigChange = (key, value) => {
     setConfig(prev => ({ ...prev, [key]: value }));
@@ -304,7 +306,8 @@ export default function CustomBox() {
     handleConfigChange('addons', newAddons);
   };
   const validateQuantity = () => {
-    if (!config.quantity || config.quantity < 1) {
+    const qty = config.quantity === 'custom' ? parseInt(config.customQuantity) : parseInt(config.quantity);
+    if (!qty || qty < 1) {
       showToast('Please select a valid quantity (min 1).', 'error');
       setActiveStep(2);
       setTimeout(() => {
@@ -327,7 +330,7 @@ export default function CustomBox() {
       try { cartImage = canvasRef.current.toDataURL('image/jpeg', 0.5); } catch { /* canvas unavailable */ }
     }
     const finalConfig = { ...config, artworkUrl: artworkApplied ? artworkPreview : null };
-    addToCart({ id: `box-${Date.now()}`, name: prefilledName || designName.trim() || `Custom ${config.boxType}`, image: cartImage, price: unitPrice, quantity: config.quantity, configuration: finalConfig });
+    addToCart({ id: `box-${Date.now()}`, name: prefilledName || designName.trim() || `Custom ${config.boxType}`, image: cartImage, price: unitPrice, quantity: activeQty, configuration: finalConfig });
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 2000);
     showToast('Added to cart!', 'success');
@@ -339,7 +342,7 @@ export default function CustomBox() {
     const cartImage = location.state?.productImage
       || 'https://images.unsplash.com/photo-1607083206968-13611e3d76db?q=80&w=400';
     const finalConfig = { ...config, artworkUrl: artworkApplied ? artworkPreview : null };
-    addToCart({ id: `box-${Date.now()}`, name: prefilledName || designName.trim() || `Custom ${config.boxType}`, image: cartImage, price: unitPrice, quantity: config.quantity, configuration: finalConfig }, true);
+    addToCart({ id: `box-${Date.now()}`, name: prefilledName || designName.trim() || `Custom ${config.boxType}`, image: cartImage, price: unitPrice, quantity: activeQty, configuration: finalConfig }, true);
     navigate('/checkout');
   };
   // Fix 7: Save Design with canvas thumbnail and artwork
@@ -522,7 +525,21 @@ export default function CustomBox() {
                     {[100, 250, 500, 1000, 2500, 5000].map(q => (
                       <option key={q} value={q}>{q.toLocaleString()} units{q >= 1000 ? ' — Volume Discount' : q >= 500 ? ' — 10% Off' : ''}</option>
                     ))}
+                    <option value="custom">Custom Quantity...</option>
                   </select>
+                  {config.quantity === 'custom' && (
+                    <div style={{ marginTop: 10 }}>
+                      <label style={{ fontSize: 10, fontWeight: 700, color: '#888', textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Enter Units</label>
+                      <input 
+                        type="number" 
+                        min="1"
+                        placeholder="e.g. 750"
+                        value={config.customQuantity}
+                        onChange={e => handleConfigChange('customQuantity', e.target.value)}
+                        style={{ width: '100%', padding: '10px 14px', border: '1.5px solid #E8E4DC', borderRadius: 8, fontSize: 14, fontWeight: 700, outline: 'none' }}
+                      />
+                    </div>
+                  )}
                   {!config.quantity && <p style={{ color: '#DC2626', fontSize: 11, fontWeight: 700, marginTop: 6 }}>⚠️ Please select a quantity to proceed</p>}
                   {config.quantity >= 500 && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10, padding: '8px 12px', background: '#D1FAE5', borderRadius: 8 }}>
