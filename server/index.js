@@ -18,16 +18,16 @@ const notificationRoutes = require('./routes/notifications');
 
 const app = express();
 
-app.use(compression());
+app.use(compression({ level: 6, threshold: 1024 }));
 app.use(cors({
   origin: [
     'http://localhost:5173',
-    'https://novapack-custom-box.vercel.app',
+    'http://localhost:3000',
     'https://designcustombox.com',
     'https://www.designcustombox.com',
-    process.env.FRONTEND_URL
+    process.env.FRONTEND_URL,
   ].filter(Boolean),
-  credentials: true
+  credentials: true,
 }));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true }));
@@ -165,6 +165,73 @@ app.get('/api/health', async (req, res) => {
 });
 
 // app.post('/api/contact', ...) is now handled by /api/content/contact in contentRoutes.js
+
+// ── Sitemap.xml — dynamically generated from DB ──────────────────────────────
+app.get('/sitemap.xml', requireDb, async (req, res) => {
+  try {
+    const BASE = 'https://designcustombox.com';
+    const now = new Date().toISOString().split('T')[0];
+
+    const Product = require('./models/Product');
+    const Industry = require('./models/Industry');
+    const [products, industries] = await Promise.all([
+      Product.find({}, 'slug updatedAt').lean(),
+      Industry.find({}, 'slug updatedAt').lean(),
+    ]);
+
+    const staticPages = [
+      { loc: '/', priority: '1.0', changefreq: 'weekly' },
+      { loc: '/products', priority: '0.9', changefreq: 'weekly' },
+      { loc: '/industries', priority: '0.9', changefreq: 'weekly' },
+      { loc: '/custom-box', priority: '0.8', changefreq: 'monthly' },
+      { loc: '/about', priority: '0.7', changefreq: 'monthly' },
+      { loc: '/blog', priority: '0.8', changefreq: 'weekly' },
+      { loc: '/contact', priority: '0.7', changefreq: 'monthly' },
+      { loc: '/how-it-works', priority: '0.7', changefreq: 'monthly' },
+      { loc: '/inspiration', priority: '0.6', changefreq: 'monthly' },
+    ];
+
+    const urls = [
+      ...staticPages.map(p => `
+  <url>
+    <loc>${BASE}${p.loc}</loc>
+    <lastmod>${now}</lastmod>
+    <changefreq>${p.changefreq}</changefreq>
+    <priority>${p.priority}</priority>
+  </url>`),
+      ...products.map(p => `
+  <url>
+    <loc>${BASE}/products/${p.slug}</loc>
+    <lastmod>${p.updatedAt ? new Date(p.updatedAt).toISOString().split('T')[0] : now}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>`),
+      ...industries.map(i => `
+  <url>
+    <loc>${BASE}/industries/${i.slug}</loc>
+    <lastmod>${i.updatedAt ? new Date(i.updatedAt).toISOString().split('T')[0] : now}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>`),
+    ];
+
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.join('')}
+</urlset>`;
+
+    res.set('Content-Type', 'application/xml');
+    res.set('Cache-Control', 'public, max-age=3600');
+    res.send(xml);
+  } catch (err) {
+    res.status(500).send('<?xml version="1.0"?><error>Sitemap generation failed</error>');
+  }
+});
+
+// Serve robots.txt
+app.get('/robots.txt', (req, res) => {
+  res.set('Content-Type', 'text/plain');
+  res.send('User-agent: *\nAllow: /\n\nSitemap: https://designcustombox.com/sitemap.xml\n');
+});
 
 app.use((req, res) => res.status(404).json({ message: 'Route not found' }));
 

@@ -11,9 +11,13 @@ export const CartProvider = ({ children }) => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   useEffect(() => {
-    const savedCart = localStorage.getItem('packagingCart');
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (savedCart) setCartItems(JSON.parse(savedCart));
+    try {
+      const savedCart = localStorage.getItem('packagingCart');
+      if (savedCart) {
+        const parsed = JSON.parse(savedCart);
+        if (Array.isArray(parsed)) setCartItems(parsed);
+      }
+    } catch (e) { console.error('Failed to parse cart', e); }
   }, []);
 
   const saveCart = (items) => {
@@ -89,10 +93,12 @@ export const CartProvider = ({ children }) => {
     setIsDrawerOpen(open ?? !isDrawerOpen);
   };
 
-  const cartCount = cartItems.length;
-  // cartTotal now reflects all items in cart. Checkout page will calculate based on selectedItemIndices.
-  const cartTotal = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-  const selectedCartTotal = cartItems.reduce((acc, item, idx) => selectedItemIndices.includes(idx) ? acc + (item.price * item.quantity) : acc, 0);
+  const safeCart = Array.isArray(cartItems) ? cartItems : [];
+  const safeIndices = Array.isArray(selectedItemIndices) ? selectedItemIndices : [];
+
+  const cartCount = safeCart.length;
+  const cartTotal = safeCart.reduce((acc, item) => acc + ((item?.price || 0) * (item?.quantity || 0)), 0);
+  const selectedCartTotal = safeCart.reduce((acc, item, idx) => safeIndices.includes(idx) ? acc + ((item?.price || 0) * (item?.quantity || 0)) : acc, 0);
 
   return (
     <CartContext.Provider value={{ 

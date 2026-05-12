@@ -60,9 +60,9 @@ function OverviewTab({ user, setTab, updateUser, showToast, isMobile }) {
   const progress = nextTier ? Math.min((loyaltyPoints / nextTier.threshold) * 100, 100) : 100;
 
   const stats = [
-    { label: 'Total Orders', value: user?.orders?.length || 0 },
-    { label: 'Pending', value: user?.orders?.filter(o => o.status === 'Processing')?.length || 0 },
-    { label: 'Saved Designs', value: user?.savedDesigns?.length || 0 },
+    { label: 'Total Orders', value: Array.isArray(user?.orders) ? user.orders.length : 0 },
+    { label: 'Pending', value: Array.isArray(user?.orders) ? user.orders.filter(o => o?.status === 'Processing').length : 0 },
+    { label: 'Saved Designs', value: Array.isArray(user?.savedDesigns) ? user.savedDesigns.length : 0 },
     { label: 'Loyalty Points', value: loyaltyPoints },
   ];
 
@@ -951,8 +951,14 @@ function NotificationsTab() {
   useEffect(() => {
     let cancelled = false;
     api.get('/notifications')
-      .then(data => { if (!cancelled) setNotifications(data.notifications || []); })
-      .catch(() => {})
+      .then(data => { 
+        if (!cancelled && data && data.notifications) {
+          setNotifications(Array.isArray(data.notifications) ? data.notifications : []); 
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to fetch notifications:', err);
+      })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   }, []);
@@ -1031,7 +1037,7 @@ function NotificationsTab() {
                 <p style={{ fontSize: 13, fontWeight: n.isRead ? 500 : 700, color: '#1A1A1A', margin: 0, marginBottom: 2 }}>{n.title}</p>
                 <p style={{ fontSize: 12, color: '#6B6B6B', margin: 0, marginBottom: 4 }}>{n.message}</p>
                 <p style={{ fontSize: 11, color: '#aaa', margin: 0 }}>
-                  {new Date(n.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })}
+                  {n.createdAt ? new Date(n.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' }) : '---'}
                 </p>
               </div>
               <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
@@ -1213,11 +1219,11 @@ export default function Profile() {
           {/* Main Content */}
           <div style={{ flex: 1, minWidth: 0, backgroundColor: '#fff', borderRadius: 14, border: '1px solid #E2DDD6', padding: isMobile ? '24px 16px' : '32px', minHeight: 600 }}>
             {activeTab === 'overview' && <OverviewTab user={{ ...user, orders, quotes }} setTab={setActiveTab} updateUser={updateUser} showToast={showToast} isMobile={isMobile} />}
-            {activeTab === 'orders' && <OrdersTab orders={orders} loading={ordersLoading} />}
-            {activeTab === 'quotes' && <QuotesTab quotes={quotes} loading={quotesLoading} />}
+            {activeTab === 'orders' && <OrdersTab orders={Array.isArray(orders) ? orders : []} loading={ordersLoading} />}
+            {activeTab === 'quotes' && <QuotesTab quotes={Array.isArray(quotes) ? quotes : []} loading={quotesLoading} />}
             {activeTab === 'notifications' && <NotificationsTab />}
-            {activeTab === 'designs' && <DesignsTab designs={user?.savedDesigns || []} saveDesign={saveDesign} deleteDesign={deleteDesign} showToast={showToast} navigate={navigate} />}
-            {activeTab === 'addresses' && <AddressesTab addresses={user?.addresses || []} addAddress={addAddress} updateAddress={updateAddress} deleteAddress={deleteAddress} showToast={showToast} />}
+            {activeTab === 'designs' && <DesignsTab designs={Array.isArray(user?.savedDesigns) ? user.savedDesigns : []} saveDesign={saveDesign} deleteDesign={deleteDesign} showToast={showToast} navigate={navigate} />}
+            {activeTab === 'addresses' && <AddressesTab addresses={Array.isArray(user?.addresses) ? user.addresses : []} addAddress={addAddress} updateAddress={updateAddress} deleteAddress={deleteAddress} showToast={showToast} />}
             {activeTab === 'settings' && <SettingsTab user={user} updateUser={updateUser} showToast={showToast} logout={logout} />}
           </div>
 

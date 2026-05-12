@@ -17,10 +17,13 @@ export default defineConfig({
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
-        manualChunks: {
-          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
-          'vendor-ui': ['lucide-react', 'framer-motion'],
-          'vendor-three': ['three', '@react-three/fiber', '@react-three/drei'],
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('react')) return 'vendor-react';
+            if (id.includes('lucide-react') || id.includes('framer-motion')) return 'vendor-ui';
+            if (id.includes('three') || id.includes('@react-three')) return 'vendor-three';
+            return 'vendor';
+          }
         },
       },
     },

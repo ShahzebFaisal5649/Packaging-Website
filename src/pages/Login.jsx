@@ -165,7 +165,10 @@ export default function Login() {
               useOneTap
               theme="outline"
               size="large"
-              width="100%"
+              text="signin_with"
+              shape="rectangular"
+              width={400}
+              logo_alignment="left"
             />
           </div>
 

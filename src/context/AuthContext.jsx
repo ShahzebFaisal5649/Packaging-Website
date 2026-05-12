@@ -8,7 +8,26 @@ export const useAuth = () => useContext(AuthContext);
 const CACHE_KEY = 'dcb_user_cache';
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const normalizeUser = (u) => {
+    if (!u) return null;
+    return {
+      ...u,
+      notifications: Array.isArray(u.notifications) ? u.notifications : [],
+      orders: Array.isArray(u.orders) ? u.orders : [],
+      quotes: Array.isArray(u.quotes) ? u.quotes : [],
+      savedDesigns: Array.isArray(u.savedDesigns) ? u.savedDesigns : [],
+      addresses: Array.isArray(u.addresses) ? u.addresses : [],
+    };
+  };
+
+  const [user, _setUser] = useState(null);
+  const setUser = (u) => {
+    if (typeof u === 'function') {
+      _setUser(prev => normalizeUser(u(prev)));
+    } else {
+      _setUser(normalizeUser(u));
+    }
+  };
   const [loading, setLoading] = useState(true);
 
   // On mount: restore session from JWT → get fresh DB data
@@ -168,7 +187,13 @@ export const AuthProvider = ({ children }) => {
   const clearNotifications = async () => {
     try {
       await api.delete('/users/notifications/all');
-      setUser(prev => ({ ...prev, notifications: [] }));
+      setUser(prev => {
+        const notifs = Array.isArray(prev?.notifications) ? prev.notifications : [];
+        return {
+          ...prev,
+          notifications: []
+        };
+      });
       localStorage.setItem(CACHE_KEY, JSON.stringify({ ...user, notifications: [] }));
     } catch (err) {
       console.warn('clearNotifications failed:', err);
@@ -178,9 +203,18 @@ export const AuthProvider = ({ children }) => {
   const markAllNotificationsRead = async () => {
     try {
       await api.put('/users/notifications/read-all');
-      const updatedNotifs = user.notifications.map(n => ({ ...n, isRead: true }));
-      setUser(prev => ({ ...prev, notifications: updatedNotifs }));
-      localStorage.setItem(CACHE_KEY, JSON.stringify({ ...user, notifications: updatedNotifs }));
+      setUser(prev => {
+        const notifs = Array.isArray(prev?.notifications) ? prev.notifications : [];
+        const updated = notifs.map(n => ({ ...n, isRead: true }));
+        return { ...prev, notifications: updated };
+      });
+      // Update cache
+      const cached = localStorage.getItem(CACHE_KEY);
+      if (cached) {
+        const data = JSON.parse(cached);
+        data.notifications = (Array.isArray(data.notifications) ? data.notifications : []).map(n => ({ ...n, isRead: true }));
+        localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+      }
     } catch (err) {
       console.warn('markAllNotificationsRead failed:', err);
     }

@@ -58,6 +58,31 @@ router.put('/password', protect, async (req, res) => {
     }
     user.password = newPassword;
     await user.save();
+
+    // ── Security notification email ──────────────────────────────────────────
+    sendEmail({
+      email: user.email,
+      subject: '🔐 Your DesignCustomBox Password Was Changed',
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 24px; color: #333; max-width: 560px; margin: 0 auto;">
+          <h2 style="color: #1A4D2E; margin-bottom: 8px;">Password Changed Successfully</h2>
+          <p>Hi ${user.name},</p>
+          <p>Your DesignCustomBox account password was just changed. If you made this change, no further action is needed.</p>
+          <div style="background: #FEF3C7; border: 1px solid #F59E0B; border-radius: 8px; padding: 14px 18px; margin: 20px 0;">
+            <p style="margin: 0; font-weight: 700; color: #92400E;">⚠️ If you did NOT make this change</p>
+            <p style="margin: 6px 0 0; color: #92400E; font-size: 14px;">
+              Please contact us immediately at
+              <a href="mailto:designcustombox@gmail.com" style="color: #1A4D2E;">designcustombox@gmail.com</a>
+              or call <strong>(913) 228-2682</strong>.
+            </p>
+          </div>
+          <p style="color: #888; font-size: 13px;">Time of change: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })} CST</p>
+          <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
+          <p style="font-size: 12px; color: #aaa;">Design Custom Box · 5532 Big River Dr, The Colony, TX 75056</p>
+        </div>
+      `,
+    }).catch(err => console.warn('Password change email failed:', err.message));
+
     res.json({ message: 'Password updated successfully' });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -343,6 +368,19 @@ router.delete('/account', protect, async (req, res) => {
         .catch(() => {});
     }
     res.json({ message: 'Account permanently deleted.' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// GET /api/users/notifications — fetch all notifications for current user
+router.get('/notifications', protect, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select('notifications');
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    // Return newest first
+    const sorted = [...(user.notifications || [])].reverse();
+    res.json(sorted);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

@@ -285,6 +285,13 @@ export default function CustomBox() {
   };
 
   // Pricing
+  // Safety: ensure addons is always an array
+  useEffect(() => {
+    if (config && !Array.isArray(config.addons)) {
+      setConfig(prev => ({ ...prev, addons: [] }));
+    }
+  }, [config?.addons]);
+
   const area = parseFloat(config.l) * parseFloat(config.w);
   const sizeMultiplier = area > 100 ? 1.5 : (area > 50 ? 1.2 : 1);
   const activeQty = config.quantity === 'custom' ? (parseInt(config.customQuantity) || 0) : (parseInt(config.quantity) || 0);

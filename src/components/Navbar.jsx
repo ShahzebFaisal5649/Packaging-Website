@@ -140,10 +140,19 @@ export default function Navbar() {
 
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, isAuthenticated, logout, clearNotifications, markAllNotificationsRead } = useAuth();
+  const { user, isAuthenticated, logout, clearNotifications, markAllNotificationsRead, toggleFavorite } = useAuth();
   const { cartCount, toggleDrawer } = useCart();
   const { showToast } = useToast();
   const { count: favCount } = useFavourites();
+  
+  // Local state to allow immediate UI updates for notifications
+  const [localNotifications, setLocalNotifications] = useState([]);
+
+  useEffect(() => {
+    if (user?.notifications) {
+      setLocalNotifications(Array.isArray(user.notifications) ? user.notifications : []);
+    }
+  }, [user?.notifications]);
 
   const isAdmin = location.pathname.startsWith('/admin');
 
@@ -170,13 +179,13 @@ export default function Navbar() {
     return () => window.clearTimeout(timer);
   }, [location.pathname]);
 
-  const notifications = user?.notifications || [];
-  const unreadCount = notifications.filter(n => !n.isRead).length;
+  const notifications = Array.isArray(localNotifications) ? localNotifications : [];
+  const unreadCount = notifications.filter(n => n && !n.isRead).length;
 
   const handleMarkAllRead = async () => {
     try {
-      await api.put('/users/notifications/read-all');
-      // No need to set local state if we rely on global user, but let's update if AuthContext doesn't auto-refresh
+      await markAllNotificationsRead();
+      showToast('All notifications marked as read', 'info');
     } catch (e) { console.error('Failed to mark read', e); }
   };
 
@@ -190,9 +199,12 @@ export default function Navbar() {
     e.preventDefault();
     e.stopPropagation();
     try {
-      await api.delete(`/notifications/${id}`);
-      setNotifications(prev => prev.filter(n => n._id !== id));
-    } catch (e) { console.error('Failed to dismiss notification', e); }
+      await api.delete(`/users/notifications/${id}`);
+      setLocalNotifications(prev => prev.filter(n => n && n._id !== id));
+    } catch (e) { 
+      console.error('Failed to dismiss notification', e);
+      showToast('Failed to dismiss notification', 'error');
+    }
   };
 
   useEffect(() => {
@@ -383,7 +395,9 @@ export default function Navbar() {
                               onMouseEnter={e => e.currentTarget.style.background = '#f9fafb'} onMouseLeave={e => e.currentTarget.style.background = n.isRead ? '#fff' : 'rgba(26, 77, 46, 0.05)'}>
                               <p style={{ fontSize: 13, fontWeight: n.isRead ? 600 : 700, color: '#1A1A1A', margin: '0 0 4px', paddingRight: 10 }}>{n.title}</p>
                               <p style={{ fontSize: 12, color: '#666', margin: '0 0 6px', lineHeight: 1.4 }}>{n.message}</p>
-                              <span style={{ fontSize: 10, color: '#aaa' }}>{new Date(n.createdAt).toLocaleDateString()}</span>
+                              <span style={{ fontSize: 10, color: '#aaa' }}>
+                                {n.createdAt ? new Date(n.createdAt).toLocaleDateString() : 'Just now'}
+                              </span>
                             </Link>
                             <button
                               onClick={(e) => handleDismissNotification(e, n._id)}

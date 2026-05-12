@@ -203,7 +203,10 @@ export default function Register() {
               useOneTap
               theme="outline"
               size="large"
-              width="100%"
+              text="signup_with"
+              shape="rectangular"
+              width={400}
+              logo_alignment="left"
             />
           </div>
 
