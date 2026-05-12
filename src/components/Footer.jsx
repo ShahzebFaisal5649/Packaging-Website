@@ -57,19 +57,19 @@ export default function Footer() {
             <h3 style={{ fontSize: 32, fontFamily: '"Playfair Display", serif', fontWeight: 800, marginBottom: 16 }}>Join the Packaging Revolution</h3>
             <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.6)', lineHeight: 1.6 }}>Get exclusive design tips, material insights, and industry updates delivered to your inbox.</p>
           </div>
-          <form style={{ display: 'flex', gap: 12, width: '100%', maxWidth: 450 }} onSubmit={handleSubscribe}>
+          <form style={{ display: 'flex', gap: 12, width: '100%', maxWidth: 450, flexWrap: 'wrap' }} onSubmit={handleSubscribe} className="footer-subscribe-form">
             <input
               type="email"
               placeholder="Email address"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, padding: '16px 20px', color: '#fff', outline: 'none' }}
+              style={{ flex: '1 1 200px', minWidth: 0, backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, padding: '16px 20px', color: '#fff', outline: 'none', boxSizing: 'border-box' }}
             />
             <button 
               type="submit" 
               disabled={loading}
-              style={{ backgroundColor: ACCENT, color: '#fff', border: 'none', borderRadius: 12, padding: '0 32px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}
+              style={{ backgroundColor: ACCENT, color: '#fff', border: 'none', borderRadius: 12, padding: '16px 32px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', flexShrink: 0, whiteSpace: 'nowrap' }}
               onMouseEnter={e => e.target.style.backgroundColor = '#b37308'}
               onMouseLeave={e => e.target.style.backgroundColor = ACCENT}
             >
@@ -204,6 +204,10 @@ export default function Footer() {
         @media (max-width: 600px) {
           .footer-grid { grid-template-columns: 1fr 1fr !important; }
           .brand-col { grid-column: span 2 !important; }
+          .footer-subscribe-form { flex-direction: column !important; }
+          .footer-subscribe-form input { width: 100% !important; flex: unset !important; }
+          .footer-subscribe-form button { width: 100% !important; }
+          .footer-upper-inner { flex-direction: column !important; align-items: flex-start !important; gap: 24px !important; }
         }
       `}</style>
     </footer>

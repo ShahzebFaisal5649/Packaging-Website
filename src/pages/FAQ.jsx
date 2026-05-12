@@ -88,12 +88,12 @@ export default function FAQ() {
           <div className="grid lg:grid-cols-12 gap-16 items-start">
             
             {/* Sidebar: Categories */}
-            <div className="lg:col-span-3 sticky top-[140px]">
-              <h3 className="text-sm font-black text-brand-navy uppercase tracking-widest mb-6">Categories</h3>
-              <div className="flex flex-col gap-2">
+            <div className="lg:col-span-3 faq-sidebar">
+              <h3 className="text-sm font-black text-brand-navy uppercase tracking-widest mb-4">Categories</h3>
+              <div className="faq-category-list flex flex-col gap-2">
                 <button 
                   onClick={() => setActiveCat('all')}
-                  className={`px-6 py-4 rounded-xl text-left font-black text-sm transition-all border-2 ${activeCat === 'all' ? 'bg-brand-coral text-white border-brand-coral shadow-xl shadow-brand-coral/20' : 'bg-transparent border-transparent text-gray-400 hover:bg-gray-50 hover:text-brand-navy'}`}
+                  className={`px-6 py-4 rounded-xl text-left font-black text-sm transition-all border-2 w-full block ${activeCat === 'all' ? 'bg-brand-coral text-white border-brand-coral shadow-xl shadow-brand-coral/20' : 'bg-transparent border-transparent text-gray-400 hover:bg-gray-50 hover:text-brand-navy'}`}
                 >
                   All Questions
                 </button>
@@ -101,14 +101,14 @@ export default function FAQ() {
                   <button 
                     key={cat.id}
                     onClick={() => setActiveCat(cat.id)}
-                    className={`px-6 py-4 rounded-xl text-left font-black text-sm transition-all border-2 ${activeCat === cat.id ? 'bg-brand-coral text-white border-brand-coral shadow-xl shadow-brand-coral/20' : 'bg-transparent border-transparent text-gray-400 hover:bg-gray-50 hover:text-brand-navy'}`}
+                    className={`px-6 py-4 rounded-xl text-left font-black text-sm transition-all border-2 w-full block ${activeCat === cat.id ? 'bg-brand-coral text-white border-brand-coral shadow-xl shadow-brand-coral/20' : 'bg-transparent border-transparent text-gray-400 hover:bg-gray-50 hover:text-brand-navy'}`}
                   >
                     {cat.name}
                   </button>
                 ))}
               </div>
 
-              <div className="mt-12 p-8 bg-[#F9FAFB] rounded-[32px] border border-gray-100">
+              <div className="mt-8 p-6 bg-[#F9FAFB] rounded-[24px] border border-gray-100 faq-contact-box">
                 <h4 className="text-lg font-black text-brand-navy mb-4">Still have questions?</h4>
                 <p className="text-sm text-gray-500 mb-6 leading-relaxed">Our team of packaging experts is here to help you.</p>
                 <div className="space-y-4">
@@ -129,20 +129,21 @@ export default function FAQ() {
             <div className="lg:col-span-9">
               <div className="space-y-4">
                 {filteredFaqs.length > 0 ? filteredFaqs.map((faq, i) => (
-                  <div key={i} className="bg-white rounded-[32px] border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl transition-all group">
+                  <div key={i} className="bg-white rounded-[24px] border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl transition-all group" style={{ width: '100%', display: 'block' }}>
                     <button 
                       onClick={() => setOpenIndex(openIndex === i ? null : i)}
-                      className="w-full p-8 md:p-10 flex items-center justify-between text-left"
+                      className="w-full p-6 md:p-8 flex items-start justify-between text-left gap-4"
+                      style={{ width: '100%', boxSizing: 'border-box' }}
                     >
-                      <span className={`text-xl font-black transition-colors ${openIndex === i ? 'text-brand-coral' : 'text-brand-navy group-hover:text-brand-teal'}`}>
+                      <span className={`font-black transition-colors faq-question-text ${openIndex === i ? 'text-brand-coral' : 'text-brand-navy group-hover:text-brand-teal'}`} style={{ fontSize: 'clamp(15px, 2.5vw, 19px)', lineHeight: 1.4, flex: 1 }}>
                         {faq.q}
                       </span>
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${openIndex === i ? 'bg-brand-coral text-white rotate-180' : 'bg-gray-50 text-brand-teal'}`}>
-                        <ChevronDown size={20} />
+                      <div className={`flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center transition-all ${openIndex === i ? 'bg-brand-coral text-white rotate-180' : 'bg-gray-50 text-brand-teal'}`}>
+                        <ChevronDown size={18} />
                       </div>
                     </button>
-                    <div className={`transition-all duration-500 ease-in-out ${openIndex === i ? 'max-h-[500px] opacity-100 pb-10 px-10 md:px-12' : 'max-h-0 opacity-0'}`}>
-                      <p className="text-lg text-brand-navy/60 font-medium leading-relaxed max-w-4xl">
+                    <div className={`transition-all duration-500 ease-in-out ${openIndex === i ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}>
+                      <p className="text-base text-brand-navy/60 font-medium leading-relaxed" style={{ padding: '0 24px 24px', textAlign: 'justify' }}>
                         {faq.a}
                       </p>
                     </div>
@@ -170,6 +171,19 @@ export default function FAQ() {
           </button>
         </div>
       </section>
+
+      <style>{`
+        @media (max-width: 1024px) {
+          .faq-sidebar { position: static !important; top: unset !important; }
+        }
+        @media (max-width: 768px) {
+          .faq-sidebar { margin-bottom: 8px; }
+          .faq-category-list { flex-direction: column !important; gap: 8px !important; }
+          .faq-category-list button { width: 100% !important; text-align: left !important; }
+          .faq-contact-box { margin-top: 16px !important; }
+          .faq-question-text { font-size: 15px !important; }
+        }
+      `}</style>
     </div>
   );
 }

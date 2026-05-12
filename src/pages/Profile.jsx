@@ -718,13 +718,21 @@ const validatePhone = (v) => /^\+?[\d\s\-().]{7,15}$/.test(v);
 
 function SettingsTab({ user, updateUser, showToast, logout }) {
   const navigate = useNavigate();
+  // Sync local info state whenever user prop changes (persistence fix)
   const [info, setInfo] = useState({ name: user?.name || '', phone: user?.phone || '' });
+  useEffect(() => {
+    setInfo({ name: user?.name || '', phone: user?.phone || '' });
+  }, [user?.name, user?.phone]);
+
   const [phoneErr, setPhoneErr] = useState('');
   const [pwd, setPwd] = useState({ current: '', newPwd: '', confirm: '' });
+  // Eye-toggle state for each password field
+  const [showPwd, setShowPwd] = useState({ current: false, newPwd: false, confirm: false });
   const [pwdErr, setPwdErr] = useState('');
   const [pwdSaving, setPwdSaving] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [notifs, setNotifs] = useState({
     orders: user?.notifications?.orders ?? true,
     quotes: user?.notifications?.quotes ?? true,
@@ -750,7 +758,7 @@ function SettingsTab({ user, updateUser, showToast, logout }) {
     setSaving(true);
     try {
       await updateUser(info);
-      showToast('Profile updated!', 'success');
+      showToast('Profile updated successfully!', 'success');
     } catch (err) {
       showToast(err.message || 'Failed to save', 'error');
     } finally {
@@ -760,7 +768,7 @@ function SettingsTab({ user, updateUser, showToast, logout }) {
 
   const handleUpdatePassword = async () => {
     if (!pwd.current) { setPwdErr('Enter your current password'); return; }
-    if (pwd.newPwd.length < 6) { setPwdErr('Password must be at least 6 characters'); return; }
+    if (pwd.newPwd.length < 8) { setPwdErr('Password must be at least 8 characters'); return; }
     if (pwd.newPwd !== pwd.confirm) { setPwdErr('Passwords do not match'); return; }
     const strength = getStrength(pwd.newPwd);
     if (!strength || strength.label === 'Too short' || strength.label === 'Weak') {
@@ -771,8 +779,9 @@ function SettingsTab({ user, updateUser, showToast, logout }) {
     setPwdSaving(true);
     try {
       await api.put('/users/password', { currentPassword: pwd.current, newPassword: pwd.newPwd });
-      showToast('Password updated successfully!', 'success');
+      showToast('Password updated! A confirmation email has been sent.', 'success');
       setPwd({ current: '', newPwd: '', confirm: '' });
+      setShowPwd({ current: false, newPwd: false, confirm: false });
     } catch (err) {
       setPwdErr(err.message || 'Current password is incorrect');
     } finally {
@@ -788,24 +797,24 @@ function SettingsTab({ user, updateUser, showToast, logout }) {
   };
 
   const confirmDeleteAccount = async () => {
-    setDeleteConfirmOpen(false);
+    setDeleting(true);
     try {
-      // Revoke Google token if exists
       const googleToken = localStorage.getItem('google_token');
       if (googleToken) {
         await fetch(`https://accounts.google.com/o/oauth2/revoke?token=${googleToken}`).catch(() => {});
       }
-      // Delete account on backend
       await api.delete('/users/account');
-    } catch (e) { /* proceed anyway */ }
+    } catch { /* proceed anyway */ } finally {
+      setDeleting(false);
+    }
+    setDeleteConfirmOpen(false);
     logout();
     localStorage.clear();
     sessionStorage.clear();
-    // Force Google to show account picker on next login
     document.cookie.split(';').forEach(c => {
       document.cookie = c.replace(/^ +/, '').replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/');
     });
-    navigate('/');
+    navigate('/', { replace: true });
   };
 
   const inp = { width: '100%', padding: '10px 12px', border: '1.5px solid #D0CAC0', borderRadius: 8, fontSize: 14, fontFamily: '"DM Sans", sans-serif', outline: 'none', boxSizing: 'border-box', backgroundColor: BG };
@@ -857,32 +866,80 @@ function SettingsTab({ user, updateUser, showToast, logout }) {
           <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1A1A1A', margin: 0 }}>Security & Password</h3>
         </div>
         <p style={{ fontSize: 13, color: '#6B6B6B', marginBottom: 20 }}>
-          Use a strong, unique password with uppercase, numbers and symbols.
+          Use a strong, unique password with <span style={{ color: G, fontWeight: 700 }}>uppercase</span>, <span style={{ color: ACCENT, fontWeight: 700 }}>numbers</span> and <span style={{ color: G, fontWeight: 700 }}>symbols</span>.
         </p>
         {pwdErr && <p style={{ fontSize: 12, color: '#DC2626', marginBottom: 16, padding: '10px 14px', backgroundColor: '#FEE2E2', borderRadius: 8, border: '1px solid #FECACA' }}>{pwdErr}</p>}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+          {/* Current Password */}
           <div>
             <label style={{ fontSize: 12, fontWeight: 700, color: '#6B6B6B', display: 'block', marginBottom: 6 }}>Current Password</label>
-            <input type="password" style={inp} placeholder="••••••••" value={pwd.current}
-              onChange={e => setPwd(f => ({ ...f, current: e.target.value }))}
-              onFocus={e => e.target.style.borderColor = G} onBlur={e => e.target.style.borderColor = '#D0CAC0'} />
+            <div style={{ position: 'relative' }}>
+              <input
+                type={showPwd.current ? 'text' : 'password'}
+                style={{ ...inp, paddingRight: 44 }}
+                placeholder="••••••••"
+                value={pwd.current}
+                onChange={e => setPwd(f => ({ ...f, current: e.target.value }))}
+                onFocus={e => e.target.style.borderColor = G}
+                onBlur={e => e.target.style.borderColor = '#D0CAC0'}
+              />
+              <button type="button" onClick={() => setShowPwd(s => ({ ...s, current: !s.current }))}
+                style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#aaa', display: 'flex', alignItems: 'center', padding: 4 }}
+                aria-label={showPwd.current ? 'Hide password' : 'Show password'}
+              >
+                <Eye size={16} />
+              </button>
+            </div>
           </div>
+
+          {/* New Password */}
           <div>
             <label style={{ fontSize: 12, fontWeight: 700, color: '#6B6B6B', display: 'block', marginBottom: 6 }}>New Password</label>
-            <input type="password" style={inp} placeholder="Min. 8 characters" value={pwd.newPwd}
-              onChange={e => setPwd(f => ({ ...f, newPwd: e.target.value }))}
-              onFocus={e => e.target.style.borderColor = G} onBlur={e => e.target.style.borderColor = '#D0CAC0'} />
+            <div style={{ position: 'relative' }}>
+              <input
+                type={showPwd.newPwd ? 'text' : 'password'}
+                style={{ ...inp, paddingRight: 44 }}
+                placeholder="Min. 8 characters"
+                value={pwd.newPwd}
+                onChange={e => setPwd(f => ({ ...f, newPwd: e.target.value }))}
+                onFocus={e => e.target.style.borderColor = G}
+                onBlur={e => e.target.style.borderColor = '#D0CAC0'}
+              />
+              <button type="button" onClick={() => setShowPwd(s => ({ ...s, newPwd: !s.newPwd }))}
+                style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#aaa', display: 'flex', alignItems: 'center', padding: 4 }}
+                aria-label={showPwd.newPwd ? 'Hide password' : 'Show password'}
+              >
+                <Eye size={16} />
+              </button>
+            </div>
             <PasswordStrengthBar password={pwd.newPwd} />
           </div>
+
+          {/* Confirm Password */}
           <div>
             <label style={{ fontSize: 12, fontWeight: 700, color: '#6B6B6B', display: 'block', marginBottom: 6 }}>Confirm New Password</label>
-            <input type="password" style={{ ...inp, borderColor: pwd.confirm && pwd.confirm !== pwd.newPwd ? '#EF4444' : '#D0CAC0' }}
-              placeholder="Repeat new password" value={pwd.confirm}
-              onChange={e => setPwd(f => ({ ...f, confirm: e.target.value }))}
-              onFocus={e => e.target.style.borderColor = G} onBlur={e => e.target.style.borderColor = '#D0CAC0'} />
+            <div style={{ position: 'relative' }}>
+              <input
+                type={showPwd.confirm ? 'text' : 'password'}
+                style={{ ...inp, paddingRight: 44, borderColor: pwd.confirm && pwd.confirm !== pwd.newPwd ? '#EF4444' : '#D0CAC0' }}
+                placeholder="Repeat new password"
+                value={pwd.confirm}
+                onChange={e => setPwd(f => ({ ...f, confirm: e.target.value }))}
+                onFocus={e => e.target.style.borderColor = G}
+                onBlur={e => e.target.style.borderColor = '#D0CAC0'}
+              />
+              <button type="button" onClick={() => setShowPwd(s => ({ ...s, confirm: !s.confirm }))}
+                style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#aaa', display: 'flex', alignItems: 'center', padding: 4 }}
+                aria-label={showPwd.confirm ? 'Hide password' : 'Show password'}
+              >
+                <Eye size={16} />
+              </button>
+            </div>
             {pwd.confirm && pwd.confirm !== pwd.newPwd && <p style={{ fontSize: 11, color: '#EF4444', marginTop: 4 }}>Passwords do not match</p>}
           </div>
-          <Button 
+
+          <Button
             onClick={handleUpdatePassword}
             loading={pwdSaving}
             style={{ alignSelf: 'flex-start' }}
@@ -913,24 +970,48 @@ function SettingsTab({ user, updateUser, showToast, logout }) {
       </div>
 
       {/* Danger Zone */}
-      <div style={{ ...section, borderColor: '#FECACA' }}>
+      <div style={{ ...section, borderColor: '#FECACA', background: '#FFF8F8' }}>
         <h3 style={{ fontSize: 15, fontWeight: 700, color: '#DC2626', marginBottom: 8 }}>Danger Zone</h3>
         <p style={{ fontSize: 13, color: '#6B6B6B', marginBottom: 16 }}>Once you delete your account, there is no going back. All your data will be permanently removed.</p>
-        <button onClick={() => setDeleteConfirmOpen(true)} style={{ padding: '10px 20px', border: '1.5px solid #DC2626', color: '#DC2626', backgroundColor: 'transparent', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}>
+        <button
+          onClick={() => setDeleteConfirmOpen(true)}
+          style={{ padding: '11px 22px', border: '1.5px solid #DC2626', color: '#DC2626', backgroundColor: 'transparent', borderRadius: 8, fontWeight: 700, cursor: 'pointer', fontSize: 14, transition: 'all 0.2s' }}
+          onMouseEnter={e => { e.currentTarget.style.background = '#DC2626'; e.currentTarget.style.color = '#fff'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#DC2626'; }}
+        >
           Delete My Account
         </button>
       </div>
 
       {deleteConfirmOpen && (
-        <Modal title="Delete Account" onClose={() => setDeleteConfirmOpen(false)}>
+        <Modal title="⚠️ Delete Your Account" onClose={() => !deleting && setDeleteConfirmOpen(false)}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <div style={{ padding: '14px', backgroundColor: '#FEF2F2', borderRadius: 8, border: '1px solid #FECACA' }}>
-              <p style={{ fontSize: 14, color: '#DC2626', fontWeight: 700, marginBottom: 4 }}>⚠️ This action is permanent</p>
-              <p style={{ fontSize: 13, color: '#991B1B' }}>Your account, orders, quotes and all data will be deleted immediately. This cannot be undone.</p>
+            <div style={{ padding: '16px', backgroundColor: '#FEF2F2', borderRadius: 10, border: '1px solid #FECACA' }}>
+              <p style={{ fontSize: 14, color: '#DC2626', fontWeight: 700, marginBottom: 6 }}>This action is permanent and cannot be undone.</p>
+              <p style={{ fontSize: 13, color: '#991B1B', lineHeight: 1.6 }}>The following will be <strong>permanently deleted</strong>:</p>
+              <ul style={{ fontSize: 13, color: '#991B1B', paddingLeft: 20, marginTop: 6, lineHeight: 1.8 }}>
+                <li>Your account and profile</li>
+                <li>All orders and quotes</li>
+                <li>Saved designs and addresses</li>
+                <li>All notifications and data</li>
+              </ul>
             </div>
-            <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
-              <button onClick={() => setDeleteConfirmOpen(false)} style={{ padding: '10px 18px', backgroundColor: '#F3F4F6', border: '1px solid #D0CAC0', borderRadius: 8, color: '#374151', cursor: 'pointer' }}>Cancel</button>
-              <button onClick={confirmDeleteAccount} style={{ padding: '10px 18px', backgroundColor: '#DC2626', border: 'none', borderRadius: 8, color: '#fff', cursor: 'pointer', fontWeight: 700 }}>Yes, Delete Forever</button>
+            <p style={{ fontSize: 13, color: '#6B6B6B' }}>Are you absolutely sure you want to proceed?</p>
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+              <button
+                onClick={() => setDeleteConfirmOpen(false)}
+                disabled={deleting}
+                style={{ padding: '11px 20px', backgroundColor: '#F3F4F6', border: '1px solid #D0CAC0', borderRadius: 8, color: '#374151', cursor: 'pointer', fontWeight: 600 }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDeleteAccount}
+                disabled={deleting}
+                style={{ padding: '11px 22px', backgroundColor: '#DC2626', border: 'none', borderRadius: 8, color: '#fff', cursor: deleting ? 'not-allowed' : 'pointer', fontWeight: 700, opacity: deleting ? 0.7 : 1 }}
+              >
+                {deleting ? 'Deleting…' : 'Yes, Delete Forever'}
+              </button>
             </div>
           </div>
         </Modal>

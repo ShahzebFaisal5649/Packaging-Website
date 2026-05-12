@@ -3,20 +3,83 @@ import ProductSlider from './ProductSlider';
 import api from '../services/api';
 import { RefreshCw } from 'lucide-react';
 
+// Each product has its own unique, relevant Unsplash image
 const fallbackProducts = [
-  { id: 'p1', name: 'Custom Mailer Boxes', cat: 'Mailer', desc: 'Durable corrugated mailers for e-commerce brands', price: '$1.20', img: 'https://images.unsplash.com/photo-1553531384-cc64ac80f931?w=600&q=80' },
-  { id: 'p2', name: 'Printed Sleeve Boxes', cat: 'Sleeve', desc: 'Elegant sleeve packaging for a premium unboxing experience', price: '$1.50', img: 'https://images.unsplash.com/photo-1601056282023-0ece673c74d4?w=600&q=80' },
-  { id: 'p3', name: 'Retail Display Boxes', cat: 'Display', desc: 'Shelf-ready display packaging for retail environments', price: '$2.10', img: 'https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=600&q=80' },
-  { id: 'p4', name: 'Rigid Setup Boxes', cat: 'Rigid', desc: 'Luxury rigid packaging for high-end gifting', price: '$3.50', img: 'https://images.unsplash.com/photo-1544816155-12df9643f363?w=600&q=80' },
-  { id: 'p5', name: 'Cosmetic Boxes', cat: 'Cosmetic', desc: 'Premium paperboard boxes for beauty and skincare', price: '$0.85', img: 'https://images.unsplash.com/photo-1627384113743-6bd5a479fffd?w=600&q=80' },
-  { id: 'p6', name: 'Shipping Boxes', cat: 'Shipping', desc: 'Heavy-duty corrugated boxes for secure bulk shipping', price: '$1.10', img: 'https://images.unsplash.com/photo-1595079676339-1534801ad6cf?w=600&q=80' },
-  { id: 'p7', name: 'Tuck Top Boxes', cat: 'Tuck', desc: 'Versatile product boxes with easy tuck-top closure', price: '$0.95', img: 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=600&q=80' },
-  { id: 'p8', name: 'E-Commerce Boxes', cat: 'E-Comm', desc: 'Branded shipping solutions for online retailers', price: '$1.30', img: 'https://images.unsplash.com/photo-1566576721346-d4a3b4eaad5b?w=600&q=80' },
-  { id: 'p9', name: 'Window Display Boxes', cat: 'Display', desc: 'Clear PET window panels for premium product visibility', price: '$1.75', img: 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=600&q=80' },
-  { id: 'p10', name: 'Gift Box Sets', cat: 'Gift', desc: 'Premium rigid gift boxes with satin ribbon', price: '$4.20', img: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=600&q=80' },
-  { id: 'p11', name: 'Pizza Boxes', cat: 'Food', desc: 'FDA-compliant corrugated food boxes for restaurants', price: '$0.65', img: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=600&q=80' },
-  { id: 'p12', name: 'Subscription Boxes', cat: 'Subscription', desc: 'Monthly boxes with interior trays and branded slots', price: '$2.40', img: 'https://images.unsplash.com/photo-1617791160505-6f00504e3519?w=600&q=80' },
+  {
+    id: 'p1', name: 'Custom Mailer Boxes', cat: 'Mailer',
+    desc: 'Durable corrugated mailers for e-commerce brands. Self-locking, no glue needed.',
+    price: '$1.20',
+    img: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=600&h=400&q=80',
+  },
+  {
+    id: 'p2', name: 'Rigid Gift Boxes', cat: 'Rigid',
+    desc: 'Premium rigid box with magnetic closure for luxury gifting and retail.',
+    price: '$3.80',
+    img: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=600&h=400&q=80',
+  },
+  {
+    id: 'p3', name: 'Kraft Tuck Boxes', cat: 'Kraft',
+    desc: 'Eco-friendly kraft tuck-end box. Ideal for bakeries, food, candles, and soap.',
+    price: '$0.65',
+    img: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=600&h=400&q=80',
+  },
+  {
+    id: 'p4', name: 'Cosmetic Sleeve Boxes', cat: 'Sleeve',
+    desc: 'Two-piece slide-out sleeve box. Popular for skincare and cosmetics brands.',
+    price: '$2.10',
+    img: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=600&h=400&q=80',
+  },
+  {
+    id: 'p5', name: 'Shipping Boxes', cat: 'Shipping',
+    desc: 'Heavy-duty corrugated RSC box for safe shipping. BCT-tested for stacking.',
+    price: '$0.95',
+    img: 'https://images.unsplash.com/photo-1616401784845-180882ba9ba8?auto=format&fit=crop&w=600&h=400&q=80',
+  },
+  {
+    id: 'p6', name: 'Luxury Drawer Boxes', cat: 'Rigid',
+    desc: 'Elegant rigid drawer box for jewelry, watches, and premium gifting.',
+    price: '$5.50',
+    img: 'https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?auto=format&fit=crop&w=600&h=400&q=80',
+  },
+  {
+    id: 'p7', name: 'Gable Top Boxes', cat: 'Specialty',
+    desc: 'Charming gable box with handle. Perfect for party favours and bakeries.',
+    price: '$0.85',
+    img: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=600&h=400&q=80',
+  },
+  {
+    id: 'p8', name: 'Eco Kraft Mailers', cat: 'Eco',
+    desc: '100% recycled content mailer. FSC-certified and fully compostable.',
+    price: '$1.05',
+    img: 'https://images.unsplash.com/photo-1580828343064-fde4fc206bc6?auto=format&fit=crop&w=600&h=400&q=80',
+  },
+  {
+    id: 'p9', name: 'Subscription Mystery Boxes', cat: 'Mailer',
+    desc: 'Thick premium mailer box with interior full-colour print for unboxing moments.',
+    price: '$2.40',
+    img: 'https://images.unsplash.com/photo-1512909006721-3d6018887383?auto=format&fit=crop&w=600&h=400&q=80',
+  },
+  {
+    id: 'p10', name: 'Window Display Boxes', cat: 'Retail',
+    desc: 'Folding carton with clear PET window for retail shelf display.',
+    price: '$1.45',
+    img: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=600&h=400&q=80',
+  },
+  {
+    id: 'p11', name: 'Pizza Kraft Boxes', cat: 'Food',
+    desc: 'Grease-resistant kraft pizza box with full-colour lid print.',
+    price: '$0.75',
+    img: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=600&h=400&q=80',
+  },
+  {
+    id: 'p12', name: 'Rigid Neck Boxes', cat: 'Rigid',
+    desc: 'Two-piece rigid neck and shoulder box for electronics and spirits.',
+    price: '$4.20',
+    img: 'https://images.unsplash.com/photo-1560343090-f0409e92791a?auto=format&fit=crop&w=600&h=400&q=80',
+  },
 ];
+
+const FALLBACK_IMG = 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=600&h=400&q=80';
 
 export default function TrendingProducts() {
   const [products, setProducts] = useState([]);
@@ -26,20 +89,21 @@ export default function TrendingProducts() {
     async function fetchFeatured() {
       try {
         const data = await api.get('/content/featured-products');
-        if (data.products && data.products.length > 0) {
-          setProducts(data.products.map(p => ({
-            id: p._id,
+        const list = data?.products || data?.data || [];
+        if (Array.isArray(list) && list.length > 0) {
+          setProducts(list.map(p => ({
+            id: p._id || p.id,
             name: p.name,
             cat: p.category || p.cat || 'Custom',
-            desc: p.description,
-            price: `$${p.price}`,
-            img: p.img || p.image
+            desc: p.description || p.desc || '',
+            price: p.price ? `$${parseFloat(p.price).toFixed(2)}` : '$1.20',
+            // Robust image field mapping — covers all possible field names
+            img: p.image || p.img || p.thumbnail || FALLBACK_IMG,
           })));
         } else {
           setProducts(fallbackProducts);
         }
-      } catch (err) {
-        console.error('Failed to fetch featured products:', err);
+      } catch {
         setProducts(fallbackProducts);
       } finally {
         setLoading(false);
@@ -57,6 +121,7 @@ export default function TrendingProducts() {
         {loading ? (
           <div style={{ padding: '60px 0', textAlign: 'center' }}>
             <RefreshCw size={24} style={{ animation: 'spin 1s linear infinite', color: '#ccc' }} />
+            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
           </div>
         ) : (
           <ProductSlider products={products} title="Trending Now" />

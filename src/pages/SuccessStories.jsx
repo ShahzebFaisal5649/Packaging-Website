@@ -143,9 +143,9 @@ export default function SuccessStories() {
             <p style={{ fontSize: 20, color: 'rgba(255,255,255,0.7)', maxWidth: 540, lineHeight: 1.6, marginBottom: 48 }}>
               From boutique brands to global enterprises, we help you create packaging that tells your story and delights your customers.
             </p>
-            <div style={{ display: 'flex', gap: 16 }}>
+            <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }} className="hero-cta-buttons">
                <button onClick={() => window.scrollTo({ top: 800, behavior: 'smooth' })} style={{ padding: '18px 40px', background: ACCENT, color: '#fff', border: 'none', borderRadius: 12, fontWeight: 700, fontSize: 16, cursor: 'pointer', boxShadow: '0 20px 40px rgba(200,134,10,0.3)' }}>View Showcase</button>
-               <Link to="/custom-box" style={{ padding: '18px 40px', background: 'transparent', color: '#fff', border: '2px solid rgba(255,255,255,0.2)', borderRadius: 12, fontWeight: 700, fontSize: 16, textDecoration: 'none' }}>Start Designing</Link>
+               <Link to="/custom-box" style={{ padding: '18px 40px', background: 'transparent', color: '#fff', border: '2px solid rgba(255,255,255,0.2)', borderRadius: 12, fontWeight: 700, fontSize: 16, textDecoration: 'none', display: 'inline-block', boxSizing: 'border-box' }}>Start Designing</Link>
             </div>
           </motion.div>
         </div>
@@ -182,6 +182,13 @@ export default function SuccessStories() {
       <TestimonialSection />
       <QuoteCTA />
 
+      <style>{`
+        @media (max-width: 480px) {
+          .hero-cta-buttons { flex-direction: column !important; width: 100% !important; }
+          .hero-cta-buttons button,
+          .hero-cta-buttons a { width: 100% !important; text-align: center !important; padding: 16px 24px !important; }
+        }
+      `}</style>
     </div>
   );
 }

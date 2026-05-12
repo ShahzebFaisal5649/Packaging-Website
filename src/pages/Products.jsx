@@ -181,7 +181,7 @@ function ProductCard({ product }) {
   const navigate = useNavigate();
 
   const isFav = isFavourite(product._id || product.id);
-  const imgSrc = product.img || CATEGORY_IMGS[product.cat] || CATEGORY_IMGS.default;
+  const imgSrc = product.image || product.img || CATEGORY_IMGS[product.cat] || CATEGORY_IMGS.default;
 
   const handleFavourite = (e) => {
     e.stopPropagation();
@@ -315,14 +315,19 @@ export default function Products() {
     const loadProducts = async () => {
       setLoading(true);
       setError('');
-      const cached = localStorage.getItem('designcustombox_products');
+      const CACHE_KEY = 'dcb_products_v3';
+      const cached = localStorage.getItem(CACHE_KEY);
+      // Bust all old cache keys
+      ['designcustombox_products','dcb_products_v1','dcb_products_v2'].forEach(k => localStorage.removeItem(k));
       try {
         const data = await api.get('/content/products');
         const products = Array.isArray(data.products) ? data.products : [];
         setFetchedProducts(products);
-        localStorage.setItem('designcustombox_products', JSON.stringify(products));
+        localStorage.setItem(CACHE_KEY, JSON.stringify(products));
       } catch (err) {
         console.error('Products load failed', err);
+        const CACHE_KEY = 'dcb_products_v3';
+        const cached = localStorage.getItem(CACHE_KEY);
         if (cached) {
           setFetchedProducts(JSON.parse(cached));
           setError('Unable to load latest products. Showing cached catalog.');
@@ -410,13 +415,13 @@ export default function Products() {
 
         {/* Mobile sidebar overlay */}
         {sidebarOpen && (
-          <div className="fixed inset-0 bg-black/40 z-40" onClick={() => setSidebarOpen(false)} />
+          <div className="fixed inset-0 bg-black/40 z-40" style={{ top: 68 }} onClick={() => setSidebarOpen(false)} />
         )}
 
         {/* Mobile sidebar drawer */}
-        <div className={`products-sidebar-mobile md:hidden fixed inset-y-0 left-0 z-50 flex h-full w-full max-w-sm flex-col bg-white p-6 pt-24 shadow-[4px_0_20px_rgba(0,0,0,0.15)] transition-transform duration-200 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className={`products-sidebar-mobile md:hidden fixed left-0 z-50 flex w-full max-w-sm flex-col bg-white p-6 shadow-[4px_0_20px_rgba(0,0,0,0.15)] transition-transform duration-200 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`} style={{ top: 68, bottom: 0, overflowY: 'auto' }}>
           <button onClick={() => setSidebarOpen(false)}
-            style={{ position: 'absolute', top: 20, right: 16, background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}>
+            style={{ position: 'absolute', top: 16, right: 16, background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}>
             <X size={20} color="#666" />
           </button>
           <SidebarContent {...sidebarProps} />

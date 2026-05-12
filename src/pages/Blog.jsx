@@ -73,8 +73,7 @@ export default function Blog() {
           <div style={{ 
             display: 'grid', 
             gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
-            height: 'auto',
-            minHeight: isMobile ? 400 : 600,
+            minHeight: isMobile ? 380 : 520,
             paddingBottom: isMobile ? 40 : 0,
           }} className="hero-split">
             <motion.div
@@ -92,8 +91,8 @@ export default function Blog() {
                 <span style={{ fontSize: 11, fontFamily: '"DM Mono", monospace', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.15em', padding: '6px 14px', borderRadius: 100, backgroundColor: 'rgba(255,255,255,0.1)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)' }}>Featured</span>
                 <span style={{ fontSize: 11, fontFamily: '"DM Mono", monospace', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.15em', color: ACCENT }}>{featured.category}</span>
               </div>
-              <h1 style={{ fontSize: 'clamp(36px, 4vw, 56px)', fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 800, color: '#fff', marginBottom: 24, lineHeight: 1.1 }}>{featured.title}</h1>
-              <p style={{ fontSize: 16, fontFamily: '"DM Sans", sans-serif', color: 'rgba(255,255,255,0.75)', lineHeight: 1.7, marginBottom: 40, maxWidth: 480 }}>{featured.excerpt}</p>
+              <h1 style={{ fontSize: 'clamp(28px, 4vw, 52px)', fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 800, color: '#fff', marginBottom: 20, lineHeight: 1.15, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{featured.title}</h1>
+              <p style={{ fontSize: 15, fontFamily: '"DM Sans", sans-serif', color: 'rgba(255,255,255,0.75)', lineHeight: 1.7, marginBottom: 36, maxWidth: 480, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden', textAlign: 'justify' }}>{featured.excerpt}</p>
               <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 40 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <div style={{ width: 40, height: 40, borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}><User size={18} /></div>
@@ -115,7 +114,7 @@ export default function Blog() {
                 Read Article <ArrowRight size={16} />
               </motion.button>
             </motion.div>
-            <div style={{ position: 'relative', height: '100%', overflow: 'hidden' }}>
+            <div style={{ position: 'relative', minHeight: 320, overflow: 'hidden' }}>
               <img 
                 key={featured.id}
                 src={featured.img || 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=1200&q=80'} 
@@ -123,9 +122,12 @@ export default function Blog() {
                 style={{ 
                   width: '100%', 
                   height: '100%', 
+                  minHeight: 320,
                   objectFit: 'cover', 
                   objectPosition: 'center',
                   display: 'block',
+                  position: 'absolute',
+                  inset: 0,
                   animation: 'heroFadeIn 0.4s ease'
                 }} 
               />

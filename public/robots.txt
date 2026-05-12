@@ -1,15 +1,4 @@
-# robots.txt for Design Custom Box
-# Website: https://designcustombox.com
-
 User-agent: *
 Allow: /
-Disallow: /api/
-Disallow: /admin/
-Disallow: /src/
-Disallow: /profile/
-Disallow: /checkout/
-Disallow: /login/
-Disallow: /register/
 
-# Sitemap
 Sitemap: https://designcustombox.com/sitemap.xml

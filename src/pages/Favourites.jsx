@@ -152,11 +152,10 @@ export default function Favourites() {
               const imgSrc = getImage(product);
               const stableId = product._id || product.id;
               return (
-                <div key={stableId || idx} className="bg-white rounded-card border border-gray-100 shadow-card overflow-hidden group flex flex-col relative">
+                <div key={stableId || idx} className="fav-card bg-white rounded-card border border-gray-100 shadow-card overflow-hidden group flex flex-col relative">
 
                   {/* Action buttons top-right */}
                   <div className="absolute top-3 right-3 z-20 flex flex-col gap-2">
-                    {/* Quick view */}
                     <button
                       onClick={(e) => handleQuickView(e, product)}
                       className="w-9 h-9 bg-white rounded-full flex items-center justify-center shadow-sm hover:scale-110 transition-transform text-brand-primary"
@@ -164,7 +163,6 @@ export default function Favourites() {
                     >
                       <Search size={15} />
                     </button>
-                    {/* Remove from favourites */}
                     <button
                       onClick={() => handleRemove(product._id || product.id || product.name, product.name)}
                       className="w-9 h-9 bg-white rounded-full flex items-center justify-center shadow-sm hover:bg-red-50 transition-colors"
@@ -183,24 +181,51 @@ export default function Favourites() {
                       loading="lazy"
                       onError={e => { e.target.src = FALLBACK_IMG; }}
                     />
+                    {/* Category badge on image */}
+                    {product.cat && (
+                      <div style={{ position: 'absolute', bottom: 8, left: 8, background: '#1A4D2E', color: '#fff', fontSize: 9, fontFamily: '"DM Mono", monospace', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', padding: '3px 8px', borderRadius: 4 }}>
+                        {product.cat}
+                      </div>
+                    )}
                   </div>
 
                   {/* Body */}
                   <div className="flex-1 p-4 flex flex-col">
-                    <h3 className="text-[15px] font-bold text-brand-textPrimary mb-1 truncate">{product.name}</h3>
-                    {(product.description || product.desc) && <p className="text-[12px] text-brand-textSecondary mb-3 line-clamp-2">{product.description || product.desc}</p>}
-                    {product.price && <p className="text-[15px] font-bold text-brand-accent mb-4">{product.price}</p>}
+                    {/* Pills */}
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 8 }}>
+                      {(product.boxType || product.cat) && (
+                        <span style={{ fontSize: 9, fontFamily: '"DM Mono", monospace', fontWeight: 600, color: '#C8860A', background: 'rgba(200,134,10,0.1)', padding: '2px 7px', borderRadius: 3, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                          {product.boxType || product.cat}
+                        </span>
+                      )}
+                      {product.material && (
+                        <span style={{ fontSize: 9, fontFamily: '"DM Mono", monospace', fontWeight: 600, color: '#1A4D2E', background: 'rgba(26,77,46,0.08)', padding: '2px 7px', borderRadius: 3, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                          {product.material}
+                        </span>
+                      )}
+                    </div>
 
-                    <div className="mt-auto space-y-2">
+                    <h3 className="text-[15px] font-bold text-brand-textPrimary mb-1 line-clamp-2">{product.name}</h3>
+                    {(product.description || product.desc) && <p className="text-[12px] text-brand-textSecondary mb-2 line-clamp-2">{product.description || product.desc}</p>}
+                    {product.price && <p className="text-[17px] font-bold text-[#C8860A] mb-3">{product.price} <span style={{ fontSize: 10, color: '#9A9080', fontWeight: 500 }}>/ unit</span></p>}
+
+                    {/* CTA Buttons — stacked, full-width */}
+                    <div className="mt-auto" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      {/* PRIMARY: Configure This Box */}
                       <button
                         onClick={() => handleConfigure(product)}
-                        className="w-full py-2.5 bg-brand-primary text-white text-[13px] font-bold rounded-button hover:bg-brand-accent transition-colors"
+                        style={{ width: '100%', padding: '11px 16px', background: '#1A4D2E', color: '#fff', border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, minHeight: 44, transition: 'background 0.2s' }}
+                        onMouseEnter={e => e.currentTarget.style.background = '#C8860A'}
+                        onMouseLeave={e => e.currentTarget.style.background = '#1A4D2E'}
                       >
-                        Configure This Box
+                        <ChevronRight size={14} /> Configure This Box
                       </button>
+                      {/* SECONDARY: Add to Cart */}
                       <button
                         onClick={() => handleAddToCart(product)}
-                        className="w-full py-2.5 border border-gray-200 text-brand-textPrimary text-[13px] font-bold rounded-button hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
+                        style={{ width: '100%', padding: '10px 16px', background: '#fff', color: '#1A4D2E', border: '1.5px solid #1A4D2E', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, minHeight: 44, transition: 'all 0.2s' }}
+                        onMouseEnter={e => { e.currentTarget.style.background = '#F5F2ED'; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = '#fff'; }}
                       >
                         <ShoppingBag size={14} /> Add to Cart
                       </button>
@@ -211,6 +236,12 @@ export default function Favourites() {
             })}
           </div>
         )}
+
+        <style>{`
+          @media (max-width: 480px) {
+            .fav-card { flex-direction: column !important; }
+          }
+        `}</style>
       </div>
     </div>
   );

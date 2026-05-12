@@ -105,6 +105,9 @@ export default function CustomBox() {
 
   const [activeStep, setActiveStep] = useState(1);
   const [config, setConfig] = useState({
+    boxType: 'Mailer Box',
+    l: '8', w: '6', h: '3', unit: 'in',
+    quantity: 100,
     material: 'Corrugated E-Flute',
     print: 'Outside Only', colorMode: 'CMYK Full Color', finish: 'Matte Lam',
     addons: [],
@@ -497,7 +500,7 @@ export default function CustomBox() {
                   </div>
                   <div>
                     <p style={{ fontSize: 14, fontWeight: 700, color: activeStep === 2 ? G : '#1A1A1A', margin: 0 }}>Dimensions &amp; Quantity</p>
-                    {activeStep !== 2 && <p style={{ fontSize: 11, color: '#888', margin: '2px 0 0' }}>{config.l}×{config.w}×{config.h} {config.unit} · {config.quantity.toLocaleString()} units</p>}
+                    {activeStep !== 2 && <p style={{ fontSize: 11, color: '#888', margin: '2px 0 0' }}>{config.l || 8}×{config.w || 6}×{config.h || 3} {config.unit || 'in'} · {(config.quantity || 0).toLocaleString()} units</p>}
                   </div>
                 </div>
                 <ChevronDown size={16} color="#aaa" style={{ transform: activeStep === 2 ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />

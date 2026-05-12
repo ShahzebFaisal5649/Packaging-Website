@@ -79,11 +79,11 @@ export default function ProductSlider({ products = [], title = 'Featured Product
   };
 
   const handleNext = () => {
-    setCurrentIndex(prev => (prev >= maxIndex ? 0 : Math.floor(prev + 1)));
+    setCurrentIndex(prev => Math.min(maxIndex, Math.floor(prev + 1)));
   };
-  
+
   const handlePrev = () => {
-    setCurrentIndex(prev => (prev <= 0 ? maxIndex : Math.ceil(prev - 1)));
+    setCurrentIndex(prev => Math.max(0, Math.ceil(prev - 1)));
   };
 
   const handleFavourite = (e, product) => {
@@ -113,10 +113,22 @@ export default function ProductSlider({ products = [], title = 'Featured Product
       <div className="flex justify-between items-end mb-8 px-6 lg:px-0">
         <h2 className="text-3xl font-display font-bold text-brand-textPrimary">{title}</h2>
         <div className="flex gap-2">
-          <button onClick={handlePrev} className="w-11 h-11 rounded-full border border-gray-200 flex items-center justify-center text-gray-600 bg-white/90 shadow-sm hover:bg-brand-primary hover:text-white transition-colors" style={{ minWidth: 44, minHeight: 44 }}>
+          <button
+            onClick={handlePrev}
+            disabled={Math.round(currentIndex) === 0}
+            className="w-11 h-11 rounded-full border border-gray-200 flex items-center justify-center text-gray-600 bg-white/90 shadow-sm hover:bg-brand-primary hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            style={{ minWidth: 44, minHeight: 44 }}
+            aria-label="Previous products"
+          >
             <ChevronLeft size={18} />
           </button>
-          <button onClick={handleNext} className="w-11 h-11 rounded-full border border-gray-200 flex items-center justify-center text-gray-600 bg-white/90 shadow-sm hover:bg-brand-primary hover:text-white transition-colors" style={{ minWidth: 44, minHeight: 44 }}>
+          <button
+            onClick={handleNext}
+            disabled={Math.round(currentIndex) >= maxIndex}
+            className="w-11 h-11 rounded-full border border-gray-200 flex items-center justify-center text-gray-600 bg-white/90 shadow-sm hover:bg-brand-primary hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            style={{ minWidth: 44, minHeight: 44 }}
+            aria-label="Next products"
+          >
             <ChevronRight size={18} />
           </button>
         </div>

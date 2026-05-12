@@ -2,7 +2,7 @@
 
 ### *The Ultimate Luxury Custom Packaging Platform*
 
-[![Live Site](https://img.shields.io/badge/Live%20Site-novapack--custom--box.vercel.app-brightgreen?style=flat-square&logo=vercel)](https://novapack-custom-box.vercel.app)
+[![Live Site](https://img.shields.io/badge/Live%20Site-designcustombox.com-brightgreen?style=flat-square&logo=vercel)](https://designcustombox.com)
 [![Stack](https://img.shields.io/badge/Stack-React%20%2B%20Node.js%20%2B%20MongoDB-blue?style=flat-square)](#)
 [![AI](https://img.shields.io/badge/AI-Gemini%202.0%20Flash-orange?style=flat-square&logo=google)](#)
 [![License](https://img.shields.io/badge/License-MIT-lightgrey?style=flat-square)](https://opensource.org/licenses/MIT)
@@ -15,8 +15,8 @@
 
 | Environment           | URL                                                                                              |
 | --------------------- | ------------------------------------------------------------------------------------------------ |
-| **Production**  | [https://novapack-custom-box.vercel.app](https://novapack-custom-box.vercel.app)                    |
-| **Admin Panel** | [https://novapack-custom-box.vercel.app/admin](https://novapack-custom-box.vercel.app/admin)        |
+| **Production**  | [https://designcustombox.com](https://designcustombox.com)                    |
+| **Admin Panel** | [https://designcustombox.com/admin](https://designcustombox.com/admin)        |
 | **GitHub Repo** | [ShahzebFaisal5649/Custom-Box-Website-2](https://github.com/ShahzebFaisal5649/Custom-Box-Website-2) |
 
 **Admin Credentials (Seeded):**
@@ -233,7 +233,7 @@ The project is pre-configured for Vercel via `vercel.json`.
 | `EMAIL_USER`     | `Designcustombox@gmail.com`              |
 | `EMAIL_PASS`     | Gmail App Password (16 chars)              |
 | `GEMINI_API_KEY` | Your Google Gemini API key                 |
-| `CLIENT_URL`     | `https://novapack-custom-box.vercel.app` |
+| `CLIENT_URL`     | `https://designcustombox.com` |
 | `NODE_ENV`       | `production`                             |
 
 > **Important:** The `VITE_*` env vars are set in `vercel.json` and do not need to be added manually.
