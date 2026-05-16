@@ -208,7 +208,7 @@ function AdminNotifications() {
   };
 
   return (
-    <div style={{ position: 'relative' }} ref={dropdownRef}>
+    <div style={{ position: 'relative' }} ref={dropdownRef} className="notif-wrapper">
       <button onClick={() => setOpen(!open)} style={{ position: 'relative', background: '#fff', border: '1px solid #E2E8F0', padding: 10, borderRadius: 12, cursor: 'pointer', color: '#64748B', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <Bell size={20} />
         {unread > 0 && (
@@ -220,8 +220,12 @@ function AdminNotifications() {
 
       <AnimatePresence>
         {open && (
-          <motion.div initial={{ opacity: 0, y: 10, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            style={{ position: 'absolute', top: '100%', right: 0, marginTop: 12, width: 340, background: '#fff', borderRadius: 16, boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)', border: '1px solid #E2E8F0', zIndex: 1000, overflow: 'hidden' }}>
+          <motion.div
+            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+            className="notif-dropdown"
+            style={{ position: 'fixed', top: dropdownRef.current ? dropdownRef.current.getBoundingClientRect().bottom + 12 : 80, right: 16, width: 340, maxWidth: 'calc(100vw - 32px)', background: '#fff', borderRadius: 16, boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)', border: '1px solid #E2E8F0', zIndex: 99999, overflow: 'hidden' }}>
             <div style={{ padding: '16px 20px', borderBottom: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#F8FAFC' }}>
               <span style={{ fontSize: 14, fontWeight: 800, color: '#0F172A' }}>Notifications</span>
               <div style={{ display: 'flex', gap: 12 }}>
@@ -478,20 +482,20 @@ function DashboardSection() {
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 36, flexWrap: 'wrap', gap: 16 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 36, flexWrap: 'wrap', gap: 16 }} className="cmd-header">
         <div>
-          <h2 style={{ fontSize: 28, fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#0F172A', margin: 0, letterSpacing: '-0.02em' }}>Command Center</h2>
+          <h2 style={{ fontSize: 28, fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#0F172A', margin: 0, letterSpacing: '-0.02em' }} className="cmd-title">Command Center</h2>
           <p style={{ fontSize: 14, color: '#64748B', marginTop: 4, fontWeight: 500 }}>Overview of your business performance and logistics.</p>
         </div>
-        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }} className="cmd-header-actions">
           <AdminNotifications />
-          <button onClick={() => setRefreshKey(k => k + 1)} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 700, color: '#0F172A', background: '#fff', border: '1px solid #E2E8F0', borderRadius: 12, padding: '10px 18px', cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }} onMouseEnter={e => e.currentTarget.style.borderColor = '#3B82F6'} onMouseLeave={e => e.currentTarget.style.borderColor = '#E2E8F0'}>
+          <button onClick={() => setRefreshKey(k => k + 1)} className="cmd-sync-btn" style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 700, color: '#0F172A', background: '#fff', border: '1px solid #E2E8F0', borderRadius: 12, padding: '10px 18px', cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }} onMouseEnter={e => e.currentTarget.style.borderColor = '#3B82F6'} onMouseLeave={e => e.currentTarget.style.borderColor = '#E2E8F0'}>
             <RefreshCw size={16} className={loading ? 'spin' : ''} /> Synchronize
           </button>
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(240px,1fr))', gap: 20, marginBottom: 32 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(min(240px,100%),1fr))', gap: 20, marginBottom: 32 }}>
         <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}>
           <KpiCard label="Total Revenue" value={`$${(stats?.revenue || 0).toLocaleString()}`} icon={DollarSign} trend="+12.5%" up accent />
         </motion.div>
@@ -2460,7 +2464,7 @@ function AnalyticsSection() {
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
       <h2 style={{ fontSize: 22, fontFamily: 'Outfit,sans-serif', fontWeight: 700, marginBottom: 24 }}>Advanced Analytics</h2>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: 24, marginBottom: 32 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(400px, 100%), 1fr))', gap: 24, marginBottom: 32 }}>
 
         {/* Revenue Chart */}
         <div style={{ background: '#fff', borderRadius: 20, border: '1px solid #E2E8F0', padding: 28, boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)' }}>
@@ -2486,7 +2490,7 @@ function AnalyticsSection() {
 
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24, marginBottom: 32 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(300px, 100%), 1fr))', gap: 24, marginBottom: 32 }}>
 
         {/* Order Status Distribution */}
         <div style={{ background: '#fff', borderRadius: 20, border: '1px solid #E2E8F0', padding: 28, boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)' }}>
@@ -2587,18 +2591,18 @@ function LoyaltySection() {
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-      <div style={{ marginBottom: 36, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-        <div>
+      <div style={{ marginBottom: 36, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 16 }}>
+        <div style={{ minWidth: 0 }}>
           <h2 style={{ fontSize: 28, fontFamily: 'Outfit,sans-serif', fontWeight: 800, color: '#0F172A', margin: 0 }}>Loyalty Management</h2>
           <p style={{ fontSize: 14, color: '#64748B', marginTop: 4 }}>Configure how users earn and spend points.</p>
         </div>
         <button onClick={handleSave} disabled={saving}
-          style={{ padding: '12px 24px', background: G, color: '#fff', border: 'none', borderRadius: 12, fontWeight: 700, cursor: saving ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
+          style={{ flexShrink: 0, padding: '12px 24px', background: G, color: '#fff', border: 'none', borderRadius: 12, fontWeight: 700, cursor: saving ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
           {saving ? <RefreshCw size={16} className="spin" /> : <CheckCircle size={16} />} Save Loyalty Logic
         </button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(340px, 100%), 1fr))', gap: 24 }}>
         <div style={{ background: '#fff', padding: 28, borderRadius: 24, border: '1px solid #E2E8F0' }}>
           <h3 style={{ fontSize: 16, fontWeight: 800, color: '#0F172A', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 10 }}>
             <Star size={18} color={ACCENT} /> Earning Logic
@@ -2627,26 +2631,50 @@ function LoyaltySection() {
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {(settings.loyaltySettings?.multipliers || []).map((m, idx) => (
-              <div key={idx} style={{ padding: '16px', background: '#F8FAFC', borderRadius: 16, border: '1px solid #E2E8F0' }}>
+              <div key={idx} style={{ padding: '16px', background: '#F8FAFC', borderRadius: 16, border: '1px solid #E2E8F0', position: 'relative' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                  <span style={{ fontSize: 12, fontWeight: 800, color: G, textTransform: 'uppercase' }}>{m.role}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span style={{ fontSize: 12, fontWeight: 800, color: G, textTransform: 'uppercase' }}>{m.role}</span>
+                    <button 
+                      onClick={() => {
+                        const newMults = settings.loyaltySettings.multipliers.filter((_, i) => i !== idx);
+                        setSettings({ ...settings, loyaltySettings: { ...settings.loyaltySettings, multipliers: newMults } });
+                      }}
+                      style={{ background: 'none', border: 'none', color: '#EF4444', cursor: 'pointer', padding: 0, fontSize: 10, fontWeight: 700 }}
+                    >
+                      Remove
+                    </button>
+                  </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <input type="number" step="0.1" value={m.multiplier} 
                       onChange={e => {
                         const newMults = [...settings.loyaltySettings.multipliers];
-                        newMults[idx].multiplier = parseFloat(e.target.value);
+                        newMults[idx].multiplier = parseFloat(e.target.value) || 0;
                         setSettings({ ...settings, loyaltySettings: { ...settings.loyaltySettings, multipliers: newMults } });
                       }}
                       style={{ width: 60, padding: '4px 8px', border: '1px solid #E2E8F0', borderRadius: 6, fontSize: 12, fontWeight: 700, textAlign: 'center' }} />
                     <span style={{ fontSize: 12, fontWeight: 700, color: '#64748B' }}>x</span>
                   </div>
                 </div>
-                <p style={{ fontSize: 11, color: '#64748B', margin: 0 }}>This role earns {m.multiplier}x the base points per dollar.</p>
+                <p style={{ fontSize: 11, color: '#64748B', margin: 0 }}>Users with role "{m.role}" earn {m.multiplier}x base points.</p>
               </div>
             ))}
             
-            <button type="button" onClick={() => showToast('Role-based logic is tied to platform tiers.', 'info')}
-              style={{ padding: '12px', background: 'transparent', border: `1.5px dashed #CBD5E1`, borderRadius: 12, color: '#64748B', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+            <button type="button" 
+              onClick={() => {
+                const roleName = prompt('Enter role name (e.g. VIP, Platinum, Wholesale):');
+                if (roleName && roleName.trim()) {
+                  const exists = (settings.loyaltySettings?.multipliers || []).some(m => m.role.toLowerCase() === roleName.trim().toLowerCase());
+                  if (exists) return showToast('Role already exists', 'warning');
+                  
+                  const newMults = [...(settings.loyaltySettings?.multipliers || []), { role: roleName.trim().toLowerCase(), multiplier: 1.0 }];
+                  setSettings({ ...settings, loyaltySettings: { ...settings.loyaltySettings, multipliers: newMults } });
+                }
+              }}
+              style={{ padding: '12px', background: 'transparent', border: `1.5px dashed #CBD5E1`, borderRadius: 12, color: '#64748B', fontSize: 12, fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = G; e.currentTarget.style.color = G; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = '#CBD5E1'; e.currentTarget.style.color = '#64748B'; }}
+            >
               + Add Custom Multiplier
             </button>
           </div>
@@ -2699,7 +2727,7 @@ function GlobalSettingsSection() {
         <p style={{ fontSize: 14, color: '#64748B', marginTop: 4 }}>Site configuration and platform-wide variables.</p>
       </div>
 
-      <form onSubmit={handleSave} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
+      <form onSubmit={handleSave} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(320px, 100%), 1fr))', gap: 32 }}>
         <div style={{ background: '#fff', padding: 32, borderRadius: 24, border: '1px solid #E2E8F0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
           <h3 style={{ fontSize: 16, fontWeight: 800, color: '#0F172A', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 10 }}><Settings size={18} /> General Config</h3>
           
@@ -2918,6 +2946,23 @@ export default function Admin() {
 
       <style>{`
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* Responsive table — horizontal scroll on small screens */
+        .responsive-table-container {
+          width: 100%;
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+        .responsive-table-container table {
+          min-width: 520px;
+        }
+
+        /* Notification dropdown always stays in viewport */
+        .notif-dropdown {
+          right: 16px !important;
+          max-width: calc(100vw - 32px) !important;
+        }
+
         @media (max-width: 768px) {
           .admin-sidebar {
             position: fixed !important;
@@ -2942,9 +2987,23 @@ export default function Admin() {
           .admin-close-btn { display: block !important; }
           .admin-mobile-header { display: block !important; }
           main { padding: 20px 16px !important; }
+
+          /* Command Center header stacks on mobile */
+          .cmd-header {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+          }
+          .cmd-header-actions {
+            width: 100%;
+            justify-content: flex-start !important;
+          }
         }
         @media (max-width: 480px) {
           main { padding: 16px 12px !important; }
+          /* Tighten Command Center title on very small screens */
+          .cmd-title { font-size: 22px !important; }
+          /* Make synchronize button full-width on tiny screens */
+          .cmd-sync-btn { flex: 1; justify-content: center !important; }
         }
       `}</style>
     </div>

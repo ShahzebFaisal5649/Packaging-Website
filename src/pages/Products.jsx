@@ -415,11 +415,11 @@ export default function Products() {
 
         {/* Mobile sidebar overlay */}
         {sidebarOpen && (
-          <div className="fixed inset-0 bg-black/40 z-40" style={{ top: 68 }} onClick={() => setSidebarOpen(false)} />
+          <div className="fixed inset-0 bg-black/40 z-[10005]" onClick={() => setSidebarOpen(false)} />
         )}
 
         {/* Mobile sidebar drawer */}
-        <div className={`products-sidebar-mobile md:hidden fixed left-0 z-50 flex w-full max-w-sm flex-col bg-white p-6 shadow-[4px_0_20px_rgba(0,0,0,0.15)] transition-transform duration-200 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`} style={{ top: 68, bottom: 0, overflowY: 'auto' }}>
+        <div className={`products-sidebar-mobile md:hidden fixed left-0 z-[10010] flex w-full max-w-sm flex-col bg-white p-6 pt-14 shadow-[4px_0_20px_rgba(0,0,0,0.15)] transition-transform duration-200 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`} style={{ top: 0, bottom: 0, overflowY: 'auto' }}>
           <button onClick={() => setSidebarOpen(false)}
             style={{ position: 'absolute', top: 16, right: 16, background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}>
             <X size={20} color="#666" />

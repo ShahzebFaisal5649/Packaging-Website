@@ -300,15 +300,37 @@ router.put('/orders/:userId/:orderId', async (req, res) => {
       // Auto-calculate loyalty points when marked as Delivered
       if (status === 'Delivered' && oldStatus !== 'Delivered') {
         try {
-          const pointsToAdd = Math.floor((order.total || 0) / 10); // 1 point per $10
-          if (pointsToAdd > 0) {
-            await User.findByIdAndUpdate(order.userId, { 
-              $inc: { loyaltyPoints: pointsToAdd } 
-            });
-            console.log(`✅ Added ${pointsToAdd} loyalty points to user ${order.userId}`);
+          const [user, settings] = await Promise.all([
+            User.findById(order.userId),
+            GlobalSettings.findOne()
+          ]);
+
+          if (user && settings) {
+            const basePointsPerDollar = settings.loyaltySettings?.pointsPerDollar || 1;
+            const multipliers = settings.loyaltySettings?.multipliers || [];
+            
+            // Find multiplier for user role (default to 1)
+            const roleMultiplier = multipliers.find(m => m.role === user.role)?.multiplier || 1;
+            
+            const pointsToAdd = Math.floor((order.total || 0) * basePointsPerDollar * roleMultiplier);
+            
+            if (pointsToAdd > 0) {
+              user.loyaltyPoints = (user.loyaltyPoints || 0) + pointsToAdd;
+              await user.save();
+              console.log(`✅ Added ${pointsToAdd} loyalty points to user ${user.email} (Role: ${user.role}, Multiplier: ${roleMultiplier})`);
+              
+              // Notify user about points
+              await sendNotification(
+                user._id,
+                'Loyalty Points Earned!',
+                `Congratulations! You've earned ${pointsToAdd} points from your order ${order.orderId}.`,
+                'loyalty_update',
+                '/profile?tab=loyalty'
+              );
+            }
           }
         } catch (loyaltyErr) {
-          console.error('❌ Failed to add loyalty points:', loyaltyErr.message);
+          console.error('❌ Failed to calculate/add loyalty points:', loyaltyErr.message);
         }
       }
     }

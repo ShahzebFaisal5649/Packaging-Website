@@ -102,8 +102,8 @@ export default function Login() {
       </div>
 
       {/* Right panel — form */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px 24px', backgroundColor: '#F5F2ED' }}>
-        <div style={{ width: '100%', maxWidth: 420 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px 24px', backgroundColor: '#F5F2ED', overflowX: 'hidden', boxSizing: 'border-box', width: '100%' }}>
+        <div style={{ width: '100%', maxWidth: 420, boxSizing: 'border-box' }}>
           <div style={{ marginBottom: 36 }}>
             <h1 style={{ fontSize: 30, fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 700, color: '#1A1A1A', marginBottom: 8 }}>Welcome back</h1>
             <p style={{ fontSize: 14, fontFamily: '"DM Sans", sans-serif', color: '#777' }}>Sign in to manage your orders and designs.</p>
@@ -158,7 +158,7 @@ export default function Login() {
             <div style={{ flex: 1, height: 1, background: '#E0DBD3' }} />
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', width: '100%', overflow: 'hidden' }}>
             <GoogleLogin
               onSuccess={handleGoogleSuccess}
               onError={() => showToast('Google login failed', 'error')}
@@ -167,7 +167,6 @@ export default function Login() {
               size="large"
               text="signin_with"
               shape="rectangular"
-              width={400}
               logo_alignment="left"
             />
           </div>
@@ -181,9 +180,19 @@ export default function Login() {
       </div>
 
       <style>{`
+        .auth-grid {
+          overflow-x: hidden;
+          width: 100%;
+          max-width: 100vw;
+        }
         @media (max-width: 768px) {
           .auth-grid { grid-template-columns: 1fr !important; }
           .auth-left { display: none !important; }
+          .auth-grid > div { padding: 40px 16px !important; }
+          .auth-grid h1 { font-size: 24px !important; }
+        }
+        @media (max-width: 400px) {
+          .auth-grid > div { padding: 32px 12px !important; }
         }
       `}</style>
     </div>

@@ -9,7 +9,7 @@ export default function ToastContainer() {
   const { toasts, removeToast } = useToast();
 
   return (
-    <div style={{
+    <div className="toast-container" style={{
       position: 'fixed',
       top: 24,
       right: 24,
@@ -18,7 +18,7 @@ export default function ToastContainer() {
       flexDirection: 'column',
       gap: 12,
       pointerEvents: 'none',
-      width: '100%',
+      width: 'calc(100% - 48px)',
       maxWidth: 380,
     }}>
       <AnimatePresence>
@@ -26,6 +26,17 @@ export default function ToastContainer() {
           <ToastItem key={toast.id} toast={toast} onRemove={() => removeToast(toast.id)} />
         ))}
       </AnimatePresence>
+      <style>{`
+        @media (max-width: 480px) {
+          .toast-container {
+            top: 12px !important;
+            right: 50% !important;
+            transform: translateX(50%);
+            width: calc(100% - 24px) !important;
+            max-width: 100% !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }
